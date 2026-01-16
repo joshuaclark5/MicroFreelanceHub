@@ -1,6 +1,39 @@
-[00:00:00.901] Server  LOG     ✓ Ready in 616ms
-[00:00:01.623] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:05.459] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:15.058] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:21.154] Browser ERROR   uncaughtError: ChunkLoadError: Failed to load chunk /_next/static/chunks/app_layout_tsx_1cf6b850._.js from module [project]/node_modules/next/dist/compiled/react-server-dom-turbopack/cjs/react-server-dom-turbopack-client.browser.development.js [app-client] (ecmascript)
-[00:00:29.631] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:00.853] Server  LOG     ✓ Ready in 562ms
+[00:00:06.036] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:22.232] Server  ERROR   ⨯ ./app
+An issue occurred while preparing your Next.js app
+Conflicting route and page at /sow/[slug]: route at /sow/[slug]/route and page at /sow/[slug]/page
+
+
+[00:01:22.523] Server  ERROR   ⨯ ./app
+An issue occurred while preparing your Next.js app
+Conflicting route and page at /sow/[slug]: route at /sow/[slug]/route and page at /sow/[slug]/page
+
+
+[00:01:22.552] Server  ERROR   ⨯ ./app
+An issue occurred while preparing your Next.js app
+Conflicting route and page at /sow/[slug]: route at /sow/[slug]/route and page at /sow/[slug]/page
+
+
+[00:01:22.558] Server  ERROR   ⨯ ./app
+An issue occurred while preparing your Next.js app
+Conflicting route and page at /sow/[slug]: route at /sow/[slug]/route and page at /sow/[slug]/page
+
+
+[00:01:22.704] Browser ERROR   uncaughtError: Error: ./app
+An issue occurred while preparing your Next.js app
+Conflicting route and page at /sow/[slug]: route at /sow/[slug]/route and page at /sow/[slug]/page
+
+
+[00:01:22.884] Browser ERROR   ./app
+An issue occurred while preparing your Next.js app
+Conflicting route and page at /sow/[slug]: route at /sow/[slug]/route and page at /sow/[slug]/page
+[00:01:22.884] Browser ERROR   ./app
+An issue occurred while preparing your Next.js app
+Conflicting route and page at /sow/[slug]: route at /sow/[slug]/route and page at /sow/[slug]/page
+[00:01:28.565] Browser ERROR   ./app
+An issue occurred while preparing your Next.js app
+Conflicting route and page at /sow/[slug]: route at /sow/[slug]/route and page at /sow/[slug]/page
+[00:02:14.418] Browser ERROR   ./app
+An issue occurred while preparing your Next.js app
+Conflicting route and page at /sow/[slug]: route at /sow/[slug]/route and page at /sow/[slug]/page
