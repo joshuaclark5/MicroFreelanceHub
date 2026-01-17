@@ -8,7 +8,8 @@ export default function SOWPage({ params }: { params: { slug: string } }) {
   const [loading, setLoading] = useState(true);
   const [signerName, setSignerName] = useState('');
   const [isSigning, setIsSigning] = useState(false);
-  const [copyMsg, setCopyMsg] = useState('Share Link');
+  // 👇 Updated text as requested
+  const [copyMsg, setCopyMsg] = useState('🔗 Copy Link for Client');
   const supabase = createClientComponentClient();
 
   useEffect(() => {
@@ -46,7 +47,8 @@ export default function SOWPage({ params }: { params: { slug: string } }) {
     const url = window.location.href;
     navigator.clipboard.writeText(url);
     setCopyMsg('Copied! ✅');
-    setTimeout(() => setCopyMsg('Share Link'), 2000);
+    // Revert message after 2 seconds
+    setTimeout(() => setCopyMsg('🔗 Copy Link for Client'), 2000);
   };
 
   const handleDownload = () => {

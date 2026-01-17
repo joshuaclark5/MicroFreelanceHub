@@ -20,7 +20,6 @@ export default function CreateSOW() {
     e.preventDefault();
     setLoading(true);
 
-    // 1. Get current user
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
@@ -28,24 +27,26 @@ export default function CreateSOW() {
       return;
     }
 
-    // 2. Insert into the CORRECT table (sow_documents)
-    const { error } = await supabase
+    // Insert the new SOW
+    const { data, error } = await supabase
       .from('sow_documents')
       .insert({
-        user_id: user.id, // IMPORTANT: Link SOW to the user
+        user_id: user.id,
         client_name: formData.client_name,
         title: formData.title,
         price: Number(formData.price),
         deliverables: formData.deliverables,
         status: 'Draft'
-      });
+      })
+      .select() // Important: Return the data so we know the ID
+      .single();
 
     if (error) {
       alert('Error creating SOW: ' + error.message);
       setLoading(false);
     } else {
-      // Success! Go to dashboard
-      router.push('/dashboard');
+      // 🚀 NEW FLOW: Go straight to the SOW page (The "Preview")
+      router.push(`/sow/${data.id}`);
       router.refresh();
     }
   };
@@ -114,7 +115,7 @@ export default function CreateSOW() {
               disabled={loading}
               className="w-2/3 bg-black text-white py-3 rounded-lg font-bold"
             >
-              {loading ? 'Creating...' : 'Create Project'}
+              {loading ? 'Creating...' : 'Create & Preview'}
             </button>
           </div>
         </form>
