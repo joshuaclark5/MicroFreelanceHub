@@ -1,24 +1,25 @@
-import './globals.css';
-import type { Metadata } from 'next';
-import Providers from './providers';
-import Navbar from './components/Navbar'; // Import the new component
+import './globals.css'
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'MicroFreelanceHub',
-  description: 'Create clean and structured scopes of work fast',
-};
+  description: 'Create professional SOWs in seconds',
+}
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="en">
-      <body className="bg-gray-50 min-h-screen text-gray-900">
-        <Providers>
-          <Navbar /> {/* This adds the bar to the top */}
-          <main className="container mx-auto px-4 py-8">
-            {children}
-          </main>
-        </Providers>
+      <body className={inter.className}>
+        {/* We removed the Navbar here so it doesn't duplicate on the Dashboard */}
+        {children}
       </body>
     </html>
-  );
+  )
 }
