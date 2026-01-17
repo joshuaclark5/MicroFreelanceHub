@@ -12,9 +12,13 @@ export default function Dashboard() {
   // Fetch Data
   useEffect(() => {
     const fetchData = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       const { data, error } = await supabase
         .from('sow_documents')
         .select('*')
+        .eq('user_id', user.id) // Double-check security
         .order('created_at', { ascending: false });
 
       if (error) console.error('Error:', error);
@@ -45,18 +49,31 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      {/* 📱 Mobile Header (Stacked) */}
-      <div className="bg-white border-b border-gray-200 p-5 sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      {/* 📱 Mobile Header (Fixed Layout) */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex flex-row items-center justify-between">
+          
+          {/* Left: Branding */}
           <div>
-            <h1 className="text-xl font-bold text-gray-900">My Dashboard</h1>
-            <p className="text-sm text-gray-500">Manage your projects</p>
+            <h1 className="text-lg font-bold text-gray-900 leading-tight">MicroFreelance</h1>
+            <p className="text-xs text-gray-500">Dashboard</p>
           </div>
-          <Link href="/create">
-            <button className="w-full sm:w-auto bg-black text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-800 transition-all shadow-md">
-              + New SOW
-            </button>
-          </Link>
+
+          {/* Right: Actions */}
+          <div className="flex items-center gap-2">
+            <Link href="/create">
+              <button className="bg-black text-white text-sm px-3 py-2 rounded-lg font-medium shadow-sm whitespace-nowrap">
+                + New
+              </button>
+            </Link>
+            
+            {/* Small Logout Icon Button for Mobile */}
+            <form action="/auth/signout" method="post">
+               <button className="text-xs text-gray-500 border border-gray-200 px-3 py-2 rounded-lg hover:bg-gray-50">
+                 Log Out
+               </button>
+            </form>
+          </div>
         </div>
       </div>
 
@@ -102,7 +119,7 @@ export default function Dashboard() {
                   </div>
 
                   <div className="text-lg font-medium text-gray-900 mb-4">
-                    ${sow.price?.toLocaleString()}
+                    ${sow.price ? sow.price.toLocaleString() : '0'}
                   </div>
 
                   {/* Action Buttons */}
