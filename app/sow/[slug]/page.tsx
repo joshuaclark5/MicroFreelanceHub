@@ -1,120 +1,149 @@
-import { createClient } from '../../supabaseServer'; // Go up 2 levels to find the server file
-import { notFound } from 'next/navigation';
-import SignButton from '../../components/SignButton';
+'use client';
 
-export default async function SOWPage({ params }: { params: { slug: string } }) {
-  const supabase = createClient();
+import { useEffect, useState } from 'react';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useRouter } from 'next/navigation';
 
-  // 1. Fetch the SOW by the unique slug in the URL
-  const { data: sow } = await supabase
-    .from('sow_documents')
-    .select('*')
-    .eq('slug', params.slug)
-    .single();
+export default function SOWPage({ params }: { params: { slug: string } }) {
+  const [sow, setSow] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [signerName, setSignerName] = useState('');
+  const [isSigning, setIsSigning] = useState(false);
+  const supabase = createClientComponentClient();
 
-  if (!sow) {
-    return notFound();
-  }
+  useEffect(() => {
+    const fetchSOW = async () => {
+      // 👇 FIXED: Changed 'sows' to 'sow_documents'
+      const { data, error } = await supabase
+        .from('sow_documents')
+        .select('*')
+        .eq('id', params.slug)
+        .single();
+
+      if (error) {
+        console.error('Error fetching SOW:', error);
+      } else {
+        setSow(data);
+      }
+      setLoading(false);
+    };
+
+    fetchSOW();
+  }, [params.slug, supabase]);
+
+  const handleSign = async () => {
+    if (!signerName.trim()) return;
+    setIsSigning(true);
+
+    // 👇 FIXED: Changed 'sows' to 'sow_documents'
+    const { error } = await supabase
+      .from('sow_documents')
+      .update({
+        status: 'Signed',
+        signed_name: signerName,
+        signed_date: new Date().toISOString(),
+      })
+      .eq('id', params.slug);
+
+    if (error) {
+      alert('Error signing: ' + error.message);
+      setIsSigning(false);
+    } else {
+      window.location.reload();
+    }
+  };
+
+  if (loading) return <div className="p-8 text-center">Loading contract...</div>;
+  if (!sow) return <div className="p-8 text-center text-red-500">Contract not found.</div>;
 
   return (
-    <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6">
-      <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-lg overflow-hidden">
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      {/* Mobile-Friendly Container */}
+      <div className="max-w-3xl mx-auto bg-white shadow-xl rounded-xl overflow-hidden border border-gray-100">
         
-        {/* Header / Brand Section */}
-        <div className="bg-slate-900 px-8 py-10 text-white flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Scope of Work</h1>
-            <p className="text-slate-400 mt-1">Reference: #{sow.slug.slice(0, 8).toUpperCase()}</p>
-          </div>
-          <div className="text-right">
-            <h2 className="text-xl font-semibold">{sow.client_name}</h2>
-            <p className="text-slate-400 text-sm mt-1">Created: {new Date(sow.created_at).toLocaleDateString()}</p>
-          </div>
-        </div>
-
-        {/* Project Summary Stats */}
-        <div className="grid grid-cols-3 border-b border-gray-200">
-          <div className="p-6 border-r border-gray-200">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Project Value</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">
-              {sow.total_amount.toLocaleString()} <span className="text-sm font-medium text-gray-500">{sow.currency}</span>
-            </p>
-          </div>
-          <div className="p-6 border-r border-gray-200">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Timeline</p>
-            <p className="text-lg font-medium text-gray-900 mt-1">{sow.timeline}</p>
-          </div>
-          
-          {/* 👇 THIS IS THE UPDATED SMART SECTION 👇 */}
-          <div className="p-6">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Status</p>
-            <span className={`inline-flex mt-2 items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-              sow.status === 'Signed' 
-                ? 'bg-green-100 text-green-800' 
-                : 'bg-blue-100 text-blue-800'
+        {/* Header Section */}
+        <div className="bg-slate-900 px-6 py-8 text-white">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <p className="text-slate-400 text-sm uppercase tracking-wider font-semibold">Scope of Work</p>
+              <h1 className="text-2xl sm:text-3xl font-bold mt-1">{sow.title}</h1>
+            </div>
+            <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${
+              sow.status === 'Signed' ? 'bg-green-500 text-white' : 'bg-yellow-500 text-black'
             }`}>
-              {sow.status || 'Awaiting Signature'}
-            </span>
+              {sow.status}
+            </div>
           </div>
-          {/* 👆 END UPDATE 👆 */}
-          
         </div>
 
-        {/* The Meat: Scope & Deliverables */}
-        <div className="p-8 space-y-8">
+        {/* Contract Details */}
+        <div className="p-6 sm:p-10 space-y-8">
           
-          <section>
-            <h3 className="text-lg font-bold text-gray-900 border-b pb-2 mb-4">Project Scope</h3>
-            <div className="prose text-gray-600 leading-relaxed">
-              <p>{sow.project_scope}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pb-8 border-b border-gray-100">
+            <div>
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider">Client Name</label>
+              <p className="text-lg font-medium text-gray-900 mt-1">{sow.client_name}</p>
             </div>
-          </section>
+            <div>
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider">Project Price</label>
+              <p className="text-lg font-medium text-gray-900 mt-1">${sow.price}</p>
+            </div>
+          </div>
 
-          <section>
-            <h3 className="text-lg font-bold text-gray-900 border-b pb-2 mb-4">Milestones & Payment Schedule</h3>
-            <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
-              <table className="min-w-full divide-y divide-gray-300">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">Due Date</th>
-                    <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Amount</th>
-                    <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 bg-white">
-                  {sow.milestones?.map((m: any, i: number) => (
-                    <tr key={i}>
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
-                        {m.due_date}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                        ${m.amount?.toLocaleString()}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 capitalize">
-                        {m.status}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          <div>
+            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Deliverables & Scope</label>
+            <div className="bg-gray-50 p-5 rounded-lg border border-gray-100 text-gray-700 leading-relaxed whitespace-pre-wrap">
+              {sow.deliverables}
             </div>
-          </section>
+          </div>
 
-          {/* Signature Block */}
-          <section className="pt-10 mt-10 border-t border-gray-100">
-            <div className="grid grid-cols-2 gap-20">
-              <div>
-                <p className="border-b-2 border-gray-300 h-10"></p>
-                <p className="mt-2 text-sm font-medium text-gray-900">Client Signature</p>
+          {/* Signature Area */}
+          <div className="pt-6 border-t border-gray-100">
+            {sow.status === 'Signed' ? (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+                <div className="flex items-center gap-3 text-green-800 font-bold text-lg mb-2">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  Contract Signed
+                </div>
+                <p className="text-green-700">Signed by: <strong>{sow.signed_name}</strong></p>
+                <p className="text-green-700 text-sm">Date: {new Date(sow.signed_date).toLocaleDateString()}</p>
               </div>
-              <div>
-                {/* 👇 Pass the status from the DB into the button */}
-                <SignButton sowId={sow.id} initialStatus={sow.status} />
+            ) : (
+              <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Accept & Sign</h3>
+                <p className="text-sm text-gray-500 mb-4">
+                  By typing your name below, you agree to the deliverables and price listed above.
+                </p>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <input 
+                      type="text" 
+                      placeholder="e.g. Jane Doe"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                      value={signerName}
+                      onChange={(e) => setSignerName(e.target.value)}
+                    />
+                  </div>
+                  
+                  <button 
+                    onClick={handleSign}
+                    disabled={!signerName.trim() || isSigning}
+                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-4 rounded-lg transition-all shadow-lg hover:shadow-xl transform active:scale-95"
+                  >
+                    {isSigning ? 'Signing...' : 'Sign Contract'}
+                  </button>
+                </div>
               </div>
-            </div>
-          </section>
+            )}
+          </div>
 
         </div>
+      </div>
+      
+      <div className="mt-8 text-center">
+        <p className="text-gray-400 text-sm">Powered by MicroFreelanceHub</p>
       </div>
     </div>
   );
