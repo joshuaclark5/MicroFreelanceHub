@@ -44,8 +44,14 @@ export default function CreateProject() {
     if (!formData.clientName) return alert("Please enter the Client Name first.");
     if (!formData.description) return alert("Please describe the project.");
     
+    // 🔒 PAYWALL CHECK
+    if (!isPro) {
+        // Redirect to your Stripe Payment Link
+        window.location.href = 'https://buy.stripe.com/00wbIVa99ais1Ue5RY48002';
+        return;
+    }
+    
     setLoading(true);
-    // The backend now guarantees a response (AI or Fallback)
     const qs = await generateQuestions(formData.description);
     
     if (qs && qs.length > 0) {
@@ -73,7 +79,7 @@ export default function CreateProject() {
       setStep('final');
     } else {
       alert("AI failed to generate contract. You can fill it in manually.");
-      setStep('final'); // Move to final step anyway so user isn't stuck
+      setStep('final'); 
     }
     setLoading(false);
   };
@@ -162,22 +168,41 @@ export default function CreateProject() {
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
                 />
               </div>
-              <button
-                onClick={handleAnalyze}
-                disabled={loading || !isPro}
-                className={`w-full py-4 rounded-lg font-bold text-white transition-all shadow-md ${
-                  isPro ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-400 cursor-not-allowed'
-                }`}
-              >
-                {loading ? 'Analyzing...' : isPro ? 'Start AI Interview 🤖' : 'Upgrade to use AI'}
-              </button>
+
+              {/* 👇 THE TWO PATHS: AI or MANUAL */}
+              <div className="grid grid-cols-1 gap-3 pt-2">
+                {/* 1. AI Button (Premium) */}
+                <button
+                  onClick={handleAnalyze}
+                  disabled={loading}
+                  className={`w-full py-4 rounded-lg font-bold text-white transition-all shadow-md flex items-center justify-center gap-2 relative overflow-hidden ${
+                    isPro ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-900 hover:bg-black'
+                  }`}
+                >
+                  {loading ? (
+                    <span>Analyzing...</span>
+                  ) : isPro ? (
+                    <span>✨ Start AI Interview (Pro)</span>
+                  ) : (
+                    <span>🔒 Unlock AI Assistant ($19/mo)</span>
+                  )}
+                </button>
+
+                {/* 2. Manual Button (Free) */}
+                <button
+                    onClick={() => setStep('final')}
+                    className="w-full py-3 rounded-lg font-bold text-gray-600 bg-white border-2 border-gray-200 hover:border-gray-400 hover:text-gray-800 transition-all text-sm"
+                >
+                    ✍️ Skip & Write Manually (Free)
+                </button>
+              </div>
             </div>
           )}
 
           {/* QUESTIONS STEP */}
           {step === 'questions' && (
             <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-               <div className="bg-indigo-50 p-4 rounded text-indigo-900 text-sm mb-4 border border-indigo-100">
+                <div className="bg-indigo-50 p-4 rounded text-indigo-900 text-sm mb-4 border border-indigo-100">
                 <strong>AI Assistant:</strong> "I have analyzed the request for <strong>{formData.clientName}</strong>. Please answer these 3 questions:"
               </div>
               {questions.map((q, index) => (
@@ -210,35 +235,42 @@ export default function CreateProject() {
           {step === 'final' && (
             <div className="animate-in fade-in zoom-in duration-300">
               
-              {/* ✨ AI REFINEMENT BAR ✨ */}
-              <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-100 mb-6 flex gap-2 items-center">
-                <div className="flex-1">
-                  <label className="block text-xs font-bold text-indigo-800 uppercase mb-1">
-                    AI Editor (Make changes)
-                  </label>
-                  <input 
-                    type="text"
-                    value={refineText}
-                    onChange={(e) => setRefineText(e.target.value)}
-                    placeholder="e.g. 'Remove the SEO part' or 'Add a rush fee of $500'"
-                    className="w-full px-3 py-2 rounded border border-indigo-200 focus:outline-none text-sm"
-                    onKeyDown={(e) => e.key === 'Enter' && handleRefine()}
-                  />
-                </div>
-                <button 
-                  type="button"
-                  onClick={handleRefine}
-                  disabled={isRefining || !refineText}
-                  className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-indigo-700 h-10 mt-5 min-w-[100px] flex justify-center items-center"
-                >
-                  {isRefining ? (
-                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                  ) : 'Update'}
-                </button>
-              </div>
+              {/* ✨ AI REFINEMENT BAR (ONLY FOR PRO) ✨ */}
+              {isPro ? (
+                  <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-100 mb-6 flex gap-2 items-center">
+                    <div className="flex-1">
+                      <label className="block text-xs font-bold text-indigo-800 uppercase mb-1">
+                        AI Editor (Make changes)
+                      </label>
+                      <input 
+                        type="text"
+                        value={refineText}
+                        onChange={(e) => setRefineText(e.target.value)}
+                        placeholder="e.g. 'Remove the SEO part' or 'Add a rush fee of $500'"
+                        className="w-full px-3 py-2 rounded border border-indigo-200 focus:outline-none text-sm"
+                        onKeyDown={(e) => e.key === 'Enter' && handleRefine()}
+                      />
+                    </div>
+                    <button 
+                      type="button"
+                      onClick={handleRefine}
+                      disabled={isRefining || !refineText}
+                      className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-indigo-700 h-10 mt-5 min-w-[100px] flex justify-center items-center"
+                    >
+                      {isRefining ? '...' : 'Update'}
+                    </button>
+                  </div>
+              ) : (
+                  <div className="bg-gray-100 p-4 rounded-lg border border-gray-200 mb-6 text-center">
+                      <p className="text-sm text-gray-500 mb-2">Want AI to rewrite this for you?</p>
+                      <button 
+                        onClick={() => window.location.href = 'https://buy.stripe.com/00wbIVa99ais1Ue5RY48002'}
+                        className="text-xs font-bold bg-black text-white px-3 py-1.5 rounded-full"
+                      >
+                        ⚡ Upgrade to Pro
+                      </button>
+                  </div>
+              )}
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
@@ -268,10 +300,10 @@ export default function CreateProject() {
                     <label className="block text-sm font-bold text-gray-700 mb-1">Client Name</label>
                     <input
                       required
-                      readOnly
                       type="text"
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-100 text-gray-500"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50"
                       value={formData.clientName}
+                      onChange={(e) => setFormData({...formData, clientName: e.target.value})}
                     />
                   </div>
                   <div>
