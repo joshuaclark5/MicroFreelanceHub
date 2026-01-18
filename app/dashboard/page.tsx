@@ -5,11 +5,16 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-function UpgradeButton() {
+// 👇 UPDATED BUTTON: Now accepts userId to track the payment securely
+function UpgradeButton({ userId }: { userId: string }) {
+  const handleUpgrade = () => {
+    // We attach the userId so Stripe knows exactly who is paying, even if emails don't match
+    window.location.href = `https://buy.stripe.com/00wbIVa99ais1Ue5RY48002?client_reference_id=${userId}`;
+  };
+
   return (
     <button 
-      // 👇 THIS IS YOUR LIVE STRIPE SUBSCRIPTION LINK
-      onClick={() => window.location.href = 'https://buy.stripe.com/00wbIVa99ais1Ue5RY48002'} 
+      onClick={handleUpgrade} 
       className="bg-black text-white hover:bg-gray-800 border border-gray-700 px-5 py-2 rounded-full text-sm font-bold transition-all flex items-center gap-2 shadow-lg"
     >
       <span>💎 Upgrade to Pro ($19/mo)</span>
@@ -22,6 +27,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [isPro, setIsPro] = useState(false);
   const [userEmail, setUserEmail] = useState('');
+  const [userId, setUserId] = useState(''); // Store the ID
   
   const supabase = createClientComponentClient();
   const router = useRouter();
@@ -36,6 +42,30 @@ export default function Dashboard() {
           return;
         }
         setUserEmail(user.email || '');
+        setUserId(user.id); // Save ID for the button
+
+        // 🔍 RECOVERY LOGIC
+        const pendingSOW = localStorage.getItem('pendingSOW');
+        if (pendingSOW) {
+          try {
+            const parsedData = JSON.parse(pendingSOW);
+            const { error: insertError } = await supabase.from('sow_documents').insert({
+              user_id: user.id,
+              client_name: parsedData.client_name,
+              title: parsedData.title,
+              price: parsedData.price,
+              deliverables: parsedData.deliverables,
+              status: 'Draft'
+            });
+            
+            if (!insertError) {
+              console.log("✅ Recovered unsaved work!");
+              localStorage.removeItem('pendingSOW'); 
+            }
+          } catch (e) {
+            console.error("Failed to recover data", e);
+          }
+        }
 
         // 1. Fetch Projects
         const { data: sowData } = await supabase
@@ -70,7 +100,6 @@ export default function Dashboard() {
     if (!error) setSows(sows.filter((s) => s.id !== id));
   };
 
-  // 👋 Logout Logic
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.refresh();
@@ -86,7 +115,6 @@ export default function Dashboard() {
       <div className="bg-white border-b border-gray-200 sticky top-0 z-20 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           
-          {/* Logo & Welcome */}
           <div className="flex items-center gap-3">
              <div className="bg-black text-white w-10 h-10 flex items-center justify-center rounded-lg font-bold text-xl">M</div>
              <div>
@@ -96,7 +124,6 @@ export default function Dashboard() {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* 🚪 SIGN OUT BUTTON */}
             <button 
               onClick={handleLogout}
               className="text-xs font-bold text-gray-500 hover:text-red-600 uppercase tracking-wide px-3"
@@ -105,7 +132,8 @@ export default function Dashboard() {
             </button>
 
             {!isPro ? (
-              <UpgradeButton />
+              // Pass the userId to the smart button
+              <UpgradeButton userId={userId} />
             ) : (
               <span className="bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1.5 rounded-full border border-indigo-200 shadow-sm">
                 💎 PRO MEMBER
