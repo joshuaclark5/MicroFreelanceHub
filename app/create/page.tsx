@@ -109,13 +109,35 @@ export default function CreateProject() {
     setIsRefining(false);
   };
 
-  // Step 4: Save
+  // Step 4: Save (UPDATED TO HANDLE GUESTS)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
 
+    // 1. Check if User is Logged In
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // 🛑 IF USER IS NOT LOGGED IN:
+    if (!user) {
+      // A. Save their hard work to LocalStorage so it isn't lost
+      localStorage.setItem('pendingSOW', JSON.stringify({
+        client_name: formData.clientName,
+        title: formData.projectTitle,
+        price: parseFloat(formData.price) || 0,
+        deliverables: formData.deliverables,
+        status: 'Draft'
+      }));
+
+      // B. Alert them clearly
+      alert("Please sign in (or create an account) to save your Project!");
+
+      // C. Redirect to Login
+      // We add '?next=/dashboard' so you can eventually add logic to redirect them back
+      window.location.href = '/login?next=/dashboard'; 
+      return;
+    }
+
+    // ✅ IF USER IS LOGGED IN: Proceed as normal
     const { error } = await supabase.from('sow_documents').insert({
       user_id: user.id,
       client_name: formData.clientName,
