@@ -3,8 +3,6 @@
 import { useEffect, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/navigation';
-// 👇 FIXED IMPORT: Only 2 dots
-import { refineSOW } from '../../actions/generateSOW';
 
 export default function EditPage({ params }: { params: { id: string } }) {
   const supabase = createClientComponentClient();
@@ -34,14 +32,27 @@ export default function EditPage({ params }: { params: { id: string } }) {
     load();
   }, [params.id, supabase]);
 
+  // ✅ THE NEW FIX: Use fetch() instead of Server Actions
   const handleRefine = async () => {
     if (!refineText) return;
     setIsRefining(true);
     
-    // Call backend
-    const result = await refineSOW(formData.deliverables, Number(formData.price) || 0, refineText);
-    
-    if (result) {
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          deliverables: formData.deliverables,
+          price: Number(formData.price) || 0,
+          instructions: refineText
+        })
+      });
+
+      if (!response.ok) throw new Error('AI request failed');
+
+      const result = await response.json();
+      
+      // Update the form with the new AI data
       setFormData(prev => ({
         ...prev,
         title: result.title || prev.title,
@@ -49,10 +60,13 @@ export default function EditPage({ params }: { params: { id: string } }) {
         price: result.price?.toString() || prev.price
       }));
       setRefineText(""); 
-    } else {
-      alert("AI failed. Check the VS Code terminal for the exact error message.");
+
+    } catch (err) {
+      console.error(err);
+      alert("AI failed. Try again.");
+    } finally {
+      setIsRefining(false);
     }
-    setIsRefining(false);
   };
 
   const handleUpdate = async (e: React.FormEvent) => {
