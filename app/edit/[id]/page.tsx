@@ -5,9 +5,9 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/navigation';
 
 export default function EditPage({ params }: { params: { id: string } }) {
-  const supabase = createClientComponentClient();
   const router = useRouter();
   
+  // 1. STATE DEFINITIONS
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   
@@ -19,8 +19,12 @@ export default function EditPage({ params }: { params: { id: string } }) {
     client_name: '', title: '', price: '', deliverables: '', payment_link: ''
   });
 
+  // 2. LOAD DATA (Supabase is initialized INSIDE here, safely)
   useEffect(() => {
     const load = async () => {
+      // ✅ SAFE: Initializing here prevents the cookie crash
+      const supabase = createClientComponentClient();
+      
       const { data } = await supabase.from('sow_documents').select('*').eq('id', params.id).single();
       if (data) setFormData({
         client_name: data.client_name || '', title: data.title || '',
@@ -30,14 +34,16 @@ export default function EditPage({ params }: { params: { id: string } }) {
       setLoading(false);
     };
     load();
-  }, [params.id, supabase]);
+  }, [params.id]);
 
-  // ✅ THE NEW FIX: Use fetch() instead of Server Actions
+  // 3. AI HANDLER (Using standard fetch, no Supabase needed here)
   const handleRefine = async () => {
     if (!refineText) return;
     setIsRefining(true);
     
     try {
+      console.log("🚀 Sending to AI:", { deliverables: formData.deliverables, instructions: refineText });
+
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -51,27 +57,43 @@ export default function EditPage({ params }: { params: { id: string } }) {
       if (!response.ok) throw new Error('AI request failed');
 
       const result = await response.json();
+      console.log("✅ AI Responded:", result); 
       
-      // Update the form with the new AI data
+      // Handle Capitalization Variations
+      const newDeliverables = result.deliverables || result.Deliverables || result.scope || result.Scope;
+      const newTitle = result.title || result.Title;
+      const newPrice = result.price || result.Price;
+
+      if (!newDeliverables && !newPrice && !newTitle) {
+        alert("The AI replied, but didn't return valid data. Check the Console (F12).");
+        return;
+      }
+
       setFormData(prev => ({
         ...prev,
-        title: result.title || prev.title,
-        deliverables: result.deliverables || prev.deliverables,
-        price: result.price?.toString() || prev.price
+        title: newTitle || prev.title,
+        deliverables: newDeliverables || prev.deliverables,
+        price: newPrice ? newPrice.toString() : prev.price
       }));
+      
       setRefineText(""); 
 
     } catch (err) {
-      console.error(err);
+      console.error("❌ Error:", err);
       alert("AI failed. Try again.");
     } finally {
       setIsRefining(false);
     }
   };
 
+  // 4. SAVE HANDLER (Initialize Supabase just for this action)
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+    
+    // ✅ SAFE: Initializing here is fine because it's an event, not a render
+    const supabase = createClientComponentClient();
+    
     await supabase.from('sow_documents').update({ 
       ...formData, price: Number(formData.price) 
     }).eq('id', params.id);

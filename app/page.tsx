@@ -1,14 +1,35 @@
+'use client';
+
 import Link from 'next/link';
-import { createClient } from './supabaseServer';
-import { redirect } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useRouter } from 'next/navigation';
 
-export default async function Home() {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+export default function Home() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
-  // 1. If logged in, go straight to Dashboard
-  if (user) {
-    redirect('/dashboard');
+  useEffect(() => {
+    const checkUser = async () => {
+      // 🛡️ Safe: This runs in the browser, where cookie access is allowed
+      const supabase = createClientComponentClient();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (user) {
+        // If logged in, go to Dashboard
+        router.push('/dashboard');
+      } else {
+        // If not, show the page
+        setLoading(false);
+      }
+    };
+    
+    checkUser();
+  }, [router]);
+
+  // Prevent flash of content while checking auth
+  if (loading) {
+    return <div className="min-h-screen bg-slate-900" />; 
   }
 
   // 2. If NOT logged in, show the Welcome Screen
