@@ -4,11 +4,11 @@ import { useEffect, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { MoreVertical, Edit2, Copy, Trash2, X, CheckSquare } from 'lucide-react';
 
 // 👇 UPDATED BUTTON: Now accepts userId to track the payment securely
 function UpgradeButton({ userId }: { userId: string }) {
   const handleUpgrade = () => {
-    // We attach the userId so Stripe knows exactly who is paying, even if emails don't match
     window.location.href = `https://buy.stripe.com/00wbIVa99ais1Ue5RY48002?client_reference_id=${userId}`;
   };
 
@@ -27,10 +27,23 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [isPro, setIsPro] = useState(false);
   const [userEmail, setUserEmail] = useState('');
-  const [userId, setUserId] = useState(''); 
+  const [userId, setUserId] = useState('');
+  
+  // 🆕 STATE FOR UI MODES
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null); // Tracks which dropdown is open
+  const [processing, setProcessing] = useState(false);
   
   const supabase = createClientComponentClient();
   const router = useRouter();
+
+  // Close dropdown if clicking outside
+  useEffect(() => {
+    const closeMenu = () => setOpenMenuId(null);
+    if (openMenuId) document.addEventListener('click', closeMenu);
+    return () => document.removeEventListener('click', closeMenu);
+  }, [openMenuId]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,75 +57,39 @@ export default function Dashboard() {
         setUserEmail(user.email || '');
         setUserId(user.id); 
 
-        // ---------------------------------------------------------
-        // 🔮 MAGIC CLONE LOGIC (New Feature)
-        // Check if the user came from a "Use This Template" button
-        // ---------------------------------------------------------
+        // Check for pending template clone
         const pendingTemplateSlug = localStorage.getItem('pending_template');
-      
         if (pendingTemplateSlug) {
-          console.log("🚀 Found pending template:", pendingTemplateSlug);
-          
-          // A. Find the master template in the DB
           const { data: template } = await supabase
             .from('sow_documents')
-            .select('*')
+            // @ts-ignore
             .eq('slug', pendingTemplateSlug)
             .single();
 
           if (template) {
-            // B. Clone it for THIS user
             const { data: newProject, error } = await supabase
               .from('sow_documents')
               .insert({
-                user_id: user.id, // Assign to the NEW user
+                user_id: user.id,
                 title: template.title,
                 client_name: '[Your Client Name]',
                 price: template.price,
                 deliverables: template.deliverables,
                 status: 'Draft',
-                slug: null // Important: It's a private project now, so clear the slug
+                slug: null 
               })
               .select()
               .single();
 
             if (!error && newProject) {
-              // C. Cleanup and Redirect straight to the new project
-              console.log("✅ Template cloned successfully!");
               localStorage.removeItem('pending_template');
               router.push(`/sow/${newProject.id}`); 
-              return; // Stop loading the rest of the dashboard
+              return; 
             }
           }
         }
-        // ---------------------------------------------------------
-        // END MAGIC CLONE LOGIC
-        // ---------------------------------------------------------
 
-
-        // 🔍 OLD RECOVERY LOGIC (Kept for safety)
-        const pendingSOW = localStorage.getItem('pendingSOW');
-        if (pendingSOW) {
-          try {
-            const parsedData = JSON.parse(pendingSOW);
-            const { error: insertError } = await supabase.from('sow_documents').insert({
-              user_id: user.id,
-              client_name: parsedData.client_name,
-              title: parsedData.title,
-              price: parsedData.price,
-              deliverables: parsedData.deliverables,
-              status: 'Draft'
-            });
-            
-            if (!insertError) {
-              localStorage.removeItem('pendingSOW'); 
-            }
-          } catch (e) {
-            console.error("Failed to recover data", e);
-          }
-        }
-
-        // 1. Fetch Projects
+        // Fetch Projects
         const { data: sowData } = await supabase
           .from('sow_documents')
           .select('*')
@@ -121,7 +98,7 @@ export default function Dashboard() {
 
         if (sowData) setSows(sowData);
 
-        // 2. Fetch Pro Status
+        // Fetch Pro Status
         const { data: profile } = await supabase
           .from('profiles')
           .select('is_pro')
@@ -139,10 +116,104 @@ export default function Dashboard() {
     fetchData();
   }, [supabase, router]);
 
+  // 🗑️ SINGLE ACTIONS (From Dropdown)
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this project?')) return;
     const { error } = await supabase.from('sow_documents').delete().eq('id', id);
-    if (!error) setSows(sows.filter((s) => s.id !== id));
+    if (!error) {
+      setSows(sows.filter((s) => s.id !== id));
+    }
+  };
+
+  const handleDuplicate = async (sow: any) => {
+    setProcessing(true);
+    const { data: newDoc, error } = await supabase
+        .from('sow_documents')
+        .insert({
+          user_id: userId,
+          title: `${sow.title} (Copy)`,
+          client_name: sow.client_name,
+          price: sow.price,
+          deliverables: sow.deliverables,
+          status: 'Draft',
+          slug: null 
+        })
+        .select()
+        .single();
+
+    if (!error && newDoc) {
+      setSows([newDoc, ...sows]);
+    }
+    setProcessing(false);
+  };
+
+  // 🗑️ BULK DELETE
+  const handleBulkDelete = async () => {
+    if (!confirm(`Are you sure you want to delete ${selectedIds.length} projects?`)) return;
+    
+    setProcessing(true);
+    const { error } = await supabase
+      .from('sow_documents')
+      .delete()
+      .in('id', selectedIds);
+
+    if (!error) {
+      setSows(sows.filter((s) => !selectedIds.includes(s.id)));
+      setSelectedIds([]); 
+      setSelectionMode(false);
+    }
+    setProcessing(false);
+  };
+
+  // 👯 BULK DUPLICATE
+  const handleBulkDuplicate = async () => {
+    setProcessing(true);
+    const { data: originals } = await supabase
+      .from('sow_documents')
+      .select('*')
+      .in('id', selectedIds);
+
+    if (originals && originals.length > 0) {
+      const copies = originals.map(doc => ({
+        user_id: userId,
+        title: `${doc.title} (Copy)`,
+        client_name: doc.client_name,
+        price: doc.price,
+        deliverables: doc.deliverables,
+        status: 'Draft',
+        slug: null 
+      }));
+
+      const { data: newDocs, error } = await supabase
+        .from('sow_documents')
+        .insert(copies)
+        .select();
+
+      if (!error && newDocs) {
+        setSows([...newDocs, ...sows]);
+        setSelectedIds([]);
+        setSelectionMode(false);
+      }
+    }
+    setProcessing(false);
+  };
+
+  // ☑️ TOGGLE SELECTION
+  const toggleSelect = (id: string) => {
+    if (selectedIds.includes(id)) {
+      setSelectedIds(selectedIds.filter((sid) => sid !== id));
+    } else {
+      setSelectedIds([...selectedIds, id]);
+    }
+  };
+
+  // ☑️ SELECT ALL
+  const toggleSelectAll = () => {
+    if (selectedIds.length === sows.length) {
+      setSelectedIds([]); 
+    } else {
+      setSelectedIds(sows.map((s) => s.id)); 
+    }
   };
 
   const handleLogout = async () => {
@@ -154,7 +225,7 @@ export default function Dashboard() {
   if (loading) return <div className="p-12 text-center text-gray-500">Loading Dashboard...</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 relative">
+    <div className="min-h-screen bg-gray-50 pb-32 relative">
       
       {/* HEADER */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-20 shadow-sm">
@@ -177,7 +248,6 @@ export default function Dashboard() {
             </button>
 
             {!isPro ? (
-              // Pass the userId to the smart button
               <UpgradeButton userId={userId} />
             ) : (
               <span className="bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1.5 rounded-full border border-indigo-200 shadow-sm">
@@ -221,46 +291,156 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* PROJECTS LIST */}
-        <div>
-          <h2 className="text-xl font-bold text-gray-900 mb-6 px-1">Your Projects</h2>
-          <div className="space-y-4">
-            {sows.length === 0 ? (
-              <div className="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-gray-200">
-                <p className="text-gray-500 font-medium">No projects yet.</p>
-                <p className="text-sm text-gray-400 mt-2">Tap "+ New Project" to create your first contract.</p>
+        {/* PROJECTS LIST HEADER */}
+        <div className="flex items-center justify-between mb-4 px-1 min-h-[32px]">
+          <h2 className="text-xl font-bold text-gray-900">Your Projects</h2>
+          
+          {/* SELECTION TOGGLE */}
+          {sows.length > 0 && (
+            selectionMode ? (
+              <div className="flex items-center gap-4 animate-in fade-in slide-in-from-right-2">
+                 <button onClick={() => setSelectionMode(false)} className="text-sm font-bold text-gray-500 hover:text-gray-800">
+                    Cancel
+                 </button>
+                 <div className="flex items-center gap-2">
+                    <input 
+                      type="checkbox" 
+                      onChange={toggleSelectAll}
+                      checked={sows.length > 0 && selectedIds.length === sows.length}
+                      className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer"
+                    />
+                    <span className="text-sm text-gray-500 font-medium">Select All</span>
+                 </div>
               </div>
             ) : (
-              sows.map((sow) => (
-                  <div key={sow.id} className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow group">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-bold text-gray-900 text-lg group-hover:text-indigo-600 transition-colors">{sow.client_name}</h3>
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${
-                        sow.status === 'Signed' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'
-                      }`}>
-                        {sow.status}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-500 mb-4 font-medium">{sow.title}</p>
-                    <p className="text-2xl font-bold text-gray-900 mb-6">${sow.price?.toLocaleString()}</p>
-                    
-                    <div className="flex gap-3 pt-4 border-t border-gray-50">
-                      <Link href={`/sow/${sow.id}`} className="flex-1 text-center text-blue-600 text-sm font-bold bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-xl transition-colors">
-                        View / Share
-                      </Link>
-                      <Link href={`/edit/${sow.id}`} className="text-gray-700 text-sm font-bold bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-xl transition-colors">
-                        Edit
-                      </Link>
-                      <button onClick={() => handleDelete(sow.id)} className="text-red-600 text-sm font-bold bg-red-50 hover:bg-red-100 px-4 py-2 rounded-xl transition-colors">
-                        Delete
-                      </button>
+              <button 
+                onClick={() => setSelectionMode(true)}
+                className="text-sm font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+              >
+                <CheckSquare className="w-4 h-4" /> Select Multiple
+              </button>
+            )
+          )}
+        </div>
+
+        {/* LIST */}
+        <div className="space-y-4">
+          {sows.length === 0 ? (
+            <div className="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-gray-200">
+              <p className="text-gray-500 font-medium">No projects yet.</p>
+              <p className="text-sm text-gray-400 mt-2">Tap "+ New Project" to create your first contract.</p>
+            </div>
+          ) : (
+            sows.map((sow) => (
+                <div 
+                  key={sow.id} 
+                  className={`bg-white p-6 rounded-2xl border shadow-sm transition-all group relative ${
+                    selectedIds.includes(sow.id) ? 'border-indigo-500 ring-1 ring-indigo-500 bg-indigo-50/10' : 'border-gray-200 hover:shadow-md'
+                  }`}
+                >
+                  {/* TOP RIGHT ACTION AREA */}
+                  <div className="absolute top-6 right-6 z-10">
+                    {selectionMode ? (
+                      <input 
+                        type="checkbox"
+                        checked={selectedIds.includes(sow.id)}
+                        onChange={() => toggleSelect(sow.id)}
+                        className="w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer"
+                      />
+                    ) : (
+                      <div className="relative">
+                        <button 
+                          onClick={(e) => {
+                             e.stopPropagation();
+                             setOpenMenuId(openMenuId === sow.id ? null : sow.id);
+                          }}
+                          className="p-2 -mr-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+                        >
+                          <MoreVertical className="w-5 h-5" />
+                        </button>
+                        
+                        {/* 🔽 DROPDOWN MENU */}
+                        {openMenuId === sow.id && (
+                          <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in zoom-in-95">
+                             <button 
+                                onClick={() => router.push(`/edit/${sow.id}`)}
+                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                             >
+                                <Edit2 className="w-4 h-4" /> Edit Project
+                             </button>
+                             <button 
+                                onClick={() => handleDuplicate(sow)}
+                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                             >
+                                <Copy className="w-4 h-4" /> Duplicate
+                             </button>
+                             <div className="h-px bg-gray-100 my-1"></div>
+                             <button 
+                                onClick={() => handleDelete(sow.id)}
+                                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                             >
+                                <Trash2 className="w-4 h-4" /> Delete
+                             </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* MAIN CARD CONTENT */}
+                  <div className="flex justify-between items-start mb-2 pr-10">
+                    <div>
+                      <h3 className="font-bold text-gray-900 text-lg group-hover:text-indigo-600 transition-colors">{sow.client_name || 'Untitled Client'}</h3>
+                      <p className="text-sm text-gray-500 font-medium mt-1">{sow.title || 'Untitled Project'}</p>
                     </div>
                   </div>
-              ))
-            )}
-          </div>
+                  
+                  <div className="flex items-center gap-4 mb-6 mt-4">
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${
+                      sow.status === 'Signed' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'
+                    }`}>
+                      {sow.status}
+                    </span>
+                    <p className="text-lg font-bold text-gray-900">${sow.price?.toLocaleString()}</p>
+                  </div>
+                  
+                  {/* MAIN ACTION BUTTON */}
+                  <div className="pt-4 border-t border-gray-50">
+                    <Link href={`/sow/${sow.id}`} className="block text-center text-blue-600 text-sm font-bold bg-blue-50 hover:bg-blue-100 px-4 py-3 rounded-xl transition-colors">
+                      View / Share Contract
+                    </Link>
+                  </div>
+                </div>
+            ))
+          )}
         </div>
       </div>
+
+      {/* 🚀 FLOATING BULK ACTION BAR */}
+      {selectionMode && selectedIds.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-4 z-50 animate-in slide-in-from-bottom-4">
+          <span className="font-bold text-sm pl-2">
+            {selectedIds.length} selected
+          </span>
+          <div className="h-4 w-px bg-gray-700"></div>
+          
+          <button 
+            onClick={handleBulkDuplicate}
+            disabled={processing}
+            className="text-indigo-400 hover:text-white text-sm font-bold flex items-center gap-2 transition-colors disabled:opacity-50"
+          >
+            <span>{processing ? '...' : 'Duplicate'}</span>
+          </button>
+
+          <button 
+            onClick={handleBulkDelete}
+            disabled={processing}
+            className="text-red-400 hover:text-white text-sm font-bold flex items-center gap-2 transition-colors disabled:opacity-50"
+          >
+            <span>Delete</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }
