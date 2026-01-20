@@ -1,8 +1,7 @@
 import { MetadataRoute } from 'next';
 import { createClient } from '@supabase/supabase-js';
 
-// 👇 This line forces Vercel to rebuild the sitemap every time it's requested
-// instead of caching the old "empty" version forever.
+// 👇 THIS IS THE MAGIC LINE. It forces the sitemap to run fresh every time.
 export const dynamic = 'force-dynamic';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
