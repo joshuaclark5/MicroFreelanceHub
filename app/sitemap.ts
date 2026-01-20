@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 import { createClient } from '@supabase/supabase-js';
 
-// 👇 THIS IS THE MAGIC LINE. It forces the sitemap to run fresh every time.
+// Force dynamic so it never caches an empty list again
 export const dynamic = 'force-dynamic';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -10,16 +10,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  const { data: templates } = await supabase
+  // 👇 CHANGED: We removed 'updated_at' to prevent crashing if the column is missing
+  const { data: templates, error } = await supabase
     .from('sow_documents')
-    .select('slug, updated_at')
+    .select('slug') 
     .not('slug', 'is', null);
+
+  // If there's an error, log it to the server console (optional safety)
+  if (error) {
+    console.error("Sitemap Error:", error);
+  }
 
   const baseUrl = 'https://www.microfreelancehub.com';
 
   const templateUrls = (templates || []).map((doc) => ({
     url: `${baseUrl}/templates/${doc.slug}`,
-    lastModified: new Date(doc.updated_at || new Date()),
+    lastModified: new Date(), // 👇 Fallback: Just use today's date
     changeFrequency: 'weekly' as const,
     priority: 0.8,
   }));
