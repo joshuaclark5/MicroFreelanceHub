@@ -1,25 +1,20 @@
 import { MetadataRoute } from 'next';
 import { createClient } from '@supabase/supabase-js';
 
+// 👇 This line forces Vercel to rebuild the sitemap every time it's requested
+// instead of caching the old "empty" version forever.
+export const dynamic = 'force-dynamic';
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  // 👇 DEBUGGING: Log what we find to the Vercel Console
-  console.log("🔍 SITEMAP: Starting generation...");
-  
-  const { data: templates, error } = await supabase
+  const { data: templates } = await supabase
     .from('sow_documents')
     .select('slug, updated_at')
     .not('slug', 'is', null);
-
-  if (error) {
-    console.error("❌ SITEMAP ERROR:", error.message);
-  } else {
-    console.log(`✅ SITEMAP SUCCESS: Found ${templates?.length} templates.`);
-  }
 
   const baseUrl = 'https://www.microfreelancehub.com';
 
