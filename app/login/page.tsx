@@ -1,26 +1,26 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useSearchParams } from 'next/navigation';
 
-export default function LoginPage() {
+// 1. We move the logic into a "Sub-Component"
+function LoginForm() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const supabase = createClientComponentClient();
   const searchParams = useSearchParams();
   
-  // Get the template name from the URL (e.g. "graphic-design-contract")
+  // Get the template name from the URL
   const templateSlug = searchParams.get('template');
   
-  // Format it nicely (e.g. "Graphic Design Contract")
+  // Format it nicely
   const templateName = templateSlug 
     ? templateSlug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') 
     : null;
 
   useEffect(() => {
-    // 🧠 MEMORY: Save the template to LocalStorage so we remember it after they check email
     if (templateSlug) {
       localStorage.setItem('pending_template', templateSlug);
     }
@@ -30,7 +30,6 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     
-    // We redirect to /dashboard, where we will check for the pending_template
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
@@ -47,10 +46,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center p-4">
-      <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-lg border border-gray-100 text-center">
-        
-        {/* 🟢 DYNAMIC HEADER */}
+    <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-lg border border-gray-100 text-center">
+        {/* Dynamic Header */}
         {templateName ? (
           <div className="mb-8">
             <span className="bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wide">
@@ -91,6 +88,16 @@ export default function LoginPage() {
           </form>
         )}
       </div>
+  );
+}
+
+// 2. The Main Page just wraps the form in Suspense
+export default function LoginPage() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center p-4">
+      <Suspense fallback={<div className="text-center p-4">Loading login...</div>}>
+        <LoginForm />
+      </Suspense>
     </div>
   );
 }
