@@ -2,9 +2,11 @@ import { MetadataRoute } from 'next';
 import { createClient } from '@supabase/supabase-js';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // 👇 WE USE THE SERVICE ROLE KEY HERE (Admin Access)
+  // This bypasses RLS so we can find the templates to list them
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.SUPABASE_SERVICE_ROLE_KEY! 
   );
 
   // 1. Get all your templates
@@ -23,7 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  // 3. Add the static pages (Home, Login, etc.)
+  // 3. Add the static pages
   return [
     {
       url: baseUrl,
