@@ -1,71 +1,96 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useSearchParams } from 'next/navigation';
 
 export default function LoginPage() {
-  // 🔨 THE SLEDGEHAMMER FIX:
-  // We are forcing the app to use the correct address right here.
-  const supabase = createClientComponentClient({
-    supabaseUrl: 'https://rjgttmwrbyjqifodjnqm.supabase.co',
-    supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJqZ3R0bXdyYnlqcWlmb2RqbnFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NTMwNTksImV4cCI6MjA4NDAyOTA1OX0.dRFq0UWMVQ2fiVqAbAAaQGxCfjXZL52v1EXt4nR0vYI'
-  });
-
-  const router = useRouter();
   const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const supabase = createClientComponentClient();
+  const searchParams = useSearchParams();
+  
+  // Get the template name from the URL (e.g. "graphic-design-contract")
+  const templateSlug = searchParams.get('template');
+  
+  // Format it nicely (e.g. "Graphic Design Contract")
+  const templateName = templateSlug 
+    ? templateSlug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') 
+    : null;
+
+  useEffect(() => {
+    // 🧠 MEMORY: Save the template to LocalStorage so we remember it after they check email
+    if (templateSlug) {
+      localStorage.setItem('pending_template', templateSlug);
+    }
+  }, [templateSlug]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setMessage('');
-
-    // Dynamic redirect URL for Vercel or Localhost
-    const callbackUrl = `${window.location.origin}/auth/callback`;
-
-    const { error } = await supabase.auth.signInWithOtp({ 
+    
+    // We redirect to /dashboard, where we will check for the pending_template
+    const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: callbackUrl,
+        emailRedirectTo: `${location.origin}/auth/callback`,
       },
     });
 
     if (error) {
-      console.error('Supabase Error:', error);
-      setMessage('❌ Error sending magic link: ' + error.message);
+      setMessage('Error: ' + error.message);
     } else {
-      setMessage('✅ Check your email for the login link!');
+      setMessage('Check your email for the magic link! ✨');
     }
     setLoading(false);
   };
 
   return (
-    <div className="max-w-md mx-auto py-12 px-6">
-      <h1 className="text-2xl font-bold mb-4">Log In</h1>
-      <form onSubmit={handleLogin} className="space-y-4">
-        <input
-          type="email"
-          className="border px-4 py-2 w-full rounded"
-          placeholder="Enter your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-blue-600 text-white px-4 py-2 rounded w-full font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
-        >
-          {loading ? 'Sending...' : 'Send Magic Link'}
-        </button>
-        {message && (
-          <p className={`text-sm mt-2 p-3 rounded ${message.includes('Error') ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`}>
-            {message}
-          </p>
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center p-4">
+      <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-lg border border-gray-100 text-center">
+        
+        {/* 🟢 DYNAMIC HEADER */}
+        {templateName ? (
+          <div className="mb-8">
+            <span className="bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wide">
+              Step 2 of 3
+            </span>
+            <h1 className="text-2xl font-bold mt-3">Customize your {templateName}</h1>
+            <p className="text-gray-500 text-sm mt-2">
+              Sign in to save this template to your dashboard and unlock the AI editor.
+            </p>
+          </div>
+        ) : (
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold">Welcome Back</h1>
+            <p className="text-gray-500 text-sm mt-2">Sign in to manage your contracts</p>
+          </div>
         )}
-      </form>
+
+        {message ? (
+          <div className="bg-green-50 text-green-700 p-4 rounded mb-4 text-sm font-medium animate-pulse">
+            {message}
+          </div>
+        ) : (
+          <form onSubmit={handleLogin} className="space-y-4">
+            <input
+              type="email"
+              placeholder="name@company.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+              required
+            />
+            <button
+              disabled={loading}
+              className="w-full bg-black text-white py-3 rounded-lg font-bold hover:bg-gray-800 transition-all shadow-md hover:shadow-lg"
+            >
+              {loading ? 'Sending Link...' : 'Send Magic Link ⚡'}
+            </button>
+          </form>
+        )}
+      </div>
     </div>
   );
 }

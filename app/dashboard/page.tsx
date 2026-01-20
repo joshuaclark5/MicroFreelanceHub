@@ -27,7 +27,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [isPro, setIsPro] = useState(false);
   const [userEmail, setUserEmail] = useState('');
-  const [userId, setUserId] = useState(''); // Store the ID
+  const [userId, setUserId] = useState(''); 
   
   const supabase = createClientComponentClient();
   const router = useRouter();
@@ -42,9 +42,55 @@ export default function Dashboard() {
           return;
         }
         setUserEmail(user.email || '');
-        setUserId(user.id); // Save ID for the button
+        setUserId(user.id); 
 
-        // 🔍 RECOVERY LOGIC
+        // ---------------------------------------------------------
+        // 🔮 MAGIC CLONE LOGIC (New Feature)
+        // Check if the user came from a "Use This Template" button
+        // ---------------------------------------------------------
+        const pendingTemplateSlug = localStorage.getItem('pending_template');
+      
+        if (pendingTemplateSlug) {
+          console.log("🚀 Found pending template:", pendingTemplateSlug);
+          
+          // A. Find the master template in the DB
+          const { data: template } = await supabase
+            .from('sow_documents')
+            .select('*')
+            .eq('slug', pendingTemplateSlug)
+            .single();
+
+          if (template) {
+            // B. Clone it for THIS user
+            const { data: newProject, error } = await supabase
+              .from('sow_documents')
+              .insert({
+                user_id: user.id, // Assign to the NEW user
+                title: template.title,
+                client_name: '[Your Client Name]',
+                price: template.price,
+                deliverables: template.deliverables,
+                status: 'Draft',
+                slug: null // Important: It's a private project now, so clear the slug
+              })
+              .select()
+              .single();
+
+            if (!error && newProject) {
+              // C. Cleanup and Redirect straight to the new project
+              console.log("✅ Template cloned successfully!");
+              localStorage.removeItem('pending_template');
+              router.push(`/sow/${newProject.id}`); 
+              return; // Stop loading the rest of the dashboard
+            }
+          }
+        }
+        // ---------------------------------------------------------
+        // END MAGIC CLONE LOGIC
+        // ---------------------------------------------------------
+
+
+        // 🔍 OLD RECOVERY LOGIC (Kept for safety)
         const pendingSOW = localStorage.getItem('pendingSOW');
         if (pendingSOW) {
           try {
@@ -59,7 +105,6 @@ export default function Dashboard() {
             });
             
             if (!insertError) {
-              console.log("✅ Recovered unsaved work!");
               localStorage.removeItem('pendingSOW'); 
             }
           } catch (e) {

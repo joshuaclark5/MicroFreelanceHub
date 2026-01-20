@@ -47,7 +47,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
           </p>
           
           <div className="flex gap-4 justify-center">
-            <Link href="/login">
+            {/* ✅ UPDATED LINK: Passes the template slug to login */}
+            <Link href={`/login?template=${params.slug}`}>
               <button className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-lg font-bold text-lg shadow-lg hover:-translate-y-1 transition-all">
                 Use This Template For Free ⚡
               </button>
@@ -91,7 +92,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
             <div className="mt-16 p-8 bg-indigo-50 rounded-xl border border-indigo-100 text-center">
               <h3 className="text-xl font-bold text-indigo-900 mb-2">Want to customize this?</h3>
               <p className="text-indigo-700 mb-6">Use our AI to add your specific project details, liability clauses, and payment terms in seconds.</p>
-              <Link href="/login">
+              {/* ✅ UPDATED LINK: Passes the template slug to login */}
+              <Link href={`/login?template=${params.slug}`}>
                 <button className="bg-black text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-800">
                   Customize for {doc.client_name} Now &rarr;
                 </button>
