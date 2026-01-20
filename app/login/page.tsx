@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useSearchParams } from 'next/navigation';
 
-// 1. We move the logic into a "Sub-Component"
+// 1. The Form Logic
 function LoginForm() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -27,17 +27,24 @@ function LoginForm() {
   }, [templateSlug]);
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // 👈 Stops the page from refreshing immediately
     setLoading(true);
-    
+    setMessage('');
+
+    // Safely get the current website URL
+    const currentDomain = typeof window !== 'undefined' ? window.location.origin : '';
+    console.log("Sending magic link to:", currentDomain); // Debugging check
+
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${location.origin}/auth/callback`,
+        // 👇 Explicitly tells Supabase: "Send them back HERE"
+        emailRedirectTo: `${currentDomain}/auth/callback`,
       },
     });
 
     if (error) {
+      console.error("Login Error:", error);
       setMessage('Error: ' + error.message);
     } else {
       setMessage('Check your email for the magic link! ✨');
@@ -66,7 +73,7 @@ function LoginForm() {
         )}
 
         {message ? (
-          <div className="bg-green-50 text-green-700 p-4 rounded mb-4 text-sm font-medium animate-pulse">
+          <div className={`p-4 rounded mb-4 text-sm font-medium animate-pulse ${message.includes('Error') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
             {message}
           </div>
         ) : (
@@ -81,7 +88,7 @@ function LoginForm() {
             />
             <button
               disabled={loading}
-              className="w-full bg-black text-white py-3 rounded-lg font-bold hover:bg-gray-800 transition-all shadow-md hover:shadow-lg"
+              className="w-full bg-black text-white py-3 rounded-lg font-bold hover:bg-gray-800 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Sending Link...' : 'Send Magic Link ⚡'}
             </button>
@@ -91,11 +98,11 @@ function LoginForm() {
   );
 }
 
-// 2. The Main Page just wraps the form in Suspense
+// 2. The Main Page Wrapper
 export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center p-4">
-      <Suspense fallback={<div className="text-center p-4">Loading login...</div>}>
+      <Suspense fallback={<div className="text-center p-4 text-gray-500">Loading secure login...</div>}>
         <LoginForm />
       </Suspense>
     </div>
