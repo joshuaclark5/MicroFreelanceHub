@@ -1,25 +1,27 @@
-import './globals.css'
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { GoogleAnalytics } from '@next/third-parties/google';
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'MicroFreelanceHub',
-  description: 'Create professional SOWs in seconds',
-}
+  title: 'MicroFreelanceHub | AI Contract Generator',
+  description: 'Free AI-powered contract templates for freelancers. Protect your work with professional SOWs.',
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="en">
       <body className={inter.className}>
-        {/* We removed the Navbar here so it doesn't duplicate on the Dashboard */}
         {children}
       </body>
+      {/* 📊 Google Analytics connected to your specific ID */}
+      <GoogleAnalytics gaId="G-3PZE2XQMH0" />
     </html>
-  )
+  );
 }
