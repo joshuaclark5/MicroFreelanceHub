@@ -81,7 +81,6 @@ export default function CreateProject() {
 
         if (seoData) {
           const bulletList = seoData.deliverables.map((d: string) => `• ${d}`).join('\n');
-          // Automatically append legal text
           const fullContractText = bulletList + LEGAL_BOILERPLATE;
           
           setFormData(prev => ({
@@ -123,6 +122,23 @@ export default function CreateProject() {
     loadTemplate();
   }, [supabase]);
 
+  // 💰 HELPER: Smart Upgrade Link
+  // This fetches the User ID and attaches it to the Stripe URL
+  const handleUpgrade = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    // REPLACE THIS URL with your live product link if different
+    const STRIPE_LINK = 'https://buy.stripe.com/00wbIVa99ais1Ue5RY48002';
+    
+    if (user) {
+        // ✅ The Fix: Attach ID so email doesn't matter
+        window.location.href = `${STRIPE_LINK}?client_reference_id=${user.id}`;
+    } else {
+        // Fallback for guests (they really should login first)
+        window.location.href = STRIPE_LINK;
+    }
+  };
+
   // Step 1: Analyze
   const handleAnalyze = async () => {
     if (!formData.clientName) return alert("Please enter the Client Name first.");
@@ -130,7 +146,7 @@ export default function CreateProject() {
     
     if (!isPro) {
         if(confirm("The AI Interviewer is a Pro feature. Would you like to upgrade?")) {
-            window.location.href = 'https://buy.stripe.com/00wbIVa99ais1Ue5RY48002';
+            handleUpgrade(); // 👈 Use smart link
         }
         return;
     }
@@ -154,7 +170,6 @@ export default function CreateProject() {
     const result = await generateFinalSOW(formData.clientName, formData.description, qaPairs);
     
     if (result) {
-      // 🟢 AI GENERATION: Glue the Legal Text to the bottom immediately
       const fullContent = result.deliverables.includes("TERMS & CONDITIONS") 
         ? result.deliverables 
         : result.deliverables + LEGAL_BOILERPLATE;
@@ -173,12 +188,11 @@ export default function CreateProject() {
     setLoading(false);
   };
 
-  // Step 3: Refine (The "Brain" Update)
+  // Step 3: Refine
   const handleRefine = async () => {
     if (!refineText) return;
     setIsRefining(true);
     
-    // 🟢 SECRET INSTRUCTION: We tell the AI to leave the legal terms alone
     const safeInstruction = `${refineText} (IMPORTANT: Do NOT modify or remove the 'TERMS & CONDITIONS' section at the bottom unless I specifically asked you to change the legal terms. Only update the project scope above it.)`;
     
     const result = await refineSOW(
@@ -237,13 +251,13 @@ export default function CreateProject() {
         if (count !== null && count >= 3) {
             setLoading(false);
             if(confirm("You have reached the limit of 3 Free Projects. Upgrade to Pro?")) {
-                window.location.href = 'https://buy.stripe.com/00wbIVa99ais1Ue5RY48002';
+                handleUpgrade(); // 👈 Use smart link
             }
             return;
         }
     }
 
-    // 🟢 FINAL SAFETY CHECK: Re-attach legal text if user deleted it accidentally
+    // Prepare Content
     let finalDeliverables = formData.deliverables;
     if (!finalDeliverables.includes("TERMS & CONDITIONS")) {
         finalDeliverables += LEGAL_BOILERPLATE;
@@ -257,9 +271,7 @@ export default function CreateProject() {
         const taxAmount = basePrice * (taxRate / 100);
         const total = basePrice + taxAmount;
         
-        // Remove old financial summary if it exists to avoid duplicates on re-save
         finalDeliverables = finalDeliverables.split("FINANCIAL SUMMARY")[0].trim();
-
         finalDeliverables += `\n\n--------------------------------------------------\n`;
         finalDeliverables += `FINANCIAL SUMMARY\n`;
         finalDeliverables += `Subtotal: $${basePrice.toFixed(2)}\n`;
@@ -348,7 +360,6 @@ export default function CreateProject() {
                   )}
                 </button>
 
-                {/* 🟢 MANUAL BUTTON: Now Pre-fills Legal Text */}
                 <button
                     onClick={() => {
                         setFormData(prev => ({ ...prev, deliverables: LEGAL_BOILERPLATE }));
@@ -426,7 +437,7 @@ export default function CreateProject() {
                   <div className="bg-gray-100 p-4 rounded-lg border border-gray-200 mb-6 text-center">
                       <p className="text-sm text-gray-500 mb-2">Want AI to rewrite this for you?</p>
                       <button 
-                        onClick={() => window.location.href = 'https://buy.stripe.com/00wbIVa99ais1Ue5RY48002'}
+                        onClick={handleUpgrade}
                         className="text-xs font-bold bg-black text-white px-3 py-1.5 rounded-full"
                       >
                         ⚡ Upgrade to Pro
