@@ -24,11 +24,13 @@ export default function CreateProject() {
   // Refine State
   const [refineText, setRefineText] = useState('');
   const [isRefining, setIsRefining] = useState(false);
+  const [isTemplateLoaded, setIsTemplateLoaded] = useState(false); // 🟢 New state for badge
   
   const [isPro, setIsPro] = useState(false);
   const supabase = createClientComponentClient();
   const router = useRouter();
 
+  // 1. Check Pro Status
   useEffect(() => {
     const checkPro = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -38,6 +40,66 @@ export default function CreateProject() {
     };
     checkPro();
   }, [supabase]);
+
+  // 🟢 2. SMART TEMPLATE INJECTOR (The New Logic)
+  useEffect(() => {
+    async function loadTemplate() {
+      // Check if the user came from a landing page
+      const slug = localStorage.getItem('pending_template');
+      
+      if (slug) {
+        console.log("Found pending template:", slug);
+        setLoading(true);
+
+        // A. Try to find it in your SEO Pages table first (The "Hire" Pages)
+        let { data: seoData } = await supabase
+          .from('seo_pages')
+          .select('*')
+          .eq('slug', slug)
+          .single();
+
+        if (seoData) {
+          // Found an SEO Page! Format the list.
+          const bulletList = seoData.deliverables.map((d: string) => `• ${d}`).join('\n');
+          
+          setFormData(prev => ({
+            ...prev,
+            projectTitle: `${seoData.job_title} Agreement`,
+            deliverables: bulletList,
+            description: `Contract for ${seoData.keyword}`, // Fallback
+          }));
+          
+          setIsTemplateLoaded(true);
+          setStep('final'); // 👈 Skip straight to the editor
+        } else {
+          // B. If not in SEO pages, check your original Templates table
+          let { data: docData } = await supabase
+            .from('sow_documents')
+            .select('*')
+            .eq('slug', slug)
+            .single();
+            
+          if (docData) {
+            setFormData(prev => ({
+              ...prev,
+              projectTitle: docData.title,
+              deliverables: docData.deliverables,
+              price: docData.price?.toString() || '',
+            }));
+            setIsTemplateLoaded(true);
+            setStep('final'); // 👈 Skip straight to the editor
+          }
+        }
+
+        // Clear the storage so it doesn't stick forever
+        localStorage.removeItem('pending_template');
+        setLoading(false);
+      }
+    }
+
+    loadTemplate();
+  }, [supabase]);
+
 
   // Step 1: Analyze
   const handleAnalyze = async () => {
@@ -170,6 +232,8 @@ export default function CreateProject() {
           {/* START STEP */}
           {step === 'start' && (
             <div className="space-y-4">
+              {loading && <div className="text-indigo-600 font-bold text-center mb-4">Finding your template...</div>}
+              
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">Client Name</label>
                 <input
@@ -295,6 +359,13 @@ export default function CreateProject() {
               )}
 
               <form onSubmit={handleSubmit} className="space-y-4">
+                {/* 🟢 TEMPLATE BADGE */}
+                {isTemplateLoaded && (
+                    <div className="bg-green-50 text-green-800 text-xs font-bold px-3 py-2 rounded border border-green-200 mb-4 inline-block">
+                        ✨ Template Pre-filled from our Database
+                    </div>
+                )}
+
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Project Title</label>
                   <input
