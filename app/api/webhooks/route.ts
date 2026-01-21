@@ -3,15 +3,18 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
+// Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-10-16' as any,
 });
 
+// Initialize Supabase Admin (Service Role)
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+// Get the Webhook Secret from Vercel env vars
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
 export async function POST(req: Request) {
@@ -20,6 +23,7 @@ export async function POST(req: Request) {
 
   let event: Stripe.Event;
 
+  // 1. Verify the event came from Stripe
   try {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (err: any) {
@@ -27,10 +31,11 @@ export async function POST(req: Request) {
     return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
   }
 
+  // 2. Handle the "Payment Successful" event
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
     
-    // 👇 SMART LOGIC: Check for ID first, then Email
+    // Check for ID first (Best), then Email (Backup)
     const userId = session.client_reference_id;
     const customerEmail = session.customer_details?.email;
 

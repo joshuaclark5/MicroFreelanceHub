@@ -7,14 +7,12 @@ export const dynamic = 'force-dynamic';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY! // Use Service Role to bypass RLS if needed
+    process.env.SUPABASE_SERVICE_ROLE_KEY! 
   );
 
   const baseUrl = 'https://www.microfreelancehub.com';
 
-  // ---------------------------------------------------------
-  // 1. FETCH OLD TEMPLATES (from sow_documents) -> /templates/...
-  // ---------------------------------------------------------
+  // 1. FETCH TEMPLATES (Only ones with slugs)
   const { data: oldTemplates } = await supabase
     .from('sow_documents')
     .select('slug')
@@ -27,9 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  // ---------------------------------------------------------
-  // 2. FETCH NEW SEO PAGES (from seo_pages) -> /hire/...
-  // ---------------------------------------------------------
+  // 2. FETCH SEO PAGES
   const { data: newSeoPages } = await supabase
     .from('seo_pages')
     .select('slug');
@@ -41,9 +37,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.9,
   }));
 
-  // ---------------------------------------------------------
-  // 3. STATIC ROUTES (Home, Login, etc.)
-  // ---------------------------------------------------------
+  // 3. STATIC ROUTES (Added Legal Pages Here 👇)
   const staticRoutes = [
     {
       url: baseUrl,
@@ -69,10 +63,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily' as const,
       priority: 0.8,
     },
+    // ✅ NEW LEGAL PAGES
+    {
+      url: `${baseUrl}/terms-of-service`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly' as const,
+      priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/disclaimer`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly' as const,
+      priority: 0.3,
+    },
   ];
 
-  // ---------------------------------------------------------
-  // 4. COMBINE EVERYTHING
-  // ---------------------------------------------------------
   return [...staticRoutes, ...oldTemplateUrls, ...newSeoUrls];
 }
