@@ -7,12 +7,32 @@ import { useRouter } from 'next/navigation';
 import { generateQuestions, generateFinalSOW, refineSOW } from '../actions/generateSOW';
 import Link from 'next/link';
 
+// 🛡️ THE LEGAL SHIELD (Appended to every contract)
+const LEGAL_BOILERPLATE = `
+
+--------------------------------------------------
+TERMS & CONDITIONS
+
+1. SCOPE PROTECTION
+The work listed above constitutes the entire agreement. Any additional features, revisions, or assets not explicitly listed in this "Deliverables & Scope" section are considered out of scope. Any additional work will require a separate agreement and may incur additional fees at the Freelancer's standard rate.
+
+2. PAYMENT TERMS
+Unless otherwise agreed, a 50% deposit is required to begin work, with the remaining balance due upon final delivery. 
+
+3. OWNERSHIP & RIGHTS
+Upon full payment, the Client is granted exclusive rights to the final deliverables. The Freelancer retains the right to use the work for portfolio and self-promotional purposes.
+
+4. CANCELLATION
+If the Client cancels the project after work has begun, the Freelancer retains the deposit to cover time and labor.
+--------------------------------------------------`;
+
 export default function CreateProject() {
   const [formData, setFormData] = useState({
     clientName: '',
     projectTitle: '',
     price: '',
-    deliverables: '',
+    taxRate: '', 
+    deliverables: '', 
     description: ''
   });
 
@@ -24,7 +44,10 @@ export default function CreateProject() {
   // Refine State
   const [refineText, setRefineText] = useState('');
   const [isRefining, setIsRefining] = useState(false);
-  const [isTemplateLoaded, setIsTemplateLoaded] = useState(false); // 🟢 New state for badge
+  const [isTemplateLoaded, setIsTemplateLoaded] = useState(false);
+  
+  // Liability Protection State
+  const [hasAgreedToTerms, setHasAgreedToTerms] = useState(false);
   
   const [isPro, setIsPro] = useState(false);
   const supabase = createClientComponentClient();
@@ -41,17 +64,15 @@ export default function CreateProject() {
     checkPro();
   }, [supabase]);
 
-  // 🟢 2. SMART TEMPLATE INJECTOR (The New Logic)
+  // 2. SMART TEMPLATE INJECTOR
   useEffect(() => {
     async function loadTemplate() {
-      // Check if the user came from a landing page
       const slug = localStorage.getItem('pending_template');
       
       if (slug) {
-        console.log("Found pending template:", slug);
         setLoading(true);
 
-        // A. Try to find it in your SEO Pages table first (The "Hire" Pages)
+        // A. Try to find it in SEO Pages table
         let { data: seoData } = await supabase
           .from('seo_pages')
           .select('*')
@@ -59,20 +80,21 @@ export default function CreateProject() {
           .single();
 
         if (seoData) {
-          // Found an SEO Page! Format the list.
           const bulletList = seoData.deliverables.map((d: string) => `• ${d}`).join('\n');
+          // Automatically append legal text
+          const fullContractText = bulletList + LEGAL_BOILERPLATE;
           
           setFormData(prev => ({
             ...prev,
             projectTitle: `${seoData.job_title} Agreement`,
-            deliverables: bulletList,
-            description: `Contract for ${seoData.keyword}`, // Fallback
+            deliverables: fullContractText,
+            description: `Contract for ${seoData.keyword}`,
           }));
           
           setIsTemplateLoaded(true);
-          setStep('final'); // 👈 Skip straight to the editor
+          setStep('final');
         } else {
-          // B. If not in SEO pages, check your original Templates table
+          // B. Check original Templates table
           let { data: docData } = await supabase
             .from('sow_documents')
             .select('*')
@@ -80,36 +102,36 @@ export default function CreateProject() {
             .single();
             
           if (docData) {
+            const content = docData.deliverables.includes("TERMS & CONDITIONS") 
+                ? docData.deliverables 
+                : docData.deliverables + LEGAL_BOILERPLATE;
+
             setFormData(prev => ({
               ...prev,
               projectTitle: docData.title,
-              deliverables: docData.deliverables,
+              deliverables: content,
               price: docData.price?.toString() || '',
             }));
             setIsTemplateLoaded(true);
-            setStep('final'); // 👈 Skip straight to the editor
+            setStep('final');
           }
         }
-
-        // Clear the storage so it doesn't stick forever
         localStorage.removeItem('pending_template');
         setLoading(false);
       }
     }
-
     loadTemplate();
   }, [supabase]);
-
 
   // Step 1: Analyze
   const handleAnalyze = async () => {
     if (!formData.clientName) return alert("Please enter the Client Name first.");
     if (!formData.description) return alert("Please describe the project.");
     
-    // 🔒 PAYWALL CHECK
     if (!isPro) {
-        // Redirect to your Stripe Payment Link
-        window.location.href = 'https://buy.stripe.com/00wbIVa99ais1Ue5RY48002';
+        if(confirm("The AI Interviewer is a Pro feature. Would you like to upgrade?")) {
+            window.location.href = 'https://buy.stripe.com/00wbIVa99ais1Ue5RY48002';
+        }
         return;
     }
     
@@ -125,17 +147,22 @@ export default function CreateProject() {
     setLoading(false);
   };
 
-  // Step 2: Generate
+  // Step 2: Generate (AI Path)
   const handleFinalize = async () => {
     setLoading(true);
     const qaPairs = questions.map((q, i) => ({ q, a: answers[i] }));
     const result = await generateFinalSOW(formData.clientName, formData.description, qaPairs);
     
     if (result) {
+      // 🟢 AI GENERATION: Glue the Legal Text to the bottom immediately
+      const fullContent = result.deliverables.includes("TERMS & CONDITIONS") 
+        ? result.deliverables 
+        : result.deliverables + LEGAL_BOILERPLATE;
+
       setFormData(prev => ({
         ...prev,
         projectTitle: result.title,
-        deliverables: result.deliverables,
+        deliverables: fullContent,
         price: result.price?.toString() || prev.price
       }));
       setStep('final');
@@ -146,15 +173,18 @@ export default function CreateProject() {
     setLoading(false);
   };
 
-  // Step 3: Refine
+  // Step 3: Refine (The "Brain" Update)
   const handleRefine = async () => {
     if (!refineText) return;
     setIsRefining(true);
     
+    // 🟢 SECRET INSTRUCTION: We tell the AI to leave the legal terms alone
+    const safeInstruction = `${refineText} (IMPORTANT: Do NOT modify or remove the 'TERMS & CONDITIONS' section at the bottom unless I specifically asked you to change the legal terms. Only update the project scope above it.)`;
+    
     const result = await refineSOW(
       formData.deliverables, 
       parseFloat(formData.price) || 0, 
-      refineText
+      safeInstruction
     );
 
     if (result) {
@@ -171,46 +201,92 @@ export default function CreateProject() {
     setIsRefining(false);
   };
 
-  // Step 4: Save (UPDATED TO HANDLE GUESTS)
+  // Step 4: Save
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    
+    if (!hasAgreedToTerms) {
+        alert("You must agree to the liability terms before creating a contract.");
+        return;
+    }
 
-    // 1. Check if User is Logged In
+    setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
 
-    // 🛑 IF USER IS NOT LOGGED IN:
+    // Guest Handling
     if (!user) {
-      // A. Save their hard work to LocalStorage so it isn't lost
       localStorage.setItem('pendingSOW', JSON.stringify({
         client_name: formData.clientName,
         title: formData.projectTitle,
-        price: parseFloat(formData.price) || 0,
+        price: parseFloat(formData.price),
         deliverables: formData.deliverables,
         status: 'Draft'
       }));
-
-      // B. Alert them clearly
-      alert("Please sign in (or create an account) to save your Project!");
-
-      // C. Redirect to Login
-      // We add '?next=/dashboard' so you can eventually add logic to redirect them back
+      alert("Please create a free account to save your Project!");
       window.location.href = '/login?next=/dashboard'; 
       return;
     }
 
-    // ✅ IF USER IS LOGGED IN: Proceed as normal
+    // Limit Check
+    if (!isPro) {
+        const { count } = await supabase
+            .from('sow_documents')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.id);
+            
+        if (count !== null && count >= 3) {
+            setLoading(false);
+            if(confirm("You have reached the limit of 3 Free Projects. Upgrade to Pro?")) {
+                window.location.href = 'https://buy.stripe.com/00wbIVa99ais1Ue5RY48002';
+            }
+            return;
+        }
+    }
+
+    // 🟢 FINAL SAFETY CHECK: Re-attach legal text if user deleted it accidentally
+    let finalDeliverables = formData.deliverables;
+    if (!finalDeliverables.includes("TERMS & CONDITIONS")) {
+        finalDeliverables += LEGAL_BOILERPLATE;
+    }
+
+    // Calculate Tax
+    const basePrice = parseFloat(formData.price) || 0;
+    const taxRate = parseFloat(formData.taxRate) || 0;
+    
+    if (taxRate > 0) {
+        const taxAmount = basePrice * (taxRate / 100);
+        const total = basePrice + taxAmount;
+        
+        // Remove old financial summary if it exists to avoid duplicates on re-save
+        finalDeliverables = finalDeliverables.split("FINANCIAL SUMMARY")[0].trim();
+
+        finalDeliverables += `\n\n--------------------------------------------------\n`;
+        finalDeliverables += `FINANCIAL SUMMARY\n`;
+        finalDeliverables += `Subtotal: $${basePrice.toFixed(2)}\n`;
+        finalDeliverables += `Tax/Fees (${taxRate}%): $${taxAmount.toFixed(2)}\n`;
+        finalDeliverables += `TOTAL DUE: $${total.toFixed(2)}\n`;
+        finalDeliverables += `--------------------------------------------------`;
+    }
+
     const { error } = await supabase.from('sow_documents').insert({
       user_id: user.id,
       client_name: formData.clientName,
       title: formData.projectTitle,
-      price: parseFloat(formData.price) || 0,
-      deliverables: formData.deliverables,
+      price: basePrice, 
+      deliverables: finalDeliverables,
       status: 'Draft'
     });
 
     if (!error) router.push('/dashboard');
+    else alert("Error saving: " + error.message);
+    
     setLoading(false);
+  };
+
+  const calculateTotal = () => {
+    const p = parseFloat(formData.price) || 0;
+    const t = parseFloat(formData.taxRate) || 0;
+    return (p + (p * (t / 100))).toFixed(2);
   };
 
   return (
@@ -255,9 +331,7 @@ export default function CreateProject() {
                 />
               </div>
 
-              {/* 👇 THE TWO PATHS: AI or MANUAL */}
               <div className="grid grid-cols-1 gap-3 pt-2">
-                {/* 1. AI Button (Premium) */}
                 <button
                   onClick={handleAnalyze}
                   disabled={loading}
@@ -274,9 +348,12 @@ export default function CreateProject() {
                   )}
                 </button>
 
-                {/* 2. Manual Button (Free) */}
+                {/* 🟢 MANUAL BUTTON: Now Pre-fills Legal Text */}
                 <button
-                    onClick={() => setStep('final')}
+                    onClick={() => {
+                        setFormData(prev => ({ ...prev, deliverables: LEGAL_BOILERPLATE }));
+                        setStep('final');
+                    }}
                     className="w-full py-3 rounded-lg font-bold text-gray-600 bg-white border-2 border-gray-200 hover:border-gray-400 hover:text-gray-800 transition-all text-sm"
                 >
                     ✍️ Skip & Write Manually (Free)
@@ -321,7 +398,6 @@ export default function CreateProject() {
           {step === 'final' && (
             <div className="animate-in fade-in zoom-in duration-300">
               
-              {/* ✨ AI REFINEMENT BAR (ONLY FOR PRO) ✨ */}
               {isPro ? (
                   <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-100 mb-6 flex gap-2 items-center">
                     <div className="flex-1">
@@ -359,10 +435,9 @@ export default function CreateProject() {
               )}
 
               <form onSubmit={handleSubmit} className="space-y-4">
-                {/* 🟢 TEMPLATE BADGE */}
                 {isTemplateLoaded && (
                     <div className="bg-green-50 text-green-800 text-xs font-bold px-3 py-2 rounded border border-green-200 mb-4 inline-block">
-                        ✨ Template Pre-filled from our Database
+                        ✨ Template & Legal Shield Loaded
                     </div>
                 )}
 
@@ -378,14 +453,17 @@ export default function CreateProject() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">Deliverables & Scope</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Deliverables & Legal Terms</label>
                   <textarea
                     required
-                    rows={12}
+                    rows={16}
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 font-mono text-sm leading-relaxed"
                     value={formData.deliverables}
                     onChange={(e) => setFormData({ ...formData, deliverables: e.target.value })}
                   />
+                  <p className="text-xs text-gray-500 mt-2">
+                    *Scroll down to see the standard legal terms included in this contract.
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -399,19 +477,59 @@ export default function CreateProject() {
                       onChange={(e) => setFormData({...formData, clientName: e.target.value})}
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Price ($)</label>
-                    <input
-                      required
-                      type="number"
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300"
-                      value={formData.price}
-                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    />
+                  
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                        <label className="block text-sm font-bold text-gray-700 mb-1">Price ($)</label>
+                        <input
+                        required
+                        type="number"
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300"
+                        value={formData.price}
+                        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                        />
+                    </div>
+                    <div className="w-1/3">
+                        <label className="block text-sm font-bold text-gray-700 mb-1">Tax (%)</label>
+                        <input
+                        type="number"
+                        placeholder="0"
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50"
+                        value={formData.taxRate}
+                        onChange={(e) => setFormData({ ...formData, taxRate: e.target.value })}
+                        />
+                    </div>
                   </div>
                 </div>
 
-                <button disabled={loading} className="w-full bg-black text-white font-bold py-4 rounded-lg hover:bg-gray-800 transition-all mt-4 shadow-lg">
+                <div className="bg-indigo-900 text-white p-4 rounded-lg flex justify-between items-center shadow-lg">
+                    <span className="font-medium text-indigo-200">Estimated Total (Inc. Tax)</span>
+                    <span className="text-2xl font-bold">${calculateTotal()}</span>
+                </div>
+
+                {/* 🛡️ LIABILITY CHECKBOX */}
+                <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200 mt-4">
+                    <label className="flex items-start gap-3 cursor-pointer">
+                        <input 
+                            type="checkbox" 
+                            className="mt-1 w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
+                            checked={hasAgreedToTerms}
+                            onChange={(e) => setHasAgreedToTerms(e.target.checked)}
+                        />
+                        <div className="text-sm text-gray-700">
+                            <strong>Required:</strong> I acknowledge that MicroFreelanceHub provides templates for informational purposes only and does not provide legal advice. I agree to the <Link href="/terms-of-service" className="text-indigo-600 underline" target="_blank">Terms of Service</Link> and <Link href="/disclaimer" className="text-indigo-600 underline" target="_blank">Disclaimer</Link>, and I use this contract at my own risk.
+                        </div>
+                    </label>
+                </div>
+
+                <button 
+                    disabled={loading || !hasAgreedToTerms} 
+                    className={`w-full font-bold py-4 rounded-lg transition-all mt-4 shadow-lg ${
+                        hasAgreedToTerms 
+                        ? 'bg-black text-white hover:bg-gray-800' 
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
+                >
                   {loading ? 'Saving...' : 'Save to Dashboard ✅'}
                 </button>
               </form>
