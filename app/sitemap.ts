@@ -1,44 +1,78 @@
-import { MetadataRoute } from 'next'
-import { createClient } from '@supabase/supabase-js'
+import { MetadataRoute } from 'next';
+import { createClient } from '@supabase/supabase-js';
+
+// Force dynamic so it never caches an empty list again
+export const dynamic = 'force-dynamic';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://www.microfreelancehub.com'
-
-  // 1. Initialize Supabase Client
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+    process.env.SUPABASE_SERVICE_ROLE_KEY! // Use Service Role to bypass RLS if needed
+  );
 
-  // 2. Fetch the NEW Dynamic SEO Pages from the database
-  const { data: seoPages } = await supabase
+  const baseUrl = 'https://www.microfreelancehub.com';
+
+  // ---------------------------------------------------------
+  // 1. FETCH OLD TEMPLATES (from sow_documents) -> /templates/...
+  // ---------------------------------------------------------
+  const { data: oldTemplates } = await supabase
+    .from('sow_documents')
+    .select('slug')
+    .not('slug', 'is', null);
+
+  const oldTemplateUrls = (oldTemplates || []).map((doc) => ({
+    url: `${baseUrl}/templates/${doc.slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.8,
+  }));
+
+  // ---------------------------------------------------------
+  // 2. FETCH NEW SEO PAGES (from seo_pages) -> /hire/...
+  // ---------------------------------------------------------
+  const { data: newSeoPages } = await supabase
     .from('seo_pages')
-    .select('slug, updated_at')
+    .select('slug');
 
-  const seoRoutes = seoPages?.map((page) => ({
+  const newSeoUrls = (newSeoPages || []).map((page) => ({
     url: `${baseUrl}/hire/${page.slug}`,
-    lastModified: page.updated_at || new Date().toISOString(),
+    lastModified: new Date(),
     changeFrequency: 'weekly' as const,
     priority: 0.9,
-  })) || []
+  }));
 
-  // 3. Define your Static Routes
+  // ---------------------------------------------------------
+  // 3. STATIC ROUTES (Home, Login, etc.)
+  // ---------------------------------------------------------
   const staticRoutes = [
-    '',
-    '/login',
-    '/create',
-    '/dashboard',
-    '/pricing',
-  ].map((route) => ({
-    url: `${baseUrl}${route}`,
-    lastModified: new Date().toISOString(),
-    changeFrequency: 'daily' as const,
-    priority: 1,
-  }))
+    {
+      url: baseUrl,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 1,
+    },
+    {
+      url: `${baseUrl}/login`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/create`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/dashboard`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.8,
+    },
+  ];
 
-  // 4. (Optional) Keep your old manual templates if you want them
-  // If you have a hardcoded list of old templates, you can keep them here.
-  // For now, I'll assume we are focusing on the new DB ones.
-
-  return [...staticRoutes, ...seoRoutes]
+  // ---------------------------------------------------------
+  // 4. COMBINE EVERYTHING
+  // ---------------------------------------------------------
+  return [...staticRoutes, ...oldTemplateUrls, ...newSeoUrls];
 }
