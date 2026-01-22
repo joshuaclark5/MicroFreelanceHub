@@ -58,12 +58,14 @@ export default function Home() {
           <div className="inline-block px-4 py-1.5 bg-blue-50 text-blue-700 font-bold rounded-full text-sm mb-6 border border-blue-100">
             ✨ AI-Powered • 100% Free for Freelancers
           </div>
+          {/* 👇 UPDATED: Professional Headline */}
           <h1 className="text-5xl tracking-tight font-extrabold text-slate-900 sm:text-6xl md:text-7xl mb-6">
-            Never get stiffed on <br className="hidden md:block" />
-            <span className="text-blue-600 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">an invoice again.</span>
+            Turn vague ideas into <br className="hidden md:block" />
+            <span className="text-blue-600 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">professional contracts.</span>
           </h1>
+          {/* 👇 UPDATED: Safer Subtext */}
           <p className="mt-4 max-w-2xl mx-auto text-xl text-slate-500 leading-relaxed">
-            Stop scope creep. Generate bulletproof <strong>Statements of Work (SOW)</strong> and freelance contracts in 30 seconds. Protected by AI legal shields.
+            Protect yourself from scope creep. Generate rock-solid <strong>Statements of Work (SOW)</strong> and freelance contracts in 30 seconds.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">
             <Link 
@@ -92,7 +94,8 @@ export default function Home() {
             <div className="flex flex-col items-center p-6 bg-white rounded-2xl shadow-sm border border-slate-100">
               <div className="text-4xl mb-4 bg-blue-100 w-16 h-16 flex items-center justify-center rounded-full">🛡️</div>
               <h3 className="font-bold text-lg text-slate-900">Liability Shield</h3>
-              <p className="text-slate-500 text-sm mt-2 leading-relaxed">Automatic legal clauses protect you from cancellations, scope creep & IP theft.</p>
+              {/* 👇 UPDATED: "Help protect" is legally safer */}
+              <p className="text-slate-500 text-sm mt-2 leading-relaxed">Automatic legal clauses help protect you from cancellations, scope creep & IP theft.</p>
             </div>
             <div className="flex flex-col items-center p-6 bg-white rounded-2xl shadow-sm border border-slate-100">
               <div className="text-4xl mb-4 bg-purple-100 w-16 h-16 flex items-center justify-center rounded-full">🤖</div>
@@ -125,10 +128,11 @@ export default function Home() {
           <div className="bg-white border border-slate-200 rounded-xl p-6 hover:shadow-lg transition-all hover:-translate-y-1">
             <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-lg">🎨 Creative</h3>
             <ul className="space-y-3 text-sm">
-              <li><Link href="/hire/hire-graphic-designer" className="text-slate-600 hover:text-blue-600 hover:underline">Graphic Designer Contract</Link></li>
-              <li><Link href="/hire/hire-video-editor" className="text-slate-600 hover:text-blue-600 hover:underline">Video Editor Agreement</Link></li>
-              <li><Link href="/hire/hire-ux-designer" className="text-slate-600 hover:text-blue-600 hover:underline">UX/UI Design SOW</Link></li>
-              <li><Link href="/hire/hire-photographer" className="text-slate-600 hover:text-blue-600 hover:underline">Photography Release</Link></li>
+              {/* 👇 UPDATED: Removed "hire-" from links to fix 404s */}
+              <li><Link href="/hire/graphic-designer" className="text-slate-600 hover:text-blue-600 hover:underline">Graphic Designer Contract</Link></li>
+              <li><Link href="/hire/video-editor" className="text-slate-600 hover:text-blue-600 hover:underline">Video Editor Agreement</Link></li>
+              <li><Link href="/hire/ux-designer" className="text-slate-600 hover:text-blue-600 hover:underline">UX/UI Design SOW</Link></li>
+              <li><Link href="/hire/photographer" className="text-slate-600 hover:text-blue-600 hover:underline">Photography Release</Link></li>
             </ul>
           </div>
 
@@ -136,10 +140,10 @@ export default function Home() {
           <div className="bg-white border border-slate-200 rounded-xl p-6 hover:shadow-lg transition-all hover:-translate-y-1">
             <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-lg">💻 Tech & Dev</h3>
             <ul className="space-y-3 text-sm">
-              <li><Link href="/hire/hire-web-developer" className="text-slate-600 hover:text-blue-600 hover:underline">Web Developer Contract</Link></li>
-              <li><Link href="/hire/hire-app-developer" className="text-slate-600 hover:text-blue-600 hover:underline">Mobile App SOW</Link></li>
-              <li><Link href="/hire/hire-software-engineer" className="text-slate-600 hover:text-blue-600 hover:underline">Software Engineer Agreement</Link></li>
-              <li><Link href="/hire/hire-game-developer" className="text-slate-600 hover:text-blue-600 hover:underline">Game Dev Contract</Link></li>
+              <li><Link href="/hire/web-developer" className="text-slate-600 hover:text-blue-600 hover:underline">Web Developer Contract</Link></li>
+              <li><Link href="/hire/app-developer" className="text-slate-600 hover:text-blue-600 hover:underline">Mobile App SOW</Link></li>
+              <li><Link href="/hire/software-engineer" className="text-slate-600 hover:text-blue-600 hover:underline">Software Engineer Agreement</Link></li>
+              <li><Link href="/hire/game-developer" className="text-slate-600 hover:text-blue-600 hover:underline">Game Dev Contract</Link></li>
             </ul>
           </div>
 
@@ -147,10 +151,10 @@ export default function Home() {
           <div className="bg-white border border-slate-200 rounded-xl p-6 hover:shadow-lg transition-all hover:-translate-y-1">
             <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-lg">📈 Marketing</h3>
             <ul className="space-y-3 text-sm">
-              <li><Link href="/hire/hire-social-media-manager" className="text-slate-600 hover:text-blue-600 hover:underline">Social Media Contract</Link></li>
-              <li><Link href="/hire/hire-seo-specialist" className="text-slate-600 hover:text-blue-600 hover:underline">SEO Retainer Agreement</Link></li>
-              <li><Link href="/hire/hire-copywriter" className="text-slate-600 hover:text-blue-600 hover:underline">Copywriting SOW</Link></li>
-              <li><Link href="/hire/hire-marketing-consultant" className="text-slate-600 hover:text-blue-600 hover:underline">Marketing Consulting</Link></li>
+              <li><Link href="/hire/social-media-manager" className="text-slate-600 hover:text-blue-600 hover:underline">Social Media Contract</Link></li>
+              <li><Link href="/hire/seo-specialist" className="text-slate-600 hover:text-blue-600 hover:underline">SEO Retainer Agreement</Link></li>
+              <li><Link href="/hire/copywriter" className="text-slate-600 hover:text-blue-600 hover:underline">Copywriting SOW</Link></li>
+              <li><Link href="/hire/marketing-consultant" className="text-slate-600 hover:text-blue-600 hover:underline">Marketing Consulting</Link></li>
             </ul>
           </div>
 
@@ -158,10 +162,10 @@ export default function Home() {
           <div className="bg-white border border-slate-200 rounded-xl p-6 hover:shadow-lg transition-all hover:-translate-y-1">
             <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-lg">🔨 Trades</h3>
             <ul className="space-y-3 text-sm">
-              <li><Link href="/hire/hire-plumber" className="text-slate-600 hover:text-blue-600 hover:underline">Plumbing Contract</Link></li>
-              <li><Link href="/hire/hire-electrician" className="text-slate-600 hover:text-blue-600 hover:underline">Electrician Work Order</Link></li>
-              <li><Link href="/hire/hire-landscaper" className="text-slate-600 hover:text-blue-600 hover:underline">Landscaping Agreement</Link></li>
-              <li><Link href="/hire/hire-handyman" className="text-slate-600 hover:text-blue-600 hover:underline">Handyman Invoice</Link></li>
+              <li><Link href="/hire/plumber" className="text-slate-600 hover:text-blue-600 hover:underline">Plumbing Contract</Link></li>
+              <li><Link href="/hire/electrician" className="text-slate-600 hover:text-blue-600 hover:underline">Electrician Work Order</Link></li>
+              <li><Link href="/hire/landscaper" className="text-slate-600 hover:text-blue-600 hover:underline">Landscaping Agreement</Link></li>
+              <li><Link href="/hire/handyman" className="text-slate-600 hover:text-blue-600 hover:underline">Handyman Invoice</Link></li>
             </ul>
           </div>
 
