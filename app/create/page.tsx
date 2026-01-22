@@ -123,18 +123,12 @@ export default function CreateProject() {
   }, [supabase]);
 
   // 💰 HELPER: Smart Upgrade Link
-  // This fetches the User ID and attaches it to the Stripe URL
   const handleUpgrade = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    
-    // REPLACE THIS URL with your live product link if different
     const STRIPE_LINK = 'https://buy.stripe.com/00wbIVa99ais1Ue5RY48002';
-    
     if (user) {
-        // ✅ The Fix: Attach ID so email doesn't matter
         window.location.href = `${STRIPE_LINK}?client_reference_id=${user.id}`;
     } else {
-        // Fallback for guests (they really should login first)
         window.location.href = STRIPE_LINK;
     }
   };
@@ -146,7 +140,7 @@ export default function CreateProject() {
     
     if (!isPro) {
         if(confirm("The AI Interviewer is a Pro feature. Would you like to upgrade?")) {
-            handleUpgrade(); // 👈 Use smart link
+            handleUpgrade(); 
         }
         return;
     }
@@ -251,7 +245,7 @@ export default function CreateProject() {
         if (count !== null && count >= 3) {
             setLoading(false);
             if(confirm("You have reached the limit of 3 Free Projects. Upgrade to Pro?")) {
-                handleUpgrade(); // 👈 Use smart link
+                handleUpgrade();
             }
             return;
         }
@@ -477,7 +471,8 @@ export default function CreateProject() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                {/* 👇 FIXED LAYOUT SECTION START */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Client Name</label>
                     <input
@@ -489,7 +484,7 @@ export default function CreateProject() {
                     />
                   </div>
                   
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-nowrap">
                     <div className="flex-1">
                         <label className="block text-sm font-bold text-gray-700 mb-1">Price ($)</label>
                         <input
@@ -500,18 +495,25 @@ export default function CreateProject() {
                         onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                         />
                     </div>
-                    <div className="w-1/3">
-                        <label className="block text-sm font-bold text-gray-700 mb-1">Tax (%)</label>
-                        <input
-                        type="number"
-                        placeholder="0"
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50"
-                        value={formData.taxRate}
-                        onChange={(e) => setFormData({ ...formData, taxRate: e.target.value })}
-                        />
+                    {/* Fixed Tax Input */}
+                    <div className="w-28 flex-shrink-0">
+                        <label className="block text-sm font-bold text-gray-700 mb-1">Tax</label>
+                        <div className="relative flex items-center">
+                            <input
+                            type="number"
+                            placeholder="0"
+                            className="w-full pl-3 pr-8 py-3 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:border-indigo-500"
+                            value={formData.taxRate}
+                            onChange={(e) => setFormData({ ...formData, taxRate: e.target.value })}
+                            />
+                            <div className="absolute right-3 pointer-events-none text-gray-500 font-bold">
+                                %
+                            </div>
+                        </div>
                     </div>
                   </div>
                 </div>
+                {/* 👆 FIXED LAYOUT SECTION END */}
 
                 <div className="bg-indigo-900 text-white p-4 rounded-lg flex justify-between items-center shadow-lg">
                     <span className="font-medium text-indigo-200">Estimated Total (Inc. Tax)</span>
