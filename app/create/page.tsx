@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { generateQuestions, generateFinalSOW, refineSOW } from '../actions/generateSOW';
 import Link from 'next/link';
 
-// 🛡️ THE LEGAL SHIELD (Terms at the bottom of the PDF)
+// 🛡️ THE LEGAL SHIELD (Terms at the bottom)
 const LEGAL_TERMS = `
 --------------------------------------------------
 TERMS & CONDITIONS
@@ -84,8 +84,9 @@ The Contractor agrees to perform the ${title} services in a professional manner,
 
 ${LEGAL_TERMS}`;
 
+    // 🆕 IMPROVED PAYMENT BLOCK (Clean & Professional)
     if (paymentUrl) {
-        content += `\n\n💳 PAYMENT LINK:\n${paymentUrl}`;
+        content += `\n\n💳 PAYMENT INSTRUCTIONS:\nTo complete payment, please click or copy the link below:\n\n${paymentUrl}`;
     }
 
     return content;
@@ -146,8 +147,11 @@ ${LEGAL_TERMS}`;
   // Handle Updates to Payment Link Input
   const handlePaymentLinkUpdate = (link: string) => {
     setFormData(prev => {
-        const baseContent = prev.deliverables.split('💳 PAYMENT LINK:')[0].trim();
-        const newContent = link ? baseContent + `\n\n💳 PAYMENT LINK:\n${link}` : baseContent;
+        // Clean remove old link block if it exists
+        const baseContent = prev.deliverables.split('💳 PAYMENT INSTRUCTIONS:')[0].trim();
+        const newContent = link 
+            ? baseContent + `\n\n💳 PAYMENT INSTRUCTIONS:\nTo complete payment, please click or copy the link below:\n\n${link}` 
+            : baseContent;
         return { ...prev, paymentLink: link, deliverables: newContent };
     });
   };
@@ -240,9 +244,9 @@ ${LEGAL_TERMS}`;
     const basePrice = parseFloat(formData.price) || 0;
     const taxRate = parseFloat(formData.taxRate) || 0;
     
-    // Ensure payment link is at the VERY bottom
-    if (formData.paymentLink && !finalDeliv.includes("💳 PAYMENT LINK")) {
-        finalDeliv += `\n\n💳 PAYMENT LINK:\n${formData.paymentLink}`;
+    // Ensure payment link block is present if link exists
+    if (formData.paymentLink && !finalDeliv.includes("💳 PAYMENT INSTRUCTIONS")) {
+        finalDeliv += `\n\n💳 PAYMENT INSTRUCTIONS:\nTo complete payment, please click or copy the link below:\n\n${formData.paymentLink}`;
     }
 
     if (taxRate > 0) {
