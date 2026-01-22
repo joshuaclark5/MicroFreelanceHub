@@ -2,13 +2,53 @@ import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-// Initialize Supabase Client (Public Read Access)
+// Initialize Supabase (Public)
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-// Helper: Fix capitalization for SEO titles
+// --- 🧠 THE BRAIN: Smart Slug Resolver ---
+async function findDoc(slug: string) {
+  
+  // 1. Manual Dictionary (Maps BROKEN links to WORKING database slugs)
+  const manualOverrides: Record<string, string> = {
+    // Creative
+    'graphic-design-contract': 'freelance-logo-designer',
+    'video-editor-contract': 'freelance-videographer',
+    'event-photographer-contract': 'hire-event-photographer',
+    'freelance-ux-designer': 'freelance-ux-designer',
+    
+    // Tech
+    'web-development-contract': 'hire-wordpress-developer',
+    'mobile-app-developer-contract': 'hire-react-native-dev',
+    'software-engineer-agreement': 'full-stack-engineer-contractor',
+    
+    // Marketing
+    'social-media-manager-contract': 'hire-twitter-manager',
+    'seo-specialist-contract': 'hire-local-seo-expert',
+    'copywriting-contract': 'case-study-copywriter', 
+  };
+
+  // Check dictionary first
+  if (manualOverrides[slug]) {
+    const overrideSlug = manualOverrides[slug];
+    const { data: seoDoc } = await supabase.from('seo_pages').select('*').eq('slug', overrideSlug).single();
+    if (seoDoc) return { doc: seoDoc, source: 'seo' };
+  }
+
+  // 2. Fallback: Search 'seo_pages' directly (in case the slug matches exactly)
+  const { data: seoDocs } = await supabase
+    .from('seo_pages')
+    .select('*')
+    .eq('slug', slug);
+
+  if (seoDocs && seoDocs.length > 0) return { doc: seoDocs[0], source: 'seo' };
+
+  return null;
+}
+
+// Helper: Title Case
 function toTitleCase(str: string | null) {
   if (!str) return '';
   return str.replace(/\w\S*/g, (txt) => {
@@ -16,94 +56,54 @@ function toTitleCase(str: string | null) {
   });
 }
 
-// 1. Generate Metadata (Checks BOTH tables)
+// --- METADATA GENERATION ---
 export async function generateMetadata({ params }: { params: { slug: string } }) {
-  // Try Table A (sow_documents)
-  let { data: doc } = await supabase
-    .from('sow_documents')
-    .select('title, deliverables')
-    .eq('slug', params.slug)
-    .single();
+  const result = await findDoc(params.slug);
+  if (!result) return { title: 'Template Not Found' };
 
-  // If not found, Try Table B (seo_pages)
-  if (!doc) {
-    const { data: seoPage } = await supabase
-      .from('seo_pages')
-      .select('*')
-      .eq('slug', params.slug)
-      .single();
-      
-    if (seoPage) {
-      doc = { 
-        title: seoPage.job_title || seoPage.keyword, 
-        deliverables: seoPage.deliverables 
-      } as any;
-    }
-  }
-
-  if (!doc) return { title: 'Template Not Found' };
-
-  const cleanTitle = toTitleCase(doc.title);
+  const { doc, source } = result;
+  const title = source === 'sow' ? doc.title : (doc.job_title || doc.keyword);
+  
   return {
-    title: `Free ${cleanTitle} Template (2026) | MicroFreelanceHub`,
-    description: `Download a professional ${cleanTitle} contract for free. Includes deliverables, scope, and legal protections. Perfect for freelancers.`,
+    title: `Free ${toTitleCase(title)} Template (2026) | MicroFreelanceHub`,
+    description: `Download a professional ${toTitleCase(title)} contract for free. Includes deliverables, scope, and legal protections.`,
   };
 }
 
-// 2. The Main Page Component
+// --- MAIN PAGE COMPONENT ---
 export default async function TemplatePage({ params }: { params: { slug: string } }) {
   
-  // STEP 1: Try finding it in 'sow_documents'
-  let { data: doc } = await supabase
-    .from('sow_documents')
-    .select('*')
-    .eq('slug', params.slug)
-    .single();
+  // 🔍 Use the Smart Resolver
+  const result = await findDoc(params.slug);
 
-  // STEP 2: If not there, try finding it in 'seo_pages' (The Backup)
-  if (!doc) {
-    const { data: seoDoc } = await supabase
-        .from('seo_pages')
-        .select('*')
-        .eq('slug', params.slug)
-        .single();
-    
-    if (seoDoc) {
-        // Map seo_pages data to look like sow_documents data
-        // Note: seo_pages stores deliverables as an array, so we join them for the text block
-        const deliverableText = Array.isArray(seoDoc.deliverables) 
-            ? seoDoc.deliverables.map((d: string) => `• ${d}`).join('\n') 
-            : seoDoc.deliverables;
+  if (!result) return notFound();
 
-        doc = {
-            title: seoDoc.job_title || seoDoc.keyword,
-            price: 0, // Default for SEO pages
-            client_name: "Your Client", // Default placeholder
-            deliverables: deliverableText || "Scope of work details...",
-            slug: seoDoc.slug
-        };
-    }
-  }
-
-  // If still not found in EITHER table, then it's a real 404
-  if (!doc) return notFound();
-
-  const displayTitle = toTitleCase(doc.title);
+  const { doc, source } = result;
+  
+  // Normalize the data
+  const pageData = {
+    title: toTitleCase(source === 'sow' ? doc.title : (doc.job_title || doc.keyword)),
+    price: source === 'sow' ? doc.price : 0,
+    client: source === 'sow' ? doc.client_name : "Your Client",
+    deliverables: Array.isArray(doc.deliverables) 
+      ? doc.deliverables.map((d: string) => `• ${d}`).join('\n') 
+      : (doc.deliverables || "Scope of work details..."),
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
       
-      {/* 🟢 SEO HEADER */}
+      {/* 🟢 HEADER */}
       <div className="bg-slate-900 text-white py-16 px-4">
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-indigo-400 font-bold tracking-widest uppercase text-xs mb-3">Free Contract Template</p>
-          <h1 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">{displayTitle}</h1>
+          <h1 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">{pageData.title}</h1>
           <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
             Stop using generic PDFs. This AI-enhanced template is designed specifically for your niche to protect you from scope creep.
           </p>
           
           <div className="flex gap-4 justify-center">
-            {/* Link passes the template slug to login so we can load it later */}
+            {/* Pass original slug to login for tracking */}
             <Link href={`/create?template=${params.slug}`}>
               <button className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-lg font-bold text-lg shadow-lg hover:-translate-y-1 transition-all">
                 Use This Template For Free ⚡
@@ -127,21 +127,21 @@ export default async function TemplatePage({ params }: { params: { slug: string 
 
           {/* Contract Content */}
           <div className="p-12 md:p-20 opacity-90">
-            <h2 className="text-3xl font-bold uppercase mb-2 text-gray-900">{displayTitle}</h2>
+            <h2 className="text-3xl font-bold uppercase mb-2 text-gray-900">{pageData.title}</h2>
             <p className="text-gray-500 uppercase tracking-widest text-sm font-bold mb-12">Statement of Work</p>
             
             <div className="space-y-8">
               <div>
                 <h3 className="text-sm font-bold text-gray-400 uppercase border-b pb-2 mb-4">Price</h3>
                 <p className="text-2xl font-bold text-gray-900">
-                    {doc.price ? `$${doc.price.toLocaleString()}` : 'Variable Rate'}
+                    {pageData.price ? `$${pageData.price.toLocaleString()}` : 'Variable Rate'}
                 </p>
               </div>
 
               <div>
                 <h3 className="text-sm font-bold text-gray-400 uppercase border-b pb-2 mb-4">Deliverables</h3>
                 <div className="prose text-gray-800 whitespace-pre-line leading-relaxed">
-                  {doc.deliverables}
+                  {pageData.deliverables}
                 </div>
               </div>
             </div>
@@ -152,7 +152,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
               <p className="text-indigo-700 mb-6">Use our AI to add your specific project details, liability clauses, and payment terms in seconds.</p>
               <Link href={`/create?template=${params.slug}`}>
                 <button className="bg-black text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-800">
-                  Customize for {doc.client_name || 'Your Client'} Now &rarr;
+                  Customize for {pageData.client} Now &rarr;
                 </button>
               </Link>
             </div>
@@ -160,14 +160,13 @@ export default async function TemplatePage({ params }: { params: { slug: string 
           </div>
         </div>
         
-        {/* SEO Footer Links (Internal Linking Strategy) */}
+        {/* Footer Links */}
         <div className="mt-20 text-center">
             <h4 className="font-bold text-gray-900 mb-6">Popular Templates</h4>
             <div className="flex flex-wrap justify-center gap-4">
                 <Link href="/templates/web-development-contract" className="text-gray-500 hover:text-indigo-600 underline">Web Dev</Link>
                 <Link href="/templates/seo-specialist-contract" className="text-gray-500 hover:text-indigo-600 underline">SEO Retainer</Link>
                 <Link href="/templates/graphic-design-contract" className="text-gray-500 hover:text-indigo-600 underline">Graphic Design</Link>
-                <Link href="/templates/social-media-manager-contract" className="text-gray-500 hover:text-indigo-600 underline">Social Media</Link>
             </div>
         </div>
 
