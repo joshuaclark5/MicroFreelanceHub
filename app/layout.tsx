@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+// 👇 FIX: Use the relative path
+import FeedbackWidget from './components/FeedbackWidget';
 
-// Load the standard font
 const inter = Inter({ subsets: ['latin'] });
 
-// 🛠️ FIX: Add metadataBase to resolve the warning and enable social images
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.microfreelancehub.com'),
   title: {
@@ -37,6 +37,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         {children}
+        <FeedbackWidget />
       </body>
     </html>
   );
