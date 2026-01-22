@@ -28,6 +28,7 @@ function CreateProjectContent() {
     projectTitle: '',
     price: '',
     taxRate: '', 
+    paymentLink: '', // 🆕 Added Payment Link State
     deliverables: '', 
     description: ''
   });
@@ -62,8 +63,8 @@ function CreateProjectContent() {
     checkPro();
   }, [supabase]);
 
-  // 2. HELPER: The "Beefing Up" Function (Makes contracts look Pro)
-  const generateProfessionalContent = (title: string, rawDeliverables: any) => {
+  // 2. HELPER: The "Beefing Up" Function
+  const generateProfessionalContent = (title: string, rawDeliverables: any, paymentUrl: string = '') => {
     // Ensure deliverables is a clean array
     const list = Array.isArray(rawDeliverables) 
         ? rawDeliverables 
@@ -71,7 +72,7 @@ function CreateProjectContent() {
 
     const bullets = list.map((item: string) => `• ${item}`).join('\n');
 
-    return `1. PROJECT BACKGROUND
+    let content = `1. PROJECT BACKGROUND
 This Agreement is entered into by and between the Client and the Contractor. The Client wishes to engage the Contractor for professional ${title} services, and the Contractor agrees to perform such services in accordance with the terms and conditions set forth below.
 
 2. SCOPE OF SERVICES
@@ -80,12 +81,19 @@ The Contractor shall provide the following specific deliverables:
 ${bullets}
 
 3. PERFORMANCE STANDARDS
-The Contractor agrees to perform the ${title} services in a professional manner, using the degree of skill and care that is required by current industry standards. The Contractor shall provide all tools and equipment necessary to complete the tasks unless otherwise agreed.
+The Contractor agrees to perform the ${title} services in a professional manner, using the degree of skill and care that is required by current industry standards.
 
 ${LEGAL_TERMS}`;
+
+    // 🆕 Append Payment Link if it exists
+    if (paymentUrl) {
+        content += `\n\n💳 PAYMENT LINK:\n${paymentUrl}`;
+    }
+
+    return content;
   };
 
-  // 3. SMART TEMPLATE INJECTOR (Updated)
+  // 3. SMART TEMPLATE INJECTOR
   useEffect(() => {
     async function loadTemplate() {
       const urlSlug = searchParams.get('template');
@@ -96,7 +104,6 @@ ${LEGAL_TERMS}`;
         setLoading(true);
         setLoadingMessage('Generating Contract...');
 
-        // Dictionary to catch "Hire" vs "Template" naming mismatches
         const manualOverrides: Record<string, string> = {
             'hire-graphic-designer': 'freelance-logo-designer',
             'hire-video-editor': 'freelance-videographer',
@@ -106,7 +113,7 @@ ${LEGAL_TERMS}`;
 
         const searchSlug = manualOverrides[slug] || slug;
 
-        // A. Try System Templates (sow_documents)
+        // A. Try System Templates
         let { data: sowDoc } = await supabase
           .from('sow_documents')
           .select('*')
@@ -132,15 +139,15 @@ ${LEGAL_TERMS}`;
             if (seoDoc) {
                 foundData = {
                     title: seoDoc.job_title || seoDoc.keyword,
-                    price: 0, // SEO pages rarely have prices
+                    price: 0, 
                     deliverables: seoDoc.deliverables
                 };
             }
         }
 
-        // C. If found, INJECT and BEEF UP the content
+        // C. INJECT and BEEF UP
         if (foundData) {
-             const fullContent = generateProfessionalContent(foundData.title, foundData.deliverables);
+             const fullContent = generateProfessionalContent(foundData.title, foundData.deliverables, formData.paymentLink);
 
              setFormData(prev => ({
                ...prev,
@@ -160,15 +167,22 @@ ${LEGAL_TERMS}`;
     loadTemplate();
   }, [supabase, searchParams]);
 
-  // [Remaining helper functions: handleUpgrade, handleAnalyze, etc. keep same logic]
+  // Handle Updates to Payment Link Input
+  const handlePaymentLinkUpdate = (link: string) => {
+    setFormData(prev => {
+        // Regenerate content with new link, but keep existing edits if possible? 
+        // Simple version: Just append it if not present, or replace regex.
+        // For V1, let's just update the state, and the user can see it when they save? 
+        // Better: Append it to the text area live.
+        const newContent = prev.deliverables.split('💳 PAYMENT LINK:')[0].trim() + `\n\n💳 PAYMENT LINK:\n${link}`;
+        return { ...prev, paymentLink: link, deliverables: link ? newContent : prev.deliverables.split('💳 PAYMENT LINK:')[0].trim() };
+    });
+  };
+
   const handleUpgrade = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    const STRIPE_LINK = 'https://buy.stripe.com/00wbIVa99ais1Ue5RY48002'; // Replace with yours
-    if (user) {
-        window.location.href = `${STRIPE_LINK}?client_reference_id=${user.id}`;
-    } else {
-        window.location.href = STRIPE_LINK;
-    }
+    const STRIPE_LINK = 'https://buy.stripe.com/00wbIVa99ais1Ue5RY48002';
+    window.location.href = user ? `${STRIPE_LINK}?client_reference_id=${user.id}` : STRIPE_LINK;
   };
 
   const handleAnalyze = async () => {
@@ -192,8 +206,7 @@ ${LEGAL_TERMS}`;
     const qaPairs = questions.map((q, i) => ({ q, a: answers[i] }));
     const result = await generateFinalSOW(formData.clientName, formData.description, qaPairs);
     if (result) {
-      // Use the same professional formatter here too
-      const fullContent = generateProfessionalContent(result.title, result.deliverables);
+      const fullContent = generateProfessionalContent(result.title, result.deliverables, formData.paymentLink);
       setFormData(prev => ({
         ...prev,
         projectTitle: result.title,
@@ -253,10 +266,16 @@ ${LEGAL_TERMS}`;
     let finalDeliv = formData.deliverables;
     const basePrice = parseFloat(formData.price) || 0;
     const taxRate = parseFloat(formData.taxRate) || 0;
+    
+    // Ensure payment link is at the VERY bottom
+    if (formData.paymentLink && !finalDeliv.includes(formData.paymentLink)) {
+        finalDeliv += `\n\n💳 PAYMENT LINK:\n${formData.paymentLink}`;
+    }
+
     if (taxRate > 0) {
         const taxAmount = basePrice * (taxRate / 100);
         const total = basePrice + taxAmount;
-        finalDeliv += `\n\nFINANCIAL SUMMARY\nSubtotal: $${basePrice.toFixed(2)}\nTax/Fees (${taxRate}%): $${taxAmount.toFixed(2)}\nTOTAL: $${total.toFixed(2)}`;
+        finalDeliv += `\n\n--------------------------------------------------\nFINANCIAL SUMMARY\nSubtotal: $${basePrice.toFixed(2)}\nTax/Fees (${taxRate}%): $${taxAmount.toFixed(2)}\nTOTAL: $${total.toFixed(2)}`;
     }
 
     const { error } = await supabase.from('sow_documents').insert({
@@ -427,7 +446,7 @@ ${LEGAL_TERMS}`;
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Contract Agreement</label>
                   
-                  {/* 👇 MOCK BROWSER WINDOW (The Look You Want) */}
+                  {/* 👇 MOCK BROWSER WINDOW */}
                   <div className="border border-gray-300 rounded-lg overflow-hidden shadow-sm">
                     <div className="bg-gray-100 border-b border-gray-200 p-3 flex gap-2 items-center">
                         <div className="w-3 h-3 rounded-full bg-red-400"></div>
@@ -443,7 +462,6 @@ ${LEGAL_TERMS}`;
                         onChange={(e) => setFormData({ ...formData, deliverables: e.target.value })}
                     />
                   </div>
-                  {/* 👆 END MOCK BROWSER */}
 
                 </div>
 
@@ -482,6 +500,22 @@ ${LEGAL_TERMS}`;
                         />
                     </div>
                   </div>
+                  
+                  {/* 🆕 PAYMENT LINK INPUT */}
+                  <div className="sm:col-span-2">
+                     <label className="block text-sm font-bold text-gray-700 mb-1">Payment Link (Optional)</label>
+                     <input
+                        type="url"
+                        placeholder="https://buy.stripe.com/..."
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-blue-50 focus:border-blue-500"
+                        value={formData.paymentLink}
+                        onChange={(e) => handlePaymentLinkUpdate(e.target.value)}
+                     />
+                     <p className="text-xs text-gray-500 mt-1">
+                        Paste your Stripe or PayPal link here. It will be added to the bottom of the contract.
+                     </p>
+                  </div>
+
                 </div>
 
                 <div className="bg-indigo-900 text-white p-4 rounded-lg flex justify-between items-center shadow-lg">
