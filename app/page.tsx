@@ -109,7 +109,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 4. TEMPLATE GRID (SEO LINKS - 100% VERIFIED WITH DATABASE) */}
+      {/* 4. TEMPLATE GRID (MIXED LINKS: Templates vs Hire) */}
       <div id="templates" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-extrabold text-slate-900 mb-4">
@@ -122,40 +122,40 @@ export default function Home() {
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           
-          {/* Creative Block */}
+          {/* Creative Block - POINTING TO TEMPLATES */}
           <div className="bg-white border border-slate-200 rounded-xl p-6 hover:shadow-lg transition-all hover:-translate-y-1">
             <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-lg">🎨 Creative</h3>
             <ul className="space-y-3 text-sm">
-              <li><Link href="/hire/freelance-logo-designer" className="text-slate-600 hover:text-blue-600 hover:underline">Graphic Designer Contract</Link></li>
-              <li><Link href="/hire/freelance-videographer" className="text-slate-600 hover:text-blue-600 hover:underline">Video Editor Agreement</Link></li>
+              <li><Link href="/templates/graphic-design-contract" className="text-slate-600 hover:text-blue-600 hover:underline">Graphic Designer Contract</Link></li>
+              <li><Link href="/templates/video-editor-contract" className="text-slate-600 hover:text-blue-600 hover:underline">Video Editor Agreement</Link></li>
               <li><Link href="/hire/freelance-ux-designer" className="text-slate-600 hover:text-blue-600 hover:underline">UX/UI Design SOW</Link></li>
-              <li><Link href="/hire/hire-event-photographer" className="text-slate-600 hover:text-blue-600 hover:underline">Photography Release</Link></li>
+              <li><Link href="/templates/event-photographer-contract" className="text-slate-600 hover:text-blue-600 hover:underline">Photography Release</Link></li>
             </ul>
           </div>
 
-          {/* Tech Block */}
+          {/* Tech Block - POINTING TO TEMPLATES */}
           <div className="bg-white border border-slate-200 rounded-xl p-6 hover:shadow-lg transition-all hover:-translate-y-1">
             <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-lg">💻 Tech & Dev</h3>
             <ul className="space-y-3 text-sm">
-              <li><Link href="/hire/hire-wordpress-developer" className="text-slate-600 hover:text-blue-600 hover:underline">Web Developer Contract</Link></li>
-              <li><Link href="/hire/hire-react-native-dev" className="text-slate-600 hover:text-blue-600 hover:underline">Mobile App SOW</Link></li>
+              <li><Link href="/templates/web-development-contract" className="text-slate-600 hover:text-blue-600 hover:underline">Web Developer Contract</Link></li>
+              <li><Link href="/templates/mobile-app-developer-contract" className="text-slate-600 hover:text-blue-600 hover:underline">Mobile App SOW</Link></li>
               <li><Link href="/hire/full-stack-engineer-contractor" className="text-slate-600 hover:text-blue-600 hover:underline">Software Engineer Agreement</Link></li>
               <li><Link href="/hire/unity-developer-for-hire" className="text-slate-600 hover:text-blue-600 hover:underline">Game Dev Contract</Link></li>
             </ul>
           </div>
 
-          {/* Marketing Block */}
+          {/* Marketing Block - MIXED */}
           <div className="bg-white border border-slate-200 rounded-xl p-6 hover:shadow-lg transition-all hover:-translate-y-1">
             <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-lg">📈 Marketing</h3>
             <ul className="space-y-3 text-sm">
-              <li><Link href="/hire/hire-twitter-manager" className="text-slate-600 hover:text-blue-600 hover:underline">Social Media Contract</Link></li>
-              <li><Link href="/hire/hire-local-seo-expert" className="text-slate-600 hover:text-blue-600 hover:underline">SEO Retainer Agreement</Link></li>
-              <li><Link href="/hire/case-study-copywriter" className="text-slate-600 hover:text-blue-600 hover:underline">Copywriting SOW</Link></li>
+              <li><Link href="/templates/social-media-manager-contract" className="text-slate-600 hover:text-blue-600 hover:underline">Social Media Contract</Link></li>
+              <li><Link href="/templates/seo-specialist-contract" className="text-slate-600 hover:text-blue-600 hover:underline">SEO Retainer Agreement</Link></li>
+              <li><Link href="/templates/copywriting-contract" className="text-slate-600 hover:text-blue-600 hover:underline">Copywriting SOW</Link></li>
               <li><Link href="/hire/hire-brand-strategist" className="text-slate-600 hover:text-blue-600 hover:underline">Marketing Consulting</Link></li>
             </ul>
           </div>
 
-          {/* Trades Block */}
+          {/* Trades Block - POINTING TO HIRE */}
           <div className="bg-white border border-slate-200 rounded-xl p-6 hover:shadow-lg transition-all hover:-translate-y-1">
             <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-lg">🔨 Trades</h3>
             <ul className="space-y-3 text-sm">
