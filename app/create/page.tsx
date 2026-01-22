@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { generateQuestions, generateFinalSOW, refineSOW } from '../actions/generateSOW';
 import Link from 'next/link';
 
-// 🛡️ THE LEGAL SHIELD (Terms at the bottom)
+// 🛡️ THE LEGAL SHIELD (Terms at the bottom of the PDF)
 const LEGAL_TERMS = `
 --------------------------------------------------
 TERMS & CONDITIONS
@@ -28,7 +28,7 @@ function CreateProjectContent() {
     projectTitle: '',
     price: '',
     taxRate: '', 
-    paymentLink: '', // 🆕 Added Payment Link State
+    paymentLink: '', 
     deliverables: '', 
     description: ''
   });
@@ -65,7 +65,6 @@ function CreateProjectContent() {
 
   // 2. HELPER: The "Beefing Up" Function
   const generateProfessionalContent = (title: string, rawDeliverables: any, paymentUrl: string = '') => {
-    // Ensure deliverables is a clean array
     const list = Array.isArray(rawDeliverables) 
         ? rawDeliverables 
         : (typeof rawDeliverables === 'string' ? [rawDeliverables] : ["Scope of work details..."]);
@@ -85,7 +84,6 @@ The Contractor agrees to perform the ${title} services in a professional manner,
 
 ${LEGAL_TERMS}`;
 
-    // 🆕 Append Payment Link if it exists
     if (paymentUrl) {
         content += `\n\n💳 PAYMENT LINK:\n${paymentUrl}`;
     }
@@ -113,42 +111,20 @@ ${LEGAL_TERMS}`;
 
         const searchSlug = manualOverrides[slug] || slug;
 
-        // A. Try System Templates
-        let { data: sowDoc } = await supabase
-          .from('sow_documents')
-          .select('*')
-          .eq('slug', searchSlug)
-          .single();
-
+        let { data: sowDoc } = await supabase.from('sow_documents').select('*').eq('slug', searchSlug).single();
         let foundData = null;
 
         if (sowDoc) {
-             foundData = {
-                 title: sowDoc.title,
-                 price: sowDoc.price,
-                 deliverables: sowDoc.deliverables
-             };
+             foundData = { title: sowDoc.title, price: sowDoc.price, deliverables: sowDoc.deliverables };
         } else {
-            // B. Try SEO Pages
-            let { data: seoDoc } = await supabase
-               .from('seo_pages')
-               .select('*')
-               .eq('slug', searchSlug)
-               .single();
-            
+            let { data: seoDoc } = await supabase.from('seo_pages').select('*').eq('slug', searchSlug).single();
             if (seoDoc) {
-                foundData = {
-                    title: seoDoc.job_title || seoDoc.keyword,
-                    price: 0, 
-                    deliverables: seoDoc.deliverables
-                };
+                foundData = { title: seoDoc.job_title || seoDoc.keyword, price: 0, deliverables: seoDoc.deliverables };
             }
         }
 
-        // C. INJECT and BEEF UP
         if (foundData) {
              const fullContent = generateProfessionalContent(foundData.title, foundData.deliverables, formData.paymentLink);
-
              setFormData(prev => ({
                ...prev,
                projectTitle: foundData.title,
@@ -170,12 +146,9 @@ ${LEGAL_TERMS}`;
   // Handle Updates to Payment Link Input
   const handlePaymentLinkUpdate = (link: string) => {
     setFormData(prev => {
-        // Regenerate content with new link, but keep existing edits if possible? 
-        // Simple version: Just append it if not present, or replace regex.
-        // For V1, let's just update the state, and the user can see it when they save? 
-        // Better: Append it to the text area live.
-        const newContent = prev.deliverables.split('💳 PAYMENT LINK:')[0].trim() + `\n\n💳 PAYMENT LINK:\n${link}`;
-        return { ...prev, paymentLink: link, deliverables: link ? newContent : prev.deliverables.split('💳 PAYMENT LINK:')[0].trim() };
+        const baseContent = prev.deliverables.split('💳 PAYMENT LINK:')[0].trim();
+        const newContent = link ? baseContent + `\n\n💳 PAYMENT LINK:\n${link}` : baseContent;
+        return { ...prev, paymentLink: link, deliverables: newContent };
     });
   };
 
@@ -268,14 +241,17 @@ ${LEGAL_TERMS}`;
     const taxRate = parseFloat(formData.taxRate) || 0;
     
     // Ensure payment link is at the VERY bottom
-    if (formData.paymentLink && !finalDeliv.includes(formData.paymentLink)) {
+    if (formData.paymentLink && !finalDeliv.includes("💳 PAYMENT LINK")) {
         finalDeliv += `\n\n💳 PAYMENT LINK:\n${formData.paymentLink}`;
     }
 
     if (taxRate > 0) {
         const taxAmount = basePrice * (taxRate / 100);
         const total = basePrice + taxAmount;
-        finalDeliv += `\n\n--------------------------------------------------\nFINANCIAL SUMMARY\nSubtotal: $${basePrice.toFixed(2)}\nTax/Fees (${taxRate}%): $${taxAmount.toFixed(2)}\nTOTAL: $${total.toFixed(2)}`;
+        // Check if summary already exists to avoid double-add
+        if (!finalDeliv.includes("FINANCIAL SUMMARY")) {
+            finalDeliv += `\n\n--------------------------------------------------\nFINANCIAL SUMMARY\nSubtotal: $${basePrice.toFixed(2)}\nTax/Fees (${taxRate}%): $${taxAmount.toFixed(2)}\nTOTAL: $${total.toFixed(2)}`;
+        }
     }
 
     const { error } = await supabase.from('sow_documents').insert({
@@ -523,7 +499,7 @@ ${LEGAL_TERMS}`;
                     <span className="text-2xl font-bold">${calculateTotal()}</span>
                 </div>
 
-                {/* LIABILITY CHECKBOX */}
+                {/* LIABILITY CHECKBOX (UPDATED) */}
                 <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200 mt-4">
                     <label className="flex items-start gap-3 cursor-pointer">
                         <input 
@@ -533,7 +509,7 @@ ${LEGAL_TERMS}`;
                             onChange={(e) => setHasAgreedToTerms(e.target.checked)}
                         />
                         <div className="text-xs text-gray-700 leading-snug">
-                            <strong>I am not a lawyer.</strong> I understand MicroFreelanceHub provides templates for informational purposes only. I agree to the <Link href="/terms-of-service" className="underline">Terms</Link> and <Link href="/disclaimer" className="underline">Disclaimer</Link>.
+                            <strong>Required:</strong> I acknowledge that MicroFreelanceHub provides templates for informational purposes only and does not provide legal advice. I agree to the <Link href="/terms-of-service" className="underline">Terms of Service</Link> and <Link href="/disclaimer" className="underline">Disclaimer</Link>, and I use this contract at my own risk. <strong>I understand MicroFreelanceHub creates the document but processes no payments; all refunds and disputes are solely between me and my client.</strong>
                         </div>
                     </label>
                 </div>
