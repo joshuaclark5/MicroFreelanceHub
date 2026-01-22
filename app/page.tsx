@@ -58,14 +58,13 @@ export default function Home() {
           <div className="inline-block px-4 py-1.5 bg-blue-50 text-blue-700 font-bold rounded-full text-sm mb-6 border border-blue-100">
             ✨ AI-Powered • 100% Free for Freelancers
           </div>
-          {/* 👇 UPDATED: Professional Headline */}
           <h1 className="text-5xl tracking-tight font-extrabold text-slate-900 sm:text-6xl md:text-7xl mb-6">
             Turn vague ideas into <br className="hidden md:block" />
             <span className="text-blue-600 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">professional contracts.</span>
           </h1>
-          {/* 👇 UPDATED: Safer Subtext */}
+          {/* 👇 THE PLAIN ENGLISH "PAIN-FIRST" HOOK */}
           <p className="mt-4 max-w-2xl mx-auto text-xl text-slate-500 leading-relaxed">
-            Protect yourself from scope creep. Generate rock-solid <strong>Statements of Work (SOW)</strong> and freelance contracts in 30 seconds.
+            Stop doing extra work for free. Generate rock-solid <strong>Statements of Work (SOW)</strong> that set clear boundaries so you get paid for every change.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">
             <Link 
@@ -94,7 +93,6 @@ export default function Home() {
             <div className="flex flex-col items-center p-6 bg-white rounded-2xl shadow-sm border border-slate-100">
               <div className="text-4xl mb-4 bg-blue-100 w-16 h-16 flex items-center justify-center rounded-full">🛡️</div>
               <h3 className="font-bold text-lg text-slate-900">Liability Shield</h3>
-              {/* 👇 UPDATED: "Help protect" is legally safer */}
               <p className="text-slate-500 text-sm mt-2 leading-relaxed">Automatic legal clauses help protect you from cancellations, scope creep & IP theft.</p>
             </div>
             <div className="flex flex-col items-center p-6 bg-white rounded-2xl shadow-sm border border-slate-100">
@@ -128,7 +126,6 @@ export default function Home() {
           <div className="bg-white border border-slate-200 rounded-xl p-6 hover:shadow-lg transition-all hover:-translate-y-1">
             <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-lg">🎨 Creative</h3>
             <ul className="space-y-3 text-sm">
-              {/* 👇 UPDATED: Removed "hire-" from links to fix 404s */}
               <li><Link href="/hire/graphic-designer" className="text-slate-600 hover:text-blue-600 hover:underline">Graphic Designer Contract</Link></li>
               <li><Link href="/hire/video-editor" className="text-slate-600 hover:text-blue-600 hover:underline">Video Editor Agreement</Link></li>
               <li><Link href="/hire/ux-designer" className="text-slate-600 hover:text-blue-600 hover:underline">UX/UI Design SOW</Link></li>
