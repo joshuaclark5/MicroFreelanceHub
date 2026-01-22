@@ -1,13 +1,31 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { GoogleAnalytics } from '@next/third-parties/google';
 
+// Load the standard font
 const inter = Inter({ subsets: ['latin'] });
 
+// 🛠️ FIX: Add metadataBase to resolve the warning
 export const metadata: Metadata = {
-  title: 'MicroFreelanceHub | AI Contract Generator',
-  description: 'Free AI-powered contract templates for freelancers. Protect your work with professional SOWs.',
+  metadataBase: new URL('https://www.microfreelancehub.com'),
+  title: {
+    default: 'MicroFreelanceHub | Free AI Contract Generator',
+    template: '%s | MicroFreelanceHub',
+  },
+  description: 'Turn vague ideas into professional contracts. Free AI-powered generator for freelancers.',
+  openGraph: {
+    title: 'MicroFreelanceHub',
+    description: 'Free AI-Powered Freelance Contracts',
+    url: 'https://www.microfreelancehub.com',
+    siteName: 'MicroFreelanceHub',
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'MicroFreelanceHub',
+    description: 'Free AI-Powered Freelance Contracts',
+  },
 };
 
 export default function RootLayout({
@@ -20,8 +38,6 @@ export default function RootLayout({
       <body className={inter.className}>
         {children}
       </body>
-      {/* 📊 Google Analytics connected to your specific ID */}
-      <GoogleAnalytics gaId="G-3PZE2XQMH0" />
     </html>
   );
 }
