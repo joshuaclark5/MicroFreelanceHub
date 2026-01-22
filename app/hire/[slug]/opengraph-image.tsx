@@ -14,12 +14,17 @@ export const contentType = 'image/png'
  
 // Image generation
 export default async function Image({ params }: { params: { slug: string } }) {
-  // 1. Get the slug (e.g., "hire-plumber")
+  // 1. Get the slug (e.g., "hire-plumber" or "freelance-ux-designer")
   const slug = params.slug
   
-  // 2. Format it: remove "hire-", replace dashes with spaces, capitalize
-  // Result: "Plumber" or "Rust Developer"
-  const rawTitle = slug.replace('hire-', '').replace(/-/g, ' ')
+  // 2. Format it: remove "hire-" AND "freelance-", replace dashes with spaces
+  const rawTitle = slug
+    .replace('hire-', '')
+    .replace('freelance-', '')
+    .replace(/-/g, ' ')
+
+  // 3. Capitalize every word (e.g., "ux designer" -> "Ux Designer")
+  // Note: For perfect "UX" capitalization, we'd need more logic, but Title Case is good enough for now.
   const title = rawTitle.replace(/\b\w/g, (l) => l.toUpperCase())
  
   return new ImageResponse(
@@ -73,7 +78,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
           Free Template
         </div>
 
-        {/* Main Title - ADDED display: 'flex' here to fix error */}
+        {/* Main Title */}
         <div
           style={{
             display: 'flex', 
@@ -84,15 +89,16 @@ export default async function Image({ params }: { params: { slug: string } }) {
             backgroundImage: 'linear-gradient(to right, #ffffff, #9ca3af)',
             backgroundClip: 'text',
             color: 'transparent',
-            maxWidth: '900px',
+            maxWidth: '1000px', // Widened slightly to fit longer titles
             justifyContent: 'center',
             textAlign: 'center',
+            flexWrap: 'wrap', // Allows wrapping for long titles
           }}
         >
           {title} Contract
         </div>
 
-        {/* Subtitle - ADDED display: 'flex' here for safety */}
+        {/* Subtitle */}
         <div
           style={{
             display: 'flex',

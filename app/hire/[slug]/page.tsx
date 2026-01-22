@@ -8,7 +8,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-// 2. HELPER: Force Capitalization (Fixes the "robot glitch")
+// 2. HELPER: Force Capitalization
 function toTitleCase(str: string | null) {
   if (!str) return '';
   return str.replace(/\w\S*/g, (txt) => {
@@ -16,17 +16,21 @@ function toTitleCase(str: string | null) {
   });
 }
 
-// 3. Generate Metadata for SEO (Title tags show up correctly on Google)
+// 3. Generate Metadata (Smart Search)
 export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const { data: page } = await supabase
-    .from('seo_pages')
-    .select('*')
-    .eq('slug', params.slug)
-    .single();
+  // Try Table A (seo_pages)
+  let { data: page } = await supabase.from('seo_pages').select('*').eq('slug', params.slug).single();
+  
+  // If not found, Try Table B (sow_documents)
+  if (!page) {
+     const { data: sowDoc } = await supabase.from('sow_documents').select('*').eq('slug', params.slug).single();
+     if (sowDoc) {
+        page = { job_title: sowDoc.title, keyword: sowDoc.title, deliverables: sowDoc.deliverables };
+     }
+  }
 
   if (!page) return { title: 'Contract Not Found' };
 
-  // Apply the fix to the meta title too
   const cleanTitle = toTitleCase(page.job_title || page.keyword);
 
   return {
@@ -37,14 +41,32 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
 // 4. The Page Component
 export default async function HirePage({ params }: { params: { slug: string } }) {
-  // Fetch data
-  const { data: page, error } = await supabase
+  // STEP 1: Try 'seo_pages'
+  let { data: page } = await supabase
     .from('seo_pages')
     .select('*')
     .eq('slug', params.slug)
     .single();
 
-  if (error || !page) {
+  // STEP 2: Fallback to 'sow_documents'
+  if (!page) {
+    const { data: sowDoc } = await supabase
+        .from('sow_documents')
+        .select('*')
+        .eq('slug', params.slug)
+        .single();
+    
+    if (sowDoc) {
+        // Map the data so the page doesn't crash
+        page = {
+            job_title: sowDoc.title,
+            keyword: sowDoc.title,
+            deliverables: sowDoc.deliverables
+        };
+    }
+  }
+
+  if (!page) {
     notFound();
   }
 
@@ -104,12 +126,20 @@ export default async function HirePage({ params }: { params: { slug: string } })
             📄 What's included in this {title} contract?
           </h3>
           <ul className="space-y-3">
-            {page.deliverables && page.deliverables.map((item: string, i: number) => (
+            {page.deliverables && Array.isArray(page.deliverables) && page.deliverables.map((item: string, i: number) => (
               <li key={i} className="flex items-start gap-3">
                 <span className="text-green-500 font-bold">✓</span>
                 <span className="text-slate-700">{item}</span>
               </li>
             ))}
+             {/* Handle string deliverables (fallback) */}
+             {page.deliverables && !Array.isArray(page.deliverables) && (
+                 <li className="flex items-start gap-3">
+                    <span className="text-green-500 font-bold">✓</span>
+                    <span className="text-slate-700 whitespace-pre-line">{page.deliverables}</span>
+                 </li>
+             )}
+
             <li className="flex items-start gap-3">
               <span className="text-blue-500 font-bold">✓</span>
               <span className="text-slate-700 font-semibold">Liability Protection Shield (Standard Legal Terms)</span>
