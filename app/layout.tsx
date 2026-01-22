@@ -5,7 +5,7 @@ import './globals.css';
 // Load the standard font
 const inter = Inter({ subsets: ['latin'] });
 
-// 🛠️ FIX: Add metadataBase to resolve the warning
+// 🛠️ FIX: Add metadataBase to resolve the warning and enable social images
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.microfreelancehub.com'),
   title: {
