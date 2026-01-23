@@ -35,7 +35,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
   const [signerName, setSignerName] = useState('');
   const [signRole, setSignRole] = useState<'client' | 'provider'>('client');
   const [isSigning, setIsSigning] = useState(false);
-  const [showMenu, setShowMenu] = useState(false); // <--- New Menu State
+  const [showMenu, setShowMenu] = useState(false);
   const [shareText, setShareText] = useState('Share Link');
 
   const supabase = createClientComponentClient();
@@ -47,18 +47,29 @@ export default function ViewContract({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     const load = async () => {
+      // 1. Load the Document
       const { data: docData, error } = await supabase.from('sow_documents').select('*').eq('id', params.id).single();
       
       if (error || !docData) {
          setLoading(false);
          return;
       }
-      setDoc(docData);
 
-      // ⚡️ AUTO-UPDATE: If payment succeeded, update status to 'Paid'
+      // ⚡️ AUTO-UPDATE: If payment succeeded, call the SECURE API to update status
       if (paymentStatus === 'success' && docData.status !== 'Paid') {
-         await supabase.from('sow_documents').update({ status: 'Paid' }).eq('id', params.id);
-         setDoc({ ...docData, status: 'Paid' }); // Optimistic update for UI
+         
+         // Call our new Admin API route
+         await fetch('/api/sow/mark-paid', {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({ sowId: params.id }),
+         });
+
+         // Update local state immediately so the UI turns green
+         setDoc({ ...docData, status: 'Paid' }); 
+      } else {
+         // Just set the doc as is
+         setDoc(docData);
       }
 
       const { data: { user } } = await supabase.auth.getUser();
