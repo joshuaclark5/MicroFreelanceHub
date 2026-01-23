@@ -71,26 +71,27 @@ export default function Home() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-indigo-600 mb-8 shadow-sm hover:border-indigo-200 transition-colors cursor-default">
+          <div className="inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-indigo-600 mb-8 shadow-sm hover:border-indigo-200 transition-colors cursor-default animate-in fade-in slide-in-from-bottom-4 duration-1000">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
             </span>
-            New: Stripe Payments Active
+            New: Payments Now Active
           </div>
 
-          {/* Headline */}
-          <h1 className="text-5xl tracking-tight font-extrabold text-slate-900 sm:text-6xl md:text-7xl mb-6 leading-[1.1]">
-            Contracts that <br className="hidden md:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-500">actually get you paid.</span>
+          {/* Headline - "Professional" instead of "Get Paid" guarantee */}
+          <h1 className="text-5xl tracking-tight font-extrabold text-slate-900 sm:text-6xl md:text-7xl mb-6 leading-[1.1] animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-100 fill-mode-backwards">
+            Agreements that <br className="hidden md:block" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-500">work as hard as you do.</span>
           </h1>
           
-          <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-slate-500 leading-relaxed">
-            Stop chasing invoices. Generate bulletproof Scopes of Work with AI, sign digitally, and collect deposits instantly.
+          {/* Subheadline - "Professional" instead of "Bulletproof" */}
+          <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-slate-500 leading-relaxed animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-200 fill-mode-backwards">
+            Stop chasing emails. Generate professional Scopes of Work with AI, sign digitally, and facilitate deposits seamlessly.
           </p>
           
           {/* CTA Buttons */}
-          <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">
+          <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300 fill-mode-backwards">
             <Link 
               href="/create" 
               className="group px-8 py-4 bg-slate-900 text-white font-bold rounded-2xl text-lg hover:bg-slate-800 transition-all flex items-center justify-center gap-2 shadow-xl hover:shadow-2xl hover:-translate-y-1"
@@ -106,17 +107,9 @@ export default function Home() {
             </Link>
           </div>
           
-          {/* Social Proof */}
-          <div className="mt-10 flex items-center justify-center gap-6 text-sm text-slate-500">
-             <div className="flex -space-x-2">
-                {[1,2,3,4].map((i) => (
-                  <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-gray-200 flex items-center justify-center text-[10px] font-bold text-gray-400">
-                    {/* Placeholder avatars */}
-                    User
-                  </div>
-                ))}
-             </div>
-             <div className="flex items-center gap-1">
+          {/* Social Proof - No Faces, Just Stars */}
+          <div className="mt-10 flex items-center justify-center text-sm text-slate-500 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300 fill-mode-backwards">
+             <div className="flex items-center gap-2 bg-white/50 backdrop-blur-sm px-4 py-2 rounded-full border border-gray-100 shadow-sm">
                 <div className="flex text-yellow-400">
                    <Star className="w-4 h-4 fill-current" />
                    <Star className="w-4 h-4 fill-current" />
@@ -124,14 +117,14 @@ export default function Home() {
                    <Star className="w-4 h-4 fill-current" />
                    <Star className="w-4 h-4 fill-current" />
                 </div>
-                <span className="font-semibold text-slate-700">Trusted by Freelancers</span>
+                <span className="font-semibold text-slate-700">Used by modern freelancers</span>
              </div>
           </div>
 
-          {/* 🖥️ HERO VISUAL (CSS Only - No Images Needed) */}
-          <div className="mt-20 relative max-w-5xl mx-auto">
+          {/* 🖥️ HERO VISUAL */}
+          <div className="mt-20 relative max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-500 fill-mode-backwards">
              {/* Glow Effect */}
-             <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-2xl blur opacity-20"></div>
+             <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity"></div>
              
              {/* The "App Window" */}
              <div className="relative bg-white rounded-xl border border-gray-200 shadow-2xl overflow-hidden">
@@ -149,14 +142,14 @@ export default function Home() {
 
                 {/* Window Body (Success State) */}
                 <div className="p-8 md:p-16 bg-white flex flex-col items-center justify-center text-center">
-                    <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 mb-6 animate-in zoom-in duration-500">
+                    <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 mb-6 animate-in zoom-in duration-500 delay-700 fill-mode-backwards">
                        <CheckCircle className="w-8 h-8" />
                     </div>
                     <h2 className="text-3xl font-bold text-slate-900 mb-2">Payment Received</h2>
                     <p className="text-slate-500 mb-8">The deposit of <strong className="text-slate-900">$1,500.00</strong> has been secured.</p>
                     
                     {/* The "Contract" Card */}
-                    <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 w-full max-w-sm flex items-center gap-4 text-left shadow-sm">
+                    <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 w-full max-w-sm flex items-center gap-4 text-left shadow-sm animate-in slide-in-from-bottom-2 duration-500 delay-1000 fill-mode-backwards">
                        <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
                           <FileText className="w-5 h-5" />
                        </div>
@@ -164,7 +157,7 @@ export default function Home() {
                           <p className="font-bold text-sm text-slate-900">Website Redesign SOW</p>
                           <p className="text-xs text-slate-500">Signed by Client • Jan 22, 2026</p>
                        </div>
-                       <div className="ml-auto text-emerald-600 font-bold text-sm">PAID</div>
+                       <div className="ml-auto text-emerald-600 font-bold text-sm bg-emerald-100 px-2 py-1 rounded-md">PAID</div>
                     </div>
                 </div>
              </div>
@@ -183,7 +176,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
-            {/* Box 1: AI (Span 2) */}
+            {/* Box 1: AI (Span 2) - "Comprehensive" instead of "Legally Sound" */}
             <div className="md:col-span-2 bg-white p-8 rounded-3xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
                <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
                   <Zap className="w-48 h-48 text-indigo-600 rotate-12 translate-x-12 -translate-y-12" />
@@ -194,12 +187,12 @@ export default function Home() {
                   </div>
                   <h3 className="text-2xl font-bold mb-3 text-slate-900">AI Contract Drafter</h3>
                   <p className="text-slate-500 leading-relaxed max-w-md">
-                    Don't start from a blank page. Describe your project ("I'm building a Shopify store for a client") and our AI generates a legally-sound Scope of Work, Deliverables list, and Terms in 10 seconds.
+                    Don't start from a blank page. Describe your project ("I'm building a Shopify store for a client") and our AI generates a comprehensive Scope of Work, Deliverables list, and Standard Terms in seconds.
                   </p>
                </div>
             </div>
 
-            {/* Box 2: Payments */}
+            {/* Box 2: Payments - "Facilitate" instead of "Get Paid" */}
             <div className="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
                <div className="relative z-10">
                   <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 mb-6">
@@ -207,34 +200,34 @@ export default function Home() {
                   </div>
                   <h3 className="text-xl font-bold mb-3 text-slate-900">Stripe Integration</h3>
                   <p className="text-slate-500 text-sm leading-relaxed">
-                    Connect your bank account once. Clients pay directly on the contract page via Credit Card. You get paid instantly.
+                    Connect your bank account once. Clients can pay directly on the agreement page via Credit Card to initiate the project.
                   </p>
                </div>
             </div>
 
-            {/* Box 3: Legal */}
+            {/* Box 3: Legal - "Standard Terms" instead of "Legal Shield" */}
             <div className="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
                <div className="relative z-10">
                   <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 mb-6">
                      <Shield className="w-6 h-6" />
                   </div>
-                  <h3 className="text-xl font-bold mb-3 text-slate-900">Legal Shield</h3>
+                  <h3 className="text-xl font-bold mb-3 text-slate-900">Standard Terms</h3>
                   <p className="text-slate-500 text-sm leading-relaxed">
-                    Includes auto-generated Terms & Conditions, Liability Waivers, and Deposit requirements to protect you from scope creep.
+                    Includes templates for Terms & Conditions, Limitations, and Deposits to help clarify expectations and scope.
                   </p>
                </div>
             </div>
 
-            {/* Box 4: E-Sign (Span 2) */}
+            {/* Box 4: E-Sign (Span 2) - "Secure" instead of "Legally Binding" */}
             <div className="md:col-span-2 bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden text-white flex flex-col justify-center">
                <div className="relative z-10 flex flex-col sm:flex-row items-center gap-8">
                   <div className="flex-1">
                       <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-white mb-6 backdrop-blur-sm">
                         <Lock className="w-6 h-6" />
                       </div>
-                      <h3 className="text-2xl font-bold mb-3">Secure E-Signatures</h3>
+                      <h3 className="text-2xl font-bold mb-3">Secure Digital Signatures</h3>
                       <p className="text-slate-400 leading-relaxed">
-                        Legally binding digital signatures. The document locks permanently once both parties sign. No PDF editing required.
+                        Capture digital signatures from both parties. The document updates status automatically once signed. No PDF editing required.
                       </p>
                   </div>
                   <div className="bg-white/10 p-4 rounded-xl backdrop-blur-sm border border-white/10 w-full max-w-xs">
@@ -255,7 +248,7 @@ export default function Home() {
         <div className="text-center mb-16">
           <div className="inline-block px-3 py-1 rounded-full bg-gray-100 text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Templates</div>
           <h2 className="text-3xl font-extrabold text-slate-900 mb-4">
-            Find a Contract for Your Niche
+            Find an Agreement for Your Niche
           </h2>
         </div>
         
@@ -305,9 +298,9 @@ export default function Home() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-indigo-600 opacity-20 blur-[120px] rounded-full pointer-events-none"></div>
         
         <div className="max-w-4xl mx-auto text-center px-4 relative z-10">
-          <h2 className="text-5xl font-extrabold text-white mb-8 tracking-tight">Ready to look professional?</h2>
+          <h2 className="text-5xl font-extrabold text-white mb-8 tracking-tight">Ready to level up?</h2>
           <p className="text-slate-400 mb-12 text-xl max-w-2xl mx-auto leading-relaxed">
-             Join the new standard of freelancing. Create your first contract in 30 seconds and get paid faster.
+             Join the new standard of freelancing. Create your first agreement in 30 seconds.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
              <Link 
