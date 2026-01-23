@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 // 👇 Import the AI Brain
 import { generateQuestions, generateFinalSOW, refineSOW } from '../actions/generateSOW';
 import Link from 'next/link';
+import { ArrowLeft, Sparkles, PenTool, ArrowRight } from 'lucide-react';
 
 // 🛡️ THE LEGAL SHIELD (Terms at the bottom)
 const LEGAL_TERMS = `
@@ -22,18 +23,32 @@ Upon full payment, the Client is granted exclusive rights to the final deliverab
 If the Client cancels the project after work has begun, the Freelancer retains the deposit. The Freelancer's liability is limited to the total value of this contract.
 --------------------------------------------------`;
 
+const MANUAL_TEMPLATE = `1. AGREEMENT OVERVIEW
+This contract is entered into between the Client and the Provider.
+
+2. SCOPE OF SERVICES
+[Describe what you will do here...]
+
+• Deliverable 1
+• Deliverable 2
+
+3. TIMELINE
+Work will commence upon receipt of deposit.
+
+${LEGAL_TERMS}`;
+
 function CreateProjectContent() {
   const [formData, setFormData] = useState({
     clientName: '',
     projectTitle: '',
     price: '',
     taxRate: '', 
-    paymentLink: '', 
     deliverables: '', 
     description: ''
   });
 
-  const [step, setStep] = useState<'start' | 'questions' | 'final'>('start');
+  // 🚦 NEW STEPS: 'select_mode' -> 'ai_input' -> 'questions' -> 'final'
+  const [step, setStep] = useState<'select_mode' | 'ai_input' | 'questions' | 'final'>('select_mode');
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [questions, setQuestions] = useState<string[]>([]);
@@ -64,7 +79,7 @@ function CreateProjectContent() {
   }, [supabase]);
 
   // 2. HELPER: The "Beefing Up" Function
-  const generateProfessionalContent = (title: string, rawDeliverables: any, paymentUrl: string = '') => {
+  const generateProfessionalContent = (title: string, rawDeliverables: any) => {
     const list = Array.isArray(rawDeliverables) 
         ? rawDeliverables 
         : (typeof rawDeliverables === 'string' ? [rawDeliverables] : ["Scope of work details..."]);
@@ -84,15 +99,10 @@ The Contractor agrees to perform the ${title} services in a professional manner,
 
 ${LEGAL_TERMS}`;
 
-    // 🆕 IMPROVED PAYMENT BLOCK (Clean & Professional)
-    if (paymentUrl) {
-        content += `\n\n💳 PAYMENT INSTRUCTIONS:\nTo complete payment, please click or copy the link below:\n\n${paymentUrl}`;
-    }
-
     return content;
   };
 
-  // 3. SMART TEMPLATE INJECTOR
+  // 3. SMART TEMPLATE INJECTOR (Handles ?template=xyz from URL)
   useEffect(() => {
     async function loadTemplate() {
       const urlSlug = searchParams.get('template');
@@ -101,7 +111,7 @@ ${LEGAL_TERMS}`;
       
       if (slug) {
         setLoading(true);
-        setLoadingMessage('Generating Contract...');
+        setLoadingMessage('Loading Template...');
 
         const manualOverrides: Record<string, string> = {
             'hire-graphic-designer': 'freelance-logo-designer',
@@ -125,7 +135,7 @@ ${LEGAL_TERMS}`;
         }
 
         if (foundData) {
-             const fullContent = generateProfessionalContent(foundData.title, foundData.deliverables, formData.paymentLink);
+             const fullContent = generateProfessionalContent(foundData.title, foundData.deliverables);
              setFormData(prev => ({
                ...prev,
                projectTitle: foundData.title,
@@ -144,26 +154,21 @@ ${LEGAL_TERMS}`;
     loadTemplate();
   }, [supabase, searchParams]);
 
-  // Handle Updates to Payment Link Input
-  const handlePaymentLinkUpdate = (link: string) => {
-    setFormData(prev => {
-        // Clean remove old link block if it exists
-        const baseContent = prev.deliverables.split('💳 PAYMENT INSTRUCTIONS:')[0].trim();
-        const newContent = link 
-            ? baseContent + `\n\n💳 PAYMENT INSTRUCTIONS:\nTo complete payment, please click or copy the link below:\n\n${link}` 
-            : baseContent;
-        return { ...prev, paymentLink: link, deliverables: newContent };
-    });
-  };
-
   const handleUpgrade = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     const STRIPE_LINK = 'https://buy.stripe.com/00wbIVa99ais1Ue5RY48002';
     window.location.href = user ? `${STRIPE_LINK}?client_reference_id=${user.id}` : STRIPE_LINK;
   };
 
+  // --- ACTIONS ---
+
+  const handleStartManual = () => {
+      setFormData(prev => ({ ...prev, deliverables: MANUAL_TEMPLATE }));
+      setStep('final');
+  };
+
   const handleAnalyze = async () => {
-    if (!formData.clientName) return alert("Please enter the Client Name first.");
+    if (!formData.clientName) return alert("Please enter the Client Name.");
     if (!formData.description) return alert("Please describe the project.");
     if (!isPro) {
         if(confirm("The AI Interviewer is a Pro feature. Would you like to upgrade?")) handleUpgrade();
@@ -183,7 +188,7 @@ ${LEGAL_TERMS}`;
     const qaPairs = questions.map((q, i) => ({ q, a: answers[i] }));
     const result = await generateFinalSOW(formData.clientName, formData.description, qaPairs);
     if (result) {
-      const fullContent = generateProfessionalContent(result.title, result.deliverables, formData.paymentLink);
+      const fullContent = generateProfessionalContent(result.title, result.deliverables);
       setFormData(prev => ({
         ...prev,
         projectTitle: result.title,
@@ -225,7 +230,7 @@ ${LEGAL_TERMS}`;
         deliverables: formData.deliverables,
         status: 'Draft'
       }));
-      alert("Please create a free account to save your Project!");
+      alert("Please create a free account to save your Agreement!");
       window.location.href = '/login?next=/dashboard'; 
       return;
     }
@@ -244,11 +249,6 @@ ${LEGAL_TERMS}`;
     const basePrice = parseFloat(formData.price) || 0;
     const taxRate = parseFloat(formData.taxRate) || 0;
     
-    // Ensure payment link block is present if link exists
-    if (formData.paymentLink && !finalDeliv.includes("💳 PAYMENT INSTRUCTIONS")) {
-        finalDeliv += `\n\n💳 PAYMENT INSTRUCTIONS:\nTo complete payment, please click or copy the link below:\n\n${formData.paymentLink}`;
-    }
-
     if (taxRate > 0) {
         const taxAmount = basePrice * (taxRate / 100);
         const total = basePrice + taxAmount;
@@ -278,25 +278,78 @@ ${LEGAL_TERMS}`;
     return (p + (p * (t / 100))).toFixed(2);
   };
 
+  // --- HEADER RENDERER ---
+  const renderHeader = () => (
+    <div className="bg-black p-6 text-white flex justify-between items-center">
+        <h1 className="text-xl font-bold">
+        {step === 'select_mode' && 'Create New Agreement'}
+        {step === 'ai_input' && 'AI Assistant Setup'}
+        {step === 'questions' && 'AI Interview'}
+        {step === 'final' && 'Contract Editor'}
+        </h1>
+        <Link href="/dashboard" className="text-sm text-gray-400 hover:text-white">Cancel</Link>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-8">
       <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
         
-        {/* Header */}
-        <div className="bg-black p-6 text-white flex justify-between items-center">
-          <h1 className="text-xl font-bold">
-            {step === 'start' && 'New Project'}
-            {step === 'questions' && 'AI Project Interview'}
-            {step === 'final' && 'Contract Editor'}
-          </h1>
-          <Link href="/dashboard" className="text-sm text-gray-400 hover:text-white">Cancel</Link>
-        </div>
+        {renderHeader()}
 
         <div className="p-8 space-y-6">
 
-          {/* START STEP */}
-          {step === 'start' && (
-            <div className="space-y-4">
+          {/* STEP 0: MODE SELECTION (The Fork in the Road) */}
+          {step === 'select_mode' && (
+             <div className="animate-in fade-in slide-in-from-bottom-4">
+                <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">How would you like to start?</h2>
+                <p className="text-gray-500 text-center mb-8">Choose the method that works best for your workflow.</p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Option A: AI */}
+                    <button 
+                        onClick={() => setStep('ai_input')}
+                        className="group relative p-8 rounded-2xl border-2 border-gray-100 hover:border-indigo-600 hover:bg-indigo-50 transition-all text-left flex flex-col h-full"
+                    >
+                        <div className="mb-4 bg-indigo-100 w-12 h-12 rounded-full flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform">
+                            <Sparkles className="w-6 h-6" />
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900 mb-2">Use AI Assistant</h3>
+                        <p className="text-sm text-gray-500 leading-relaxed">
+                            Describe your project in plain English. Our AI will interview you and draft a professional SOW automatically.
+                        </p>
+                        <div className="mt-auto pt-6 flex items-center text-indigo-600 font-bold text-sm">
+                            Start Interview <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                        </div>
+                    </button>
+
+                    {/* Option B: Manual */}
+                    <button 
+                        onClick={handleStartManual}
+                        className="group relative p-8 rounded-2xl border-2 border-gray-100 hover:border-gray-900 hover:bg-gray-50 transition-all text-left flex flex-col h-full"
+                    >
+                        <div className="mb-4 bg-gray-100 w-12 h-12 rounded-full flex items-center justify-center text-gray-900 group-hover:scale-110 transition-transform">
+                            <PenTool className="w-6 h-6" />
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900 mb-2">Start from Scratch</h3>
+                        <p className="text-sm text-gray-500 leading-relaxed">
+                            Jump straight into the editor with a blank standard template. Best if you already have the details ready.
+                        </p>
+                        <div className="mt-auto pt-6 flex items-center text-gray-900 font-bold text-sm">
+                            Open Editor <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                        </div>
+                    </button>
+                </div>
+             </div>
+          )}
+
+          {/* STEP 1 (AI PATH): INPUT DETAILS */}
+          {step === 'ai_input' && (
+            <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
+              <button onClick={() => setStep('select_mode')} className="text-sm text-gray-400 hover:text-black mb-2 flex items-center gap-1">
+                 <ArrowLeft className="w-3 h-3" /> Back
+              </button>
+
               {loading && <div className="p-4 bg-blue-50 text-blue-800 rounded-lg text-center font-bold animate-pulse">{loadingMessage || 'Loading...'}</div>}
               
               <div>
@@ -320,31 +373,19 @@ ${LEGAL_TERMS}`;
                 />
               </div>
 
-              <div className="grid grid-cols-1 gap-3 pt-2">
-                <button
-                  onClick={handleAnalyze}
-                  disabled={loading}
-                  className={`w-full py-4 rounded-lg font-bold text-white transition-all shadow-md flex items-center justify-center gap-2 ${
-                    isPro ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-900 hover:bg-black'
-                  }`}
-                >
-                  {loading ? 'Thinking...' : isPro ? '✨ Start AI Interview (Pro)' : '🔒 Unlock AI Assistant ($19/mo)'}
-                </button>
-
-                <button
-                    onClick={() => {
-                        setFormData(prev => ({ ...prev, deliverables: generateProfessionalContent("General Project", ["Deliverable 1", "Deliverable 2"]) }));
-                        setStep('final');
-                    }}
-                    className="w-full py-3 rounded-lg font-bold text-gray-600 bg-white border-2 border-gray-200 hover:border-gray-400 transition-all text-sm"
-                >
-                    ✍️ Skip & Write Manually (Free)
-                </button>
-              </div>
+              <button
+                onClick={handleAnalyze}
+                disabled={loading}
+                className={`w-full py-4 rounded-lg font-bold text-white transition-all shadow-md flex items-center justify-center gap-2 mt-4 ${
+                  isPro ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-900 hover:bg-black'
+                }`}
+              >
+                {loading ? 'Thinking...' : isPro ? 'Start AI Interview' : 'Unlock AI Assistant ($19/mo)'}
+              </button>
             </div>
           )}
 
-          {/* QUESTIONS STEP */}
+          {/* STEP 2 (AI PATH): QUESTIONS */}
           {step === 'questions' && (
             <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                <div className="bg-indigo-50 p-4 rounded text-indigo-900 text-sm mb-4 border border-indigo-100">
@@ -371,12 +412,12 @@ ${LEGAL_TERMS}`;
                 disabled={loading}
                 className="w-full bg-black text-white font-bold py-4 rounded-lg hover:bg-gray-800 transition-all mt-6 shadow-lg"
               >
-                {loading ? 'Writing Contract...' : 'Generate Official SOW 🚀'}
+                {loading ? 'Writing Contract...' : 'Generate Official Agreement'}
               </button>
             </div>
           )}
 
-          {/* FINAL REVIEW STEP */}
+          {/* STEP 3 (FINAL): EDITOR */}
           {step === 'final' && (
             <div className="animate-in fade-in zoom-in duration-300">
               
@@ -413,20 +454,19 @@ ${LEGAL_TERMS}`;
                 )}
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">Project Title</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Agreement Title</label>
                   <input
                     type="text"
                     required
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 font-semibold text-lg"
                     value={formData.projectTitle}
                     onChange={(e) => setFormData({ ...formData, projectTitle: e.target.value })}
+                    placeholder="e.g. Website Development Agreement"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">Contract Agreement</label>
-                  
-                  {/* 👇 MOCK BROWSER WINDOW */}
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Agreement Terms</label>
                   <div className="border border-gray-300 rounded-lg overflow-hidden shadow-sm">
                     <div className="bg-gray-100 border-b border-gray-200 p-3 flex gap-2 items-center">
                         <div className="w-3 h-3 rounded-full bg-red-400"></div>
@@ -442,7 +482,6 @@ ${LEGAL_TERMS}`;
                         onChange={(e) => setFormData({ ...formData, deliverables: e.target.value })}
                     />
                   </div>
-
                 </div>
 
                 {/* BOTTOM INPUTS */}
@@ -480,30 +519,14 @@ ${LEGAL_TERMS}`;
                         />
                     </div>
                   </div>
-                  
-                  {/* 🆕 PAYMENT LINK INPUT */}
-                  <div className="sm:col-span-2">
-                     <label className="block text-sm font-bold text-gray-700 mb-1">Payment Link (Optional)</label>
-                     <input
-                        type="url"
-                        placeholder="https://buy.stripe.com/..."
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-blue-50 focus:border-blue-500"
-                        value={formData.paymentLink}
-                        onChange={(e) => handlePaymentLinkUpdate(e.target.value)}
-                     />
-                     <p className="text-xs text-gray-500 mt-1">
-                        Paste your Stripe or PayPal link here. It will be added to the bottom of the contract.
-                     </p>
-                  </div>
-
                 </div>
 
                 <div className="bg-indigo-900 text-white p-4 rounded-lg flex justify-between items-center shadow-lg">
-                    <span className="font-medium text-indigo-200">Total Project Value</span>
+                    <span className="font-medium text-indigo-200">Total Contract Value</span>
                     <span className="text-2xl font-bold">${calculateTotal()}</span>
                 </div>
 
-                {/* LIABILITY CHECKBOX (UPDATED) */}
+                {/* LIABILITY CHECKBOX */}
                 <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200 mt-4">
                     <label className="flex items-start gap-3 cursor-pointer">
                         <input 
@@ -526,7 +549,7 @@ ${LEGAL_TERMS}`;
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     }`}
                 >
-                  {loading ? 'Saving...' : 'Save to Dashboard ✅'}
+                  {loading ? 'Saving...' : 'Save to Dashboard'}
                 </button>
               </form>
             </div>

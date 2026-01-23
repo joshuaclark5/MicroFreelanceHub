@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { MoreVertical, Edit2, Copy, Trash2, CheckSquare, LogOut, Plus, Gem } from 'lucide-react';
+import { MoreVertical, Edit2, Copy, Trash2, CheckSquare, LogOut, Plus, Gem, ArrowUpRight, Wallet, FileText, ExternalLink } from 'lucide-react';
+import ConnectStripeButton from '../components/ConnectStripeButton'; 
 
 // 👇 Helper for "Compact" Currency
 const formatMoney = (amount: number) => {
@@ -15,6 +16,14 @@ const formatMoney = (amount: number) => {
     maximumFractionDigits: 1,
   }).format(amount);
 };
+
+// 👇 Simple SVG Sparkline Component
+const Sparkline = () => (
+  <svg className="w-full h-12 text-emerald-500 opacity-20" viewBox="0 0 100 40" preserveAspectRatio="none">
+    <path d="M0 40 Q 25 35, 50 20 T 100 5 L 100 40 L 0 40 Z" fill="currentColor" />
+    <path d="M0 40 Q 25 35, 50 20 T 100 5" fill="none" stroke="currentColor" strokeWidth="2" />
+  </svg>
+);
 
 function UpgradeButton({ userId, mobile }: { userId: string, mobile?: boolean }) {
   const handleUpgrade = () => {
@@ -38,6 +47,7 @@ export default function Dashboard() {
   const [sows, setSows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPro, setIsPro] = useState(false);
+  const [stripeId, setStripeId] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState('');
   const [userId, setUserId] = useState('');
   
@@ -89,11 +99,21 @@ export default function Dashboard() {
           }
         }
 
+        // Get Projects
         const { data: sowData } = await supabase.from('sow_documents').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
         if (sowData) setSows(sowData);
 
-        const { data: profile } = await supabase.from('profiles').select('is_pro').eq('id', user.id).single();
-        if (profile) setIsPro(profile.is_pro || false);
+        // Get Profile (Pro Status & Stripe ID)
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('is_pro, stripe_account_id')
+          .eq('id', user.id)
+          .single();
+          
+        if (profile) {
+            setIsPro(profile.is_pro || false);
+            setStripeId(profile.stripe_account_id || null);
+        }
 
       } catch (err) { console.error(err); } finally { setLoading(false); }
     };
@@ -173,6 +193,11 @@ export default function Dashboard() {
     router.push('/login');
   };
 
+  // 📊 CALCULATIONS
+  const pipelineValue = sows.reduce((acc, curr) => acc + (curr.price || 0), 0);
+  const averageDeal = sows.length > 0 ? pipelineValue / sows.length : 0;
+  const projectedValue = pipelineValue + (averageDeal * 3); 
+
   if (loading) return <div className="p-12 text-center text-gray-500">Loading Dashboard...</div>;
 
   return (
@@ -181,7 +206,6 @@ export default function Dashboard() {
       {/* 🧼 CLEAN HEADER */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-20 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-          
           <div className="flex items-center gap-3">
              <div className="bg-black text-white w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-lg font-bold text-lg">M</div>
              <div className="flex flex-col">
@@ -189,7 +213,6 @@ export default function Dashboard() {
                 <p className="hidden md:block text-[10px] text-gray-500">{userEmail}</p>
              </div>
           </div>
-
           <div className="flex items-center gap-3">
             {!isPro ? (
               <>
@@ -201,11 +224,7 @@ export default function Dashboard() {
                 PRO
               </span>
             )}
-            <button 
-              onClick={handleLogout}
-              className="text-gray-400 hover:text-red-600 p-2 rounded-full hover:bg-gray-100 transition-colors"
-              title="Sign Out"
-            >
+            <button onClick={handleLogout} className="text-gray-400 hover:text-red-600 p-2 rounded-full hover:bg-gray-100 transition-colors">
               <LogOut className="w-5 h-5" />
             </button>
           </div>
@@ -213,47 +232,103 @@ export default function Dashboard() {
       </div>
 
       {/* MAIN CONTENT */}
-      <div className="max-w-5xl mx-auto p-4 space-y-6 mt-2">
+      <div className="max-w-5xl mx-auto p-4 space-y-4 mt-4">
         
+        {/* ✨ AI BANNER */}
         {isPro && (
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-700 p-4 rounded-xl shadow-lg text-white flex items-center justify-between relative overflow-hidden mb-6">
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-700 p-4 rounded-xl shadow-lg text-white flex items-center justify-between relative overflow-hidden">
             <div className="relative z-10">
-              <h3 className="font-bold text-lg mb-0.5">AI Power Unlocked 🚀</h3>
+              <h3 className="font-bold text-lg mb-0.5">AI Power Unlocked</h3>
               <p className="text-indigo-100 text-xs">AI Drafter & Refiner active.</p>
             </div>
-            <div className="text-3xl relative z-10">✨</div>
+            <div className="bg-white/10 p-2 rounded-lg">
+               <Gem className="w-5 h-5" />
+            </div>
           </div>
         )}
 
-        {/* 🌟 ACTION HERO ZONE (Now at the top!) */}
-        <div className="flex justify-center py-4">
-           <Link href="/create">
-              <button className="bg-black text-white hover:bg-gray-800 transition-all shadow-xl hover:scale-105 transform rounded-full px-10 py-4 text-lg font-bold flex items-center gap-3 group">
-                <div className="bg-white/20 rounded-full p-1 group-hover:bg-white/30">
-                   <Plus className="w-6 h-6" />
+        {/* 🚀 TOP ROW: ACTIONS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            {/* 1. New Project Block */}
+            <Link href="/create" className="group">
+                <div className="bg-black hover:bg-gray-900 text-white p-6 rounded-2xl shadow-md transition-all h-full flex flex-col justify-center items-center text-center cursor-pointer border border-gray-800">
+                    <div className="bg-white/10 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
+                        <Plus className="w-8 h-8" />
+                    </div>
+                    <h3 className="text-xl font-bold">New Project</h3>
+                    <p className="text-gray-400 text-xs mt-1">Create a contract & start tracking</p>
                 </div>
-                <span>New Project</span>
-              </button>
-           </Link>
+            </Link>
+
+            {/* 2. Wallet / Payouts Block */}
+            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between h-full">
+                <div className="flex justify-between items-start mb-4">
+                    <div>
+                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                           {stripeId ? 'Payouts Active' : 'Wallet'}
+                        </p>
+                        <div className="flex items-baseline gap-1 mt-1">
+                            {/* In a real app, you'd fetch the balance from Stripe API here */}
+                            <span className="text-3xl font-bold text-gray-900">
+                               {stripeId ? 'Live' : '$0.00'}
+                            </span>
+                            {stripeId && <span className="bg-emerald-100 text-emerald-800 text-[10px] px-2 py-0.5 rounded-full font-bold">CONNECTED</span>}
+                        </div>
+                    </div>
+                    <div className="bg-gray-50 p-2 rounded-lg text-gray-400">
+                        <Wallet className="w-6 h-6" />
+                    </div>
+                </div>
+                
+                {stripeId ? (
+                   // If Connected: Show Login Link to Stripe (Emoji Removed)
+                   <a href="https://connect.stripe.com/express_login" target="_blank" className="w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold py-3 px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2">
+                      View Stripe Balance <ExternalLink className="w-3 h-3" />
+                   </a>
+                ) : (
+                   // If Not Connected: Show Setup Button
+                   <ConnectStripeButton userId={userId} />
+                )}
+            </div>
         </div>
 
-        {/* 📊 STATS */}
-        <div className="grid grid-cols-2 gap-3 md:gap-6">
-          <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Active</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">{sows.length}</p>
+        {/* 📊 BOTTOM ROW: DATA GRAPHS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          
+          {/* Card 1: Pipeline (With Graph) */}
+          <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between min-h-[140px] relative overflow-hidden">
+            <div>
+               <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest flex items-center gap-1">
+                 Current Pipeline <ArrowUpRight className="w-3 h-3 text-emerald-500" />
+               </p>
+               <p className="text-3xl font-bold text-gray-900 mt-1">{formatMoney(pipelineValue)}</p>
+            </div>
+            <div className="absolute bottom-0 left-0 right-0">
+               <Sparkline />
+            </div>
           </div>
-          <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Pipeline</p>
-            <p className="text-3xl font-bold text-emerald-600 mt-1 truncate">
-              {formatMoney(sows.reduce((acc, curr) => acc + (curr.price || 0), 0))}
-            </p>
+
+          {/* Card 2: Annual Projection */}
+          <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between min-h-[140px]">
+            <div>
+               <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Projected (Year)</p>
+               <p className="text-3xl font-bold text-gray-400 mt-1">{formatMoney(projectedValue || 0)}</p>
+            </div>
+            <div className="w-full bg-gray-100 h-1.5 rounded-full mt-4 overflow-hidden">
+               <div className="bg-indigo-500 h-full rounded-full w-[35%]"></div>
+            </div>
+            <p className="text-[10px] text-gray-400 mt-2">Based on current deal avg.</p>
           </div>
+
         </div>
 
         {/* PROJECTS HEADER ROW */}
         <div className="flex items-center justify-between border-b border-gray-100 pb-2 pt-4">
-           <h2 className="text-lg font-bold text-gray-900">Your Projects</h2>
+           <div className="flex items-center gap-2">
+             <h2 className="text-lg font-bold text-gray-900">Your Projects</h2>
+             <span className="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full">{sows.length}</span>
+           </div>
            
            {/* SELECTION TOGGLE */}
            {sows.length > 0 && (
@@ -278,15 +353,18 @@ export default function Dashboard() {
                 <CheckSquare className="w-3.5 h-3.5" /> Select
               </button>
             )
-          )}
+           )}
         </div>
 
         {/* LIST */}
         <div className="space-y-4">
           {sows.length === 0 ? (
             <div className="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-gray-200">
+              <div className="bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
+                <FileText className="w-8 h-8" />
+              </div>
               <p className="text-gray-500 font-medium">No projects yet.</p>
-              <p className="text-sm text-gray-400 mt-2">Tap "New Project" above to start.</p>
+              <p className="text-sm text-gray-400 mt-2">Create your first contract above.</p>
             </div>
           ) : (
             sows.map((sow) => (
@@ -341,8 +419,10 @@ export default function Dashboard() {
                   </div>
                   
                   <div className="flex items-center gap-3 mb-5 mt-3">
+                    {/* 👇 UPDATED STATUS COLORS */}
                     <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${
-                      sow.status === 'Signed' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'
+                      sow.status === 'Signed' ? 'bg-emerald-100 text-emerald-700' : 
+                      sow.status === 'Paid' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'
                     }`}>
                       {sow.status}
                     </span>
@@ -358,21 +438,20 @@ export default function Dashboard() {
             ))
           )}
         </div>
+        
+        {selectionMode && selectedIds.length > 0 && (
+          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-5 py-3 rounded-full shadow-2xl flex items-center gap-4 z-50 animate-in slide-in-from-bottom-4 w-[90%] max-w-sm justify-center">
+            <span className="font-bold text-sm whitespace-nowrap">{selectedIds.length} selected</span>
+            <div className="h-4 w-px bg-gray-700"></div>
+            <button onClick={handleBulkDuplicate} disabled={processing} className="text-indigo-400 hover:text-white text-sm font-bold flex items-center gap-1.5 transition-colors disabled:opacity-50">
+              {processing ? '...' : <><Copy className="w-4 h-4" /> <span className="hidden sm:inline">Duplicate</span></>}
+            </button>
+            <button onClick={handleBulkDelete} disabled={processing} className="text-red-400 hover:text-white text-sm font-bold flex items-center gap-1.5 transition-colors disabled:opacity-50">
+              <Trash2 className="w-4 h-4" /> <span className="hidden sm:inline">Delete</span>
+            </button>
+          </div>
+        )}
       </div>
-
-      {/* FLOATING ACTION BAR */}
-      {selectionMode && selectedIds.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-5 py-3 rounded-full shadow-2xl flex items-center gap-4 z-50 animate-in slide-in-from-bottom-4 w-[90%] max-w-sm justify-center">
-          <span className="font-bold text-sm whitespace-nowrap">{selectedIds.length} selected</span>
-          <div className="h-4 w-px bg-gray-700"></div>
-          <button onClick={handleBulkDuplicate} disabled={processing} className="text-indigo-400 hover:text-white text-sm font-bold flex items-center gap-1.5 transition-colors disabled:opacity-50">
-            {processing ? '...' : <><Copy className="w-4 h-4" /> <span className="hidden sm:inline">Duplicate</span></>}
-          </button>
-          <button onClick={handleBulkDelete} disabled={processing} className="text-red-400 hover:text-white text-sm font-bold flex items-center gap-1.5 transition-colors disabled:opacity-50">
-            <Trash2 className="w-4 h-4" /> <span className="hidden sm:inline">Delete</span>
-          </button>
-        </div>
-      )}
     </div>
   );
 }
