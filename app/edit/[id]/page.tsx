@@ -3,9 +3,9 @@
 import { useState, useEffect, Suspense } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, useParams } from 'next/navigation';
-import { refineSOW } from '../../actions/generateSOW'; // Adjusted import path for app/edit/[id]
+import { refineSOW } from '../../actions/generateSOW'; 
 import Link from 'next/link';
-import { ArrowLeft, Sparkles, Trash2, Repeat, CreditCard, Wand2 } from 'lucide-react';
+import { ArrowLeft, Sparkles, Trash2, Repeat, CreditCard, Wand2, AlertTriangle } from 'lucide-react';
 
 function EditProjectContent() {
   const [formData, setFormData] = useState({
@@ -16,9 +16,12 @@ function EditProjectContent() {
     deliverables: '', 
   });
 
-  const [loading, setLoading] = useState(true); // Start loading true to fetch data
+  const [loading, setLoading] = useState(true); 
   const [saving, setSaving] = useState(false);
   const [paymentType, setPaymentType] = useState<'one_time' | 'monthly'>('one_time');
+  
+  // 🛡️ Signature State (To warn user)
+  const [hasSignatures, setHasSignatures] = useState(false);
 
   // AI Refiner State
   const [showAiRefiner, setShowAiRefiner] = useState(false);
@@ -55,17 +58,16 @@ function EditProjectContent() {
             return;
         }
 
-        // Parse Price & Tax (Rough estimation as we only saved Total)
-        // For editing, we just load the total price into the price box for simplicity
-        // or you could save tax_rate in DB separately in the future.
-        // Here we assume price is the base price and user re-enters tax if needed, 
-        // OR we just display the stored price.
+        // 🚨 CHECK FOR SIGNATURES
+        if (project.signed_by || project.provider_sign) {
+            setHasSignatures(true);
+        }
         
         setFormData({
             clientName: project.client_name || '',
             projectTitle: project.title || '',
             price: project.price?.toString() || '',
-            taxRate: '', // We don't store tax rate separately yet, so reset to 0 or leave blank
+            taxRate: '', 
             deliverables: project.deliverables || '',
         });
         setPaymentType(project.payment_type || 'one_time');
@@ -101,6 +103,13 @@ function EditProjectContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // 🚨 THE LEGAL SAFETY CHECK
+    if (hasSignatures) {
+        const confirmed = confirm("⚠️ WARNING: This contract has already been signed.\n\nEditing it will INVALIDATE the existing signatures and reset the status to Draft. Both parties will need to sign again.\n\nAre you sure you want to proceed?");
+        if (!confirmed) return;
+    }
+
     setSaving(true);
     
     // Tax Logic
@@ -121,7 +130,12 @@ function EditProjectContent() {
             title: formData.projectTitle,
             price: total,
             deliverables: finalDeliv,
-            payment_type: paymentType
+            payment_type: paymentType,
+            // 🧹 RESET SIGNATURES ON EDIT
+            status: 'Draft',
+            signed_by: null,
+            provider_sign: null
+            // ❌ REMOVED: signed_at: null (This caused the crash)
         })
         .eq('id', projectId);
 
@@ -162,6 +176,18 @@ function EditProjectContent() {
       {renderHeader()}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+        
+        {/* ⚠️ SIGNATURE WARNING BANNER */}
+        {hasSignatures && (
+            <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3 items-start animate-in slide-in-from-top-2">
+                <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div>
+                    <h3 className="text-sm font-bold text-amber-800">Heads up: This contract has signatures.</h3>
+                    <p className="text-sm text-amber-700 mt-1">If you make changes and click update, all signatures will be removed and the contract status will reset to "Draft".</p>
+                </div>
+            </div>
+        )}
+
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="flex flex-col lg:flex-row h-full">
               
@@ -329,6 +355,7 @@ function EditProjectContent() {
                         </div>
                       </div>
                       
+                      {/* Modern Implicit Consent (No Checkbox) */}
                       <button 
                           onClick={handleSubmit}
                           disabled={saving} 
@@ -336,6 +363,10 @@ function EditProjectContent() {
                       >
                         {saving ? 'Updating...' : 'Update Contract'}
                       </button>
+                      
+                      <p className="text-center text-xs text-gray-400 mt-4 leading-relaxed max-w-sm mx-auto">
+                          By clicking Update, you agree to the <Link href="/terms-of-service" className="underline hover:text-gray-600">Terms</Link>. You acknowledge that editing this document will require re-signing by all parties.
+                      </p>
                   </div>
               </div>
             </div>

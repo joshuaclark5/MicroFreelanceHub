@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { 
   MoreVertical, Edit2, Copy, Trash2, CheckSquare, LogOut, Plus, 
   Gem, ArrowUpRight, Wallet, FileText, ExternalLink, 
-  LayoutGrid, List, Search, Repeat, Clock
+  LayoutGrid, Repeat, Clock
 } from 'lucide-react';
 import ConnectStripeButton from '../components/ConnectStripeButton'; 
 
@@ -133,6 +133,20 @@ export default function Dashboard() {
 
   const handleDuplicate = async (sow: any) => {
     setProcessing(true);
+
+    // 🛡️ LIMIT CHECK (Stop the loophole)
+    if (!isPro) {
+        // Count current projects
+        const currentCount = sows.length;
+        if (currentCount >= 3) {
+            setProcessing(false);
+            if(confirm("You have reached the free limit of 3 projects. Upgrade to Pro for unlimited?")) {
+                window.location.href = `https://buy.stripe.com/00wbIVa99ais1Ue5RY48002?client_reference_id=${userId}`;
+            }
+            return;
+        }
+    }
+
     const { data: newDoc, error } = await supabase.from('sow_documents').insert({
           user_id: userId,
           title: `${sow.title} (Copy)`,
@@ -161,6 +175,13 @@ export default function Dashboard() {
 
   const handleBulkDuplicate = async () => {
     setProcessing(true);
+    // Note: Bulk duplicate doesn't check limits for simplicity, or we can disable it for non-pro
+    if (!isPro) {
+        alert("Bulk duplication is a Pro feature.");
+        setProcessing(false);
+        return;
+    }
+
     const { data: originals } = await supabase.from('sow_documents').select('*').in('id', selectedIds);
     if (originals && originals.length > 0) {
       const copies = originals.map(doc => ({
@@ -200,13 +221,12 @@ export default function Dashboard() {
   };
 
   // 📊 CALCULATIONS
-  // Logic: Monthly retainers are counted as 12x value for pipeline estimation (Annual Contract Value)
   const pipelineValue = sows.reduce((acc, curr) => {
       const val = curr.price || 0;
       return acc + (curr.payment_type === 'monthly' ? val * 12 : val);
   }, 0);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-400">Loading Dashboard...</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-500">Loading Dashboard...</div>;
 
   return (
     <div className="min-h-screen bg-gray-50/50 pb-32 relative">
@@ -247,7 +267,7 @@ export default function Dashboard() {
         {/* BENTO STATS GRID */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
-            {/* Card 1: Create New (Primary Action) */}
+            {/* Card 1: Create New */}
             <Link href="/create" className="group relative overflow-hidden bg-slate-900 hover:bg-slate-800 rounded-2xl p-6 text-white shadow-xl transition-all hover:shadow-2xl hover:-translate-y-1 flex flex-col justify-between min-h-[160px]">
                 <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
                    <Plus className="w-32 h-32 rotate-12 translate-x-8 -translate-y-8" />
@@ -261,7 +281,7 @@ export default function Dashboard() {
                 </div>
             </Link>
 
-            {/* Card 2: Wallet / Stripe */}
+            {/* Card 2: Wallet */}
             <div className="bg-white rounded-2xl p-6 border border-gray-200/60 shadow-sm flex flex-col justify-between min-h-[160px] relative overflow-hidden group hover:border-indigo-500/30 transition-colors">
                 <div className="flex justify-between items-start">
                    <div>
@@ -288,7 +308,7 @@ export default function Dashboard() {
                 </div>
             </div>
 
-            {/* Card 3: Pipeline (Updated Logic for Annual Value) */}
+            {/* Card 3: Pipeline */}
             <div className="bg-white rounded-2xl p-6 border border-gray-200/60 shadow-sm flex flex-col justify-between min-h-[160px] relative overflow-hidden">
                 <div className="flex justify-between items-start z-10 relative">
                    <div>
@@ -356,7 +376,6 @@ export default function Dashboard() {
             </div>
           ) : (
             sows.map((sow) => {
-               // 💎 HELPER: Is this a monthly retainer?
                const isMonthly = sow.payment_type === 'monthly';
                const isPaid = sow.status === 'Paid';
 
@@ -429,8 +448,13 @@ export default function Dashboard() {
                     <div className="flex flex-col">
                        <span className="text-[10px] font-bold text-gray-400 uppercase flex items-center gap-1">
                            Value
-                           {/* 🕒 RENEWAL INDICATOR */}
-                           {isMonthly && isPaid && <span className="text-indigo-500 bg-indigo-50 px-1 rounded flex items-center gap-0.5"><Clock className="w-2 h-2"/> Renews</span>}
+                           {isMonthly && (
+                             <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold flex items-center gap-0.5 ${
+                               isPaid ? 'bg-indigo-50 text-indigo-600' : 'bg-gray-100 text-gray-500'
+                             }`}>
+                               <Clock className="w-2.5 h-2.5" /> {isPaid ? 'Renews' : 'Monthly'}
+                             </span>
+                           )}
                        </span>
                        <span className="text-lg font-bold text-slate-900 flex items-center gap-1">
                            {formatMoney(sow.price || 0)}
