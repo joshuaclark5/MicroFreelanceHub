@@ -135,7 +135,7 @@ function EditProjectContent() {
             status: 'Draft',
             signed_by: null,
             provider_sign: null
-            // ❌ REMOVED: signed_at: null (This caused the crash)
+            // REMOVED signed_at to prevent crash
         })
         .eq('id', projectId);
 
@@ -253,10 +253,10 @@ function EditProjectContent() {
                      </div>
                    )}
 
-                  {/* Textarea Editor */}
+                  {/* Textarea Editor - IMPROVED FOR MOBILE */}
                   <textarea
                       required
-                      className="w-full flex-1 resize-none font-mono text-sm leading-relaxed focus:outline-none text-gray-800 py-4"
+                      className="w-full flex-1 resize-none font-mono text-sm leading-relaxed focus:outline-none text-gray-800 p-6 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all min-h-[400px] md:min-h-0"
                       value={formData.deliverables}
                       onChange={(e) => setFormData({ ...formData, deliverables: e.target.value })}
                       placeholder="Start typing your agreement here..."

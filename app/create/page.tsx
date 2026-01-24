@@ -53,13 +53,13 @@ function CreateProjectContent() {
   const [answers, setAnswers] = useState<string[]>(['', '', '']);
   const [paymentType, setPaymentType] = useState<'one_time' | 'monthly'>('one_time');
 
-  // AI Refiner State (Now hidden in a modal-like state)
+  // AI Refiner State
   const [showAiRefiner, setShowAiRefiner] = useState(false);
   const [refineText, setRefineText] = useState('');
   const [isRefining, setIsRefining] = useState(false);
   
   const [isTemplateLoaded, setIsTemplateLoaded] = useState(false);
-  const [hasAgreedToTerms, setHasAgreedToTerms] = useState(false);
+  const [hasAgreedToTerms, setHasAgreedToTerms] = useState(false); // Kept for logic, but UI replaced
   const [isPro, setIsPro] = useState(false);
 
   const supabase = createClientComponentClient();
@@ -217,8 +217,7 @@ ${LEGAL_TERMS}`;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!hasAgreedToTerms) return alert("You must agree to the terms.");
-
+    // Implicit agreement now, no checkbox needed
     setLoading(true);
     setLoadingMessage('Saving...');
     const { data: { user } } = await supabase.auth.getUser();
@@ -475,7 +474,7 @@ ${LEGAL_TERMS}`;
                       )}
                     </div>
                     <div className="flex items-center gap-2">
-                        {/* ✨ AI ASSISTANT BUTTON (New & Improved) */}
+                        {/* ✨ AI ASSISTANT BUTTON */}
                         <button 
                             type="button"
                             onClick={() => isPro ? setShowAiRefiner(!showAiRefiner) : handleUpgrade()}
@@ -494,7 +493,7 @@ ${LEGAL_TERMS}`;
                     </div>
                   </div>
 
-                  {/* AI Refiner Input (Conditionally Shown) */}
+                  {/* AI Refiner Input */}
                   {showAiRefiner && (
                      <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100 animate-in slide-in-from-top-2 flex gap-3 items-center">
                        <input 
@@ -516,10 +515,10 @@ ${LEGAL_TERMS}`;
                      </div>
                    )}
 
-                  {/* Textarea Editor */}
+                  {/* Textarea Editor - IMPROVED FOR MOBILE */}
                   <textarea
                       required
-                      className="w-full flex-1 resize-none font-mono text-sm leading-relaxed focus:outline-none text-gray-800 py-4"
+                      className="w-full flex-1 resize-none font-mono text-sm leading-relaxed focus:outline-none text-gray-800 p-6 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all min-h-[400px] md:min-h-0"
                       value={formData.deliverables}
                       onChange={(e) => setFormData({ ...formData, deliverables: e.target.value })}
                       placeholder="Start typing your agreement here..."
@@ -620,30 +619,18 @@ ${LEGAL_TERMS}`;
                         </div>
                       </div>
 
-                      {/* Liability Checkbox */}
-                      <label className="flex items-start gap-3 cursor-pointer mb-6 group">
-                          <input 
-                              type="checkbox" 
-                              className="mt-1 w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300 group-hover:border-indigo-500 transition-colors"
-                              checked={hasAgreedToTerms}
-                              onChange={(e) => setHasAgreedToTerms(e.target.checked)}
-                          />
-                          <div className="text-xs text-gray-500 leading-snug group-hover:text-gray-700 transition-colors">
-                              I agree to the <Link href="/terms-of-service" className="underline hover:text-indigo-600">Terms</Link> and <Link href="/disclaimer" className="underline hover:text-indigo-600">Disclaimer</Link>. I understand MicroFreelanceHub provides templates, not legal advice, and processes no payments directly.
-                          </div>
-                      </label>
-                      
+                      {/* Implicit Consent */}
                       <button 
                           onClick={handleSubmit}
-                          disabled={loading || !hasAgreedToTerms} 
-                          className={`w-full font-bold py-4 rounded-xl transition-all shadow-md hover:shadow-lg text-lg ${
-                              hasAgreedToTerms 
-                              ? 'bg-black text-white hover:bg-gray-900 transform hover:-translate-y-0.5' 
-                              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                          }`}
+                          disabled={loading} 
+                          className={`w-full font-bold py-4 rounded-xl transition-all shadow-md hover:shadow-lg text-lg bg-black text-white hover:bg-gray-900 transform hover:-translate-y-0.5`}
                       >
                         {loading ? 'Saving...' : 'Save to Dashboard'}
                       </button>
+                      
+                      <p className="text-center text-xs text-gray-400 mt-4 leading-snug">
+                          By clicking Save, you agree to the <Link href="/terms-of-service" className="underline hover:text-gray-600">Terms</Link> and acknowledge that you are responsible for the legal validity of this contract.
+                      </p>
                   </div>
               </div>
             </div>
