@@ -42,35 +42,55 @@ export async function POST(request: Request) {
        );
     }
 
-    // 3. Calculate Fees (1% Platform Fee)
-    // Stripe expects amounts in Cents (e.g., $100.00 = 10000)
+    // 3. Determine Mode (Subscription vs One-Time)
+    const isSubscription = sow.payment_type === 'monthly';
     const priceInCents = Math.round(sow.price * 100);
-    const platformFee = Math.round(priceInCents * 0.01); 
 
-    // 4. Create the Checkout Session
-    const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
+    // 4. Construct the Session Config
+    let sessionConfig: Stripe.Checkout.SessionCreateParams = {
+      payment_method_types: ['card'],
       line_items: [{
         price_data: {
           currency: 'usd',
           product_data: { 
-            name: `Contract: ${sow.title}`,
-            description: `Payment for ${sow.client_name}`
+            name: isSubscription ? `Retainer: ${sow.title}` : `Contract: ${sow.title}`,
+            description: isSubscription ? `Monthly recurring payment for ${sow.client_name}` : `One-time payment for ${sow.client_name}`
           },
           unit_amount: priceInCents,
+          // 🔄 THE MAGIC SWITCH: If monthly, add recurring interval
+          ...(isSubscription && { recurring: { interval: 'month' } }),
         },
         quantity: 1,
       }],
-      payment_intent_data: {
-        application_fee_amount: platformFee, // <--- THIS IS YOUR CUT 💰
-        transfer_data: {
-          destination: profile.stripe_account_id, // <--- THIS GOES TO FREELANCER
-        },
-      },
       // Redirects
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/sow/${sowId}?payment=success`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/sow/${sowId}?payment=cancelled`,
-    });
+    };
+
+    // 5. Handle Fees & Transfers (Logic differs for Subscriptions vs Payments)
+    if (isSubscription) {
+      // 🔄 SUBSCRIPTION MODE
+      sessionConfig.mode = 'subscription';
+      sessionConfig.subscription_data = {
+        application_fee_percent: 1, // You get 1% of every monthly payment automatically 💸
+        transfer_data: {
+          destination: profile.stripe_account_id,
+        },
+      };
+    } else {
+      // 💳 ONE-TIME PAYMENT MODE
+      const platformFee = Math.round(priceInCents * 0.01); 
+      sessionConfig.mode = 'payment';
+      sessionConfig.payment_intent_data = {
+        application_fee_amount: platformFee, // You get 1% of the total once
+        transfer_data: {
+          destination: profile.stripe_account_id,
+        },
+      };
+    }
+
+    // 6. Create the Session
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
     return NextResponse.json({ url: session.url });
 

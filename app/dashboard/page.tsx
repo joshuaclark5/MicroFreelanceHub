@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { 
   MoreVertical, Edit2, Copy, Trash2, CheckSquare, LogOut, Plus, 
   Gem, ArrowUpRight, Wallet, FileText, ExternalLink, 
-  LayoutGrid, List, Search
+  LayoutGrid, List, Search, Repeat, Clock
 } from 'lucide-react';
 import ConnectStripeButton from '../components/ConnectStripeButton'; 
 
@@ -140,7 +140,8 @@ export default function Dashboard() {
           price: sow.price,
           deliverables: sow.deliverables,
           status: 'Draft',
-          slug: null 
+          slug: null,
+          payment_type: sow.payment_type // Keep payment type on duplicate
         }).select().single();
     if (!error && newDoc) setSows([newDoc, ...sows]);
     setProcessing(false);
@@ -169,7 +170,8 @@ export default function Dashboard() {
         price: doc.price,
         deliverables: doc.deliverables,
         status: 'Draft',
-        slug: null 
+        slug: null,
+        payment_type: doc.payment_type
       }));
       const { data: newDocs, error } = await supabase.from('sow_documents').insert(copies).select();
       if (!error && newDocs) {
@@ -198,9 +200,11 @@ export default function Dashboard() {
   };
 
   // 📊 CALCULATIONS
-  const pipelineValue = sows.reduce((acc, curr) => acc + (curr.price || 0), 0);
-  const averageDeal = sows.length > 0 ? pipelineValue / sows.length : 0;
-  const projectedValue = pipelineValue + (averageDeal * 3); 
+  // Logic: Monthly retainers are counted as 12x value for pipeline estimation (Annual Contract Value)
+  const pipelineValue = sows.reduce((acc, curr) => {
+      const val = curr.price || 0;
+      return acc + (curr.payment_type === 'monthly' ? val * 12 : val);
+  }, 0);
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-400">Loading Dashboard...</div>;
 
@@ -284,11 +288,11 @@ export default function Dashboard() {
                 </div>
             </div>
 
-            {/* Card 3: Pipeline */}
+            {/* Card 3: Pipeline (Updated Logic for Annual Value) */}
             <div className="bg-white rounded-2xl p-6 border border-gray-200/60 shadow-sm flex flex-col justify-between min-h-[160px] relative overflow-hidden">
                 <div className="flex justify-between items-start z-10 relative">
                    <div>
-                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Active Pipeline</p>
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Annual Value (ACV)</p>
                       <h3 className="text-3xl font-bold text-slate-900 tracking-tight">{formatMoney(pipelineValue)}</h3>
                    </div>
                    <div className="bg-indigo-50 text-indigo-600 p-2 rounded-lg">
@@ -340,7 +344,7 @@ export default function Dashboard() {
              </div>
         </div>
 
-        {/* PROJECTS GRID (The Fix for "Funny Blocks") */}
+        {/* PROJECTS GRID */}
         <div className={sows.length > 0 ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "block"}>
           {sows.length === 0 ? (
             <div className="text-center py-24 bg-white rounded-3xl border-2 border-dashed border-gray-200">
@@ -351,7 +355,12 @@ export default function Dashboard() {
               <p className="text-gray-500 mt-2">Create your first contract to get started.</p>
             </div>
           ) : (
-            sows.map((sow) => (
+            sows.map((sow) => {
+               // 💎 HELPER: Is this a monthly retainer?
+               const isMonthly = sow.payment_type === 'monthly';
+               const isPaid = sow.status === 'Paid';
+
+               return (
                <div 
                  key={sow.id} 
                  className={`group bg-white rounded-2xl border p-5 shadow-sm transition-all hover:shadow-md relative flex flex-col justify-between min-h-[220px] ${
@@ -418,19 +427,32 @@ export default function Dashboard() {
                  {/* Bottom: Price, Status, Button */}
                  <div className="pt-4 border-t border-gray-100 flex items-center justify-between mt-auto">
                     <div className="flex flex-col">
-                       <span className="text-[10px] font-bold text-gray-400 uppercase">Value</span>
-                       <span className="text-lg font-bold text-slate-900">{formatMoney(sow.price || 0)}</span>
+                       <span className="text-[10px] font-bold text-gray-400 uppercase flex items-center gap-1">
+                           Value
+                           {/* 🕒 RENEWAL INDICATOR */}
+                           {isMonthly && isPaid && <span className="text-indigo-500 bg-indigo-50 px-1 rounded flex items-center gap-0.5"><Clock className="w-2 h-2"/> Renews</span>}
+                       </span>
+                       <span className="text-lg font-bold text-slate-900 flex items-center gap-1">
+                           {formatMoney(sow.price || 0)}
+                           {isMonthly && <span className="text-xs text-gray-400 font-medium">/mo</span>}
+                       </span>
                     </div>
                     
                     <div className="flex flex-col items-end gap-2">
-                       {/* Status Pill */}
-                       <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide border ${
-                          sow.status === 'Paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
-                          sow.status === 'Signed' ? 'bg-blue-50 text-blue-700 border-blue-100' :
-                          'bg-gray-50 text-gray-500 border-gray-100'
-                       }`}>
-                          {sow.status}
-                       </span>
+                       {/* 🔄 SMART STATUS PILL */}
+                       {isMonthly && isPaid ? (
+                           <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide border bg-indigo-50 text-indigo-700 border-indigo-100 flex items-center gap-1">
+                               <Repeat className="w-3 h-3" /> Active Sub
+                           </span>
+                       ) : (
+                           <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide border ${
+                              sow.status === 'Paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
+                              sow.status === 'Signed' ? 'bg-blue-50 text-blue-700 border-blue-100' :
+                              'bg-gray-50 text-gray-500 border-gray-100'
+                           }`}>
+                              {sow.status}
+                           </span>
+                       )}
                        
                        <Link 
                          href={`/sow/${sow.id}`} 
@@ -442,7 +464,7 @@ export default function Dashboard() {
                  </div>
 
                </div>
-            ))
+            )})
           )}
         </div>
         
