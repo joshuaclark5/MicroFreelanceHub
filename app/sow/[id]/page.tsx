@@ -5,7 +5,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signContract } from '../../actions/signSOW';
-import { ArrowLeft, CheckCircle, Lock, X, Share2, Download, Edit3, MoreHorizontal, PenTool } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Lock, X, Share2, Download, Edit3, MoreHorizontal, PenTool, AlertTriangle, Info } from 'lucide-react';
 import PayContractButton from '../../components/PayContractButton';
 
 // 1. Clean Cursive Font
@@ -72,7 +72,6 @@ export default function ViewContract({ params }: { params: { id: string } }) {
   const isPaid = doc?.status === 'Paid' || paymentStatus === 'success';
 
   // 🔒 ROLE LOGIC: Automate the role selection
-  // If you own the doc, you are the Provider. Everyone else is the Client.
   const userRole = isOwner ? 'provider' : 'client';
 
   const handleSign = async () => {
@@ -167,8 +166,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
           {doc.deliverables}
         </div>
 
-        {/* ✍️ SIGNATURE BLOCK - With Print Fix */}
-        {/* 'break-inside-avoid' forces this entire block to stay on one page */}
+        {/* ✍️ SIGNATURE BLOCK */}
         <div className="mt-12 pt-8 border-t-2 border-gray-100 print:border-black break-inside-avoid page-break-inside-avoid">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-12 print:grid-cols-2">
                 <div className="relative">
@@ -195,9 +193,24 @@ export default function ViewContract({ params }: { params: { id: string } }) {
             ) : isFullySigned ? (
                 <PayContractButton sowId={doc.id} price={doc.price} paymentType={doc.payment_type} />
             ) : (
-                <button disabled className="w-full bg-gray-100 text-gray-400 font-bold py-4 rounded-xl cursor-not-allowed flex items-center justify-center gap-2 border border-gray-200"><Lock className="w-4 h-4" /> Payment Locked (Awaiting Signatures)</button>
+                // 🔒 LOCKED BUTTON (Added gap-3 for spacing)
+                <button disabled className="w-full bg-gray-100 text-gray-400 font-bold py-4 rounded-xl cursor-not-allowed flex items-center justify-center gap-3 border border-gray-200">
+                   <Lock className="w-4 h-4" /> 
+                   Payment Locked (Awaiting Signatures)
+                </button>
             )}
-            <p className="text-center text-xs text-gray-400 mt-4 flex justify-center items-center gap-1"><Lock className="w-3 h-3" /> Secure Payment via Stripe</p>
+            
+            {/* 🛡️ CANCELLATION & LIABILITY TEXT */}
+            <div className="text-center mt-4 space-y-2">
+                <p className="text-xs text-gray-400 flex justify-center items-center gap-1">
+                   <Lock className="w-3 h-3" /> Secure Payment via Stripe Connect
+                </p>
+                {doc.payment_type === 'monthly' && (
+                    <p className="text-[10px] text-gray-400 max-w-md mx-auto">
+                        <strong>Billing Info:</strong> This subscription is managed directly between you and the Service Provider. To cancel or modify billing, check your email receipt for a management link or contact {isOwner ? 'the Client' : 'the Service Provider'} directly.
+                    </p>
+                )}
+            </div>
         </div>
         
         <div className="mt-8 text-center print:hidden opacity-50 hover:opacity-100 transition-opacity">
@@ -208,7 +221,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
         </div>
       </div>
 
-      {/* 📝 SIMPLIFIED SIGNING MODAL */}
+      {/* 📝 SIGNING MODAL */}
       {showSignModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 print:hidden">
           <div className="bg-white rounded-xl p-8 w-full max-w-md shadow-2xl animate-in zoom-in-95">
@@ -224,6 +237,19 @@ export default function ViewContract({ params }: { params: { id: string } }) {
                     {userRole === 'provider' ? 'Service Provider (You)' : `Client (${doc.client_name})`}
                 </p>
             </div>
+
+            {/* ⚠️ CLIENT LIABILITY WARNING */}
+            {userRole === 'client' && (
+                <div className="bg-amber-50 border-l-4 border-amber-400 p-3 mb-6">
+                    <div className="flex items-center gap-2 mb-1">
+                        <AlertTriangle className="w-4 h-4 text-amber-600" />
+                        <span className="text-xs font-bold text-amber-800">Financial Responsibility</span>
+                    </div>
+                    <p className="text-[11px] text-amber-700 leading-snug">
+                        You acknowledge that you are entering a direct financial agreement with the Service Provider. You confirm that you are paying the correct individual. MicroFreelanceHub is not a party to this transaction and cannot issue refunds.
+                    </p>
+                </div>
+            )}
             
             <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Type Full Legal Name</label>
             <input autoFocus type="text" placeholder="e.g. Jane Doe" className="w-full border-2 border-gray-200 p-3 rounded-lg mb-6 text-lg focus:border-black focus:outline-none" value={signerName} onChange={(e) => setSignerName(e.target.value)} />

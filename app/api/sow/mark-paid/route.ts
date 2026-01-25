@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
 // 🔐 Initialize Supabase with the ADMIN Key (Service Role)
-// This key bypasses RLS security rules so we can force the update.
+// This key bypasses RLS security rules so we can force the update regardless of who pays.
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!, 
@@ -17,10 +17,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No SOW ID provided" }, { status: 400 });
     }
 
-    // Force update the status to Paid
+    // Force update the status to Paid AND timestamp it
     const { error } = await supabaseAdmin
       .from('sow_documents')
-      .update({ status: 'Paid' })
+      .update({ 
+        status: 'Paid',
+        last_payment_date: new Date().toISOString()
+      })
       .eq('id', sowId);
 
     if (error) throw error;

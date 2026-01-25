@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { 
   MoreVertical, Edit2, Copy, Trash2, CheckSquare, LogOut, Plus, 
   Gem, ArrowUpRight, Wallet, FileText, ExternalLink, 
-  LayoutGrid, Repeat, Clock
+  LayoutGrid, Repeat, Clock, DollarSign, TrendingUp
 } from 'lucide-react';
 import ConnectStripeButton from '../components/ConnectStripeButton'; 
 
@@ -55,7 +55,7 @@ export default function Dashboard() {
   const [userEmail, setUserEmail] = useState('');
   const [userId, setUserId] = useState('');
   
-  // 🆕 STATE FOR UI MODES
+  // UI Modes
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
@@ -107,7 +107,7 @@ export default function Dashboard() {
         const { data: sowData } = await supabase.from('sow_documents').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
         if (sowData) setSows(sowData);
 
-        // Get Profile (Pro Status & Stripe ID)
+        // Get Profile
         const { data: profile } = await supabase
           .from('profiles')
           .select('is_pro, stripe_account_id')
@@ -133,10 +133,7 @@ export default function Dashboard() {
 
   const handleDuplicate = async (sow: any) => {
     setProcessing(true);
-
-    // 🛡️ LIMIT CHECK (Stop the loophole)
     if (!isPro) {
-        // Count current projects
         const currentCount = sows.length;
         if (currentCount >= 3) {
             setProcessing(false);
@@ -155,7 +152,7 @@ export default function Dashboard() {
           deliverables: sow.deliverables,
           status: 'Draft',
           slug: null,
-          payment_type: sow.payment_type // Keep payment type on duplicate
+          payment_type: sow.payment_type 
         }).select().single();
     if (!error && newDoc) setSows([newDoc, ...sows]);
     setProcessing(false);
@@ -175,13 +172,11 @@ export default function Dashboard() {
 
   const handleBulkDuplicate = async () => {
     setProcessing(true);
-    // Note: Bulk duplicate doesn't check limits for simplicity, or we can disable it for non-pro
     if (!isPro) {
         alert("Bulk duplication is a Pro feature.");
         setProcessing(false);
         return;
     }
-
     const { data: originals } = await supabase.from('sow_documents').select('*').in('id', selectedIds);
     if (originals && originals.length > 0) {
       const copies = originals.map(doc => ({
@@ -221,10 +216,16 @@ export default function Dashboard() {
   };
 
   // 📊 CALCULATIONS
-  const pipelineValue = sows.reduce((acc, curr) => {
+  // 1. 12-Month Projection (Recurring x 12 + One-time)
+  const projectionValue = sows.reduce((acc, curr) => {
       const val = curr.price || 0;
       return acc + (curr.payment_type === 'monthly' ? val * 12 : val);
   }, 0);
+
+  // 2. Total Paid (Actual cash collected)
+  const totalPaid = sows
+    .filter(s => s.status === 'Paid')
+    .reduce((acc, curr) => acc + (curr.price || 0), 0);
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-500">Loading Dashboard...</div>;
 
@@ -267,7 +268,7 @@ export default function Dashboard() {
         {/* BENTO STATS GRID */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
-            {/* Card 1: Create New */}
+            {/* Card 1: Create New Agreement */}
             <Link href="/create" className="group relative overflow-hidden bg-slate-900 hover:bg-slate-800 rounded-2xl p-6 text-white shadow-xl transition-all hover:shadow-2xl hover:-translate-y-1 flex flex-col justify-between min-h-[160px]">
                 <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
                    <Plus className="w-32 h-32 rotate-12 translate-x-8 -translate-y-8" />
@@ -276,22 +277,22 @@ export default function Dashboard() {
                    <Plus className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                   <h3 className="text-xl font-bold">New Project</h3>
+                   <h3 className="text-xl font-bold">New Agreement</h3>
                    <p className="text-slate-400 text-sm mt-1">Create a contract & start tracking</p>
                 </div>
             </Link>
 
-            {/* Card 2: Wallet */}
+            {/* Card 2: Total Paid */}
             <div className="bg-white rounded-2xl p-6 border border-gray-200/60 shadow-sm flex flex-col justify-between min-h-[160px] relative overflow-hidden group hover:border-indigo-500/30 transition-colors">
                 <div className="flex justify-between items-start">
                    <div>
-                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Total Balance</p>
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Total Paid</p>
                       <h3 className="text-3xl font-bold text-slate-900 tracking-tight">
-                         {stripeId ? 'Live' : '$0.00'}
+                         {stripeId ? formatMoney(totalPaid) : '$0.00'}
                       </h3>
                    </div>
                    <div className="bg-emerald-50 text-emerald-600 p-2 rounded-lg">
-                      <Wallet className="w-5 h-5" />
+                      <DollarSign className="w-5 h-5" />
                    </div>
                 </div>
                 
@@ -308,15 +309,15 @@ export default function Dashboard() {
                 </div>
             </div>
 
-            {/* Card 3: Pipeline */}
+            {/* Card 3: 12-Month Projection */}
             <div className="bg-white rounded-2xl p-6 border border-gray-200/60 shadow-sm flex flex-col justify-between min-h-[160px] relative overflow-hidden">
                 <div className="flex justify-between items-start z-10 relative">
                    <div>
-                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Annual Value (ACV)</p>
-                      <h3 className="text-3xl font-bold text-slate-900 tracking-tight">{formatMoney(pipelineValue)}</h3>
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">12-Month Projection</p>
+                      <h3 className="text-3xl font-bold text-slate-900 tracking-tight">{formatMoney(projectionValue)}</h3>
                    </div>
                    <div className="bg-indigo-50 text-indigo-600 p-2 rounded-lg">
-                      <ArrowUpRight className="w-5 h-5" />
+                      <TrendingUp className="w-5 h-5" />
                    </div>
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 z-0 opacity-50">
