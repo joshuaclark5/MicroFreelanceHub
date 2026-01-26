@@ -4,7 +4,7 @@ import { ImageResponse } from 'next/og'
 export const runtime = 'edge'
  
 // Image metadata
-export const alt = 'Hire a Freelancer - Contract Template'
+export const alt = 'Free Freelance Contract Template'
 export const size = {
   width: 1200,
   height: 630,
@@ -14,16 +14,17 @@ export const contentType = 'image/png'
  
 // Image generation
 export default async function Image({ params }: { params: { slug: string } }) {
-  // 1. Get the slug (e.g., "hire-plumber" or "freelance-ux-designer")
+  // 1. Get the slug
   const slug = params.slug
   
-  // 2. Format it: remove "hire-" AND "freelance-", replace dashes with spaces
+  // 2. Format it
   const rawTitle = slug
-    .replace('hire-', '')
-    .replace('freelance-', '')
+    .replace('contract', '') // Remove the word "contract" so it doesn't say "Graphic Design Contract Contract"
+    .replace('template', '')
     .replace(/-/g, ' ')
+    .trim()
 
-  // 3. Capitalize every word (e.g., "ux designer" -> "Ux Designer")
+  // 3. Capitalize
   const title = rawTitle.replace(/\b\w/g, (l) => l.toUpperCase())
  
   return new ImageResponse(
@@ -31,7 +32,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
       // ImageDesign
       <div
         style={{
-          background: 'linear-gradient(to bottom right, #111827, #000000)',
+          background: 'linear-gradient(to bottom right, #111827, #1e3a8a)', // Slate-900 to Blue-900
           height: '100%',
           width: '100%',
           display: 'flex',
@@ -52,29 +53,29 @@ export default async function Image({ params }: { params: { slug: string } }) {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundImage: 'radial-gradient(circle at 25px 25px, #374151 2%, transparent 0%), radial-gradient(circle at 75px 75px, #374151 2%, transparent 0%)',
+            backgroundImage: 'radial-gradient(circle at 25px 25px, #3b82f6 2%, transparent 0%), radial-gradient(circle at 75px 75px, #3b82f6 2%, transparent 0%)',
             backgroundSize: '100px 100px',
-            opacity: 0.2,
+            opacity: 0.1,
           }}
         />
 
-        {/* Badge - UPDATED TO GREEN TO MATCH PAGE THEME */}
+        {/* Badge - BLUE for Templates */}
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: '#22c55e', // Green-500 (Matches your Hire Page)
-            color: 'black',        // Black text for contrast on green
+            background: '#2563eb', // Blue-600
+            color: 'white',
             padding: '10px 24px',
             borderRadius: '50px',
             fontSize: 24,
-            fontWeight: 700,
+            fontWeight: 600,
             marginBottom: 40,
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3)',
           }}
         >
-          Free Hiring Tool
+          Verified Template
         </div>
 
         {/* Main Title */}
@@ -85,7 +86,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
             fontWeight: 900,
             lineHeight: 1.1,
             marginBottom: 20,
-            backgroundImage: 'linear-gradient(to right, #ffffff, #9ca3af)',
+            backgroundImage: 'linear-gradient(to right, #ffffff, #93c5fd)', // White to Blue-300
             backgroundClip: 'text',
             color: 'transparent',
             maxWidth: '1000px',
@@ -94,7 +95,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
             flexWrap: 'wrap',
           }}
         >
-          Hire a {title}
+          {title} Contract
         </div>
 
         {/* Subtitle */}
@@ -102,13 +103,13 @@ export default async function Image({ params }: { params: { slug: string } }) {
           style={{
             display: 'flex',
             fontSize: 32,
-            color: '#9ca3af', // Gray-400
+            color: '#bfdbfe', // Blue-200
             marginTop: 20,
             justifyContent: 'center',
             textAlign: 'center',
           }}
         >
-          Generate a Professional Contract in Seconds
+          Download, Edit, and Sign in 30 Seconds
         </div>
 
         {/* Brand Footer */}
@@ -118,7 +119,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
             bottom: 50,
             fontSize: 24,
             fontWeight: 600,
-            color: '#4b5563',
+            color: '#60a5fa', // Blue-400
             display: 'flex',
             alignItems: 'center',
           }}
@@ -127,7 +128,6 @@ export default async function Image({ params }: { params: { slug: string } }) {
         </div>
       </div>
     ),
-    // ImageResponse options
     {
       ...size,
     }

@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 
 // Initialize Supabase (Public)
 const supabase = createClient(
@@ -45,15 +46,23 @@ function toTitleCase(str: string | null) {
   });
 }
 
-// --- METADATA ---
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+// --- METADATA (Updated with Canonical Fix) ---
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const result = await findDoc(params.slug);
   if (!result) return { title: 'Contract Not Found' };
+  
   const { doc, source } = result;
   const title = source === 'sow' ? doc.title : (doc.job_title || doc.keyword);
+  const displayTitle = toTitleCase(title);
+
   return {
-    title: `Hire a ${toTitleCase(title)} - Free Contract Template`,
-    description: `Generate a professional contract for a ${toTitleCase(title)}. Scope, payments, and legal terms included.`,
+    title: `Hire a ${displayTitle} - Free Contract Template`,
+    description: `Generate a professional contract for a ${displayTitle}. Scope, payments, and legal terms included.`,
+    
+    // 🚨 SEO FIX: Canonical Tag for Hire Pages
+    alternates: {
+      canonical: `https://www.microfreelancehub.com/hire/${params.slug}`,
+    },
   };
 }
 
@@ -237,11 +246,11 @@ export default async function HirePage({ params }: { params: { slug: string } })
 
               {/* Overlay Button */}
               <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white via-white/95 to-transparent flex items-end justify-center pb-6">
-                 <Link href={`/create?template=${params.slug}`}>
+                  <Link href={`/create?template=${params.slug}`}>
                     <button className="bg-slate-900 text-white px-6 py-3 rounded-lg font-bold shadow-lg hover:bg-slate-800 transition-transform hover:-translate-y-1">
                       Use This Template Free &rarr;
                     </button>
-                 </Link>
+                  </Link>
               </div>
 
             </div>

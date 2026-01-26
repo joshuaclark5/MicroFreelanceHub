@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 
 // Initialize Supabase (Public)
 const supabase = createClient(
@@ -47,15 +48,23 @@ function toTitleCase(str: string | null) {
   });
 }
 
-// --- METADATA ---
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+// --- METADATA (Updated with Canonical Fix) ---
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const result = await findDoc(params.slug);
   if (!result) return { title: 'Template Not Found' };
+  
   const { doc, source } = result;
   const title = source === 'sow' ? doc.title : (doc.job_title || doc.keyword);
+  const displayTitle = toTitleCase(title);
+
   return {
-    title: `Free ${toTitleCase(title)} Contract Template (2026)`,
-    description: `Download a professional ${toTitleCase(title)} contract. Includes scope, payments, and legal terms.`,
+    title: `Free ${displayTitle} Contract Template (2026)`,
+    description: `Download a professional ${displayTitle} contract. Includes scope, payments, and legal terms.`,
+    
+    // 🚨 THIS IS THE CRITICAL FIX FOR SEO DUPLICATES
+    alternates: {
+      canonical: `https://www.microfreelancehub.com/templates/${params.slug}`,
+    },
   };
 }
 
@@ -239,11 +248,11 @@ export default async function TemplatePage({ params }: { params: { slug: string 
 
               {/* Overlay Button */}
               <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white via-white/95 to-transparent flex items-end justify-center pb-6">
-                 <Link href={`/create?template=${params.slug}`}>
+                  <Link href={`/create?template=${params.slug}`}>
                     <button className="bg-slate-900 text-white px-6 py-3 rounded-lg font-bold shadow-lg hover:bg-slate-800 transition-transform hover:-translate-y-1">
                       Use This Template Free &rarr;
                     </button>
-                 </Link>
+                  </Link>
               </div>
 
             </div>
