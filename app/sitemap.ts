@@ -4,43 +4,43 @@ import { createClient } from '@supabase/supabase-js';
 // ✅ Force dynamic so Vercel rebuilds this on every request (no caching)
 export const dynamic = 'force-dynamic';
 
+// 🛑 CUSTOM FETCH: Forces Next.js to never cache the database response
+const fetchNoCache = (url: string, options?: RequestInit) => {
+  return fetch(url, { ...options, cache: 'no-store', next: { revalidate: 0 } });
+};
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const timestamp = new Date().toISOString();
-  console.log(`🗺️ SITEMAP GENERATION STARTED at ${timestamp}`);
+  console.log(`🗺️ GENERATING SITEMAP (Fresh) at ${timestamp}`);
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  // 1. LOGGING: Check if Environment Variables exist
-  if (!supabaseUrl) console.error('❌ ERROR: NEXT_PUBLIC_SUPABASE_URL is missing!');
   
   if (!serviceKey) {
-    console.error('❌ ERROR: SUPABASE_SERVICE_ROLE_KEY is missing!');
-    // Fallback log to see if we are accidentally using the Anon key
-    if (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      console.warn('⚠️ Warning: Falling back to ANON KEY (RLS must be disabled for this to work)');
-    }
+    console.error('❌ CRITICAL: SUPABASE_SERVICE_ROLE_KEY is missing!');
   } else {
-    // Log first 5 chars to verify it's the Service Key (starts with ey...)
-    console.log(`🔑 Using Service Key: ${serviceKey.substring(0, 5)}...`);
+    console.log(`🔑 Service Key loaded (Starts with: ${serviceKey.substring(0, 5)}...)`);
   }
 
-  // Initialize Client
-  // Note: We use the Service Key if available, otherwise fallback to empty string (which will error out safely in the logs)
-  const supabase = createClient(supabaseUrl || '', serviceKey || '', {
-    auth: {
-      persistSession: false, // Important for server-side usage
-    },
-  });
+  // Initialize Supabase with the Cache Buster
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    serviceKey || '', 
+    {
+      auth: { persistSession: false },
+      global: {
+        fetch: fetchNoCache, // 👈 THIS FIXES THE PROBLEM
+      },
+    }
+  );
 
   const baseUrl = 'https://www.microfreelancehub.com';
 
-  // 2. FETCH TEMPLATES (Old "sow_documents")
+  // 1. FETCH TEMPLATES (Old "sow_documents")
   const { data: oldTemplates, error: templateError } = await supabase
     .from('sow_documents')
     .select('slug')
     .not('slug', 'is', null)
-    .limit(1000);
+    .limit(10000);
 
   if (templateError) {
     console.error('❌ Error fetching templates:', templateError.message);
@@ -48,20 +48,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.log(`✅ Templates Found: ${oldTemplates?.length || 0}`);
   }
 
-  // 3. FETCH SEO PAGES (The New Content Engine)
-  // We fetch just the slug to keep it light
-  const { data: newSeoPages, error: seoError } = await supabase
+  // 2. FETCH SEO PAGES (The New Content Engine)
+  const { data: allSeoPages, error: seoError } = await supabase
     .from('seo_pages')
     .select('slug')
-    .limit(10000); 
+    .limit(10000); // Fetch everything
 
   if (seoError) {
     console.error('❌ Error fetching SEO pages:', seoError.message);
   } else {
-    console.log(`✅ SEO Pages Found: ${newSeoPages?.length || 0}`);
+    console.log(`✅ SEO Pages Found: ${allSeoPages?.length || 0}`);
   }
 
-  // 4. MAPPING
+  // 3. MAPPING
   const templateUrls = (oldTemplates || []).map((doc) => ({
     url: `${baseUrl}/templates/${doc.slug}`,
     lastModified: new Date(),
@@ -69,14 +68,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  const seoUrls = (newSeoPages || []).map((page) => ({
+  const seoUrls = (allSeoPages || []).map((page) => ({
     url: `${baseUrl}/hire/${page.slug}`,
     lastModified: new Date(),
     changeFrequency: 'weekly' as const,
     priority: 0.9,
   }));
 
-  // 5. STATIC ROUTES
+  // 4. STATIC ROUTES
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: baseUrl, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
     { url: `${baseUrl}/login`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
@@ -86,9 +85,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/disclaimer`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
   ];
 
-  const total = [...staticRoutes, ...templateUrls, ...seoUrls];
+  const allUrls = [...staticRoutes, ...templateUrls, ...seoUrls];
+  console.log(`🚀 SITEMAP GENERATION COMPLETE: ${allUrls.length} URLs`);
   
-  console.log(`🚀 SITEMAP FINISHED. Total URLs: ${total.length}`);
-  
-  return total;
+  return allUrls;
 }
