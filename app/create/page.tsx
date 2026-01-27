@@ -5,7 +5,8 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { generateQuestions, generateFinalSOW, refineSOW } from '../actions/generateSOW';
 import Link from 'next/link';
-import { ArrowLeft, Sparkles, PenTool, ArrowRight, Trash2, Repeat, CreditCard, Wand2 } from 'lucide-react';
+import { ArrowLeft, Sparkles, PenTool, ArrowRight, Trash2, Repeat, CreditCard, Wand2, AlertCircle } from 'lucide-react';
+import PricingModal from '../components/PricingModal'; // 👈 IMPORT THE MODAL
 
 // 🛡️ THE LEGAL SHIELD
 const LEGAL_TERMS = `
@@ -59,52 +60,42 @@ function CreateProjectContent() {
   const [isRefining, setIsRefining] = useState(false);
   
   const [isTemplateLoaded, setIsTemplateLoaded] = useState(false);
-  const [hasAgreedToTerms, setHasAgreedToTerms] = useState(false); // Kept for logic, but UI replaced
+  
+  // 🔒 LIMIT LOGIC
   const [isPro, setIsPro] = useState(false);
+  const [projectCount, setProjectCount] = useState(0);
+  const [showPricingModal, setShowPricingModal] = useState(false);
+  const [userId, setUserId] = useState('');
 
   const supabase = createClientComponentClient();
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // 1. Load User, Check Limits, & Load Template
   useEffect(() => {
-    const checkPro = async () => {
+    const init = async () => {
+      // A. Auth Check
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data } = await supabase.from('profiles').select('is_pro').eq('id', user.id).single();
-      if (data) setIsPro(data.is_pro);
-    };
-    checkPro();
-  }, [supabase]);
+      // Note: We don't force redirect here to allow guests to start exploring, 
+      // but they will hit a wall at save time.
+      if (user) {
+        setUserId(user.id);
+        
+        // B. Check Pro Status & Count Projects
+        const [profileRes, countRes] = await Promise.all([
+            supabase.from('profiles').select('is_pro').eq('id', user.id).single(),
+            supabase.from('sow_documents').select('id', { count: 'exact', head: true }).eq('user_id', user.id)
+        ]);
 
-  const generateProfessionalContent = (title: string, rawDeliverables: any) => {
-    const list = Array.isArray(rawDeliverables) 
-        ? rawDeliverables 
-        : (typeof rawDeliverables === 'string' ? [rawDeliverables] : ["Scope of work details..."]);
+        setIsPro(profileRes.data?.is_pro || false);
+        setProjectCount(countRes.count || 0);
+      }
 
-    const bullets = list.map((item: string) => `• ${item}`).join('\n');
-
-    let content = `1. PROJECT BACKGROUND
-This Agreement is entered into by and between the Client and the Contractor. The Client wishes to engage the Contractor for professional ${title} services, and the Contractor agrees to perform such services in accordance with the terms and conditions set forth below.
-
-2. SCOPE OF SERVICES
-The Contractor shall provide the following specific deliverables:
-
-${bullets}
-
-3. PERFORMANCE STANDARDS
-The Contractor agrees to perform the ${title} services in a professional manner, using the degree of skill and care that is required by current industry standards.
-
-${LEGAL_TERMS}`;
-
-    return content;
-  };
-
-  useEffect(() => {
-    async function loadTemplate() {
+      // C. Load Template (if provided)
       const urlSlug = searchParams.get('template');
       const localSlug = localStorage.getItem('pending_template');
       const slug = urlSlug || localSlug;
-      
+
       if (slug) {
         setLoading(true);
         setLoadingMessage('Loading Template...');
@@ -146,14 +137,31 @@ ${LEGAL_TERMS}`;
         if (localSlug) localStorage.removeItem('pending_template');
         setLoading(false);
       }
-    }
-    loadTemplate();
+    };
+    init();
   }, [supabase, searchParams]);
 
-  const handleUpgrade = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    const STRIPE_LINK = 'https://buy.stripe.com/00wbIVa99ais1Ue5RY48002';
-    window.location.href = user ? `${STRIPE_LINK}?client_reference_id=${user.id}` : STRIPE_LINK;
+  const generateProfessionalContent = (title: string, rawDeliverables: any) => {
+    const list = Array.isArray(rawDeliverables) 
+        ? rawDeliverables 
+        : (typeof rawDeliverables === 'string' ? [rawDeliverables] : ["Scope of work details..."]);
+
+    const bullets = list.map((item: string) => `• ${item}`).join('\n');
+
+    let content = `1. PROJECT BACKGROUND
+This Agreement is entered into by and between the Client and the Contractor. The Client wishes to engage the Contractor for professional ${title} services, and the Contractor agrees to perform such services in accordance with the terms and conditions set forth below.
+
+2. SCOPE OF SERVICES
+The Contractor shall provide the following specific deliverables:
+
+${bullets}
+
+3. PERFORMANCE STANDARDS
+The Contractor agrees to perform the ${title} services in a professional manner, using the degree of skill and care that is required by current industry standards.
+
+${LEGAL_TERMS}`;
+
+    return content;
   };
 
   const handleStartManual = () => {
@@ -171,7 +179,7 @@ ${LEGAL_TERMS}`;
     if (!formData.clientName) return alert("Please enter the Client Name.");
     if (!formData.description) return alert("Please describe the project.");
     if (!isPro) {
-        if(confirm("The AI Interviewer is a Pro feature. Would you like to upgrade?")) handleUpgrade();
+        setShowPricingModal(true); // 👈 TRIGGER MODAL INSTEAD OF ALERT
         return;
     }
     setLoading(true);
@@ -212,12 +220,11 @@ ${LEGAL_TERMS}`;
       setRefineText(""); 
     }
     setIsRefining(false);
-    setShowAiRefiner(false); // Close the AI box after use
+    setShowAiRefiner(false); 
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Implicit agreement now, no checkbox needed
     setLoading(true);
     setLoadingMessage('Saving...');
     const { data: { user } } = await supabase.auth.getUser();
@@ -236,13 +243,12 @@ ${LEGAL_TERMS}`;
       return;
     }
 
-    if (!isPro) {
-        const { count } = await supabase.from('sow_documents').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
-        if (count !== null && count >= 3) {
-            setLoading(false);
-            if(confirm("Limit reached. Upgrade to Pro?")) handleUpgrade();
-            return;
-        }
+    // 🛑 THE GATEKEEPER CHECK
+    // If not Pro AND has 3 or more projects -> STOP and Show Modal
+    if (!isPro && projectCount >= 3) {
+        setLoading(false);
+        setShowPricingModal(true); // 👈 Show the Paywall
+        return;
     }
 
     let finalDeliv = formData.deliverables;
@@ -251,6 +257,7 @@ ${LEGAL_TERMS}`;
     const taxAmount = basePrice * (taxRate / 100);
     const total = basePrice + taxAmount;
     
+    // Ensure Financial Summary is present if tax is involved or not monthly (optional check logic can be expanded)
     if (!finalDeliv.includes("FINANCIAL SUMMARY")) {
         finalDeliv += `\n\n--------------------------------------------------\nFINANCIAL SUMMARY\n`;
         finalDeliv += `Base Price: $${basePrice.toFixed(2)}\n`;
@@ -296,8 +303,14 @@ ${LEGAL_TERMS}`;
           </h1>
         </div>
         <div className="flex items-center gap-3">
+            {/* Show Badge if Limit Reached */}
+            {!isPro && projectCount >= 3 && (
+                <span className="hidden md:flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full border border-amber-200 cursor-pointer" onClick={() => setShowPricingModal(true)}>
+                    <AlertCircle className="w-3 h-3" /> Free Limit Reached
+                </span>
+            )}
             <div className="bg-black text-white w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg font-bold text-lg shadow-sm">M</div>
-            <span className="text-sm font-bold text-gray-900">MicroFreelance</span>
+            <span className="text-sm font-bold text-gray-900 hidden sm:block">MicroFreelance</span>
         </div>
       </div>
     </div>
@@ -395,7 +408,7 @@ ${LEGAL_TERMS}`;
                     isPro ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-900 hover:bg-black'
                   }`}
                 >
-                  {loading ? 'Thinking...' : isPro ? <><Sparkles className="w-5 h-5"/> Start AI Interview</> : 'Unlock AI Assistant ($19/mo)'}
+                  {loading ? 'Thinking...' : isPro ? <><Sparkles className="w-5 h-5"/> Start AI Interview</> : 'Unlock AI Assistant ($29/mo)'}
                 </button>
               </div>
             </div>
@@ -477,7 +490,7 @@ ${LEGAL_TERMS}`;
                         {/* ✨ AI ASSISTANT BUTTON */}
                         <button 
                             type="button"
-                            onClick={() => isPro ? setShowAiRefiner(!showAiRefiner) : handleUpgrade()}
+                            onClick={() => isPro ? setShowAiRefiner(!showAiRefiner) : setShowPricingModal(true)}
                             className={`text-sm font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${isPro ? 'text-indigo-600 hover:bg-indigo-50' : 'text-gray-500 hover:text-gray-900'}`}
                         >
                             <Wand2 className="w-4 h-4" /> {isPro ? (showAiRefiner ? 'Close AI' : 'Use AI Assistant') : 'Unlock AI'}
@@ -495,25 +508,25 @@ ${LEGAL_TERMS}`;
 
                   {/* AI Refiner Input */}
                   {showAiRefiner && (
-                     <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100 animate-in slide-in-from-top-2 flex gap-3 items-center">
-                       <input 
-                         type="text"
-                         value={refineText}
-                         onChange={(e) => setRefineText(e.target.value)}
-                         placeholder="e.g. 'Add a $500 rush fee to the pricing section'"
-                         className="flex-1 px-4 py-2 rounded-lg border border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-                         onKeyDown={(e) => e.key === 'Enter' && handleRefine()}
-                       />
-                       <button 
-                         type="button"
-                         onClick={handleRefine}
-                         disabled={isRefining || !refineText}
-                         className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-sm flex items-center gap-2"
-                       >
-                         {isRefining ? '...' : <><Sparkles className="w-4 h-4" /> Update</>}
-                       </button>
-                     </div>
-                   )}
+                      <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100 animate-in slide-in-from-top-2 flex gap-3 items-center">
+                        <input 
+                          type="text"
+                          value={refineText}
+                          onChange={(e) => setRefineText(e.target.value)}
+                          placeholder="e.g. 'Add a $500 rush fee to the pricing section'"
+                          className="flex-1 px-4 py-2 rounded-lg border border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                          onKeyDown={(e) => e.key === 'Enter' && handleRefine()}
+                        />
+                        <button 
+                          type="button"
+                          onClick={handleRefine}
+                          disabled={isRefining || !refineText}
+                          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-sm flex items-center gap-2"
+                        >
+                          {isRefining ? '...' : <><Sparkles className="w-4 h-4" /> Update</>}
+                        </button>
+                      </div>
+                    )}
 
                   {/* Textarea Editor - IMPROVED FOR MOBILE */}
                   <textarea
@@ -638,6 +651,14 @@ ${LEGAL_TERMS}`;
 
         </div>
       </div>
+      
+      {/* 💥 PRICING MODAL (The Paywall) */}
+      <PricingModal 
+         isOpen={showPricingModal} 
+         onClose={() => setShowPricingModal(false)} 
+         userId={userId} 
+      />
+      
     </div>
   );
 }

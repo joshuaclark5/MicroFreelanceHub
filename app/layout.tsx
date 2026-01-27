@@ -3,10 +3,10 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import FeedbackWidget from './components/FeedbackWidget';
 import Link from 'next/link';
+import { GoogleAnalytics } from '@next/third-parties/google'; // 👈 NEW IMPORT
 
 const inter = Inter({ subsets: ['latin'] });
 
-// 1. PROFESSIONAL METADATA (Soft Terms)
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.microfreelancehub.com'),
   title: {
@@ -79,6 +79,9 @@ export default function RootLayout({
         </footer>
 
         <FeedbackWidget />
+        
+        {/* 📊 ANALYTICS COMPONENT */}
+        <GoogleAnalytics gaId="G-3PZE2XQMH0" />
       </body>
     </html>
   );

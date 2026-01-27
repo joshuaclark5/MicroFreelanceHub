@@ -6,6 +6,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { refineSOW } from '../../actions/generateSOW'; 
 import Link from 'next/link';
 import { ArrowLeft, Sparkles, Trash2, Repeat, CreditCard, Wand2, AlertTriangle } from 'lucide-react';
+import PricingModal from '../../components/PricingModal'; // 👈 IMPORT THE MODAL
 
 function EditProjectContent() {
   const [formData, setFormData] = useState({
@@ -28,7 +29,10 @@ function EditProjectContent() {
   const [refineText, setRefineText] = useState('');
   const [isRefining, setIsRefining] = useState(false);
   
+  // Pro & Modal State
   const [isPro, setIsPro] = useState(false);
+  const [showPricingModal, setShowPricingModal] = useState(false);
+  const [userId, setUserId] = useState('');
 
   const supabase = createClientComponentClient();
   const router = useRouter();
@@ -42,6 +46,8 @@ function EditProjectContent() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) { router.push('/login'); return; }
         
+        setUserId(user.id);
+
         const { data: profile } = await supabase.from('profiles').select('is_pro').eq('id', user.id).single();
         if (profile) setIsPro(profile.is_pro);
 
@@ -76,10 +82,13 @@ function EditProjectContent() {
     fetchData();
   }, [supabase, router, projectId]);
 
-  const handleUpgrade = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    const STRIPE_LINK = 'https://buy.stripe.com/00wbIVa99ais1Ue5RY48002';
-    window.location.href = user ? `${STRIPE_LINK}?client_reference_id=${user.id}` : STRIPE_LINK;
+  // Updated Handler to show Modal
+  const handleAiClick = () => {
+    if (isPro) {
+        setShowAiRefiner(!showAiRefiner);
+    } else {
+        setShowPricingModal(true);
+    }
   };
 
   const handleClearContent = () => {
@@ -134,8 +143,8 @@ function EditProjectContent() {
             // 🧹 RESET SIGNATURES ON EDIT
             status: 'Draft',
             signed_by: null,
-            provider_sign: null
-            // REMOVED signed_at to prevent crash
+            provider_sign: null,
+            signed_at: null // Explicitly nulling this to be safe
         })
         .eq('id', projectId);
 
@@ -210,12 +219,12 @@ function EditProjectContent() {
                   {/* Editor Toolbar */}
                   <div className="flex items-center justify-between border-b border-gray-200 pb-4">
                     <div className="flex items-center gap-4">
-                       <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">EDIT MODE</span>
+                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">EDIT MODE</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <button 
                             type="button"
-                            onClick={() => isPro ? setShowAiRefiner(!showAiRefiner) : handleUpgrade()}
+                            onClick={handleAiClick}
                             className={`text-sm font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${isPro ? 'text-indigo-600 hover:bg-indigo-50' : 'text-gray-500 hover:text-gray-900'}`}
                         >
                             <Wand2 className="w-4 h-4" /> {isPro ? (showAiRefiner ? 'Close AI' : 'AI Edit') : 'Unlock AI'}
@@ -233,27 +242,27 @@ function EditProjectContent() {
 
                   {/* AI Refiner Input */}
                   {showAiRefiner && (
-                     <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100 animate-in slide-in-from-top-2 flex gap-3 items-center">
-                       <input 
-                         type="text"
-                         value={refineText}
-                         onChange={(e) => setRefineText(e.target.value)}
-                         placeholder="e.g. 'Update the price to $500'"
-                         className="flex-1 px-4 py-2 rounded-lg border border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-                         onKeyDown={(e) => e.key === 'Enter' && handleRefine()}
-                       />
-                       <button 
-                         type="button"
-                         onClick={handleRefine}
-                         disabled={isRefining || !refineText}
-                         className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-sm flex items-center gap-2"
-                       >
-                         {isRefining ? '...' : <><Sparkles className="w-4 h-4" /> Update</>}
-                       </button>
-                     </div>
-                   )}
+                      <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100 animate-in slide-in-from-top-2 flex gap-3 items-center">
+                        <input 
+                          type="text"
+                          value={refineText}
+                          onChange={(e) => setRefineText(e.target.value)}
+                          placeholder="e.g. 'Update the price to $500'"
+                          className="flex-1 px-4 py-2 rounded-lg border border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                          onKeyDown={(e) => e.key === 'Enter' && handleRefine()}
+                        />
+                        <button 
+                          type="button"
+                          onClick={handleRefine}
+                          disabled={isRefining || !refineText}
+                          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-sm flex items-center gap-2"
+                        >
+                          {isRefining ? '...' : <><Sparkles className="w-4 h-4" /> Update</>}
+                        </button>
+                      </div>
+                    )}
 
-                  {/* Textarea Editor - IMPROVED FOR MOBILE */}
+                  {/* Textarea Editor */}
                   <textarea
                       required
                       className="w-full flex-1 resize-none font-mono text-sm leading-relaxed focus:outline-none text-gray-800 p-6 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all min-h-[400px] md:min-h-0"
@@ -354,8 +363,7 @@ function EditProjectContent() {
                             </div>
                         </div>
                       </div>
-                      
-                      {/* Modern Implicit Consent (No Checkbox) */}
+
                       <button 
                           onClick={handleSubmit}
                           disabled={saving} 
@@ -372,6 +380,13 @@ function EditProjectContent() {
             </div>
         </div>
       </div>
+      
+      {/* 💥 PRICING MODAL */}
+      <PricingModal 
+         isOpen={showPricingModal} 
+         onClose={() => setShowPricingModal(false)} 
+         userId={userId} 
+      />
     </div>
   );
 }

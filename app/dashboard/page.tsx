@@ -7,9 +7,10 @@ import { useRouter } from 'next/navigation';
 import { 
   MoreVertical, Edit2, Copy, Trash2, CheckSquare, LogOut, Plus, 
   Gem, ArrowUpRight, Wallet, FileText, ExternalLink, 
-  LayoutGrid, Repeat, Clock, DollarSign, TrendingUp
+  LayoutGrid, Repeat, Clock, DollarSign, TrendingUp, CheckCircle
 } from 'lucide-react';
 import ConnectStripeButton from '../components/ConnectStripeButton'; 
+import PricingModal from '../components/PricingModal'; // 👈 IMPORT THE MODAL
 
 // 👇 Helper for "Compact" Currency
 const formatMoney = (amount: number) => {
@@ -29,14 +30,10 @@ const Sparkline = () => (
   </svg>
 );
 
-function UpgradeButton({ userId, mobile }: { userId: string, mobile?: boolean }) {
-  const handleUpgrade = () => {
-    window.location.href = `https://buy.stripe.com/00wbIVa99ais1Ue5RY48002?client_reference_id=${userId}`;
-  };
-
+function UpgradeButton({ onClick, mobile }: { onClick: () => void, mobile?: boolean }) {
   return (
     <button 
-      onClick={handleUpgrade} 
+      onClick={onClick} 
       className={`bg-gradient-to-r from-gray-900 to-black text-white hover:to-gray-800 border border-gray-700 rounded-full font-bold transition-all flex items-center justify-center shadow-lg hover:shadow-xl group ${
         mobile ? 'w-9 h-9 p-0' : 'px-5 py-2 text-sm gap-2'
       }`}
@@ -61,6 +58,9 @@ export default function Dashboard() {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
   
+  // 🆕 MODAL STATE
+  const [showPricingModal, setShowPricingModal] = useState(false);
+
   const supabase = createClientComponentClient();
   const router = useRouter();
 
@@ -131,15 +131,33 @@ export default function Dashboard() {
     if (!error) setSows(sows.filter((s) => s.id !== id));
   };
 
+  // 💰 NEW: Manual Mark as Paid
+  const handleMarkPaid = async (id: string) => {
+    if (!confirm('Mark this project as "Paid" manually? This is for payments received outside of Stripe (Cash, Venmo, Check).')) return;
+    
+    const { error } = await supabase
+      .from('sow_documents')
+      .update({ 
+          status: 'Paid',
+          last_payment_date: new Date().toISOString()
+      })
+      .eq('id', id);
+
+    if (!error) {
+        // Update local state instantly
+        setSows(sows.map(s => s.id === id ? { ...s, status: 'Paid' } : s));
+    } else {
+        alert('Error updating project.');
+    }
+  };
+
   const handleDuplicate = async (sow: any) => {
     setProcessing(true);
     if (!isPro) {
         const currentCount = sows.length;
         if (currentCount >= 3) {
             setProcessing(false);
-            if(confirm("You have reached the free limit of 3 projects. Upgrade to Pro for unlimited?")) {
-                window.location.href = `https://buy.stripe.com/00wbIVa99ais1Ue5RY48002?client_reference_id=${userId}`;
-            }
+            setShowPricingModal(true); // 👈 TRIGGER NEW MODAL
             return;
         }
     }
@@ -173,8 +191,8 @@ export default function Dashboard() {
   const handleBulkDuplicate = async () => {
     setProcessing(true);
     if (!isPro) {
-        alert("Bulk duplication is a Pro feature.");
         setProcessing(false);
+        setShowPricingModal(true); // 👈 TRIGGER NEW MODAL
         return;
     }
     const { data: originals } = await supabase.from('sow_documents').select('*').in('id', selectedIds);
@@ -248,7 +266,7 @@ export default function Dashboard() {
           
           <div className="flex items-center gap-3">
             {!isPro ? (
-              <UpgradeButton userId={userId} mobile={false} />
+              <UpgradeButton onClick={() => setShowPricingModal(true)} mobile={false} />
             ) : (
               <div className="bg-gradient-to-r from-amber-100 to-yellow-100 border border-yellow-200 text-yellow-800 px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-sm">
                 <Gem className="w-3.5 h-3.5 text-yellow-600" /> PRO MEMBER
@@ -422,6 +440,14 @@ export default function Dashboard() {
                                 <button onClick={() => handleDuplicate(sow)} className="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-50 hover:text-indigo-600 flex items-center gap-2">
                                    <Copy className="w-3.5 h-3.5" /> Duplicate
                                 </button>
+                                
+                                {/* 👇 MANUAL PAID BUTTON */}
+                                {!isPaid && (
+                                    <button onClick={() => handleMarkPaid(sow.id)} className="w-full text-left px-4 py-2.5 text-xs font-bold text-emerald-600 hover:bg-emerald-50 flex items-center gap-2">
+                                        <CheckCircle className="w-3.5 h-3.5" /> Mark as Paid
+                                    </button>
+                                )}
+
                                 <div className="h-px bg-gray-100 my-1"></div>
                                 <button onClick={() => handleDelete(sow.id)} className="w-full text-left px-4 py-2.5 text-xs font-bold text-red-600 hover:bg-red-50 flex items-center gap-2">
                                    <Trash2 className="w-3.5 h-3.5" /> Delete
@@ -508,6 +534,14 @@ export default function Dashboard() {
         )}
 
       </div>
+      
+      {/* 💥 PRICING MODAL COMPONENT */}
+      <PricingModal 
+         isOpen={showPricingModal} 
+         onClose={() => setShowPricingModal(false)} 
+         userId={userId} 
+      />
+
     </div>
   );
 }
