@@ -5,7 +5,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signContract } from '../../actions/signSOW';
-import { ArrowLeft, CheckCircle, Lock, X, Share2, Download, Edit3, MoreHorizontal, PenTool, AlertTriangle, Info } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Lock, X, Share2, Download, Edit3, MoreHorizontal, PenTool, AlertTriangle, Info, PieChart, CreditCard } from 'lucide-react';
 import PayContractButton from '../../components/PayContractButton';
 
 // 1. Clean Cursive Font
@@ -17,7 +17,7 @@ const formatMoney = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 2,
   }).format(amount);
 };
 
@@ -43,7 +43,12 @@ export default function ViewContract({ params }: { params: { id: string } }) {
       
       if (error || !docData) { setLoading(false); return; }
 
+      // 🧠 SMART STATUS UPDATE
+      // If payment was just successful, we might need to update status or record a partial payment
       if (paymentStatus === 'success' && docData.status !== 'Paid') {
+         // You might want a more complex API here for partial payments later
+         // For now, if they pay the deposit/split, we mark it as "Active" or similar?
+         // Or just keep simple "Paid" logic for the MVP
          await fetch('/api/sow/mark-paid', {
            method: 'POST',
            headers: { 'Content-Type': 'application/json' },
@@ -70,29 +75,53 @@ export default function ViewContract({ params }: { params: { id: string } }) {
   const isOwner = currentUser?.id === doc?.user_id;
   const isFullySigned = doc?.signed_by && doc?.provider_sign;
   const isPaid = doc?.status === 'Paid' || paymentStatus === 'success';
-
-  // 🔒 ROLE LOGIC: Automate the role selection
   const userRole = isOwner ? 'provider' : 'client';
+
+  // --- 💰 DYNAMIC PAYMENT CALCULATOR ---
+  const getPaymentDetails = () => {
+      if (!doc) return { amount: 0, label: 'Total' };
+      
+      const sched = doc.payment_schedule_structured || {};
+      
+      // If already paid, amount is 0
+      if (isPaid) return { amount: 0, label: 'Paid in Full' };
+
+      // Case 1: Split Payment (Installments)
+      if (sched.type === 'split' && sched.depositAmount) {
+          return { 
+              amount: sched.depositAmount, 
+              label: `Installment (1 of ${sched.splitCount || '?'})` 
+          };
+      }
+
+      // Case 2: Deposit Required
+      if ((sched.type === '50' || sched.type === 'fixed') && sched.depositAmount) {
+          return { 
+              amount: sched.depositAmount, 
+              label: 'Deposit Due' 
+          };
+      }
+
+      // Case 3: Standard Full Payment
+      return { 
+          amount: doc.price, 
+          label: 'Total Due' 
+      };
+  };
+
+  const { amount: dueNow, label: dueLabel } = getPaymentDetails();
 
   const handleSign = async () => {
     if (!signerName) return alert("Please type your name.");
     setIsSigning(true);
-
     const result = await signContract(params.id, signerName, userRole);
-
     if (result.success) {
       const newDoc = { ...doc };
-      if (userRole === 'client') {
-        newDoc.status = 'Signed';
-        newDoc.signed_by = signerName;
-      } else {
-        newDoc.provider_sign = signerName;
-      }
+      if (userRole === 'client') { newDoc.status = 'Signed'; newDoc.signed_by = signerName; } 
+      else { newDoc.provider_sign = signerName; }
       setDoc(newDoc);
       setShowSignModal(false);
-    } else {
-      alert("Signing failed. Please try again.");
-    }
+    } else { alert("Signing failed. Please try again."); }
     setIsSigning(false);
   };
 
@@ -102,13 +131,13 @@ export default function ViewContract({ params }: { params: { id: string } }) {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 print:bg-white print:p-0 print:m-0">
       
-      {/* 🖨️ HEADER (Hidden when printing) */}
+      {/* 🖨️ HEADER */}
       <div className="max-w-3xl mx-auto mb-6 flex items-center justify-between print:hidden relative">
         <Link href="/dashboard" className="text-gray-500 hover:text-black font-semibold text-sm flex items-center gap-1">
           <ArrowLeft className="w-4 h-4" /> Back
         </Link>
 
-        {/* Sign Button - Only show if needed */}
+        {/* Sign Button */}
         {!isFullySigned && !isPaid && (
            <button 
              onClick={() => setShowSignModal(true)}
@@ -151,12 +180,18 @@ export default function ViewContract({ params }: { params: { id: string } }) {
             <h1 className="text-3xl sm:text-4xl font-bold uppercase tracking-tight mb-2 leading-tight">{cleanTitle(doc.title)}</h1>
             <p className="text-gray-500 text-sm uppercase tracking-wider font-semibold print:text-black">Statement of Work</p>
           </div>
+          
+          {/* PRICE BOX */}
           <div className="text-left sm:text-right print:text-right min-w-[200px]">
             <div className="bg-gray-100 px-4 py-2 rounded mb-2 inline-block print:bg-white print:border print:border-black">
-              <span className="block text-[10px] text-gray-500 uppercase font-bold tracking-wide print:text-black">Total Value</span>
-              <span className="text-xl font-bold">{formatMoney(doc.price)}{doc.payment_type === 'monthly' && <span className="text-sm font-medium"> / mo</span>}</span>
+              <span className="block text-[10px] text-gray-500 uppercase font-bold tracking-wide print:text-black">{dueLabel}</span>
+              <span className="text-xl font-bold">{formatMoney(dueNow)}</span>
             </div>
-            <p className="text-sm text-gray-700 print:text-black"><strong>Client:</strong> {doc.client_name}</p>
+            {/* Show Total if Split */}
+            {dueNow !== doc.price && !isPaid && (
+                 <p className="text-xs text-gray-400 mt-1">Total Contract: {formatMoney(doc.price)}</p>
+            )}
+            <p className="text-sm text-gray-700 print:text-black mt-2"><strong>Client:</strong> {doc.client_name}</p>
             <p className="text-sm text-gray-700 print:text-black"><strong>Date:</strong> {new Date(doc.created_at).toLocaleDateString()}</p>
           </div>
         </div>
@@ -191,33 +226,24 @@ export default function ViewContract({ params }: { params: { id: string } }) {
             {isPaid ? (
                 <button disabled className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 cursor-default"><CheckCircle className="w-5 h-5" /> Paid in Full</button>
             ) : isFullySigned ? (
-                <PayContractButton sowId={doc.id} price={doc.price} paymentType={doc.payment_type} />
+                // ⚡ INTELLIGENT PAY BUTTON: Passes the exact 'dueNow' amount
+                <PayContractButton sowId={doc.id} price={dueNow} paymentType={doc.payment_type} label={dueLabel === 'Total Due' ? 'Pay Full Amount' : `Pay ${dueLabel}`} />
             ) : (
-                // 🔒 LOCKED BUTTON (Added gap-3 for spacing)
                 <button disabled className="w-full bg-gray-100 text-gray-400 font-bold py-4 rounded-xl cursor-not-allowed flex items-center justify-center gap-3 border border-gray-200">
                    <Lock className="w-4 h-4" /> 
                    Payment Locked (Awaiting Signatures)
                 </button>
             )}
             
-            {/* 🛡️ CANCELLATION & LIABILITY TEXT */}
             <div className="text-center mt-4 space-y-2">
                 <p className="text-xs text-gray-400 flex justify-center items-center gap-1">
                    <Lock className="w-3 h-3" /> Secure Payment via Stripe Connect
                 </p>
-                {doc.payment_type === 'monthly' && (
-                    <p className="text-[10px] text-gray-400 max-w-md mx-auto">
-                        <strong>Billing Info:</strong> This subscription is managed directly between you and the Service Provider. To cancel or modify billing, check your email receipt for a management link or contact {isOwner ? 'the Client' : 'the Service Provider'} directly.
-                    </p>
-                )}
             </div>
         </div>
         
         <div className="mt-8 text-center print:hidden opacity-50 hover:opacity-100 transition-opacity">
           <Link href="/" className="text-[10px] text-gray-400 uppercase tracking-widest hover:text-black">Generated via MicroFreelanceHub</Link>
-        </div>
-        <div className="hidden print:block fixed bottom-4 left-0 w-full text-center text-[8px] text-gray-400 uppercase tracking-widest">
-            Secure Contract ID: {doc.id.slice(0, 8)} • MicroFreelanceHub
         </div>
       </div>
 
@@ -238,7 +264,6 @@ export default function ViewContract({ params }: { params: { id: string } }) {
                 </p>
             </div>
 
-            {/* ⚠️ CLIENT LIABILITY WARNING */}
             {userRole === 'client' && (
                 <div className="bg-amber-50 border-l-4 border-amber-400 p-3 mb-6">
                     <div className="flex items-center gap-2 mb-1">
@@ -246,7 +271,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
                         <span className="text-xs font-bold text-amber-800">Financial Responsibility</span>
                     </div>
                     <p className="text-[11px] text-amber-700 leading-snug">
-                        You acknowledge that you are entering a direct financial agreement with the Service Provider. You confirm that you are paying the correct individual. MicroFreelanceHub is not a party to this transaction and cannot issue refunds.
+                        You acknowledge that you are entering a direct financial agreement with the Service Provider. You confirm that you are paying the correct individual.
                     </p>
                 </div>
             )}
@@ -255,7 +280,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
             <input autoFocus type="text" placeholder="e.g. Jane Doe" className="w-full border-2 border-gray-200 p-3 rounded-lg mb-6 text-lg focus:border-black focus:outline-none" value={signerName} onChange={(e) => setSignerName(e.target.value)} />
             
             <div className="text-xs text-gray-500 mb-6 leading-relaxed">
-                By clicking <strong>Agree & Sign</strong>, I agree to be legally bound by this contract and the <Link href="/terms" className="underline">Terms of Service</Link>.
+                By clicking <strong>Agree & Sign</strong>, I agree to be legally bound by this contract.
             </div>
 
             <div className="flex gap-3">

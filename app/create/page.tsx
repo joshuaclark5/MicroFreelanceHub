@@ -5,8 +5,24 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { generateQuestions, generateFinalSOW, refineSOW } from '../actions/generateSOW';
 import Link from 'next/link';
-import { ArrowLeft, Sparkles, PenTool, ArrowRight, Trash2, Repeat, CreditCard, Wand2, AlertCircle } from 'lucide-react';
-import PricingModal from '../components/PricingModal'; // 👈 IMPORT THE MODAL
+import { 
+  ArrowLeft, 
+  Sparkles, 
+  PenTool, 
+  Trash2, 
+  Repeat, 
+  CreditCard, 
+  Wand2, 
+  AlertCircle, 
+  Plus, 
+  X, 
+  Undo2,
+  CalendarClock,
+  Split,
+  Loader2
+} from 'lucide-react';
+import PricingModal from '../components/PricingModal';
+import { AuthRequiredModal } from '../components/modals/AuthRequiredModal';
 
 // 🛡️ THE LEGAL SHIELD
 const LEGAL_TERMS = `
@@ -37,15 +53,44 @@ Work will commence upon receipt of deposit.
 
 ${LEGAL_TERMS}`;
 
+// Interface for Line Items
+interface LineItem {
+  id: string;
+  description: string;
+  quantity: string;
+  amount: string;
+}
+
 function CreateProjectContent() {
   const [formData, setFormData] = useState({
     clientName: '',
     projectTitle: '',
-    price: '',
     taxRate: '', 
     deliverables: '', 
     description: ''
   });
+
+  // Line Items
+  const [lineItems, setLineItems] = useState<LineItem[]>([
+    { id: '1', description: 'Project Fee', quantity: '1', amount: '' }
+  ]);
+
+  // Financial Settings
+  const [includeFee, setIncludeFee] = useState(true);
+  
+  // Deposit & Terms State
+  const [depositType, setDepositType] = useState<'none' | '50' | 'fixed'>('none');
+  const [fixedDepositAmount, setFixedDepositAmount] = useState('');
+  const [paymentTerms, setPaymentTerms] = useState<'immediate' | 'completion' | 'net15' | 'net30' | 'net60'>('immediate');
+
+  // Split Payment State
+  const [isSplit, setIsSplit] = useState(false);
+  const [splitCount, setSplitCount] = useState('2');
+  const [splitFrequency, setSplitFrequency] = useState('30'); // Days
+
+  // UI States
+  const [undoText, setUndoText] = useState('');
+  const [confirmClear, setConfirmClear] = useState(false);
 
   const [step, setStep] = useState<'select_mode' | 'ai_input' | 'questions' | 'final'>('select_mode');
   const [loading, setLoading] = useState(false);
@@ -65,33 +110,121 @@ function CreateProjectContent() {
   const [isPro, setIsPro] = useState(false);
   const [projectCount, setProjectCount] = useState(0);
   const [showPricingModal, setShowPricingModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [userId, setUserId] = useState('');
 
   const supabase = createClientComponentClient();
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // 1. Load User, Check Limits, & Load Template
+  // --- CALCULATORS ---
+  const calculateFinancials = () => {
+    // 1. Line Items Subtotal
+    const subtotal = lineItems.reduce((acc, item) => {
+      const qty = parseFloat(item.quantity) || 0;
+      const amt = parseFloat(item.amount) || 0;
+      return acc + (qty * amt);
+    }, 0);
+
+    // 2. Tax & Fee
+    const taxRate = parseFloat(formData.taxRate) || 0;
+    const feeAmount = includeFee ? subtotal * 0.039 : 0;
+    const taxAmount = subtotal * (taxRate / 100);
+    const grandTotal = subtotal + taxAmount + feeAmount;
+
+    // 3. Deposit Calculation
+    let depositAmount = 0;
+    if (depositType === '50') {
+        depositAmount = grandTotal / 2;
+    } else if (depositType === 'fixed') {
+        depositAmount = parseFloat(fixedDepositAmount) || 0;
+        if (depositAmount > grandTotal) depositAmount = grandTotal; 
+    } else {
+        depositAmount = grandTotal; 
+    }
+
+    // 4. Split Calculation
+    const splits = parseInt(splitCount) || 1;
+    const splitAmount = grandTotal / splits;
+
+    return { subtotal, taxAmount, feeAmount, grandTotal, depositAmount, splitAmount };
+  };
+
+  const financials = calculateFinancials();
+
+  // --- DYNAMIC CONTENT GENERATORS ---
+  const getPaymentTermsText = () => {
+    const { depositAmount, grandTotal, splitAmount } = financials;
+    const formattedDeposit = depositAmount.toFixed(2);
+    const formattedTotal = grandTotal.toFixed(2);
+    const remaining = (grandTotal - depositAmount).toFixed(2);
+
+    let termsLabel = "Due upon receipt";
+    if (paymentTerms === 'completion') termsLabel = "Due upon completion of services";
+    if (paymentTerms === 'net15') termsLabel = "Net 15 (due 15 days after completion)";
+    if (paymentTerms === 'net30') termsLabel = "Net 30 (due 30 days after completion)";
+    if (paymentTerms === 'net60') termsLabel = "Net 60 (due 60 days after completion)";
+
+    // Scenario 1: Monthly Retainer
+    if (paymentType === 'monthly') {
+        return `1. PAYMENT TERMS\nServices will be billed monthly at a rate of $${formattedTotal}. Payment is due upon receipt of invoice.`;
+    }
+
+    // Scenario 2: Split Payments (Installments)
+    if (isSplit) {
+        return `1. PAYMENT TERMS\nThe Total Contract Value of $${formattedTotal} shall be paid in ${splitCount} installments of $${splitAmount.toFixed(2)}. The first installment is due immediately. Subsequent payments are due every ${splitFrequency} days.`;
+    }
+
+    // Scenario 3: Deposit + Balance
+    if (depositType !== 'none') {
+        return `1. PAYMENT TERMS\nA deposit of $${formattedDeposit} is required to begin work. The remaining balance ($${remaining}) is ${termsLabel}.`;
+    }
+
+    // Scenario 4: Standard One-Time
+    return `1. PAYMENT TERMS\nFull payment of $${formattedTotal} is required. Terms: ${termsLabel}.`;
+  };
+
+  const generateFullContract = (title: string, scopeBullets: string) => {
+    const terms = getPaymentTermsText();
+    return `1. PROJECT BACKGROUND
+This Agreement is entered into by and between the Client and the Contractor. The Client wishes to engage the Contractor for professional ${title} services.
+
+2. SCOPE OF SERVICES
+The Contractor shall provide the following specific deliverables:
+
+${scopeBullets}
+
+3. TIMELINE
+Work will commence upon receipt of the initial payment/deposit.
+
+--------------------------------------------------
+TERMS & CONDITIONS
+
+${terms}
+
+2. OWNERSHIP & RIGHTS
+Upon full payment, the Client is granted exclusive rights to the final deliverables. The Freelancer retains the right to use the work for portfolio and self-promotional purposes.
+
+3. CANCELLATION & LIABILITY
+If the Client cancels the project after work has begun, the Freelancer retains the deposit. The Freelancer's liability is limited to the total value of this contract.
+--------------------------------------------------`;
+  };
+
+  // 1. Load User
   useEffect(() => {
     const init = async () => {
-      // A. Auth Check
       const { data: { user } } = await supabase.auth.getUser();
-      // Note: We don't force redirect here to allow guests to start exploring, 
-      // but they will hit a wall at save time.
       if (user) {
         setUserId(user.id);
-        
-        // B. Check Pro Status & Count Projects
         const [profileRes, countRes] = await Promise.all([
             supabase.from('profiles').select('is_pro').eq('id', user.id).single(),
             supabase.from('sow_documents').select('id', { count: 'exact', head: true }).eq('user_id', user.id)
         ]);
-
         setIsPro(profileRes.data?.is_pro || false);
         setProjectCount(countRes.count || 0);
       }
 
-      // C. Load Template (if provided)
+      // Load Template
       const urlSlug = searchParams.get('template');
       const localSlug = localStorage.getItem('pending_template');
       const slug = urlSlug || localSlug;
@@ -99,41 +232,31 @@ function CreateProjectContent() {
       if (slug) {
         setLoading(true);
         setLoadingMessage('Loading Template...');
-
         const manualOverrides: Record<string, string> = {
             'hire-graphic-designer': 'freelance-logo-designer',
             'hire-video-editor': 'freelance-videographer',
             'hire-photographer': 'hire-event-photographer',
             'hire-web-developer': 'hire-wordpress-developer',
         };
-
         const searchSlug = manualOverrides[slug] || slug;
-
         let { data: sowDoc } = await supabase.from('sow_documents').select('*').eq('slug', searchSlug).single();
         let foundData = null;
 
-        if (sowDoc) {
-             foundData = { title: sowDoc.title, price: sowDoc.price, deliverables: sowDoc.deliverables };
-        } else {
+        if (sowDoc) foundData = { title: sowDoc.title, price: sowDoc.price, deliverables: sowDoc.deliverables };
+        else {
             let { data: seoDoc } = await supabase.from('seo_pages').select('*').eq('slug', searchSlug).single();
-            if (seoDoc) {
-                foundData = { title: seoDoc.job_title || seoDoc.keyword, price: 0, deliverables: seoDoc.deliverables };
-            }
+            if (seoDoc) foundData = { title: seoDoc.job_title || seoDoc.keyword, price: 0, deliverables: seoDoc.deliverables };
         }
 
         if (foundData) {
-             const fullContent = generateProfessionalContent(foundData.title, foundData.deliverables);
-             setFormData(prev => ({
-               ...prev,
-               projectTitle: foundData.title,
-               deliverables: fullContent,
-               price: foundData.price?.toString() || '',
-               description: `Contract for ${foundData.title}`,
-             }));
+             const bullets = typeof foundData.deliverables === 'string' ? foundData.deliverables : "• Scope details...";
+             const fullContent = generateFullContract(foundData.title, bullets);
+             setFormData(prev => ({ ...prev, projectTitle: foundData.title, deliverables: fullContent, description: `Contract for ${foundData.title}` }));
+             const initialAmount = foundData.price ? foundData.price.toString() : '';
+             setLineItems([{ id: '1', description: 'Project Fee', quantity: '1', amount: initialAmount }]);
              setIsTemplateLoaded(true);
              setStep('final'); 
         }
-
         if (localSlug) localStorage.removeItem('pending_template');
         setLoading(false);
       }
@@ -141,49 +264,86 @@ function CreateProjectContent() {
     init();
   }, [supabase, searchParams]);
 
-  const generateProfessionalContent = (title: string, rawDeliverables: any) => {
-    const list = Array.isArray(rawDeliverables) 
-        ? rawDeliverables 
-        : (typeof rawDeliverables === 'string' ? [rawDeliverables] : ["Scope of work details..."]);
+  // Update contract text when payment terms change
+  useEffect(() => {
+    if (step === 'final' && formData.deliverables) {
+        const fullText = formData.deliverables;
+        const termsStartMarker = "1. PAYMENT TERMS";
+        const termsEndMarker = "2. OWNERSHIP & RIGHTS";
+        const startIndex = fullText.indexOf(termsStartMarker);
+        const endIndex = fullText.indexOf(termsEndMarker);
 
-    const bullets = list.map((item: string) => `• ${item}`).join('\n');
-
-    let content = `1. PROJECT BACKGROUND
-This Agreement is entered into by and between the Client and the Contractor. The Client wishes to engage the Contractor for professional ${title} services, and the Contractor agrees to perform such services in accordance with the terms and conditions set forth below.
-
-2. SCOPE OF SERVICES
-The Contractor shall provide the following specific deliverables:
-
-${bullets}
-
-3. PERFORMANCE STANDARDS
-The Contractor agrees to perform the ${title} services in a professional manner, using the degree of skill and care that is required by current industry standards.
-
-${LEGAL_TERMS}`;
-
-    return content;
-  };
+        if (startIndex !== -1 && endIndex !== -1) {
+            const beforeTerms = fullText.substring(0, startIndex);
+            const afterTerms = fullText.substring(endIndex);
+            const newTerms = getPaymentTermsText();
+            const currentTermsSection = fullText.substring(startIndex, endIndex);
+            // Loose check to prevent loops
+            if (!currentTermsSection.includes(newTerms.split('\n')[1])) { 
+                 setFormData(prev => ({ ...prev, deliverables: beforeTerms + newTerms + "\n\n" + afterTerms }));
+            }
+        }
+    }
+  }, [depositType, fixedDepositAmount, paymentType, paymentTerms, includeFee, formData.taxRate, lineItems, isSplit, splitCount, splitFrequency]);
 
   const handleStartManual = () => {
-      setFormData(prev => ({ ...prev, deliverables: MANUAL_TEMPLATE }));
+      const content = generateFullContract("Project", "• Deliverable 1\n• Deliverable 2");
+      setFormData(prev => ({ ...prev, deliverables: content }));
       setStep('final');
   };
 
   const handleClearContent = () => {
-    if (confirm("Are you sure you want to clear the editor? This cannot be undone.")) {
+    if (confirmClear) {
         setFormData(prev => ({ ...prev, deliverables: '' }));
+        setUndoText('');
+        setConfirmClear(false);
+    } else {
+        setConfirmClear(true);
+        setTimeout(() => setConfirmClear(false), 3000);
     }
+  };
+
+  const handleUndo = () => {
+    if (undoText) {
+      setFormData(prev => ({ ...prev, deliverables: undoText }));
+      setUndoText(''); 
+    }
+  };
+
+  const handleRefine = async () => {
+    if (!refineText) return;
+    setIsRefining(true);
+    setUndoText(formData.deliverables);
+    const fullText = formData.deliverables;
+    const scopeStartMarker = "2. SCOPE OF SERVICES";
+    const nextSectionMarker = "3. "; 
+    const startIndex = fullText.indexOf(scopeStartMarker);
+    const endIndex = fullText.indexOf(nextSectionMarker, startIndex + scopeStartMarker.length);
+
+    if (startIndex === -1 || endIndex === -1) {
+        const result = await refineSOW(fullText, financials.subtotal, refineText);
+        if (result) setFormData(prev => ({ ...prev, deliverables: result.deliverables }));
+    } else {
+        const headerPart = fullText.substring(0, startIndex);
+        const scopePart = fullText.substring(startIndex, endIndex);
+        const footerPart = fullText.substring(endIndex);
+        const safeInstruction = `${refineText} (INSTRUCTION: Rewrite this scope section professionally. Keep the header '2. SCOPE OF SERVICES'.)`;
+        const result = await refineSOW(scopePart, financials.subtotal, safeInstruction);
+        if (result) {
+            setFormData(prev => ({ ...prev, deliverables: headerPart + result.deliverables + "\n\n" + footerPart }));
+        }
+    }
+    setRefineText(""); 
+    setIsRefining(false);
+    setShowAiRefiner(false); 
   };
 
   const handleAnalyze = async () => {
     if (!formData.clientName) return alert("Please enter the Client Name.");
     if (!formData.description) return alert("Please describe the project.");
-    if (!isPro) {
-        setShowPricingModal(true); // 👈 TRIGGER MODAL INSTEAD OF ALERT
-        return;
-    }
+    if (!isPro) { setShowPricingModal(true); return; }
     setLoading(true);
-    setLoadingMessage('AI is analyzing your request...');
+    setLoadingMessage('Analyzing Project...'); 
     const qs = await generateQuestions(formData.description);
     if (qs && qs.length > 0) { setQuestions(qs); setStep('questions'); } 
     else { alert("System busy. Please try refreshing."); }
@@ -196,85 +356,80 @@ ${LEGAL_TERMS}`;
     const qaPairs = questions.map((q, i) => ({ q, a: answers[i] }));
     const result = await generateFinalSOW(formData.clientName, formData.description, qaPairs);
     if (result) {
-      const fullContent = generateProfessionalContent(result.title, result.deliverables);
-      setFormData(prev => ({
-        ...prev,
-        projectTitle: result.title,
-        deliverables: fullContent,
-        price: result.price?.toString() || prev.price
-      }));
+      setUndoText(formData.deliverables);
+      const fullContent = generateFullContract(result.title, result.deliverables);
+      setFormData(prev => ({ ...prev, projectTitle: result.title, deliverables: fullContent }));
+      setLineItems([{ id: '1', description: 'Project Fee', quantity: '1', amount: result.price?.toString() || '' }]);
       setStep('final');
-    } else {
-      alert("AI failed. Please try again.");
-    }
+    } else { alert("AI failed. Please try again."); }
     setLoading(false);
   };
 
-  const handleRefine = async () => {
-    if (!refineText) return;
-    setIsRefining(true);
-    const safeInstruction = `${refineText} (IMPORTANT: Keep the legal sections intact. Only update the Scope/Background.)`;
-    const result = await refineSOW(formData.deliverables, parseFloat(formData.price) || 0, safeInstruction);
-    if (result) {
-      setFormData(prev => ({ ...prev, deliverables: result.deliverables, price: result.price?.toString() || prev.price }));
-      setRefineText(""); 
-    }
-    setIsRefining(false);
-    setShowAiRefiner(false); 
+  // Line Item Handlers
+  const addLineItem = () => setLineItems([...lineItems, { id: Math.random().toString(36).substr(2, 9), description: '', quantity: '1', amount: '' }]);
+  const removeLineItem = (id: string) => { if (lineItems.length > 1) setLineItems(lineItems.filter(item => item.id !== id)); };
+  const updateLineItem = (id: string, field: keyof LineItem, value: string) => {
+    setLineItems(lineItems.map(item => item.id === id ? { ...item, [field]: value } : item));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setLoadingMessage('Saving...');
     const { data: { user } } = await supabase.auth.getUser();
 
+    // Prepare Line Items
+    const finalLineItems = lineItems.map(item => ({
+        ...item,
+        quantity: parseFloat(item.quantity) || 0,
+        amount: parseFloat(item.amount) || 0
+    }));
+
+    if (includeFee) {
+        finalLineItems.push({
+            id: 'fee-auto',
+            description: `Payment Processing Fee (3.9%)`, 
+            quantity: 1,
+            amount: financials.feeAmount
+        });
+    }
+
     if (!user) {
+      setLoading(false); 
       localStorage.setItem('pendingSOW', JSON.stringify({
         client_name: formData.clientName,
         title: formData.projectTitle,
-        price: parseFloat(formData.price),
+        line_items: finalLineItems, 
+        tax_rate: formData.taxRate,
         deliverables: formData.deliverables,
         status: 'Draft',
-        payment_type: paymentType
+        payment_type: paymentType,
+        deposit_amount: financials.depositAmount
       }));
-      alert("Please create a free account to save your Agreement!");
-      window.location.href = '/login?next=/dashboard'; 
+      setShowAuthModal(true);
       return;
     }
 
-    // 🛑 THE GATEKEEPER CHECK
-    // If not Pro AND has 3 or more projects -> STOP and Show Modal
-    if (!isPro && projectCount >= 3) {
-        setLoading(false);
-        setShowPricingModal(true); // 👈 Show the Paywall
-        return;
-    }
+    setLoadingMessage('Saving...');
+    if (!isPro && projectCount >= 3) { setLoading(false); setShowPricingModal(true); return; }
 
-    let finalDeliv = formData.deliverables;
-    const basePrice = parseFloat(formData.price) || 0;
-    const taxRate = parseFloat(formData.taxRate) || 0;
-    const taxAmount = basePrice * (taxRate / 100);
-    const total = basePrice + taxAmount;
-    
-    // Ensure Financial Summary is present if tax is involved or not monthly (optional check logic can be expanded)
-    if (!finalDeliv.includes("FINANCIAL SUMMARY")) {
-        finalDeliv += `\n\n--------------------------------------------------\nFINANCIAL SUMMARY\n`;
-        finalDeliv += `Base Price: $${basePrice.toFixed(2)}\n`;
-        if (taxRate > 0) {
-            finalDeliv += `Tax (${taxRate}%): $${taxAmount.toFixed(2)}\n`;
-        }
-        finalDeliv += `TOTAL: $${total.toFixed(2)} ${paymentType === 'monthly' ? '/ month' : ''}`;
-    }
-
+    // Save with Structured Payment Data
     const { error } = await supabase.from('sow_documents').insert({
       user_id: user.id,
       client_name: formData.clientName,
       title: formData.projectTitle,
-      price: total,
-      deliverables: finalDeliv,
+      price: financials.grandTotal,
+      line_items: finalLineItems, 
+      deliverables: formData.deliverables,
       status: 'Draft',
-      payment_type: paymentType
+      payment_type: paymentType,
+      payment_schedule_structured: { 
+          type: isSplit ? 'split' : depositType,
+          depositAmount: isSplit ? financials.splitAmount : financials.depositAmount,
+          remainingAmount: financials.grandTotal - (isSplit ? financials.splitAmount : financials.depositAmount),
+          paymentTerms: paymentTerms,
+          splitCount: isSplit ? splitCount : null,
+          splitFrequency: isSplit ? splitFrequency : null
+      }
     });
 
     if (!error) router.push('/dashboard');
@@ -282,19 +437,11 @@ ${LEGAL_TERMS}`;
     setLoading(false);
   };
 
-  const calculateTotal = () => {
-    const p = parseFloat(formData.price) || 0;
-    const t = parseFloat(formData.taxRate) || 0;
-    return (p + (p * (t / 100))).toFixed(2);
-  };
-
   const renderHeader = () => (
     <div className="bg-white border-b border-gray-200 sticky top-0 z-30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard" className="text-gray-400 hover:text-gray-900 transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
+          <Link href="/dashboard" className="text-gray-400 hover:text-gray-900 transition-colors"><ArrowLeft className="w-5 h-5" /></Link>
           <h1 className="text-lg font-bold text-gray-900">
             {step === 'select_mode' && 'New Agreement'}
             {step === 'ai_input' && 'AI Assistant'}
@@ -303,12 +450,7 @@ ${LEGAL_TERMS}`;
           </h1>
         </div>
         <div className="flex items-center gap-3">
-            {/* Show Badge if Limit Reached */}
-            {!isPro && projectCount >= 3 && (
-                <span className="hidden md:flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full border border-amber-200 cursor-pointer" onClick={() => setShowPricingModal(true)}>
-                    <AlertCircle className="w-3 h-3" /> Free Limit Reached
-                </span>
-            )}
+            {!isPro && projectCount >= 3 && <span className="hidden md:flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full border border-amber-200 cursor-pointer" onClick={() => setShowPricingModal(true)}><AlertCircle className="w-3 h-3" /> Free Limit Reached</span>}
             <div className="bg-black text-white w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg font-bold text-lg shadow-sm">M</div>
             <span className="text-sm font-bold text-gray-900 hidden sm:block">MicroFreelance</span>
         </div>
@@ -318,9 +460,8 @@ ${LEGAL_TERMS}`;
 
   return (
     <div className="min-h-screen bg-gray-50/50">
-      
+      <AuthRequiredModal open={showAuthModal} onOpenChange={setShowAuthModal} />
       <div className="absolute inset-0 h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-0"></div>
-
       {renderHeader()}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
@@ -330,129 +471,49 @@ ${LEGAL_TERMS}`;
           {step === 'select_mode' && (
              <div className="p-8 md:p-12 animate-in fade-in slide-in-from-bottom-4">
                 <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">Create a new agreement</h2>
-                <p className="text-gray-500 text-center mb-12 text-lg">Choose the method that works best for your workflow.</p>
-                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                    <button 
-                        onClick={() => setStep('ai_input')}
-                        className="group relative p-8 rounded-2xl border-2 border-gray-100 hover:border-indigo-600 hover:bg-indigo-50/50 transition-all text-left flex flex-col h-full"
-                    >
-                        <div className="mb-6 bg-indigo-100 w-14 h-14 rounded-2xl flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform shadow-sm">
-                            <Sparkles className="w-7 h-7" />
-                        </div>
+                    <button onClick={() => setStep('ai_input')} className="group relative p-8 rounded-2xl border-2 border-gray-100 hover:border-indigo-600 hover:bg-indigo-50/50 transition-all text-left flex flex-col h-full">
+                        <div className="mb-6 bg-indigo-100 w-14 h-14 rounded-2xl flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform shadow-sm"><Sparkles className="w-7 h-7" /></div>
                         <h3 className="text-xl font-bold text-gray-900 mb-3">Use AI Assistant</h3>
-                        <p className="text-gray-500 leading-relaxed">
-                            Describe your project in plain English. Our AI will interview you and draft a professional SOW automatically.
-                        </p>
-                        <div className="mt-auto pt-8 flex items-center text-indigo-600 font-bold">
-                            Start Interview <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                        </div>
+                        <p className="text-gray-500 leading-relaxed">Describe your project in plain English. Our AI will interview you and draft a professional SOW automatically.</p>
                     </button>
-
-                    <button 
-                        onClick={handleStartManual}
-                        className="group relative p-8 rounded-2xl border-2 border-gray-100 hover:border-gray-900 hover:bg-gray-50/50 transition-all text-left flex flex-col h-full"
-                    >
-                        <div className="mb-6 bg-gray-100 w-14 h-14 rounded-2xl flex items-center justify-center text-gray-900 group-hover:scale-110 transition-transform shadow-sm">
-                            <PenTool className="w-7 h-7" />
-                        </div>
+                    <button onClick={handleStartManual} className="group relative p-8 rounded-2xl border-2 border-gray-100 hover:border-gray-900 hover:bg-gray-50/50 transition-all text-left flex flex-col h-full">
+                        <div className="mb-6 bg-gray-100 w-14 h-14 rounded-2xl flex items-center justify-center text-gray-900 group-hover:scale-110 transition-transform shadow-sm"><PenTool className="w-7 h-7" /></div>
                         <h3 className="text-xl font-bold text-gray-900 mb-3">Start from Scratch</h3>
-                        <p className="text-gray-500 leading-relaxed">
-                            Jump straight into the editor with a blank standard template. Best if you already have the details ready.
-                        </p>
-                        <div className="mt-auto pt-8 flex items-center text-gray-900 font-bold">
-                            Open Editor <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                        </div>
+                        <p className="text-gray-500 leading-relaxed">Jump straight into the editor with a blank standard template.</p>
                     </button>
                 </div>
              </div>
           )}
 
-          {/* STEP 1 (AI PATH): INPUT DETAILS */}
-          {step === 'ai_input' && (
+          {/* STEP 1 & 2 (AI PATH) */}
+          {(step === 'ai_input' || step === 'questions') && (
             <div className="p-8 md:p-12 max-w-3xl mx-auto animate-in fade-in slide-in-from-right-4">
-              <button onClick={() => setStep('select_mode')} className="text-sm text-gray-400 hover:text-black mb-6 flex items-center gap-2 font-medium">
-                 <ArrowLeft className="w-4 h-4" /> Back to options
-              </button>
-
-              <h2 className="text-2xl font-bold text-gray-900 mb-8">Tell us about the project</h2>
-
-              {loading && <div className="p-4 bg-blue-50 text-blue-800 rounded-xl text-center font-bold animate-pulse mb-6">{loadingMessage || 'Loading...'}</div>}
-              
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Client Name</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Acme Corp"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                    value={formData.clientName}
-                    onChange={(e) => setFormData({...formData, clientName: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Project Description</label>
-                  <textarea
-                    className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                    rows={6}
-                    placeholder="e.g. They need a custom CRM for their real estate business. It should include contact management, property listings, and a client portal..."
-                    value={formData.description}
-                    onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  />
-                </div>
-
-                <button
-                  onClick={handleAnalyze}
-                  disabled={loading}
-                  className={`w-full py-4 rounded-xl font-bold text-white transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 text-lg ${
-                    isPro ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-900 hover:bg-black'
-                  }`}
-                >
-                  {loading ? 'Thinking...' : isPro ? <><Sparkles className="w-5 h-5"/> Start AI Interview</> : 'Unlock AI Assistant ($29/mo)'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 2 (AI PATH): QUESTIONS */}
-          {step === 'questions' && (
-            <div className="p-8 md:p-12 max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-               <h2 className="text-2xl font-bold text-gray-900 mb-2">AI Interview</h2>
-               <p className="text-gray-500 mb-8">Just a few more details to make your contract perfect.</p>
-
-               <div className="bg-indigo-50 p-5 rounded-xl text-indigo-900 text-sm mb-8 border border-indigo-100 flex gap-3 items-start">
-                <Sparkles className="w-5 h-5 flex-shrink-0 text-indigo-600 mt-0.5" />
-                <div>
-                  <strong>AI Assistant:</strong> "I've analyzed your request. Please answer these 3 questions to help me write the scope:"
-                </div>
-              </div>
-
-              <div className="space-y-8">
-                {questions.map((q, index) => (
-                  <div key={index}>
-                    <label className="block text-base font-bold text-gray-800 mb-3">{q}</label>
-                    <input
-                      type="text"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:outline-none transition-all"
-                      placeholder="Your answer..."
-                      value={answers[index]}
-                      onChange={(e) => {
-                        const newAnswers = [...answers];
-                        newAnswers[index] = e.target.value;
-                        setAnswers(newAnswers);
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-              
-              <button
-                onClick={handleFinalize}
-                disabled={loading}
-                className="w-full bg-black text-white font-bold py-4 rounded-xl hover:bg-gray-800 transition-all mt-10 shadow-lg hover:shadow-xl text-lg"
-              >
-                {loading ? 'Writing Contract...' : 'Generate Official Agreement'}
-              </button>
+              <button onClick={() => setStep('select_mode')} className="text-sm text-gray-400 hover:text-black mb-6 flex items-center gap-2 font-medium"><ArrowLeft className="w-4 h-4" /> Back to options</button>
+              {step === 'ai_input' ? (
+                  <>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-8">Tell us about the project</h2>
+                    <div className="space-y-6">
+                        <div><label className="block text-sm font-bold text-gray-700 mb-2">Client Name</label><input type="text" className="w-full px-4 py-3 rounded-xl border border-gray-300" value={formData.clientName} onChange={(e) => setFormData({...formData, clientName: e.target.value})} /></div>
+                        <div><label className="block text-sm font-bold text-gray-700 mb-2">Project Description</label><textarea className="w-full px-4 py-3 rounded-xl border border-gray-300" rows={6} value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} /></div>
+                        <button onClick={handleAnalyze} disabled={loading} className={`w-full py-4 rounded-xl font-bold text-white transition-all text-lg flex items-center justify-center gap-2 ${isPro ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-900 hover:bg-black'}`}>
+                            {loading ? <><Loader2 className="w-5 h-5 animate-spin" /> Analyzing Project...</> : isPro ? <><Sparkles className="w-5 h-5"/> Start AI Interview</> : 'Unlock AI Assistant ($29/mo)'}
+                        </button>
+                    </div>
+                  </>
+              ) : (
+                  <>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">AI Interview</h2>
+                    <div className="space-y-8">
+                        {questions.map((q, index) => (
+                        <div key={index}><label className="block text-base font-bold text-gray-800 mb-3">{q}</label><input type="text" className="w-full px-4 py-3 border border-gray-300 rounded-xl" value={answers[index]} onChange={(e) => { const newAnswers = [...answers]; newAnswers[index] = e.target.value; setAnswers(newAnswers); }} /></div>
+                        ))}
+                    </div>
+                    <button onClick={handleFinalize} disabled={loading} className="w-full bg-black text-white font-bold py-4 rounded-xl hover:bg-gray-800 transition-all mt-10 text-lg flex items-center justify-center gap-2">
+                        {loading ? <><Loader2 className="w-5 h-5 animate-spin" /> Drafting Contract...</> : 'Generate Official Agreement'}
+                    </button>
+                  </>
+              )}
             </div>
           )}
 
@@ -463,187 +524,164 @@ ${LEGAL_TERMS}`;
               {/* MAIN EDITOR COLUMN */}
               <div className="flex-1 p-8 md:p-10 border-r border-gray-200">
                 <form onSubmit={handleSubmit} className="space-y-6 h-full flex flex-col">
-                  
-                  {/* Title Input */}
                   <div>
-                    <input
-                      type="text"
-                      required
-                      className="w-full px-0 py-2 text-3xl font-bold text-gray-900 border-none focus:ring-0 placeholder-gray-300"
-                      value={formData.projectTitle}
-                      onChange={(e) => setFormData({ ...formData, projectTitle: e.target.value })}
-                      placeholder="Untitled Agreement"
-                    />
+                    <input type="text" required className="w-full px-0 py-2 text-3xl font-bold text-gray-900 border-none focus:ring-0 placeholder-gray-300" value={formData.projectTitle} onChange={(e) => setFormData({ ...formData, projectTitle: e.target.value })} placeholder="Untitled Agreement" />
                   </div>
 
-                  {/* Editor Toolbar */}
                   <div className="flex items-center justify-between border-b border-gray-200 pb-4">
                     <div className="flex items-center gap-4">
-                      {isTemplateLoaded && (
-                          <span className="bg-green-100 text-green-800 text-xs font-bold px-2.5 py-1 rounded-full border border-green-200 inline-flex items-center gap-1.5">
-                              <span className="w-1.5 h-1.5 rounded-full bg-green-600 animate-pulse"></span>
-                              Template Loaded
-                          </span>
-                      )}
+                      {isTemplateLoaded && <span className="bg-green-100 text-green-800 text-xs font-bold px-2.5 py-1 rounded-full border border-green-200 inline-flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green-600 animate-pulse"></span>Template Loaded</span>}
                     </div>
                     <div className="flex items-center gap-2">
-                        {/* ✨ AI ASSISTANT BUTTON */}
-                        <button 
-                            type="button"
-                            onClick={() => isPro ? setShowAiRefiner(!showAiRefiner) : setShowPricingModal(true)}
-                            className={`text-sm font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${isPro ? 'text-indigo-600 hover:bg-indigo-50' : 'text-gray-500 hover:text-gray-900'}`}
-                        >
-                            <Wand2 className="w-4 h-4" /> {isPro ? (showAiRefiner ? 'Close AI' : 'Use AI Assistant') : 'Unlock AI'}
-                        </button>
+                        <button type="button" onClick={() => isPro ? setShowAiRefiner(!showAiRefiner) : setShowPricingModal(true)} className={`text-sm font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${isPro ? 'text-indigo-600 hover:bg-indigo-50' : 'text-gray-500 hover:text-gray-900'}`}><Wand2 className="w-4 h-4" /> {isPro ? (showAiRefiner ? 'Close AI' : 'Use AI Assistant') : 'Unlock AI'}</button>
                         <div className="h-4 w-px bg-gray-200"></div>
-                        <button 
-                            type="button" 
-                            onClick={handleClearContent}
-                            className="text-sm font-bold text-gray-500 hover:text-red-600 flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
-                        >
-                            <Trash2 className="w-4 h-4" /> Clear
-                        </button>
+                        <button type="button" onClick={handleUndo} disabled={!undoText} className={`text-sm font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${!undoText ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}><Undo2 className="w-4 h-4" /> Undo</button>
+                        <div className="h-4 w-px bg-gray-200"></div>
+                        <button type="button" onClick={handleClearContent} className={`text-sm font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${confirmClear ? 'bg-red-50 text-red-600 border border-red-200' : 'text-gray-500 hover:text-red-600 hover:bg-gray-50'}`}>{confirmClear ? <><AlertCircle className="w-4 h-4" /> Are you sure?</> : <><Trash2 className="w-4 h-4" /> Clear</>}</button>
                     </div>
                   </div>
 
-                  {/* AI Refiner Input */}
                   {showAiRefiner && (
                       <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100 animate-in slide-in-from-top-2 flex gap-3 items-center">
-                        <input 
-                          type="text"
-                          value={refineText}
-                          onChange={(e) => setRefineText(e.target.value)}
-                          placeholder="e.g. 'Add a $500 rush fee to the pricing section'"
-                          className="flex-1 px-4 py-2 rounded-lg border border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-                          onKeyDown={(e) => e.key === 'Enter' && handleRefine()}
-                        />
-                        <button 
-                          type="button"
-                          onClick={handleRefine}
-                          disabled={isRefining || !refineText}
-                          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-sm flex items-center gap-2"
-                        >
-                          {isRefining ? '...' : <><Sparkles className="w-4 h-4" /> Update</>}
+                        <input type="text" value={refineText} onChange={(e) => setRefineText(e.target.value)} placeholder="e.g. 'Add a $500 rush fee to the pricing section'" className="flex-1 px-4 py-2 rounded-lg border border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" onKeyDown={(e) => e.key === 'Enter' && handleRefine()} />
+                        <button type="button" onClick={handleRefine} disabled={isRefining || !refineText} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-sm flex items-center gap-2">
+                          {isRefining ? <><Loader2 className="w-4 h-4 animate-spin" /> Refining...</> : <><Sparkles className="w-4 h-4" /> Update</>}
                         </button>
                       </div>
                     )}
 
-                  {/* Textarea Editor - IMPROVED FOR MOBILE */}
-                  <textarea
-                      required
-                      className="w-full flex-1 resize-none font-mono text-sm leading-relaxed focus:outline-none text-gray-800 p-6 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all min-h-[400px] md:min-h-0"
-                      value={formData.deliverables}
-                      onChange={(e) => setFormData({ ...formData, deliverables: e.target.value })}
-                      placeholder="Start typing your agreement here..."
-                  />
+                  <textarea required className="w-full flex-1 resize-none font-mono text-sm leading-relaxed focus:outline-none text-gray-800 p-6 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all min-h-[400px] md:min-h-0" value={formData.deliverables} onChange={(e) => setFormData({ ...formData, deliverables: e.target.value })} placeholder="Start typing your agreement here..." />
                 </form>
               </div>
 
-              {/* SIDEBAR COLUMN (Details & Payment) */}
-              <div className="w-full lg:w-[400px] bg-gray-50/50 p-8 md:p-10 flex flex-col">
+              {/* SIDEBAR */}
+              <div className="w-full lg:w-[450px] bg-gray-50/50 p-8 md:p-10 flex flex-col h-full overflow-y-auto">
                   <h3 className="text-lg font-bold text-gray-900 mb-6">Contract Details</h3>
-                  
                   <div className="space-y-6 flex-1">
-                    {/* Client Name */}
+                    <div><label className="block text-sm font-bold text-gray-700 mb-2">Client Name</label><input required type="text" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" value={formData.clientName} onChange={(e) => setFormData({...formData, clientName: e.target.value})} placeholder="e.g. John Smith" /></div>
+                    
+                    {/* Payment Schedule Selector */}
                     <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">Client Name</label>
-                        <input
-                          required
-                          type="text"
-                          className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-                          value={formData.clientName}
-                          onChange={(e) => setFormData({...formData, clientName: e.target.value})}
-                          placeholder="e.g. John Smith"
-                        />
-                    </div>
-
-                    {/* Payment Schedule Toggle */}
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">Payment Schedule</label>
-                        <div className="flex bg-gray-200/50 p-1 rounded-xl">
-                            <button
-                                type="button"
-                                onClick={() => setPaymentType('one_time')}
-                                className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${paymentType === 'one_time' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-900'}`}
-                            >
-                                <CreditCard className="w-4 h-4" /> One-time
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setPaymentType('monthly')}
-                                className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${paymentType === 'monthly' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-500 hover:text-gray-900'}`}
-                            >
-                                <Repeat className="w-4 h-4" /> Monthly
-                            </button>
+                        <div className="flex justify-between items-center mb-2">
+                            <label className="block text-sm font-bold text-gray-700">Line Items</label>
+                            <button type="button" onClick={addLineItem} className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1"><Plus className="w-3 h-3" /> Add Item</button>
+                        </div>
+                        <div className="space-y-3">
+                            {lineItems.map((item) => (
+                                <div key={item.id} className="flex gap-2 items-center group">
+                                    <div className="flex-1 space-y-1"><input type="text" placeholder="Description" className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" value={item.description} onChange={(e) => updateLineItem(item.id, 'description', e.target.value)} /></div>
+                                    <div className="w-16 space-y-1"><input type="number" placeholder="Qty" className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" value={item.quantity} onChange={(e) => updateLineItem(item.id, 'quantity', e.target.value)} /></div>
+                                    <div className="w-24 space-y-1 relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-sm">$</span><input type="number" placeholder="0.00" className="w-full pl-7 pr-2 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" value={item.amount} onChange={(e) => updateLineItem(item.id, 'amount', e.target.value)} /></div>
+                                    {lineItems.length > 1 && (<button type="button" onClick={() => removeLineItem(item.id)} className="mt-0 text-gray-400 hover:text-red-500 transition-colors"><X className="w-4 h-4" /></button>)}
+                                </div>
+                            ))}
                         </div>
                     </div>
 
-                    {/* Price & Tax */}
-                    <div className="flex gap-4">
-                        <div className="flex-1">
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Price ($)</label>
-                            <div className="relative">
-                                <span className="absolute left-4 top-3.5 text-gray-500 font-bold">$</span>
-                                <input
-                                    required
-                                    type="number"
-                                    placeholder="0.00"
-                                    className="w-full pl-8 pr-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold"
-                                    value={formData.price}
-                                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                                />
-                            </div>
-                        </div>
-                        <div className="w-28">
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Tax (%)</label>
-                            <div className="relative">
-                                <input
-                                    type="number"
-                                    placeholder="0"
-                                    className="w-full pl-4 pr-8 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold text-center"
-                                    value={formData.taxRate}
-                                    onChange={(e) => setFormData({ ...formData, taxRate: e.target.value })}
-                                />
-                                <span className="absolute right-4 top-3.5 text-gray-500 font-bold">%</span>
-                            </div>
+                    <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-2">Tax Rate (%)</label>
+                        <div className="relative"><input type="number" placeholder="0" className="w-full pl-4 pr-8 py-3 rounded-xl border border-gray-200 bg-white" value={formData.taxRate} onChange={(e) => setFormData({ ...formData, taxRate: e.target.value })} /><span className="absolute right-4 top-3.5 text-gray-500 font-bold">%</span></div>
+                        
+                        <div className="flex items-center gap-2 mt-4 select-none">
+                            <input type="checkbox" id="fee-toggle" checked={includeFee} onChange={(e) => setIncludeFee(e.target.checked)} className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer"/>
+                            <label htmlFor="fee-toggle" className="text-sm font-bold text-gray-700 cursor-pointer">3.9% Processing Fee <span className="text-xs font-normal text-gray-500">(Covers Stripe)</span></label>
                         </div>
                     </div>
+
+                    {/* Deposit & Terms Section */}
+                    {paymentType === 'one_time' && (
+                        <div className="pt-6 border-t border-gray-200 space-y-4">
+                            {/* Split Payment Toggle */}
+                            <div className="flex justify-between items-center mb-1">
+                                <label className="block text-sm font-bold text-gray-700">Split into Installments?</label>
+                                <button 
+                                    onClick={() => { setIsSplit(!isSplit); setDepositType('none'); }}
+                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isSplit ? 'bg-black' : 'bg-gray-200'}`}
+                                >
+                                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isSplit ? 'translate-x-6' : 'translate-x-1'}`} />
+                                </button>
+                            </div>
+
+                            {isSplit ? (
+                                <div className="space-y-3 bg-gray-50 p-4 rounded-xl border border-gray-200 animate-in fade-in slide-in-from-top-1">
+                                    <div className="flex gap-4">
+                                        <div className="flex-1">
+                                            <label className="text-xs font-bold text-gray-500 uppercase">Payments</label>
+                                            <input type="number" value={splitCount} onChange={(e) => setSplitCount(e.target.value)} className="w-full mt-1 px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black text-center" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <label className="text-xs font-bold text-gray-500 uppercase">Every (Days)</label>
+                                            <input type="number" value={splitFrequency} onChange={(e) => setSplitFrequency(e.target.value)} className="w-full mt-1 px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black text-center" />
+                                        </div>
+                                    </div>
+                                    <div className="text-xs text-center text-gray-500 font-medium">
+                                        {splitCount} payments of ${financials.splitAmount.toFixed(2)}
+                                    </div>
+                                </div>
+                            ) : (
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Require Deposit?</label>
+                                    <div className="flex gap-2">
+                                        <button type="button" onClick={() => setDepositType('none')} className={`px-4 py-2 rounded-lg text-sm font-bold border transition-all ${depositType === 'none' ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}>None</button>
+                                        <button type="button" onClick={() => setDepositType('50')} className={`px-4 py-2 rounded-lg text-sm font-bold border transition-all ${depositType === '50' ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}>50%</button>
+                                        <button type="button" onClick={() => setDepositType('fixed')} className={`px-4 py-2 rounded-lg text-sm font-bold border transition-all ${depositType === 'fixed' ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}>Fixed $</button>
+                                    </div>
+                                    {depositType === 'fixed' && (
+                                        <div className="mt-2 relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span><input type="number" placeholder="500.00" className="w-full pl-7 px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black" value={fixedDepositAmount} onChange={(e) => setFixedDepositAmount(e.target.value)} /></div>
+                                    )}
+                                </div>
+                            )}
+
+                            {!isSplit && (
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Balance Due Date</label>
+                                    <div className="relative">
+                                        <select 
+                                            className="w-full appearance-none px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-black cursor-pointer text-sm font-medium"
+                                            value={paymentTerms}
+                                            onChange={(e) => setPaymentTerms(e.target.value as any)}
+                                        >
+                                            <option value="immediate">Due Upon Receipt</option>
+                                            <option value="completion">Due Upon Completion</option>
+                                            <option value="net15">Net 15 (15 Days Later)</option>
+                                            <option value="net30">Net 30 (30 Days Later)</option>
+                                            <option value="net60">Net 60 (60 Days Later)</option>
+                                        </select>
+                                        <CalendarClock className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
                   </div>
 
-                  {/* Total & Save */}
                   <div className="mt-8">
                       <div className="bg-slate-900 text-white p-6 rounded-2xl shadow-lg mb-6">
-                        <div className="flex justify-between items-center mb-1">
-                            <span className="text-slate-400 text-sm font-medium">Subtotal</span>
-                            <span className="text-slate-300 font-bold">${parseFloat(formData.price || '0').toFixed(2)}</span>
-                        </div>
-                        {parseFloat(formData.taxRate) > 0 && (
-                            <div className="flex justify-between items-center mb-3 pb-3 border-b border-slate-800">
-                                <span className="text-slate-400 text-sm font-medium">Tax ({formData.taxRate}%)</span>
-                                <span className="text-slate-300 font-bold">+${(parseFloat(formData.price || '0') * (parseFloat(formData.taxRate) / 100)).toFixed(2)}</span>
+                        <div className="flex justify-between items-center mb-1"><span className="text-slate-400 text-sm font-medium">Subtotal</span><span className="text-slate-300 font-bold">${financials.subtotal.toFixed(2)}</span></div>
+                        
+                        {parseFloat(formData.taxRate) > 0 && (<div className="flex justify-between items-center mb-1 pb-1 border-b border-slate-800/50"><span className="text-slate-400 text-sm font-medium">Tax ({formData.taxRate}%)</span><span className="text-slate-300 font-bold">+${financials.taxAmount.toFixed(2)}</span></div>)}
+                        {includeFee && (<div className="flex justify-between items-center mb-3 pb-3 border-b border-slate-800"><span className="text-slate-400 text-sm font-medium">Processing Fee (3.9%)</span><span className="text-slate-300 font-bold">+${financials.feeAmount.toFixed(2)}</span></div>)}
+
+                        <div className="flex justify-between items-end mb-4"><span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Contract Value</span><div className="text-right leading-none"><span className="text-3xl font-bold">${financials.grandTotal.toFixed(2)}</span></div></div>
+                        
+                        {/* DEPOSIT DISPLAY */}
+                        {!isSplit && depositType !== 'none' && paymentType === 'one_time' && (
+                            <div className="bg-emerald-900/50 border border-emerald-800 rounded-lg p-3 flex justify-between items-center animate-in fade-in slide-in-from-bottom-2">
+                                <span className="text-emerald-400 text-sm font-bold uppercase tracking-wider">Due Now (Deposit)</span>
+                                <span className="text-xl font-bold text-white">${financials.depositAmount.toFixed(2)}</span>
                             </div>
                         )}
-                        <div className="flex justify-between items-end">
-                            <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Contract Value</span>
-                            <div className="text-right leading-none">
-                                <span className="text-3xl font-bold">${calculateTotal()}</span>
-                                {paymentType === 'monthly' && <span className="text-sm font-bold text-indigo-400 ml-1">/mo</span>}
-                            </div>
-                        </div>
-                      </div>
 
-                      {/* Implicit Consent */}
-                      <button 
-                          onClick={handleSubmit}
-                          disabled={loading} 
-                          className={`w-full font-bold py-4 rounded-xl transition-all shadow-md hover:shadow-lg text-lg bg-black text-white hover:bg-gray-900 transform hover:-translate-y-0.5`}
-                      >
-                        {loading ? 'Saving...' : 'Save to Dashboard'}
-                      </button>
-                      
-                      <p className="text-center text-xs text-gray-400 mt-4 leading-snug">
-                          By clicking Save, you agree to the <Link href="/terms-of-service" className="underline hover:text-gray-600">Terms</Link> and acknowledge that you are responsible for the legal validity of this contract.
-                      </p>
+                        {/* SPLIT DISPLAY */}
+                        {isSplit && (
+                            <div className="bg-indigo-900/50 border border-indigo-800 rounded-lg p-3 flex justify-between items-center animate-in fade-in slide-in-from-bottom-2">
+                                <span className="text-indigo-300 text-sm font-bold uppercase tracking-wider">Per Payment</span>
+                                <span className="text-xl font-bold text-white">${financials.splitAmount.toFixed(2)}</span>
+                            </div>
+                        )}
+                      </div>
+                      <button onClick={handleSubmit} disabled={loading} className={`w-full font-bold py-4 rounded-xl transition-all shadow-md hover:shadow-lg text-lg bg-black text-white hover:bg-gray-900 transform hover:-translate-y-0.5`}>{loading ? 'Saving...' : 'Save to Dashboard'}</button>
+                      <p className="text-center text-xs text-gray-400 mt-4 leading-snug">By clicking Save, you agree to the <Link href="/terms-of-service" className="underline hover:text-gray-600">Terms</Link> and acknowledge that you are responsible for the legal validity of this contract.</p>
                   </div>
               </div>
             </div>
@@ -651,14 +689,7 @@ ${LEGAL_TERMS}`;
 
         </div>
       </div>
-      
-      {/* 💥 PRICING MODAL (The Paywall) */}
-      <PricingModal 
-         isOpen={showPricingModal} 
-         onClose={() => setShowPricingModal(false)} 
-         userId={userId} 
-      />
-      
+      <PricingModal isOpen={showPricingModal} onClose={() => setShowPricingModal(false)} userId={userId} />
     </div>
   );
 }

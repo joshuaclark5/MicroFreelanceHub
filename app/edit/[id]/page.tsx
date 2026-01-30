@@ -5,29 +5,72 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, useParams } from 'next/navigation';
 import { refineSOW } from '../../actions/generateSOW'; 
 import Link from 'next/link';
-import { ArrowLeft, Sparkles, Trash2, Repeat, CreditCard, Wand2, AlertTriangle } from 'lucide-react';
-import PricingModal from '../../components/PricingModal'; // 👈 IMPORT THE MODAL
+import { 
+  ArrowLeft, 
+  Sparkles, 
+  Trash2, 
+  Repeat, 
+  CreditCard, 
+  Wand2, 
+  AlertTriangle,
+  Plus, 
+  X, 
+  Undo2,
+  Loader2,
+  AlertCircle,
+  Percent,
+  CalendarClock
+} from 'lucide-react';
+import PricingModal from '../../components/PricingModal';
+import { AuthRequiredModal } from '../../components/modals/AuthRequiredModal';
+
+// Interface for Line Items
+interface LineItem {
+  id: string;
+  description: string;
+  quantity: string;
+  amount: string;
+}
 
 function EditProjectContent() {
   const [formData, setFormData] = useState({
     clientName: '',
     projectTitle: '',
-    price: '',
     taxRate: '', 
     deliverables: '', 
+    description: ''
   });
+
+  // Line Items
+  const [lineItems, setLineItems] = useState<LineItem[]>([
+    { id: '1', description: 'Project Fee', quantity: '1', amount: '' }
+  ]);
+
+  // Financial Settings
+  const [includeFee, setIncludeFee] = useState(false);
+  const [depositType, setDepositType] = useState<'none' | '50' | 'fixed'>('none');
+  const [fixedDepositAmount, setFixedDepositAmount] = useState('');
+  const [paymentTerms, setPaymentTerms] = useState<'immediate' | 'completion' | 'net15' | 'net30' | 'net60'>('immediate');
+  
+  // Split Payment State
+  const [isSplit, setIsSplit] = useState(false);
+  const [splitCount, setSplitCount] = useState('2');
+  const [splitFrequency, setSplitFrequency] = useState('30'); 
 
   const [loading, setLoading] = useState(true); 
   const [saving, setSaving] = useState(false);
   const [paymentType, setPaymentType] = useState<'one_time' | 'monthly'>('one_time');
   
-  // 🛡️ Signature State (To warn user)
+  // 🛡️ Signature State
   const [hasSignatures, setHasSignatures] = useState(false);
+  const [confirmUpdate, setConfirmUpdate] = useState(false); // Smart Button State
 
-  // AI Refiner State
+  // UI States
   const [showAiRefiner, setShowAiRefiner] = useState(false);
   const [refineText, setRefineText] = useState('');
   const [isRefining, setIsRefining] = useState(false);
+  const [undoText, setUndoText] = useState('');
+  const [confirmClear, setConfirmClear] = useState(false);
   
   // Pro & Modal State
   const [isPro, setIsPro] = useState(false);
@@ -39,10 +82,74 @@ function EditProjectContent() {
   const params = useParams();
   const projectId = params.id as string;
 
+  // --- CALCULATORS ---
+  const calculateFinancials = () => {
+    // 1. Line Items Subtotal
+    const subtotal = lineItems.reduce((acc, item) => {
+      // Don't double count the auto-fee if it's in the visual list
+      if (item.id === 'fee-auto') return acc;
+      const qty = parseFloat(item.quantity) || 0;
+      const amt = parseFloat(item.amount) || 0;
+      return acc + (qty * amt);
+    }, 0);
+
+    // 2. Tax & Fee
+    const taxRate = parseFloat(formData.taxRate) || 0;
+    const feeAmount = includeFee ? subtotal * 0.039 : 0;
+    const taxAmount = subtotal * (taxRate / 100);
+    const grandTotal = subtotal + taxAmount + feeAmount;
+
+    // 3. Deposit Calculation
+    let depositAmount = 0;
+    if (depositType === '50') {
+        depositAmount = grandTotal / 2;
+    } else if (depositType === 'fixed') {
+        depositAmount = parseFloat(fixedDepositAmount) || 0;
+        if (depositAmount > grandTotal) depositAmount = grandTotal;
+    } else {
+        depositAmount = grandTotal;
+    }
+
+    // 4. Split Calculation
+    const splits = parseInt(splitCount) || 1;
+    const splitAmount = grandTotal / splits;
+
+    return { subtotal, taxAmount, feeAmount, grandTotal, depositAmount, splitAmount };
+  };
+
+  const financials = calculateFinancials();
+
+  // --- DYNAMIC CONTENT GENERATORS ---
+  const getPaymentTermsText = () => {
+    const { depositAmount, grandTotal, splitAmount } = financials;
+    const formattedDeposit = depositAmount.toFixed(2);
+    const formattedTotal = grandTotal.toFixed(2);
+    const remaining = (grandTotal - depositAmount).toFixed(2);
+
+    let termsLabel = "Due upon receipt";
+    if (paymentTerms === 'completion') termsLabel = "Due upon completion of services";
+    if (paymentTerms === 'net15') termsLabel = "Net 15 (due 15 days after completion)";
+    if (paymentTerms === 'net30') termsLabel = "Net 30 (due 30 days after completion)";
+    if (paymentTerms === 'net60') termsLabel = "Net 60 (due 60 days after completion)";
+
+    if (paymentType === 'monthly') {
+        return `1. PAYMENT TERMS\nServices will be billed monthly at a rate of $${formattedTotal}. Payment is due upon receipt of invoice.`;
+    }
+
+    if (isSplit) {
+        return `1. PAYMENT TERMS\nThe Total Contract Value of $${formattedTotal} shall be paid in ${splitCount} installments of $${splitAmount.toFixed(2)}. The first installment is due immediately. Subsequent payments are due every ${splitFrequency} days.`;
+    }
+
+    if (depositType !== 'none') {
+        return `1. PAYMENT TERMS\nA deposit of $${formattedDeposit} is required to begin work. The remaining balance ($${remaining}) is ${termsLabel}.`;
+    }
+
+    return `1. PAYMENT TERMS\nFull payment of $${formattedTotal} is required. Terms: ${termsLabel}.`;
+  };
+
   // 1. Fetch Data
   useEffect(() => {
     const fetchData = async () => {
-        // Check Pro
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) { router.push('/login'); return; }
         
@@ -51,12 +158,7 @@ function EditProjectContent() {
         const { data: profile } = await supabase.from('profiles').select('is_pro').eq('id', user.id).single();
         if (profile) setIsPro(profile.is_pro);
 
-        // Fetch Project
-        const { data: project, error } = await supabase
-            .from('sow_documents')
-            .select('*')
-            .eq('id', projectId)
-            .single();
+        const { data: project, error } = await supabase.from('sow_documents').select('*').eq('id', projectId).single();
 
         if (error || !project) {
             alert('Project not found');
@@ -64,7 +166,6 @@ function EditProjectContent() {
             return;
         }
 
-        // 🚨 CHECK FOR SIGNATURES
         if (project.signed_by || project.provider_sign) {
             setHasSignatures(true);
         }
@@ -72,64 +173,196 @@ function EditProjectContent() {
         setFormData({
             clientName: project.client_name || '',
             projectTitle: project.title || '',
-            price: project.price?.toString() || '',
-            taxRate: '', 
+            taxRate: project.tax_rate?.toString() || '',
             deliverables: project.deliverables || '',
+            description: ''
         });
         setPaymentType(project.payment_type || 'one_time');
+
+        // Load Line Items
+        if (project.line_items && Array.isArray(project.line_items) && project.line_items.length > 0) {
+            const cleanItems: LineItem[] = [];
+            let foundFee = false;
+            project.line_items.forEach((item: any) => {
+                if (item.id === 'fee-auto' || item.description.includes('Processing Fee (3.9%)')) {
+                    foundFee = true;
+                } else {
+                    cleanItems.push({
+                        id: item.id || Math.random().toString(36).substr(2, 9),
+                        description: item.description,
+                        quantity: item.quantity?.toString() || '1',
+                        amount: item.amount?.toString() || '0'
+                    });
+                }
+            });
+            setLineItems(cleanItems);
+            setIncludeFee(foundFee);
+        } else {
+            setLineItems([{ id: '1', description: 'Project Fee', quantity: '1', amount: project.price?.toString() || '' }]);
+        }
+
+        // Load Payment Schedule
+        if (project.payment_schedule_structured) {
+            const sched = project.payment_schedule_structured;
+            if (sched.type === 'split') {
+                setIsSplit(true);
+                setSplitCount(sched.splitCount?.toString() || '2');
+                setSplitFrequency(sched.splitFrequency?.toString() || '30');
+            } else {
+                setDepositType(sched.type || 'none');
+                if (sched.depositAmount) setFixedDepositAmount(sched.depositAmount.toString());
+            }
+            if (sched.paymentTerms) setPaymentTerms(sched.paymentTerms);
+        }
+
         setLoading(false);
     };
     fetchData();
   }, [supabase, router, projectId]);
 
-  // Updated Handler to show Modal
-  const handleAiClick = () => {
-    if (isPro) {
-        setShowAiRefiner(!showAiRefiner);
-    } else {
-        setShowPricingModal(true);
+  // Update Contract Text (Same as Create Page)
+  useEffect(() => {
+    if (!loading && formData.deliverables) {
+        const fullText = formData.deliverables;
+        const termsStartMarker = "1. PAYMENT TERMS";
+        const termsEndMarker = "2. OWNERSHIP & RIGHTS";
+        const startIndex = fullText.indexOf(termsStartMarker);
+        const endIndex = fullText.indexOf(termsEndMarker);
+
+        if (startIndex !== -1 && endIndex !== -1) {
+            const beforeTerms = fullText.substring(0, startIndex);
+            const afterTerms = fullText.substring(endIndex);
+            const newTerms = getPaymentTermsText();
+            const currentTermsSection = fullText.substring(startIndex, endIndex);
+            // Loose check to prevent loops
+            if (!currentTermsSection.includes(newTerms.split('\n')[1])) { 
+                 setFormData(prev => ({ ...prev, deliverables: beforeTerms + newTerms + "\n\n" + afterTerms }));
+            }
+        }
     }
+  }, [depositType, fixedDepositAmount, paymentType, paymentTerms, includeFee, formData.taxRate, lineItems, loading, isSplit, splitCount, splitFrequency]);
+
+  // --- HANDLERS ---
+  const addLineItem = () => setLineItems([...lineItems, { id: Math.random().toString(36).substr(2, 9), description: '', quantity: '1', amount: '' }]);
+  const removeLineItem = (id: string) => { if (lineItems.length > 1) setLineItems(lineItems.filter(item => item.id !== id)); };
+  const updateLineItem = (id: string, field: keyof LineItem, value: string) => {
+    setLineItems(lineItems.map(item => item.id === id ? { ...item, [field]: value } : item));
   };
 
   const handleClearContent = () => {
-    if (confirm("Clear the editor?")) {
+    if (confirmClear) {
         setFormData(prev => ({ ...prev, deliverables: '' }));
+        setUndoText('');
+        setConfirmClear(false);
+    } else {
+        setConfirmClear(true);
+        setTimeout(() => setConfirmClear(false), 3000);
+    }
+  };
+
+  const handleUndo = () => {
+    if (undoText) {
+      setFormData(prev => ({ ...prev, deliverables: undoText }));
+      setUndoText(''); 
     }
   };
 
   const handleRefine = async () => {
     if (!refineText) return;
     setIsRefining(true);
-    const safeInstruction = `${refineText} (IMPORTANT: Keep legal sections intact.)`;
-    const result = await refineSOW(formData.deliverables, parseFloat(formData.price) || 0, safeInstruction);
-    if (result) {
-      setFormData(prev => ({ ...prev, deliverables: result.deliverables, price: result.price?.toString() || prev.price }));
-      setRefineText(""); 
+    setUndoText(formData.deliverables);
+    const fullText = formData.deliverables;
+    
+    const scopeStartMarker = "2. SCOPE OF SERVICES";
+    const nextSectionMarker = "3. "; 
+
+    const startIndex = fullText.indexOf(scopeStartMarker);
+    const endIndex = fullText.indexOf(nextSectionMarker, startIndex + scopeStartMarker.length);
+
+    if (startIndex === -1 || endIndex === -1) {
+        const result = await refineSOW(fullText, financials.subtotal, refineText);
+        if (result) setFormData(prev => ({ ...prev, deliverables: result.deliverables }));
+    } else {
+        const headerPart = fullText.substring(0, startIndex);
+        const scopePart = fullText.substring(startIndex, endIndex);
+        const footerPart = fullText.substring(endIndex);
+
+        const safeInstruction = `${refineText} (INSTRUCTION: Rewrite this scope section professionally. Keep the header '2. SCOPE OF SERVICES'.)`;
+        const result = await refineSOW(scopePart, financials.subtotal, safeInstruction);
+
+        if (result) {
+            const newDoc = headerPart + result.deliverables + "\n\n" + footerPart;
+            setFormData(prev => ({ ...prev, deliverables: newDoc }));
+        }
     }
+
+    setRefineText(""); 
     setIsRefining(false);
-    setShowAiRefiner(false);
+    setShowAiRefiner(false); 
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // 🚨 THE LEGAL SAFETY CHECK
-    if (hasSignatures) {
-        const confirmed = confirm("⚠️ WARNING: This contract has already been signed.\n\nEditing it will INVALIDATE the existing signatures and reset the status to Draft. Both parties will need to sign again.\n\nAre you sure you want to proceed?");
-        if (!confirmed) return;
+    // 🚩 SMART SIGNATURE WARNING (No more ugly browser popup)
+    if (hasSignatures && !confirmUpdate) {
+        setConfirmUpdate(true);
+        setTimeout(() => setConfirmUpdate(false), 4000);
+        return;
     }
 
     setSaving(true);
     
-    // Tax Logic
+    // Prepare Line Items
+    const finalLineItems = lineItems.map(item => ({
+        ...item,
+        quantity: parseFloat(item.quantity) || 0,
+        amount: parseFloat(item.amount) || 0
+    }));
+
+    if (includeFee) {
+        finalLineItems.push({
+            id: 'fee-auto',
+            description: `Payment Processing Fee (3.9%)`, 
+            quantity: 1,
+            amount: financials.feeAmount
+        });
+    }
+
+    // ⚡ FIX: Force Update the Financial Summary Section
     let finalDeliv = formData.deliverables;
-    const basePrice = parseFloat(formData.price) || 0;
-    const taxRate = parseFloat(formData.taxRate) || 0;
-    const taxAmount = basePrice * (taxRate / 100);
-    const total = basePrice + taxAmount;
+    const summaryMarker = "--------------------------------------------------\nFINANCIAL SUMMARY";
     
-    if (taxRate > 0 && !finalDeliv.includes("FINANCIAL SUMMARY")) {
-        finalDeliv += `\n\n--------------------------------------------------\nFINANCIAL SUMMARY\nBase Price: $${basePrice.toFixed(2)}\nTax (${taxRate}%): $${taxAmount.toFixed(2)}\nTOTAL: $${total.toFixed(2)}`;
+    // If it exists, cut it off so we can regenerate it fresh
+    if (finalDeliv.includes(summaryMarker)) {
+        finalDeliv = finalDeliv.split(summaryMarker)[0].trim();
+    }
+
+    // Append fresh summary
+    finalDeliv += `\n\n${summaryMarker}\n`;
+    lineItems.forEach(item => {
+        const qty = parseFloat(item.quantity) || 0;
+        const amt = parseFloat(item.amount) || 0;
+        finalDeliv += `${item.description} (x${qty}): $${(amt * qty).toFixed(2)}\n`;
+    });
+    finalDeliv += `--------------------------------------------------\n`;
+    finalDeliv += `Subtotal: $${financials.subtotal.toFixed(2)}\n`;
+    
+    if (parseFloat(formData.taxRate) > 0) {
+        finalDeliv += `Tax (${formData.taxRate}%): $${financials.taxAmount.toFixed(2)}\n`;
+    }
+    if (includeFee) {
+        finalDeliv += `Processing Fee (3.9%): $${financials.feeAmount.toFixed(2)}\n`; 
+    }
+    
+    finalDeliv += `\nTOTAL CONTRACT VALUE: $${financials.grandTotal.toFixed(2)}\n`;
+    
+    if (isSplit) {
+         finalDeliv += `\n*** SPLIT PAYMENT PLAN ***\n`;
+         finalDeliv += `${splitCount} payments of $${financials.splitAmount.toFixed(2)} (Every ${splitFrequency} days)`;
+    } else if (depositType !== 'none') {
+        finalDeliv += `\n*** REQUIRED DEPOSIT: $${financials.depositAmount.toFixed(2)} ***\n`;
+        finalDeliv += `(Remaining $${(financials.grandTotal - financials.depositAmount).toFixed(2)} due upon completion)`;
     }
 
     const { error } = await supabase
@@ -137,26 +370,28 @@ function EditProjectContent() {
         .update({
             client_name: formData.clientName,
             title: formData.projectTitle,
-            price: total,
+            price: financials.grandTotal,
+            line_items: finalLineItems, 
             deliverables: finalDeliv,
             payment_type: paymentType,
-            // 🧹 RESET SIGNATURES ON EDIT
+            payment_schedule_structured: { 
+                type: isSplit ? 'split' : depositType,
+                depositAmount: isSplit ? financials.splitAmount : financials.depositAmount,
+                remainingAmount: financials.grandTotal - (isSplit ? financials.splitAmount : financials.depositAmount),
+                paymentTerms: paymentTerms,
+                splitCount: isSplit ? splitCount : null,
+                splitFrequency: isSplit ? splitFrequency : null
+            },
+            // 🧹 RESET SIGNATURES (Removed 'signed_at' to fix crash)
             status: 'Draft',
             signed_by: null,
-            provider_sign: null,
-            signed_at: null // Explicitly nulling this to be safe
+            provider_sign: null
         })
         .eq('id', projectId);
 
     if (!error) router.push('/dashboard');
     else alert("Error updating: " + error.message);
     setSaving(false);
-  };
-
-  const calculateTotal = () => {
-    const p = parseFloat(formData.price) || 0;
-    const t = parseFloat(formData.taxRate) || 0;
-    return (p + (p * (t / 100))).toFixed(2);
   };
 
   const renderHeader = () => (
@@ -170,13 +405,13 @@ function EditProjectContent() {
         </div>
         <div className="flex items-center gap-3">
             <div className="bg-black text-white w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg font-bold text-lg shadow-sm">M</div>
-            <span className="text-sm font-bold text-gray-900">MicroFreelance</span>
+            <span className="text-sm font-bold text-gray-900 hidden sm:block">MicroFreelance</span>
         </div>
       </div>
     </div>
   );
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-500">Loading project...</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-500 font-medium">Loading project...</div>;
 
   return (
     <div className="min-h-screen bg-gray-50/50">
@@ -186,13 +421,13 @@ function EditProjectContent() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         
-        {/* ⚠️ SIGNATURE WARNING BANNER */}
+        {/* ⚠️ SIGNATURE WARNING BANNER (Replaces Popup) */}
         {hasSignatures && (
             <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3 items-start animate-in slide-in-from-top-2">
                 <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                 <div>
                     <h3 className="text-sm font-bold text-amber-800">Heads up: This contract has signatures.</h3>
-                    <p className="text-sm text-amber-700 mt-1">If you make changes and click update, all signatures will be removed and the contract status will reset to "Draft".</p>
+                    <p className="text-sm text-amber-700 mt-1">If you update it, all signatures will be removed and the status will reset to "Draft".</p>
                 </div>
             </div>
         )}
@@ -203,190 +438,178 @@ function EditProjectContent() {
               {/* MAIN EDITOR COLUMN */}
               <div className="flex-1 p-8 md:p-10 border-r border-gray-200">
                 <form onSubmit={handleSubmit} className="space-y-6 h-full flex flex-col">
-                  
-                  {/* Title Input */}
                   <div>
-                    <input
-                      type="text"
-                      required
-                      className="w-full px-0 py-2 text-3xl font-bold text-gray-900 border-none focus:ring-0 placeholder-gray-300"
-                      value={formData.projectTitle}
-                      onChange={(e) => setFormData({ ...formData, projectTitle: e.target.value })}
-                      placeholder="Untitled Agreement"
-                    />
+                    <input type="text" required className="w-full px-0 py-2 text-3xl font-bold text-gray-900 border-none focus:ring-0 placeholder-gray-300" value={formData.projectTitle} onChange={(e) => setFormData({ ...formData, projectTitle: e.target.value })} placeholder="Untitled Agreement" />
                   </div>
 
-                  {/* Editor Toolbar */}
                   <div className="flex items-center justify-between border-b border-gray-200 pb-4">
                     <div className="flex items-center gap-4">
                         <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">EDIT MODE</span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <button 
-                            type="button"
-                            onClick={handleAiClick}
-                            className={`text-sm font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${isPro ? 'text-indigo-600 hover:bg-indigo-50' : 'text-gray-500 hover:text-gray-900'}`}
-                        >
-                            <Wand2 className="w-4 h-4" /> {isPro ? (showAiRefiner ? 'Close AI' : 'AI Edit') : 'Unlock AI'}
-                        </button>
+                        <button type="button" onClick={() => isPro ? setShowAiRefiner(!showAiRefiner) : setShowPricingModal(true)} className={`text-sm font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${isPro ? 'text-indigo-600 hover:bg-indigo-50' : 'text-gray-500 hover:text-gray-900'}`}><Wand2 className="w-4 h-4" /> {isPro ? (showAiRefiner ? 'Close AI' : 'Use AI Assistant') : 'Unlock AI'}</button>
                         <div className="h-4 w-px bg-gray-200"></div>
-                        <button 
-                            type="button" 
-                            onClick={handleClearContent}
-                            className="text-sm font-bold text-gray-500 hover:text-red-600 flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
-                        >
-                            <Trash2 className="w-4 h-4" /> Clear
-                        </button>
+                        <button type="button" onClick={handleUndo} disabled={!undoText} className={`text-sm font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${!undoText ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}><Undo2 className="w-4 h-4" /> Undo</button>
+                        <div className="h-4 w-px bg-gray-200"></div>
+                        <button type="button" onClick={handleClearContent} className={`text-sm font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${confirmClear ? 'bg-red-50 text-red-600 border border-red-200' : 'text-gray-500 hover:text-red-600 hover:bg-gray-50'}`}>{confirmClear ? <><AlertCircle className="w-4 h-4" /> Are you sure?</> : <><Trash2 className="w-4 h-4" /> Clear</>}</button>
                     </div>
                   </div>
 
-                  {/* AI Refiner Input */}
                   {showAiRefiner && (
                       <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100 animate-in slide-in-from-top-2 flex gap-3 items-center">
-                        <input 
-                          type="text"
-                          value={refineText}
-                          onChange={(e) => setRefineText(e.target.value)}
-                          placeholder="e.g. 'Update the price to $500'"
-                          className="flex-1 px-4 py-2 rounded-lg border border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-                          onKeyDown={(e) => e.key === 'Enter' && handleRefine()}
-                        />
-                        <button 
-                          type="button"
-                          onClick={handleRefine}
-                          disabled={isRefining || !refineText}
-                          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-sm flex items-center gap-2"
-                        >
-                          {isRefining ? '...' : <><Sparkles className="w-4 h-4" /> Update</>}
+                        <input type="text" value={refineText} onChange={(e) => setRefineText(e.target.value)} placeholder="e.g. 'Add a $500 rush fee to the pricing section'" className="flex-1 px-4 py-2 rounded-lg border border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" onKeyDown={(e) => e.key === 'Enter' && handleRefine()} />
+                        <button type="button" onClick={handleRefine} disabled={isRefining || !refineText} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-sm flex items-center gap-2">
+                          {isRefining ? <><Loader2 className="w-4 h-4 animate-spin" /> Refining...</> : <><Sparkles className="w-4 h-4" /> Update</>}
                         </button>
                       </div>
                     )}
 
-                  {/* Textarea Editor */}
-                  <textarea
-                      required
-                      className="w-full flex-1 resize-none font-mono text-sm leading-relaxed focus:outline-none text-gray-800 p-6 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all min-h-[400px] md:min-h-0"
-                      value={formData.deliverables}
-                      onChange={(e) => setFormData({ ...formData, deliverables: e.target.value })}
-                      placeholder="Start typing your agreement here..."
-                  />
+                  <textarea required className="w-full flex-1 resize-none font-mono text-sm leading-relaxed focus:outline-none text-gray-800 p-6 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all min-h-[400px] md:min-h-0" value={formData.deliverables} onChange={(e) => setFormData({ ...formData, deliverables: e.target.value })} placeholder="Start typing your agreement here..." />
                 </form>
               </div>
 
-              {/* SIDEBAR COLUMN */}
-              <div className="w-full lg:w-[400px] bg-gray-50/50 p-8 md:p-10 flex flex-col">
+              {/* SIDEBAR */}
+              <div className="w-full lg:w-[450px] bg-gray-50/50 p-8 md:p-10 flex flex-col h-full overflow-y-auto">
                   <h3 className="text-lg font-bold text-gray-900 mb-6">Contract Details</h3>
-                  
                   <div className="space-y-6 flex-1">
-                    {/* Client Name */}
+                    <div><label className="block text-sm font-bold text-gray-700 mb-2">Client Name</label><input required type="text" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" value={formData.clientName} onChange={(e) => setFormData({...formData, clientName: e.target.value})} placeholder="e.g. John Smith" /></div>
+                    
+                    {/* Payment Schedule Selector */}
                     <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">Client Name</label>
-                        <input
-                          required
-                          type="text"
-                          className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-                          value={formData.clientName}
-                          onChange={(e) => setFormData({...formData, clientName: e.target.value})}
-                        />
-                    </div>
-
-                    {/* Payment Schedule Toggle */}
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">Payment Schedule</label>
-                        <div className="flex bg-gray-200/50 p-1 rounded-xl">
-                            <button
-                                type="button"
-                                onClick={() => setPaymentType('one_time')}
-                                className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${paymentType === 'one_time' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-900'}`}
-                            >
-                                <CreditCard className="w-4 h-4" /> One-time
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setPaymentType('monthly')}
-                                className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${paymentType === 'monthly' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-500 hover:text-gray-900'}`}
-                            >
-                                <Repeat className="w-4 h-4" /> Monthly
-                            </button>
+                        <div className="flex justify-between items-center mb-2">
+                            <label className="block text-sm font-bold text-gray-700">Line Items</label>
+                            <button type="button" onClick={addLineItem} className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1"><Plus className="w-3 h-3" /> Add Item</button>
+                        </div>
+                        <div className="space-y-3">
+                            {lineItems.map((item) => (
+                                <div key={item.id} className="flex gap-2 items-center group">
+                                    <div className="flex-1 space-y-1"><input type="text" placeholder="Description" className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" value={item.description} onChange={(e) => updateLineItem(item.id, 'description', e.target.value)} /></div>
+                                    <div className="w-16 space-y-1"><input type="number" placeholder="Qty" className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" value={item.quantity} onChange={(e) => updateLineItem(item.id, 'quantity', e.target.value)} /></div>
+                                    <div className="w-24 space-y-1 relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-sm">$</span><input type="number" placeholder="0.00" className="w-full pl-7 pr-2 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" value={item.amount} onChange={(e) => updateLineItem(item.id, 'amount', e.target.value)} /></div>
+                                    {lineItems.length > 1 && (<button type="button" onClick={() => removeLineItem(item.id)} className="mt-0 text-gray-400 hover:text-red-500 transition-colors"><X className="w-4 h-4" /></button>)}
+                                </div>
+                            ))}
                         </div>
                     </div>
 
-                    {/* Price & Tax */}
-                    <div className="flex gap-4">
-                        <div className="flex-1">
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Price ($)</label>
-                            <div className="relative">
-                                <span className="absolute left-4 top-3.5 text-gray-500 font-bold">$</span>
-                                <input
-                                    required
-                                    type="number"
-                                    className="w-full pl-8 pr-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold"
-                                    value={formData.price}
-                                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                                />
-                            </div>
-                        </div>
-                        <div className="w-28">
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Tax (%)</label>
-                            <div className="relative">
-                                <input
-                                    type="number"
-                                    placeholder="0"
-                                    className="w-full pl-4 pr-8 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold text-center"
-                                    value={formData.taxRate}
-                                    onChange={(e) => setFormData({ ...formData, taxRate: e.target.value })}
-                                />
-                                <span className="absolute right-4 top-3.5 text-gray-500 font-bold">%</span>
-                            </div>
+                    <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-2">Tax Rate (%)</label>
+                        <div className="relative"><input type="number" placeholder="0" className="w-full pl-4 pr-8 py-3 rounded-xl border border-gray-200 bg-white" value={formData.taxRate} onChange={(e) => setFormData({ ...formData, taxRate: e.target.value })} /><span className="absolute right-4 top-3.5 text-gray-500 font-bold">%</span></div>
+                        
+                        <div className="flex items-center gap-2 mt-4 select-none">
+                            <input type="checkbox" id="fee-toggle" checked={includeFee} onChange={(e) => setIncludeFee(e.target.checked)} className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer"/>
+                            <label htmlFor="fee-toggle" className="text-sm font-bold text-gray-700 cursor-pointer">3.9% Processing Fee <span className="text-xs font-normal text-gray-500">(Covers Stripe)</span></label>
                         </div>
                     </div>
+
+                    {/* Deposit & Net Terms Section */}
+                    {paymentType === 'one_time' && (
+                        <div className="pt-6 border-t border-gray-200 space-y-4">
+                            {/* Split Payment Toggle */}
+                            <div className="flex justify-between items-center mb-1">
+                                <label className="block text-sm font-bold text-gray-700">Split into Installments?</label>
+                                <button 
+                                    onClick={() => { setIsSplit(!isSplit); setDepositType('none'); }}
+                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isSplit ? 'bg-black' : 'bg-gray-200'}`}
+                                >
+                                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isSplit ? 'translate-x-6' : 'translate-x-1'}`} />
+                                </button>
+                            </div>
+
+                            {isSplit ? (
+                                <div className="space-y-3 bg-gray-50 p-4 rounded-xl border border-gray-200 animate-in fade-in slide-in-from-top-1">
+                                    <div className="flex gap-4">
+                                        <div className="flex-1">
+                                            <label className="text-xs font-bold text-gray-500 uppercase">Payments</label>
+                                            <input type="number" value={splitCount} onChange={(e) => setSplitCount(e.target.value)} className="w-full mt-1 px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black text-center" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <label className="text-xs font-bold text-gray-500 uppercase">Every (Days)</label>
+                                            <input type="number" value={splitFrequency} onChange={(e) => setSplitFrequency(e.target.value)} className="w-full mt-1 px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black text-center" />
+                                        </div>
+                                    </div>
+                                    <div className="text-xs text-center text-gray-500 font-medium">
+                                        {splitCount} payments of ${financials.splitAmount.toFixed(2)}
+                                    </div>
+                                </div>
+                            ) : (
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Require Deposit?</label>
+                                    <div className="flex gap-2">
+                                        <button type="button" onClick={() => setDepositType('none')} className={`px-4 py-2 rounded-lg text-sm font-bold border transition-all ${depositType === 'none' ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}>None</button>
+                                        <button type="button" onClick={() => setDepositType('50')} className={`px-4 py-2 rounded-lg text-sm font-bold border transition-all ${depositType === '50' ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}>50%</button>
+                                        <button type="button" onClick={() => setDepositType('fixed')} className={`px-4 py-2 rounded-lg text-sm font-bold border transition-all ${depositType === 'fixed' ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}>Fixed $</button>
+                                    </div>
+                                    {depositType === 'fixed' && (
+                                        <div className="mt-2 relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span><input type="number" placeholder="500.00" className="w-full pl-7 px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black" value={fixedDepositAmount} onChange={(e) => setFixedDepositAmount(e.target.value)} /></div>
+                                    )}
+                                </div>
+                            )}
+
+                            {!isSplit && (
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Balance Due Date</label>
+                                    <div className="relative">
+                                        <select 
+                                            className="w-full appearance-none px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-black cursor-pointer text-sm font-medium"
+                                            value={paymentTerms}
+                                            onChange={(e) => setPaymentTerms(e.target.value as any)}
+                                        >
+                                            <option value="immediate">Due Upon Receipt</option>
+                                            <option value="completion">Due Upon Completion</option>
+                                            <option value="net15">Net 15 (15 Days Later)</option>
+                                            <option value="net30">Net 30 (30 Days Later)</option>
+                                            <option value="net60">Net 60 (60 Days Later)</option>
+                                        </select>
+                                        <CalendarClock className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
                   </div>
 
-                  {/* Total & Save */}
                   <div className="mt-8">
                       <div className="bg-slate-900 text-white p-6 rounded-2xl shadow-lg mb-6">
-                        <div className="flex justify-between items-center mb-1">
-                            <span className="text-slate-400 text-sm font-medium">Subtotal</span>
-                            <span className="text-slate-300 font-bold">${parseFloat(formData.price || '0').toFixed(2)}</span>
-                        </div>
-                        {parseFloat(formData.taxRate) > 0 && (
-                            <div className="flex justify-between items-center mb-3 pb-3 border-b border-slate-800">
-                                <span className="text-slate-400 text-sm font-medium">Tax ({formData.taxRate}%)</span>
-                                <span className="text-slate-300 font-bold">+${(parseFloat(formData.price || '0') * (parseFloat(formData.taxRate) / 100)).toFixed(2)}</span>
+                        <div className="flex justify-between items-center mb-1"><span className="text-slate-400 text-sm font-medium">Subtotal</span><span className="text-slate-300 font-bold">${financials.subtotal.toFixed(2)}</span></div>
+                        
+                        {parseFloat(formData.taxRate) > 0 && (<div className="flex justify-between items-center mb-1 pb-1 border-b border-slate-800/50"><span className="text-slate-400 text-sm font-medium">Tax ({formData.taxRate}%)</span><span className="text-slate-300 font-bold">+${financials.taxAmount.toFixed(2)}</span></div>)}
+                        {includeFee && (<div className="flex justify-between items-center mb-3 pb-3 border-b border-slate-800"><span className="text-slate-400 text-sm font-medium">Processing Fee (3.9%)</span><span className="text-slate-300 font-bold">+${financials.feeAmount.toFixed(2)}</span></div>)}
+
+                        <div className="flex justify-between items-end mb-4"><span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Contract Value</span><div className="text-right leading-none"><span className="text-3xl font-bold">${financials.grandTotal.toFixed(2)}</span></div></div>
+                        
+                        {/* DEPOSIT DISPLAY */}
+                        {!isSplit && depositType !== 'none' && paymentType === 'one_time' && (
+                            <div className="bg-emerald-900/50 border border-emerald-800 rounded-lg p-3 flex justify-between items-center animate-in fade-in slide-in-from-bottom-2">
+                                <span className="text-emerald-400 text-sm font-bold uppercase tracking-wider">Due Now (Deposit)</span>
+                                <span className="text-xl font-bold text-white">${financials.depositAmount.toFixed(2)}</span>
                             </div>
                         )}
-                        <div className="flex justify-between items-end">
-                            <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Contract Value</span>
-                            <div className="text-right leading-none">
-                                <span className="text-3xl font-bold">${calculateTotal()}</span>
-                                {paymentType === 'monthly' && <span className="text-sm font-bold text-indigo-400 ml-1">/mo</span>}
-                            </div>
-                        </div>
-                      </div>
 
-                      <button 
-                          onClick={handleSubmit}
-                          disabled={saving} 
-                          className={`w-full font-bold py-4 rounded-xl transition-all shadow-md hover:shadow-lg text-lg bg-black text-white hover:bg-gray-900 transform hover:-translate-y-0.5`}
-                      >
-                        {saving ? 'Updating...' : 'Update Contract'}
-                      </button>
-                      
-                      <p className="text-center text-xs text-gray-400 mt-4 leading-relaxed max-w-sm mx-auto">
-                          By clicking Update, you agree to the <Link href="/terms-of-service" className="underline hover:text-gray-600">Terms</Link>. You acknowledge that editing this document will require re-signing by all parties.
-                      </p>
+                        {/* SPLIT DISPLAY */}
+                        {isSplit && (
+                            <div className="bg-indigo-900/50 border border-indigo-800 rounded-lg p-3 flex justify-between items-center animate-in fade-in slide-in-from-bottom-2">
+                                <span className="text-indigo-300 text-sm font-bold uppercase tracking-wider">Per Payment</span>
+                                <span className="text-xl font-bold text-white">${financials.splitAmount.toFixed(2)}</span>
+                            </div>
+                        )}
+                      </div>
+                       {/* ⚡ SMART BUTTON: Changes if Signatures Exist */}
+                       <button 
+                         onClick={handleSubmit} 
+                         disabled={saving} 
+                         className={`w-full font-bold py-4 rounded-xl transition-all shadow-md hover:shadow-lg text-lg transform hover:-translate-y-0.5 ${confirmUpdate ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-black text-white hover:bg-gray-900'}`}
+                       >
+                         {saving ? <><Loader2 className="w-5 h-5 animate-spin inline-block mr-2"/>Updating...</> : (confirmUpdate ? '⚠️ Reset Signatures & Update?' : 'Update Contract')}
+                       </button>
+                      <p className="text-center text-xs text-gray-400 mt-4 leading-relaxed max-w-sm mx-auto">By clicking Update, you agree to the <Link href="/terms-of-service" className="underline hover:text-gray-600">Terms</Link>. You acknowledge that editing this document will require re-signing by all parties.</p>
                   </div>
               </div>
             </div>
         </div>
       </div>
       
-      {/* 💥 PRICING MODAL */}
-      <PricingModal 
-         isOpen={showPricingModal} 
-         onClose={() => setShowPricingModal(false)} 
-         userId={userId} 
-      />
+      <PricingModal isOpen={showPricingModal} onClose={() => setShowPricingModal(false)} userId={userId} />
     </div>
   );
 }

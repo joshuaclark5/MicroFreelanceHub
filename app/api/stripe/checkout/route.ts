@@ -14,9 +14,10 @@ const supabase = createClient(
 
 export async function POST(request: Request) {
   try {
-    const { sowId } = await request.json();
+    // 1. Get SOW ID & Optional Amount from Frontend
+    const { sowId, amount } = await request.json();
 
-    // 1. Get SOW details from Database
+    // 2. Get SOW details from Database
     const { data: sow, error: sowError } = await supabase
       .from('sow_documents')
       .select('*')
@@ -27,7 +28,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Contract not found' }, { status: 404 });
     }
 
-    // 2. Get Freelancer's Stripe Connected ID
+    // 3. Get Freelancer's Stripe Connected ID
     const { data: profile } = await supabase
       .from('profiles')
       .select('stripe_account_id')
@@ -42,19 +43,25 @@ export async function POST(request: Request) {
        );
     }
 
-    // 3. Determine Mode (Subscription vs One-Time)
+    // 4. Determine Mode & Price
     const isSubscription = sow.payment_type === 'monthly';
-    const priceInCents = Math.round(sow.price * 100);
+    
+    // ⚡ MAGIC FIX: Use the specific amount from frontend if provided (for deposits/splits),
+    // otherwise fallback to the full database price.
+    const chargeAmount = amount ? amount : sow.price;
+    const priceInCents = Math.round(chargeAmount * 100);
 
-    // 4. Construct the Session Config
+    // 5. Construct the Session Config
     let sessionConfig: Stripe.Checkout.SessionCreateParams = {
       payment_method_types: ['card'],
       line_items: [{
         price_data: {
           currency: 'usd',
           product_data: { 
-            name: isSubscription ? `Retainer: ${sow.title}` : `Contract: ${sow.title}`,
-            description: isSubscription ? `Monthly recurring payment for ${sow.client_name}` : `One-time payment for ${sow.client_name}`
+            name: isSubscription ? `Retainer: ${sow.title}` : `Payment: ${sow.title}`,
+            description: isSubscription 
+                ? `Monthly recurring payment for ${sow.client_name}` 
+                : `Payment of $${chargeAmount.toLocaleString()} for ${sow.client_name}`,
           },
           unit_amount: priceInCents,
           // 🔄 THE MAGIC SWITCH: If monthly, add recurring interval
@@ -67,7 +74,7 @@ export async function POST(request: Request) {
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/sow/${sowId}?payment=cancelled`,
     };
 
-    // 5. Handle Fees & Transfers (Logic differs for Subscriptions vs Payments)
+    // 6. Handle Fees & Transfers (Logic differs for Subscriptions vs Payments)
     if (isSubscription) {
       // 🔄 SUBSCRIPTION MODE
       sessionConfig.mode = 'subscription';
@@ -89,7 +96,7 @@ export async function POST(request: Request) {
       };
     }
 
-    // 6. Create the Session
+    // 7. Create the Session
     const session = await stripe.checkout.sessions.create(sessionConfig);
 
     return NextResponse.json({ url: session.url });
