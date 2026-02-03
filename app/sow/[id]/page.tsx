@@ -5,7 +5,11 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signContract } from '../../actions/signSOW';
-import { ArrowLeft, CheckCircle, Lock, X, Share2, Download, Edit3, MoreHorizontal, PenTool, AlertTriangle, Info, PieChart, CreditCard } from 'lucide-react';
+import { 
+  ArrowLeft, CheckCircle, Lock, X, Share2, Download, Edit3, 
+  MoreHorizontal, PenTool, AlertTriangle, Info, PieChart, 
+  CreditCard, ChevronDown, ChevronUp, Receipt 
+} from 'lucide-react'; 
 import PayContractButton from '../../components/PayContractButton';
 
 // 1. Clean Cursive Font
@@ -25,6 +29,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
   const [doc, setDoc] = useState<any>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showInvoice, setShowInvoice] = useState(false); // 🆕 Invoice Toggle State
 
   // Signing
   const [showSignModal, setShowSignModal] = useState(false);
@@ -44,11 +49,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
       if (error || !docData) { setLoading(false); return; }
 
       // 🧠 SMART STATUS UPDATE
-      // If payment was just successful, we might need to update status or record a partial payment
       if (paymentStatus === 'success' && docData.status !== 'Paid') {
-         // You might want a more complex API here for partial payments later
-         // For now, if they pay the deposit/split, we mark it as "Active" or similar?
-         // Or just keep simple "Paid" logic for the MVP
          await fetch('/api/sow/mark-paid', {
            method: 'POST',
            headers: { 'Content-Type': 'application/json' },
@@ -83,30 +84,18 @@ export default function ViewContract({ params }: { params: { id: string } }) {
       
       const sched = doc.payment_schedule_structured || {};
       
-      // If already paid, amount is 0
       if (isPaid) return { amount: 0, label: 'Paid in Full' };
 
-      // Case 1: Split Payment (Installments)
+      // Case 1: Split Payment
       if (sched.type === 'split' && sched.depositAmount) {
-          return { 
-              amount: sched.depositAmount, 
-              label: `Installment (1 of ${sched.splitCount || '?'})` 
-          };
+          return { amount: sched.depositAmount, label: `Installment (1 of ${sched.splitCount || '?'})` };
       }
-
-      // Case 2: Deposit Required
+      // Case 2: Deposit
       if ((sched.type === '50' || sched.type === 'fixed') && sched.depositAmount) {
-          return { 
-              amount: sched.depositAmount, 
-              label: 'Deposit Due' 
-          };
+          return { amount: sched.depositAmount, label: 'Deposit Due' };
       }
-
-      // Case 3: Standard Full Payment
-      return { 
-          amount: doc.price, 
-          label: 'Total Due' 
-      };
+      // Case 3: Full
+      return { amount: doc.price, label: 'Total Due' };
   };
 
   const { amount: dueNow, label: dueLabel } = getPaymentDetails();
@@ -181,7 +170,6 @@ export default function ViewContract({ params }: { params: { id: string } }) {
             <p className="text-gray-500 text-sm uppercase tracking-wider font-semibold print:text-black">Statement of Work</p>
           </div>
           
-          {/* PRICE BOX */}
           <div className="text-left sm:text-right print:text-right min-w-[200px]">
             <div className="bg-gray-100 px-4 py-2 rounded mb-2 inline-block print:bg-white print:border print:border-black">
               <span className="block text-[10px] text-gray-500 uppercase font-bold tracking-wide print:text-black">{dueLabel}</span>
@@ -191,7 +179,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
             {dueNow !== doc.price && !isPaid && (
                  <p className="text-xs text-gray-400 mt-1">Total Contract: {formatMoney(doc.price)}</p>
             )}
-            <p className="text-sm text-gray-700 print:text-black mt-2"><strong>Client:</strong> {doc.client_name}</p>
+            <p className="text-sm text-gray-700 print:text-black"><strong>Client:</strong> {doc.client_name}</p>
             <p className="text-sm text-gray-700 print:text-black"><strong>Date:</strong> {new Date(doc.created_at).toLocaleDateString()}</p>
           </div>
         </div>
@@ -221,12 +209,47 @@ export default function ViewContract({ params }: { params: { id: string } }) {
             </div>
         </div>
 
+        {/* 🧾 NEW: MOBILE INVOICE ACCORDION (Hidden in Print) */}
+        {doc.line_items && doc.line_items.length > 0 && (
+            <div className="mt-16 print:hidden">
+                <button 
+                    onClick={() => setShowInvoice(!showInvoice)}
+                    className="w-full flex items-center justify-between bg-white border border-gray-200 p-4 rounded-xl hover:bg-gray-50 transition-colors shadow-sm"
+                >
+                    <div className="flex items-center gap-3">
+                        <div className="bg-gray-100 p-2 rounded-lg text-gray-600"><Receipt className="w-5 h-5" /></div>
+                        <div className="text-left">
+                            <p className="text-sm font-bold text-gray-900">Invoice Details</p>
+                            <p className="text-xs text-gray-500">{doc.line_items.length} items • {formatMoney(doc.price)} Total</p>
+                        </div>
+                    </div>
+                    {showInvoice ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+                </button>
+
+                {showInvoice && (
+                    <div className="mt-2 bg-gray-50 rounded-xl border border-gray-200 p-4 animate-in slide-in-from-top-2">
+                        <div className="space-y-3">
+                            {doc.line_items.map((item: any, i: number) => (
+                                <div key={i} className="flex justify-between text-sm">
+                                    <span className="text-gray-600 flex-1">{item.description} <span className="text-gray-400 text-xs">x{item.quantity}</span></span>
+                                    <span className="font-medium text-gray-900">{formatMoney(item.amount * item.quantity)}</span>
+                                </div>
+                            ))}
+                            <div className="border-t border-gray-200 pt-3 flex justify-between items-center mt-3">
+                                <span className="font-bold text-gray-900">Total</span>
+                                <span className="font-bold text-lg text-gray-900">{formatMoney(doc.price)}</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        )}
+
         {/* PAYMENT & FOOTER */}
-        <div className="mt-16 print:hidden">
+        <div className="mt-4 print:hidden">
             {isPaid ? (
                 <button disabled className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 cursor-default"><CheckCircle className="w-5 h-5" /> Paid in Full</button>
             ) : isFullySigned ? (
-                // ⚡ INTELLIGENT PAY BUTTON: Passes the exact 'dueNow' amount
                 <PayContractButton sowId={doc.id} price={dueNow} paymentType={doc.payment_type} label={dueLabel === 'Total Due' ? 'Pay Full Amount' : `Pay ${dueLabel}`} />
             ) : (
                 <button disabled className="w-full bg-gray-100 text-gray-400 font-bold py-4 rounded-xl cursor-not-allowed flex items-center justify-center gap-3 border border-gray-200">
@@ -239,11 +262,19 @@ export default function ViewContract({ params }: { params: { id: string } }) {
                 <p className="text-xs text-gray-400 flex justify-center items-center gap-1">
                    <Lock className="w-3 h-3" /> Secure Payment via Stripe Connect
                 </p>
+                {doc.payment_type === 'monthly' && (
+                    <p className="text-[10px] text-gray-400 max-w-md mx-auto">
+                        <strong>Billing Info:</strong> This subscription is managed directly between you and the Service Provider. To cancel or modify billing, check your email receipt for a management link or contact {isOwner ? 'the Client' : 'the Service Provider'} directly.
+                    </p>
+                )}
             </div>
         </div>
         
         <div className="mt-8 text-center print:hidden opacity-50 hover:opacity-100 transition-opacity">
           <Link href="/" className="text-[10px] text-gray-400 uppercase tracking-widest hover:text-black">Generated via MicroFreelanceHub</Link>
+        </div>
+        <div className="hidden print:block fixed bottom-4 left-0 w-full text-center text-[8px] text-gray-400 uppercase tracking-widest">
+            Secure Contract ID: {doc.id.slice(0, 8)} • MicroFreelanceHub
         </div>
       </div>
 

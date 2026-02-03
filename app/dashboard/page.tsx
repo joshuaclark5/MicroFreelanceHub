@@ -77,8 +77,12 @@ export default function Dashboard() {
 
         const pendingTemplateSlug = localStorage.getItem('pending_template');
         if (pendingTemplateSlug) {
-          // @ts-ignore
-          const { data: template } = await supabase.from('sow_documents').select('*').eq('slug', pendingTemplateSlug).single();
+          const { data: template } = await supabase
+            .from('sow_documents')
+            .select('*')
+            .eq('slug', pendingTemplateSlug)
+            .single();
+          
           if (template) {
             const { data: newProject, error } = await supabase.from('sow_documents').insert({
                 user_id: user.id,
@@ -377,7 +381,7 @@ export default function Dashboard() {
                    StatusIcon = Repeat;
                }
 
-               // 🧠 DYNAMIC BUTTON LABEL
+               // 🧠 DYNAMIC BUTTON LABEL (For the dropdown menu)
                let markPaidLabel = "Mark as Paid";
                if (sched.type === 'split') markPaidLabel = "Mark Installment Paid";
                else if (sched.depositAmount) markPaidLabel = "Mark Deposit Paid";
@@ -423,6 +427,7 @@ export default function Dashboard() {
                                    <Copy className="w-3.5 h-3.5" /> Duplicate
                                 </button>
                                 
+                                {/* 👇 SMART DYNAMIC BUTTON HERE */}
                                 {!isPaid && (
                                     <button onClick={() => handleMarkPaid(sow.id)} className="w-full text-left px-4 py-2.5 text-xs font-bold text-emerald-600 hover:bg-emerald-50 flex items-center gap-2">
                                         <CheckCircle className="w-3.5 h-3.5" /> {markPaidLabel}
