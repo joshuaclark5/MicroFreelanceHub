@@ -7,8 +7,8 @@ import { useRouter } from 'next/navigation';
 import { 
   MoreVertical, Edit2, Copy, Trash2, CheckSquare, LogOut, Plus, 
   Gem, ArrowUpRight, FileText, ExternalLink, 
-  LayoutGrid, Clock, DollarSign, TrendingUp, CheckCircle,
-  PenTool, Repeat, Wallet, PieChart, ArrowRight, History
+  LayoutGrid, Clock, TrendingUp, CheckCircle,
+  PenTool, Repeat, Wallet, ArrowRight, History
 } from 'lucide-react';
 import ConnectStripeButton from '../components/ConnectStripeButton'; 
 import PricingModal from '../components/PricingModal'; 
@@ -24,16 +24,23 @@ const formatMoney = (amount: number) => {
   }).format(amount);
 };
 
-function UpgradeButton({ onClick, mobile }: { onClick: () => void, mobile?: boolean }) {
+// Elegant Sparkline
+const Sparkline = ({ color = "text-emerald-500" }) => (
+  <svg className={`w-full h-16 ${color} opacity-10 absolute bottom-0 left-0 right-0 pointer-events-none`} viewBox="0 0 100 40" preserveAspectRatio="none">
+    <path d="M0 40 Q 25 35, 50 20 T 100 5 L 100 40 L 0 40 Z" fill="currentColor" />
+  </svg>
+);
+
+// 🛠️ FIX 1: Responsive Upgrade Button
+// Icon-only on mobile (w-9), Full text on Desktop
+function UpgradeButton({ onClick }: { onClick: () => void }) {
   return (
     <button 
       onClick={onClick} 
-      className={`bg-slate-900 text-white hover:bg-slate-800 border border-slate-700 rounded-full font-bold transition-all flex items-center justify-center shadow-lg hover:shadow-slate-900/20 group ${
-        mobile ? 'w-9 h-9 p-0' : 'px-4 py-1.5 text-xs gap-2'
-      }`}
+      className="bg-slate-900 text-white hover:bg-slate-800 border border-slate-700 rounded-full font-bold transition-all flex items-center justify-center shadow-lg hover:shadow-slate-900/20 group w-9 h-9 sm:w-auto sm:px-4 sm:py-1.5 sm:gap-2"
     >
-      <Gem className="w-3.5 h-3.5 text-purple-400 group-hover:scale-110 transition-transform" />
-      {!mobile && <span>Upgrade to Pro</span>}
+      <Gem className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
+      <span className="hidden sm:inline text-xs">Upgrade to Pro</span>
     </button>
   );
 }
@@ -157,9 +164,7 @@ export default function Dashboard() {
 
   const totalPaid = sows.filter(s => s.status === 'Paid').reduce((acc, curr) => acc + (curr.price || 0), 0);
   const profit = totalPaid - totalExpenses;
-  
-  // Calculate Profit Margin for the visual bar
-  const totalVolume = totalPaid > 0 ? totalPaid : 1; // Avoid divide by zero
+  const totalVolume = totalPaid > 0 ? totalPaid : 1;
   const expensePercentage = Math.min((totalExpenses / totalVolume) * 100, 100);
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-400 bg-gray-50">Loading Dashboard...</div>;
@@ -167,33 +172,33 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-32">
       
-      {/* 🟢 TOP NAV */}
+      {/* 🟢 TOP NAV - Fixed Mobile Spacing */}
       <div className="bg-white border-b border-gray-100 sticky top-0 z-40 backdrop-blur-md bg-white/80">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-              <div className="bg-slate-900 text-white w-9 h-9 flex items-center justify-center rounded-xl font-bold text-lg shadow-lg shadow-slate-900/20">M</div>
+              <div className="bg-slate-900 text-white w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl font-bold text-lg shadow-lg shadow-slate-900/20">M</div>
               <div className="flex flex-col">
                  <h1 className="text-sm font-bold text-slate-900 leading-tight">MicroFreelance</h1>
                  <p className="text-[10px] text-slate-400 font-medium tracking-wide">DASHBOARD</p>
               </div>
           </div>
           
-          <div className="flex items-center gap-4">
-            {!isPro && <UpgradeButton onClick={() => setShowPricingModal(true)} mobile={false} />}
-            {isPro && <span className="text-[10px] font-bold bg-amber-50 text-amber-700 px-2 py-1 rounded border border-amber-100">PRO PLAN</span>}
+          <div className="flex items-center gap-3">
+            {!isPro && <UpgradeButton onClick={() => setShowPricingModal(true)} />}
+            {isPro && <span className="text-[10px] font-bold bg-amber-50 text-amber-700 px-2 py-1 rounded border border-amber-100 whitespace-nowrap">PRO</span>}
             <div className="h-4 w-px bg-gray-200"></div>
-            <button onClick={handleLogout} className="text-gray-400 hover:text-red-500 transition-colors"><LogOut className="w-4 h-4" /></button>
+            <button onClick={handleLogout} className="text-gray-400 hover:text-red-500 transition-colors p-1"><LogOut className="w-5 h-5" /></button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8 space-y-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8">
         
-        {/* 🟢 NEW "COMMAND CENTER" LAYOUT (2 Columns on large screens) */}
+        {/* 🟢 STATS ROW */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            {/* 1. THE FINANCIAL HEALTH CARD (Spans 2 Columns) */}
-            <div className="lg:col-span-2 bg-white rounded-3xl p-8 border border-gray-100 shadow-xl shadow-gray-200/40 flex flex-col justify-between relative overflow-hidden group">
+            {/* 1. FINANCIAL HEALTH CARD - Mobile Optimized Actions */}
+            <div className="lg:col-span-2 bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-xl shadow-gray-200/40 flex flex-col justify-between relative overflow-hidden group">
                 
                 <div className="flex justify-between items-start z-10">
                     <div>
@@ -202,7 +207,7 @@ export default function Dashboard() {
                         <p className="text-sm font-medium text-emerald-600 mt-1 flex items-center gap-1"><TrendingUp className="w-4 h-4" /> Net Profit</p>
                     </div>
                     
-                    {/* Visual Breakdown */}
+                    {/* Visual Breakdown (Desktop Only) */}
                     <div className="text-right hidden sm:block">
                         <div className="flex flex-col gap-1 items-end">
                             <div className="flex items-center gap-2">
@@ -217,7 +222,7 @@ export default function Dashboard() {
                     </div>
                 </div>
 
-                {/* Profit Bar Visualization */}
+                {/* Profit Bar */}
                 <div className="mt-8 mb-8 z-10">
                     <div className="h-3 w-full bg-emerald-100 rounded-full overflow-hidden flex">
                         <div className="h-full bg-red-400 transition-all duration-1000" style={{ width: `${expensePercentage}%` }}></div>
@@ -229,27 +234,32 @@ export default function Dashboard() {
                     </div>
                 </div>
 
-                {/* Action Row */}
-                <div className="flex items-center gap-3 z-10 mt-auto">
+                {/* 🛠️ FIX 2: Mobile Grid Actions */}
+                {/* On mobile: Log Expense is full width. History & Stripe are half-width below. */}
+                <div className="grid grid-cols-2 sm:flex sm:items-center gap-3 z-10 mt-auto">
                     <button 
                         onClick={() => setShowExpenseModal(true)}
-                        className="flex-1 bg-slate-900 text-white hover:bg-slate-800 px-4 py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-slate-900/10 flex items-center justify-center gap-2"
+                        className="col-span-2 sm:flex-1 bg-slate-900 text-white hover:bg-slate-800 px-4 py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-slate-900/10 flex items-center justify-center gap-2"
                     >
                         <Plus className="w-4 h-4" /> Log Expense
                     </button>
                     <button 
                         onClick={() => setShowHistoryModal(true)}
-                        className="px-4 py-3 rounded-xl text-sm font-bold text-slate-600 bg-slate-50 hover:bg-slate-100 transition-colors border border-slate-100 flex items-center gap-2"
+                        className="col-span-1 px-4 py-3 rounded-xl text-sm font-bold text-slate-600 bg-slate-50 hover:bg-slate-100 transition-colors border border-slate-100 flex items-center justify-center gap-2"
                     >
                         <History className="w-4 h-4" /> History
                     </button>
-                    {stripeId ? (
-                       <a href="https://connect.stripe.com/express_login" target="_blank" className="p-3 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors border border-transparent hover:border-indigo-100" title="Stripe Dashboard">
-                           <ExternalLink className="w-5 h-5" />
-                       </a>
-                    ) : (
-                       <div className="scale-90"><ConnectStripeButton userId={userId} /></div>
-                    )}
+                    <div className="col-span-1">
+                        {stripeId ? (
+                           <a href="https://connect.stripe.com/express_login" target="_blank" className="w-full h-full flex items-center justify-center px-4 py-3 rounded-xl text-sm font-bold text-slate-600 bg-slate-50 hover:bg-slate-100 transition-colors border border-slate-100 gap-2" title="Stripe">
+                               <span className="truncate">Stripe</span> <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                           </a>
+                        ) : (
+                           <div className="w-full h-full flex items-center justify-center bg-slate-50 rounded-xl overflow-hidden">
+                               <div className="scale-90"><ConnectStripeButton userId={userId} /></div>
+                           </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Background Decor */}
@@ -258,17 +268,17 @@ export default function Dashboard() {
                 </div>
             </div>
 
-            {/* 2. THE CREATE CARD (Spans 1 Column) */}
-            <Link href="/create" className="lg:col-span-1 group relative overflow-hidden bg-indigo-600 rounded-3xl p-8 text-white shadow-xl shadow-indigo-600/20 flex flex-col justify-between h-full min-h-[280px] hover:scale-[1.02] transition-all duration-300">
+            {/* 2. THE CREATE CARD */}
+            <Link href="/create" className="lg:col-span-1 group relative overflow-hidden bg-indigo-600 rounded-3xl p-8 text-white shadow-xl shadow-indigo-600/20 flex flex-col justify-between h-full min-h-[200px] sm:min-h-[280px] hover:scale-[1.02] transition-all duration-300">
                 <div className="relative z-10">
-                    <div className="bg-white/20 w-14 h-14 rounded-2xl flex items-center justify-center mb-6 backdrop-blur-md border border-white/20 group-hover:bg-white/30 transition-colors">
-                        <PenTool className="w-7 h-7 text-white" />
+                    <div className="bg-white/20 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center mb-4 sm:mb-6 backdrop-blur-md border border-white/20 group-hover:bg-white/30 transition-colors">
+                        <PenTool className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                     </div>
-                    <h3 className="text-3xl font-bold tracking-tight">New Project</h3>
-                    <p className="text-indigo-100 text-sm mt-2 font-medium leading-relaxed">Draft a new proposal or invoice in seconds.</p>
+                    <h3 className="text-2xl sm:text-3xl font-bold tracking-tight">New Project</h3>
+                    <p className="text-indigo-100 text-xs sm:text-sm mt-2 font-medium leading-relaxed">Draft a new proposal or invoice in seconds.</p>
                 </div>
                 
-                <div className="mt-auto relative z-10 flex items-center gap-2 font-bold text-sm">
+                <div className="mt-auto pt-6 relative z-10 flex items-center gap-2 font-bold text-sm">
                     Start Now <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </div>
 
@@ -295,8 +305,8 @@ export default function Dashboard() {
             <div className={sows.length > 0 ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "block"}>
               {sows.length === 0 ? (
                 <div className="text-center py-24 bg-white rounded-[2rem] border border-dashed border-gray-200 shadow-sm">
-                  <div className="bg-gray-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300"><FileText className="w-10 h-10" /></div>
-                  <h3 className="text-lg font-bold text-slate-900">No projects yet</h3>
+                  <div className="bg-gray-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300"><FileText className="w-10 h-10" /></div>
+                  <h3 className="text-xl font-bold text-slate-900">No projects yet</h3>
                   <p className="text-slate-500 mt-2 max-w-xs mx-auto">Your dashboard is empty. Create your first contract to get started.</p>
                 </div>
               ) : (
@@ -328,7 +338,7 @@ export default function Dashboard() {
                           {selectionMode ? (
                             <input type="checkbox" checked={selectedIds.includes(sow.id)} onChange={() => toggleSelect(sow.id)} className="w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer" />
                           ) : (
-                            <button onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === sow.id ? null : sow.id); }} className="p-1.5 text-gray-300 hover:text-slate-900 hover:bg-gray-50 rounded-md transition-colors"><MoreVertical className="w-4 h-4" /></button>
+                            <button onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === sow.id ? null : sow.id); }} className="p-1.5 text-gray-300 hover:text-slate-900 hover:bg-gray-50 rounded-lg transition-colors"><MoreVertical className="w-4 h-4" /></button>
                           )}
                           {openMenuId === sow.id && (
                              <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 animate-in fade-in zoom-in-95 origin-top-right">
