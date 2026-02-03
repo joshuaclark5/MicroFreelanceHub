@@ -6,20 +6,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { generateQuestions, generateFinalSOW, refineSOW } from '../actions/generateSOW';
 import Link from 'next/link';
 import { 
-  ArrowLeft, 
-  Sparkles, 
-  PenTool, 
-  Trash2, 
-  Repeat, 
-  CreditCard, 
-  Wand2, 
-  AlertCircle, 
-  Plus, 
-  X, 
-  Undo2,
-  CalendarClock,
-  Split,
-  Loader2
+  ArrowLeft, Sparkles, PenTool, Trash2, Repeat, CreditCard, Wand2, 
+  AlertCircle, Plus, X, Undo2, CalendarClock, Split, Loader2, DollarSign
 } from 'lucide-react';
 import PricingModal from '../components/PricingModal';
 import { AuthRequiredModal } from '../components/modals/AuthRequiredModal';
@@ -39,26 +27,12 @@ Upon full payment, the Client is granted exclusive rights to the final deliverab
 If the Client cancels the project after work has begun, the Freelancer retains the deposit. The Freelancer's liability is limited to the total value of this contract.
 --------------------------------------------------`;
 
-const MANUAL_TEMPLATE = `1. AGREEMENT OVERVIEW
-This contract is entered into between the Client and the Provider.
-
-2. SCOPE OF SERVICES
-[Describe what you will do here...]
-
-• Deliverable 1
-• Deliverable 2
-
-3. TIMELINE
-Work will commence upon receipt of deposit.
-
-${LEGAL_TERMS}`;
-
 // Interface for Line Items
 interface LineItem {
   id: string;
   description: string;
-  quantity: string;
-  amount: string;
+  quantity: number;
+  amount: number;
 }
 
 function CreateProjectContent() {
@@ -70,10 +44,10 @@ function CreateProjectContent() {
     description: ''
   });
 
-  // Line Items
-  const [lineItems, setLineItems] = useState<LineItem[]>([
-    { id: '1', description: 'Project Fee', quantity: '1', amount: '' }
-  ]);
+  // 🆕 Line Items State (The Invoice Builder)
+  const [lineItems, setLineItems] = useState<LineItem[]>([]);
+  const [newItem, setNewItem] = useState({ description: '', quantity: 1, amount: '' });
+  const [manualPriceOverride, setManualPriceOverride] = useState(''); // For when list is empty
 
   // Financial Settings
   const [includeFee, setIncludeFee] = useState(true);
@@ -91,7 +65,6 @@ function CreateProjectContent() {
   // UI States
   const [undoText, setUndoText] = useState('');
   const [confirmClear, setConfirmClear] = useState(false);
-
   const [step, setStep] = useState<'select_mode' | 'ai_input' | 'questions' | 'final'>('select_mode');
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
@@ -103,7 +76,6 @@ function CreateProjectContent() {
   const [showAiRefiner, setShowAiRefiner] = useState(false);
   const [refineText, setRefineText] = useState('');
   const [isRefining, setIsRefining] = useState(false);
-  
   const [isTemplateLoaded, setIsTemplateLoaded] = useState(false);
   
   // 🔒 LIMIT LOGIC
@@ -117,14 +89,16 @@ function CreateProjectContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // --- CALCULATORS ---
+  // --- 🧮 CALCULATORS ---
   const calculateFinancials = () => {
     // 1. Line Items Subtotal
-    const subtotal = lineItems.reduce((acc, item) => {
-      const qty = parseFloat(item.quantity) || 0;
-      const amt = parseFloat(item.amount) || 0;
-      return acc + (qty * amt);
-    }, 0);
+    let subtotal = 0;
+    
+    if (lineItems.length > 0) {
+        subtotal = lineItems.reduce((acc, item) => acc + (item.quantity * item.amount), 0);
+    } else {
+        subtotal = parseFloat(manualPriceOverride) || 0;
+    }
 
     // 2. Tax & Fee
     const taxRate = parseFloat(formData.taxRate) || 0;
@@ -165,22 +139,15 @@ function CreateProjectContent() {
     if (paymentTerms === 'net30') termsLabel = "Net 30 (due 30 days after completion)";
     if (paymentTerms === 'net60') termsLabel = "Net 60 (due 60 days after completion)";
 
-    // Scenario 1: Monthly Retainer
     if (paymentType === 'monthly') {
         return `1. PAYMENT TERMS\nServices will be billed monthly at a rate of $${formattedTotal}. Payment is due upon receipt of invoice.`;
     }
-
-    // Scenario 2: Split Payments (Installments)
     if (isSplit) {
         return `1. PAYMENT TERMS\nThe Total Contract Value of $${formattedTotal} shall be paid in ${splitCount} installments of $${splitAmount.toFixed(2)}. The first installment is due immediately. Subsequent payments are due every ${splitFrequency} days.`;
     }
-
-    // Scenario 3: Deposit + Balance
     if (depositType !== 'none') {
         return `1. PAYMENT TERMS\nA deposit of $${formattedDeposit} is required to begin work. The remaining balance ($${remaining}) is ${termsLabel}.`;
     }
-
-    // Scenario 4: Standard One-Time
     return `1. PAYMENT TERMS\nFull payment of $${formattedTotal} is required. Terms: ${termsLabel}.`;
   };
 
@@ -210,7 +177,7 @@ If the Client cancels the project after work has begun, the Freelancer retains t
 --------------------------------------------------`;
   };
 
-  // 1. Load User
+  // 1. Load User & Template
   useEffect(() => {
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -252,8 +219,10 @@ If the Client cancels the project after work has begun, the Freelancer retains t
              const bullets = typeof foundData.deliverables === 'string' ? foundData.deliverables : "• Scope details...";
              const fullContent = generateFullContract(foundData.title, bullets);
              setFormData(prev => ({ ...prev, projectTitle: foundData.title, deliverables: fullContent, description: `Contract for ${foundData.title}` }));
-             const initialAmount = foundData.price ? foundData.price.toString() : '';
-             setLineItems([{ id: '1', description: 'Project Fee', quantity: '1', amount: initialAmount }]);
+             
+             // Set initial manual price if template has one, but keep line items empty to let user build them
+             if(foundData.price) setManualPriceOverride(foundData.price.toString());
+             
              setIsTemplateLoaded(true);
              setStep('final'); 
         }
@@ -264,7 +233,7 @@ If the Client cancels the project after work has begun, the Freelancer retains t
     init();
   }, [supabase, searchParams]);
 
-  // Update contract text when payment terms change
+  // Update contract text dynamically
   useEffect(() => {
     if (step === 'final' && formData.deliverables) {
         const fullText = formData.deliverables;
@@ -278,13 +247,12 @@ If the Client cancels the project after work has begun, the Freelancer retains t
             const afterTerms = fullText.substring(endIndex);
             const newTerms = getPaymentTermsText();
             const currentTermsSection = fullText.substring(startIndex, endIndex);
-            // Loose check to prevent loops
             if (!currentTermsSection.includes(newTerms.split('\n')[1])) { 
                  setFormData(prev => ({ ...prev, deliverables: beforeTerms + newTerms + "\n\n" + afterTerms }));
             }
         }
     }
-  }, [depositType, fixedDepositAmount, paymentType, paymentTerms, includeFee, formData.taxRate, lineItems, isSplit, splitCount, splitFrequency]);
+  }, [depositType, fixedDepositAmount, paymentType, paymentTerms, includeFee, formData.taxRate, lineItems, isSplit, splitCount, splitFrequency, manualPriceOverride]);
 
   const handleStartManual = () => {
       const content = generateFullContract("Project", "• Deliverable 1\n• Deliverable 2");
@@ -359,17 +327,28 @@ If the Client cancels the project after work has begun, the Freelancer retains t
       setUndoText(formData.deliverables);
       const fullContent = generateFullContract(result.title, result.deliverables);
       setFormData(prev => ({ ...prev, projectTitle: result.title, deliverables: fullContent }));
-      setLineItems([{ id: '1', description: 'Project Fee', quantity: '1', amount: result.price?.toString() || '' }]);
+      setManualPriceOverride(result.price?.toString() || '');
       setStep('final');
     } else { alert("AI failed. Please try again."); }
     setLoading(false);
   };
 
-  // Line Item Handlers
-  const addLineItem = () => setLineItems([...lineItems, { id: Math.random().toString(36).substr(2, 9), description: '', quantity: '1', amount: '' }]);
-  const removeLineItem = (id: string) => { if (lineItems.length > 1) setLineItems(lineItems.filter(item => item.id !== id)); };
-  const updateLineItem = (id: string, field: keyof LineItem, value: string) => {
-    setLineItems(lineItems.map(item => item.id === id ? { ...item, [field]: value } : item));
+  // 🆕 Invoice Builder Handlers
+  const handleAddItem = () => {
+    if (!newItem.description || !newItem.amount) return;
+    setLineItems([...lineItems, { 
+        id: Math.random().toString(36).substr(2, 9),
+        description: newItem.description, 
+        quantity: newItem.quantity, 
+        amount: parseFloat(newItem.amount) 
+    }]);
+    setNewItem({ description: '', quantity: 1, amount: '' });
+  };
+
+  const handleRemoveItem = (id: string) => {
+    const updated = lineItems.filter(item => item.id !== id);
+    setLineItems(updated);
+    if (updated.length === 0 && manualPriceOverride === '') setManualPriceOverride(''); 
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -377,12 +356,16 @@ If the Client cancels the project after work has begun, the Freelancer retains t
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
 
-    // Prepare Line Items
-    const finalLineItems = lineItems.map(item => ({
-        ...item,
-        quantity: parseFloat(item.quantity) || 0,
-        amount: parseFloat(item.amount) || 0
-    }));
+    // Prepare Line Items (If empty, create a dummy item for the total)
+    let finalLineItems = [...lineItems];
+    if (finalLineItems.length === 0 && financials.subtotal > 0) {
+        finalLineItems.push({
+            id: 'auto-generated',
+            description: 'Project Service Fee',
+            quantity: 1,
+            amount: financials.subtotal
+        });
+    }
 
     if (includeFee) {
         finalLineItems.push({
@@ -412,13 +395,12 @@ If the Client cancels the project after work has begun, the Freelancer retains t
     setLoadingMessage('Saving...');
     if (!isPro && projectCount >= 3) { setLoading(false); setShowPricingModal(true); return; }
 
-    // Save with Structured Payment Data
     const { error } = await supabase.from('sow_documents').insert({
       user_id: user.id,
       client_name: formData.clientName,
       title: formData.projectTitle,
       price: financials.grandTotal,
-      line_items: finalLineItems, 
+      line_items: finalLineItems, // 🆕 Saving the breakdown
       deliverables: formData.deliverables,
       status: 'Draft',
       payment_type: paymentType,
@@ -554,28 +536,52 @@ If the Client cancels the project after work has begun, the Freelancer retains t
                 </form>
               </div>
 
-              {/* SIDEBAR */}
+              {/* SIDEBAR (CONTRACT DETAILS) */}
               <div className="w-full lg:w-[450px] bg-gray-50/50 p-8 md:p-10 flex flex-col h-full overflow-y-auto">
-                  <h3 className="text-lg font-bold text-gray-900 mb-6">Contract Details</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2"><CreditCard className="w-5 h-5"/> Contract Details</h3>
                   <div className="space-y-6 flex-1">
                     <div><label className="block text-sm font-bold text-gray-700 mb-2">Client Name</label><input required type="text" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" value={formData.clientName} onChange={(e) => setFormData({...formData, clientName: e.target.value})} placeholder="e.g. John Smith" /></div>
                     
-                    {/* Payment Schedule Selector */}
-                    <div>
-                        <div className="flex justify-between items-center mb-2">
-                            <label className="block text-sm font-bold text-gray-700">Line Items</label>
-                            <button type="button" onClick={addLineItem} className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1"><Plus className="w-3 h-3" /> Add Item</button>
-                        </div>
-                        <div className="space-y-3">
-                            {lineItems.map((item) => (
-                                <div key={item.id} className="flex gap-2 items-center group">
-                                    <div className="flex-1 space-y-1"><input type="text" placeholder="Description" className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" value={item.description} onChange={(e) => updateLineItem(item.id, 'description', e.target.value)} /></div>
-                                    <div className="w-16 space-y-1"><input type="number" placeholder="Qty" className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" value={item.quantity} onChange={(e) => updateLineItem(item.id, 'quantity', e.target.value)} /></div>
-                                    <div className="w-24 space-y-1 relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-sm">$</span><input type="number" placeholder="0.00" className="w-full pl-7 pr-2 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" value={item.amount} onChange={(e) => updateLineItem(item.id, 'amount', e.target.value)} /></div>
-                                    {lineItems.length > 1 && (<button type="button" onClick={() => removeLineItem(item.id)} className="mt-0 text-gray-400 hover:text-red-500 transition-colors"><X className="w-4 h-4" /></button>)}
-                                </div>
-                            ))}
-                        </div>
+                    {/* 🆕 INVOICE BUILDER (Trades Upgrade) */}
+                    <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                       <label className="block text-xs font-bold text-gray-500 uppercase mb-3">Itemized Invoice</label>
+                       
+                       {/* Add Item Row */}
+                       <div className="flex gap-2 items-end mb-4">
+                          <div className="flex-1">
+                             <input className="w-full p-2 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:bg-white transition-colors" placeholder="Item (e.g. Labor)" value={newItem.description} onChange={(e) => setNewItem({ ...newItem, description: e.target.value })} />
+                          </div>
+                          <div className="w-16">
+                             <input type="number" className="w-full p-2 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:bg-white text-center" placeholder="Qty" value={newItem.quantity} onChange={(e) => setNewItem({ ...newItem, quantity: parseInt(e.target.value) || 1 })} />
+                          </div>
+                          <div className="w-20">
+                             <input type="number" className="w-full p-2 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:bg-white" placeholder="Price" value={newItem.amount} onChange={(e) => setNewItem({ ...newItem, amount: e.target.value })} />
+                          </div>
+                          <button onClick={handleAddItem} className="p-2 bg-black text-white rounded-lg hover:bg-gray-800"><Plus className="w-4 h-4" /></button>
+                       </div>
+
+                       {/* Items List */}
+                       {lineItems.length > 0 ? (
+                           <div className="space-y-2 mb-4">
+                               {lineItems.map((item) => (
+                                   <div key={item.id} className="flex justify-between items-center text-sm bg-gray-50 p-2 rounded-lg border border-gray-100 group">
+                                       <div className="flex-1"><span className="font-medium text-gray-900">{item.description}</span> <span className="text-gray-400 text-xs">x{item.quantity}</span></div>
+                                       <div className="flex items-center gap-3">
+                                           <span className="font-mono font-bold">${(item.amount * item.quantity).toFixed(2)}</span>
+                                           <button onClick={() => handleRemoveItem(item.id)} className="text-gray-300 hover:text-red-500"><X className="w-3 h-3" /></button>
+                                       </div>
+                                   </div>
+                               ))}
+                           </div>
+                       ) : (
+                           <div className="mb-4">
+                               <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Manual Total Price</label>
+                               <div className="relative">
+                                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
+                                   <input type="number" className="w-full pl-7 p-2 border border-gray-200 rounded-lg font-bold text-gray-900" placeholder="0.00" value={manualPriceOverride} onChange={(e) => setManualPriceOverride(e.target.value)} />
+                               </div>
+                           </div>
+                       )}
                     </div>
 
                     <div>

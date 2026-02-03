@@ -6,20 +6,9 @@ import { useRouter, useParams } from 'next/navigation';
 import { refineSOW } from '../../actions/generateSOW'; 
 import Link from 'next/link';
 import { 
-  ArrowLeft, 
-  Sparkles, 
-  Trash2, 
-  Repeat, 
-  CreditCard, 
-  Wand2, 
-  AlertTriangle,
-  Plus, 
-  X, 
-  Undo2,
-  Loader2,
-  AlertCircle,
-  Percent,
-  CalendarClock
+  ArrowLeft, Sparkles, Trash2, Repeat, CreditCard, Wand2, 
+  AlertTriangle, Plus, X, Undo2, Loader2, AlertCircle, 
+  Briefcase, DollarSign, CalendarClock
 } from 'lucide-react';
 import PricingModal from '../../components/PricingModal';
 import { AuthRequiredModal } from '../../components/modals/AuthRequiredModal';
@@ -28,8 +17,8 @@ import { AuthRequiredModal } from '../../components/modals/AuthRequiredModal';
 interface LineItem {
   id: string;
   description: string;
-  quantity: string;
-  amount: string;
+  quantity: number;
+  amount: number;
 }
 
 function EditProjectContent() {
@@ -41,10 +30,10 @@ function EditProjectContent() {
     description: ''
   });
 
-  // Line Items
-  const [lineItems, setLineItems] = useState<LineItem[]>([
-    { id: '1', description: 'Project Fee', quantity: '1', amount: '' }
-  ]);
+  // 🆕 Line Items State
+  const [lineItems, setLineItems] = useState<LineItem[]>([]);
+  const [newItem, setNewItem] = useState({ description: '', quantity: 1, amount: '' });
+  const [manualPriceOverride, setManualPriceOverride] = useState(''); // Legacy support
 
   // Financial Settings
   const [includeFee, setIncludeFee] = useState(false);
@@ -82,16 +71,16 @@ function EditProjectContent() {
   const params = useParams();
   const projectId = params.id as string;
 
-  // --- CALCULATORS ---
+  // --- 🧮 CALCULATORS ---
   const calculateFinancials = () => {
     // 1. Line Items Subtotal
-    const subtotal = lineItems.reduce((acc, item) => {
-      // Don't double count the auto-fee if it's in the visual list
-      if (item.id === 'fee-auto') return acc;
-      const qty = parseFloat(item.quantity) || 0;
-      const amt = parseFloat(item.amount) || 0;
-      return acc + (qty * amt);
-    }, 0);
+    let subtotal = 0;
+    
+    if (lineItems.length > 0) {
+        subtotal = lineItems.reduce((acc, item) => acc + (item.quantity * item.amount), 0);
+    } else {
+        subtotal = parseFloat(manualPriceOverride) || 0;
+    }
 
     // 2. Tax & Fee
     const taxRate = parseFloat(formData.taxRate) || 0;
@@ -135,15 +124,12 @@ function EditProjectContent() {
     if (paymentType === 'monthly') {
         return `1. PAYMENT TERMS\nServices will be billed monthly at a rate of $${formattedTotal}. Payment is due upon receipt of invoice.`;
     }
-
     if (isSplit) {
         return `1. PAYMENT TERMS\nThe Total Contract Value of $${formattedTotal} shall be paid in ${splitCount} installments of $${splitAmount.toFixed(2)}. The first installment is due immediately. Subsequent payments are due every ${splitFrequency} days.`;
     }
-
     if (depositType !== 'none') {
         return `1. PAYMENT TERMS\nA deposit of $${formattedDeposit} is required to begin work. The remaining balance ($${remaining}) is ${termsLabel}.`;
     }
-
     return `1. PAYMENT TERMS\nFull payment of $${formattedTotal} is required. Terms: ${termsLabel}.`;
   };
 
@@ -152,7 +138,6 @@ function EditProjectContent() {
     const fetchData = async () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) { router.push('/login'); return; }
-        
         setUserId(user.id);
 
         const { data: profile } = await supabase.from('profiles').select('is_pro').eq('id', user.id).single();
@@ -190,15 +175,17 @@ function EditProjectContent() {
                     cleanItems.push({
                         id: item.id || Math.random().toString(36).substr(2, 9),
                         description: item.description,
-                        quantity: item.quantity?.toString() || '1',
-                        amount: item.amount?.toString() || '0'
+                        quantity: parseFloat(item.quantity) || 1,
+                        amount: parseFloat(item.amount) || 0
                     });
                 }
             });
             setLineItems(cleanItems);
             setIncludeFee(foundFee);
         } else {
-            setLineItems([{ id: '1', description: 'Project Fee', quantity: '1', amount: project.price?.toString() || '' }]);
+            // Legacy Support: No items? Set manual price.
+            setManualPriceOverride(project.price?.toString() || '');
+            setLineItems([]);
         }
 
         // Load Payment Schedule
@@ -220,7 +207,7 @@ function EditProjectContent() {
     fetchData();
   }, [supabase, router, projectId]);
 
-  // Update Contract Text (Same as Create Page)
+  // Update Contract Text (Sync with Settings)
   useEffect(() => {
     if (!loading && formData.deliverables) {
         const fullText = formData.deliverables;
@@ -240,13 +227,24 @@ function EditProjectContent() {
             }
         }
     }
-  }, [depositType, fixedDepositAmount, paymentType, paymentTerms, includeFee, formData.taxRate, lineItems, loading, isSplit, splitCount, splitFrequency]);
+  }, [depositType, fixedDepositAmount, paymentType, paymentTerms, includeFee, formData.taxRate, lineItems, loading, isSplit, splitCount, splitFrequency, manualPriceOverride]);
 
   // --- HANDLERS ---
-  const addLineItem = () => setLineItems([...lineItems, { id: Math.random().toString(36).substr(2, 9), description: '', quantity: '1', amount: '' }]);
-  const removeLineItem = (id: string) => { if (lineItems.length > 1) setLineItems(lineItems.filter(item => item.id !== id)); };
-  const updateLineItem = (id: string, field: keyof LineItem, value: string) => {
-    setLineItems(lineItems.map(item => item.id === id ? { ...item, [field]: value } : item));
+  const handleAddItem = () => {
+    if (!newItem.description || !newItem.amount) return;
+    setLineItems([...lineItems, { 
+        id: Math.random().toString(36).substr(2, 9),
+        description: newItem.description, 
+        quantity: newItem.quantity, 
+        amount: parseFloat(newItem.amount) 
+    }]);
+    setNewItem({ description: '', quantity: 1, amount: '' });
+  };
+
+  const handleRemoveItem = (id: string) => {
+    const updated = lineItems.filter(item => item.id !== id);
+    setLineItems(updated);
+    if (updated.length === 0 && manualPriceOverride === '') setManualPriceOverride(''); 
   };
 
   const handleClearContent = () => {
@@ -304,7 +302,7 @@ function EditProjectContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // 🚩 SMART SIGNATURE WARNING (No more ugly browser popup)
+    // 🚩 SMART SIGNATURE WARNING
     if (hasSignatures && !confirmUpdate) {
         setConfirmUpdate(true);
         setTimeout(() => setConfirmUpdate(false), 4000);
@@ -314,11 +312,16 @@ function EditProjectContent() {
     setSaving(true);
     
     // Prepare Line Items
-    const finalLineItems = lineItems.map(item => ({
-        ...item,
-        quantity: parseFloat(item.quantity) || 0,
-        amount: parseFloat(item.amount) || 0
-    }));
+    let finalLineItems = [...lineItems];
+    // If no items, assume manual price override is a single item
+    if (finalLineItems.length === 0 && financials.subtotal > 0) {
+        finalLineItems.push({
+            id: 'auto-generated',
+            description: 'Project Service Fee',
+            quantity: 1,
+            amount: financials.subtotal
+        });
+    }
 
     if (includeFee) {
         finalLineItems.push({
@@ -340,11 +343,14 @@ function EditProjectContent() {
 
     // Append fresh summary
     finalDeliv += `\n\n${summaryMarker}\n`;
-    lineItems.forEach(item => {
-        const qty = parseFloat(item.quantity) || 0;
-        const amt = parseFloat(item.amount) || 0;
-        finalDeliv += `${item.description} (x${qty}): $${(amt * qty).toFixed(2)}\n`;
-    });
+    if(lineItems.length > 0) {
+        lineItems.forEach(item => {
+            finalDeliv += `${item.description} (x${item.quantity}): $${(item.amount * item.quantity).toFixed(2)}\n`;
+        });
+    } else {
+        finalDeliv += `Service Fee: $${financials.subtotal.toFixed(2)}\n`;
+    }
+    
     finalDeliv += `--------------------------------------------------\n`;
     finalDeliv += `Subtotal: $${financials.subtotal.toFixed(2)}\n`;
     
@@ -382,7 +388,7 @@ function EditProjectContent() {
                 splitCount: isSplit ? splitCount : null,
                 splitFrequency: isSplit ? splitFrequency : null
             },
-            // 🧹 RESET SIGNATURES (Removed 'signed_at' to fix crash)
+            // 🧹 RESET SIGNATURES
             status: 'Draft',
             signed_by: null,
             provider_sign: null
@@ -421,7 +427,7 @@ function EditProjectContent() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         
-        {/* ⚠️ SIGNATURE WARNING BANNER (Replaces Popup) */}
+        {/* ⚠️ SIGNATURE WARNING BANNER */}
         {hasSignatures && (
             <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3 items-start animate-in slide-in-from-top-2">
                 <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
@@ -470,26 +476,50 @@ function EditProjectContent() {
 
               {/* SIDEBAR */}
               <div className="w-full lg:w-[450px] bg-gray-50/50 p-8 md:p-10 flex flex-col h-full overflow-y-auto">
-                  <h3 className="text-lg font-bold text-gray-900 mb-6">Contract Details</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2"><CreditCard className="w-5 h-5"/> Contract Details</h3>
                   <div className="space-y-6 flex-1">
                     <div><label className="block text-sm font-bold text-gray-700 mb-2">Client Name</label><input required type="text" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" value={formData.clientName} onChange={(e) => setFormData({...formData, clientName: e.target.value})} placeholder="e.g. John Smith" /></div>
                     
-                    {/* Payment Schedule Selector */}
-                    <div>
-                        <div className="flex justify-between items-center mb-2">
-                            <label className="block text-sm font-bold text-gray-700">Line Items</label>
-                            <button type="button" onClick={addLineItem} className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1"><Plus className="w-3 h-3" /> Add Item</button>
-                        </div>
-                        <div className="space-y-3">
-                            {lineItems.map((item) => (
-                                <div key={item.id} className="flex gap-2 items-center group">
-                                    <div className="flex-1 space-y-1"><input type="text" placeholder="Description" className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" value={item.description} onChange={(e) => updateLineItem(item.id, 'description', e.target.value)} /></div>
-                                    <div className="w-16 space-y-1"><input type="number" placeholder="Qty" className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" value={item.quantity} onChange={(e) => updateLineItem(item.id, 'quantity', e.target.value)} /></div>
-                                    <div className="w-24 space-y-1 relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-sm">$</span><input type="number" placeholder="0.00" className="w-full pl-7 pr-2 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" value={item.amount} onChange={(e) => updateLineItem(item.id, 'amount', e.target.value)} /></div>
-                                    {lineItems.length > 1 && (<button type="button" onClick={() => removeLineItem(item.id)} className="mt-0 text-gray-400 hover:text-red-500 transition-colors"><X className="w-4 h-4" /></button>)}
-                                </div>
-                            ))}
-                        </div>
+                    {/* 🆕 INVOICE BUILDER (Trades Upgrade) */}
+                    <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                       <label className="block text-xs font-bold text-gray-500 uppercase mb-3">Itemized Invoice</label>
+                       
+                       {/* Add Item Row */}
+                       <div className="flex gap-2 items-end mb-4">
+                          <div className="flex-1">
+                             <input className="w-full p-2 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:bg-white transition-colors" placeholder="Item (e.g. Labor)" value={newItem.description} onChange={(e) => setNewItem({ ...newItem, description: e.target.value })} />
+                          </div>
+                          <div className="w-16">
+                             <input type="number" className="w-full p-2 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:bg-white text-center" placeholder="Qty" value={newItem.quantity} onChange={(e) => setNewItem({ ...newItem, quantity: parseInt(e.target.value) || 1 })} />
+                          </div>
+                          <div className="w-20">
+                             <input type="number" className="w-full p-2 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:bg-white" placeholder="Price" value={newItem.amount} onChange={(e) => setNewItem({ ...newItem, amount: e.target.value })} />
+                          </div>
+                          <button onClick={handleAddItem} className="p-2 bg-black text-white rounded-lg hover:bg-gray-800"><Plus className="w-4 h-4" /></button>
+                       </div>
+
+                       {/* Items List */}
+                       {lineItems.length > 0 ? (
+                           <div className="space-y-2 mb-4">
+                               {lineItems.map((item) => (
+                                   <div key={item.id} className="flex justify-between items-center text-sm bg-gray-50 p-2 rounded-lg border border-gray-100 group">
+                                       <div className="flex-1"><span className="font-medium text-gray-900">{item.description}</span> <span className="text-gray-400 text-xs">x{item.quantity}</span></div>
+                                       <div className="flex items-center gap-3">
+                                           <span className="font-mono font-bold">${(item.amount * item.quantity).toFixed(2)}</span>
+                                           <button onClick={() => handleRemoveItem(item.id)} className="text-gray-300 hover:text-red-500"><X className="w-3 h-3" /></button>
+                                       </div>
+                                   </div>
+                               ))}
+                           </div>
+                       ) : (
+                           <div className="mb-4">
+                               <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Manual Total Price</label>
+                               <div className="relative">
+                                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
+                                   <input type="number" className="w-full pl-7 p-2 border border-gray-200 rounded-lg font-bold text-gray-900" placeholder="0.00" value={manualPriceOverride} onChange={(e) => setManualPriceOverride(e.target.value)} />
+                               </div>
+                           </div>
+                       )}
                     </div>
 
                     <div>
@@ -571,37 +601,36 @@ function EditProjectContent() {
 
                   <div className="mt-8">
                       <div className="bg-slate-900 text-white p-6 rounded-2xl shadow-lg mb-6">
-                        <div className="flex justify-between items-center mb-1"><span className="text-slate-400 text-sm font-medium">Subtotal</span><span className="text-slate-300 font-bold">${financials.subtotal.toFixed(2)}</span></div>
-                        
-                        {parseFloat(formData.taxRate) > 0 && (<div className="flex justify-between items-center mb-1 pb-1 border-b border-slate-800/50"><span className="text-slate-400 text-sm font-medium">Tax ({formData.taxRate}%)</span><span className="text-slate-300 font-bold">+${financials.taxAmount.toFixed(2)}</span></div>)}
-                        {includeFee && (<div className="flex justify-between items-center mb-3 pb-3 border-b border-slate-800"><span className="text-slate-400 text-sm font-medium">Processing Fee (3.9%)</span><span className="text-slate-300 font-bold">+${financials.feeAmount.toFixed(2)}</span></div>)}
-
-                        <div className="flex justify-between items-end mb-4"><span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Contract Value</span><div className="text-right leading-none"><span className="text-3xl font-bold">${financials.grandTotal.toFixed(2)}</span></div></div>
+                        <div className="flex justify-between items-center mb-1 text-sm"><span className="text-slate-400">Subtotal</span><span>${financials.subtotal.toFixed(2)}</span></div>
+                        {parseFloat(formData.taxRate) > 0 && (<div className="flex justify-between items-center mb-1 text-sm"><span className="text-slate-400">Tax ({formData.taxRate}%)</span><span>+${financials.taxAmount.toFixed(2)}</span></div>)}
+                        {includeFee && <div className="flex justify-between items-center mb-3 pb-3 border-b border-slate-700 text-sm"><span className="text-slate-400">Fee (3.9%)</span><span>+${financials.feeAmount.toFixed(2)}</span></div>}
+                        <div className="flex justify-between items-end"><span className="text-xs font-bold uppercase text-slate-400">Total</span><span className="text-3xl font-bold">${financials.grandTotal.toFixed(2)}</span></div>
                         
                         {/* DEPOSIT DISPLAY */}
                         {!isSplit && depositType !== 'none' && paymentType === 'one_time' && (
-                            <div className="bg-emerald-900/50 border border-emerald-800 rounded-lg p-3 flex justify-between items-center animate-in fade-in slide-in-from-bottom-2">
-                                <span className="text-emerald-400 text-sm font-bold uppercase tracking-wider">Due Now (Deposit)</span>
+                            <div className="bg-emerald-900/50 border border-emerald-800 rounded-lg p-3 flex justify-between items-center mt-4">
+                                <span className="text-emerald-400 text-sm font-bold uppercase tracking-wider">Due Now</span>
                                 <span className="text-xl font-bold text-white">${financials.depositAmount.toFixed(2)}</span>
                             </div>
                         )}
 
                         {/* SPLIT DISPLAY */}
                         {isSplit && (
-                            <div className="bg-indigo-900/50 border border-indigo-800 rounded-lg p-3 flex justify-between items-center animate-in fade-in slide-in-from-bottom-2">
+                            <div className="bg-indigo-900/50 border border-indigo-800 rounded-lg p-3 flex justify-between items-center mt-4">
                                 <span className="text-indigo-300 text-sm font-bold uppercase tracking-wider">Per Payment</span>
                                 <span className="text-xl font-bold text-white">${financials.splitAmount.toFixed(2)}</span>
                             </div>
                         )}
                       </div>
-                       {/* ⚡ SMART BUTTON: Changes if Signatures Exist */}
-                       <button 
-                         onClick={handleSubmit} 
-                         disabled={saving} 
-                         className={`w-full font-bold py-4 rounded-xl transition-all shadow-md hover:shadow-lg text-lg transform hover:-translate-y-0.5 ${confirmUpdate ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-black text-white hover:bg-gray-900'}`}
-                       >
-                         {saving ? <><Loader2 className="w-5 h-5 animate-spin inline-block mr-2"/>Updating...</> : (confirmUpdate ? '⚠️ Reset Signatures & Update?' : 'Update Contract')}
-                       </button>
+
+                      {/* ⚡ SMART BUTTON: Changes if Signatures Exist */}
+                        <button 
+                          onClick={handleSubmit} 
+                          disabled={saving} 
+                          className={`w-full font-bold py-4 rounded-xl transition-all shadow-md hover:shadow-lg text-lg transform hover:-translate-y-0.5 ${confirmUpdate ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-black text-white hover:bg-gray-900'}`}
+                        >
+                          {saving ? <><Loader2 className="w-5 h-5 animate-spin inline-block mr-2"/>Updating...</> : (confirmUpdate ? '⚠️ Reset Signatures & Update?' : 'Update Contract')}
+                        </button>
                       <p className="text-center text-xs text-gray-400 mt-4 leading-relaxed max-w-sm mx-auto">By clicking Update, you agree to the <Link href="/terms-of-service" className="underline hover:text-gray-600">Terms</Link>. You acknowledge that editing this document will require re-signing by all parties.</p>
                   </div>
               </div>
