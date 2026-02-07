@@ -16,18 +16,36 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-// --- 🧠 THE BRAIN: Smart Slug Resolver ---
+// --- 🧠 THE BRAIN: Smart Slug Resolver (Upgraded) ---
 async function findDoc(slug: string) {
   
-  // 1. PRIORITY: Check 'sow_documents' (Your Custom System Templates)
+  // 1. PRIORITY: Check 'sow_documents' (System Templates)
   const { data: sowDoc } = await supabase.from('sow_documents').select('*').eq('slug', slug).single();
   if (sowDoc) return { doc: sowDoc, source: 'sow' };
 
-  // 2. FALLBACK: Check 'seo_pages' (The SEO Content)
-  let { data: seoDoc } = await supabase.from('seo_pages').select('*').eq('slug', slug).single();
-  if (seoDoc) return { doc: seoDoc, source: 'seo' };
+  // 2. EXACT MATCH: Check 'seo_pages' for the new URL format
+  let { data: exactDoc } = await supabase.from('seo_pages').select('*').eq('slug', slug).single();
+  if (exactDoc) return { doc: exactDoc, source: 'seo' };
 
-  // 3. DICTIONARY: Fix known mismatches
+  // 3. 🛡️ SAFETY NET: The "Rescue" Logic
+  // This catches cases where the URL redirected but the DB row hasn't been renamed yet.
+  
+  // A. Try removing "-contract-template" (e.g. "plumber-contract-template" -> "plumber")
+  const baseSlug = slug.replace(/-contract-template$/, '');
+  
+  if (baseSlug !== slug) {
+     // Check if "plumber" exists
+     const { data: baseDoc } = await supabase.from('seo_pages').select('*').eq('slug', baseSlug).single();
+     if (baseDoc) return { doc: baseDoc, source: 'seo' };
+  }
+
+  // B. Try the OLD "hire-" format (e.g. "hire-plumber")
+  // This is the most likely fallback for your current situation.
+  const oldHireSlug = `hire-${baseSlug}`;
+  const { data: hireDoc } = await supabase.from('seo_pages').select('*').eq('slug', oldHireSlug).single();
+  if (hireDoc) return { doc: hireDoc, source: 'seo' };
+
+  // 4. DICTIONARY: Manual overrides for known tricky ones
   const manualOverrides: Record<string, string> = {
     'graphic-design-contract': 'freelance-logo-designer',
     'video-editor-contract': 'freelance-videographer',
@@ -35,7 +53,9 @@ async function findDoc(slug: string) {
     'web-development-contract': 'hire-wordpress-developer',
     'social-media-manager-contract': 'hire-twitter-manager',
     'seo-specialist-contract': 'hire-local-seo-expert',
-    'copywriting-contract': 'case-study-copywriter', 
+    'copywriting-contract': 'case-study-copywriter',
+    // The specific fix for your 404 error:
+    'freelance-grant-writer-contract-template': 'hire-freelance-grant-writer',
   };
 
   if (manualOverrides[slug]) {
