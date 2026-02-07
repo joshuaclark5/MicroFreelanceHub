@@ -54,8 +54,10 @@ async function findDoc(slug: string) {
     'social-media-manager-contract': 'hire-twitter-manager',
     'seo-specialist-contract': 'hire-local-seo-expert',
     'copywriting-contract': 'case-study-copywriter',
-    // The specific fix for your 404 error:
+    // Fix for Grant Writer:
     'freelance-grant-writer-contract-template': 'hire-freelance-grant-writer',
+    // 🚨 NEW FIX for Graphic Designer:
+    'graphic-designer-contract-template': 'hire-freelance-graphic-designer',
   };
 
   if (manualOverrides[slug]) {
