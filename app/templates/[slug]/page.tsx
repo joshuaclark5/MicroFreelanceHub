@@ -2,6 +2,13 @@ import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
+import { 
+  Shield, 
+  CheckCircle, 
+  FileText, 
+  ArrowRight, 
+  Star
+} from 'lucide-react';
 
 // Initialize Supabase (Public)
 const supabase = createClient(
@@ -56,12 +63,15 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const { doc, source } = result;
   const title = source === 'sow' ? doc.title : (doc.job_title || doc.keyword);
   const displayTitle = toTitleCase(title);
+  
+  // Use the new hook for description if available
+  const hook = doc.pain_point_hook || `Download a professional ${displayTitle} contract. Includes scope, payments, and legal terms.`;
 
   return {
     title: `Free ${displayTitle} Contract Template (2026)`,
-    description: `Download a professional ${displayTitle} contract. Includes scope, payments, and legal terms.`,
+    description: hook,
     
-    // 🚨 THIS IS THE CRITICAL FIX FOR SEO DUPLICATES
+    // 🚨 SEO DUPLICATE FIX
     alternates: {
       canonical: `https://www.microfreelancehub.com/templates/${params.slug}`,
     },
@@ -79,31 +89,70 @@ export default async function TemplatePage({ params }: { params: { slug: string 
   const title = toTitleCase(source === 'sow' ? doc.title : (doc.job_title || doc.keyword));
   const price = source === 'sow' ? doc.price : 0;
   
+  // 🆕 ENRICHED DATA (The "Beefy" Update)
+  const documentType = doc.document_type || 'Contract';
+  const painPoint = doc.pain_point_hook || `A battle-tested agreement for ${title}s. Define your scope, set your price, and protect your time.`;
+  const legalTip = doc.legal_tip; // Might be null, handled below
+  
   const rawDeliverables = doc.deliverables;
   const deliverablesList = Array.isArray(rawDeliverables) 
     ? rawDeliverables 
-    : (typeof rawDeliverables === 'string' ? [rawDeliverables] : ["Scope of work details..."]);
+    : (typeof rawDeliverables === 'string' ? [rawDeliverables] : ["Scope of work details...", "Payment Milestones", "Timeline"]);
 
   // 🧠 SMART FILLER TEXT
   const introParagraph = `This Agreement is entered into by and between the Client and the Contractor. The Client wishes to engage the Contractor for professional ${title} services, and the Contractor agrees to perform such services in accordance with the terms and conditions set forth below.`;
   
   const standardsParagraph = `The Contractor agrees to perform the ${title} services in a professional manner, using the degree of skill and care that is required by current industry standards. The Contractor shall provide all tools and equipment necessary to complete the tasks unless otherwise agreed.`;
 
+  // 🆕 FETCH RELATED TEMPLATES (If Batch Label Exists)
+  let relatedDocs = [];
+  if (doc.batch_label) {
+    const { data } = await supabase.from('seo_pages')
+      .select('slug, job_title')
+      .eq('batch_label', doc.batch_label)
+      .neq('slug', params.slug) // Don't show current page
+      .limit(3);
+    relatedDocs = data || [];
+  }
+
   return (
-    <div className="min-h-screen bg-white font-sans text-slate-900">
+    <div className="min-h-screen bg-white font-sans text-slate-900 pb-20">
       
       {/* HEADER */}
       <div className="bg-slate-900 text-white py-16 md:py-24 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-block px-3 py-1 bg-blue-600 rounded-full text-xs font-bold mb-6 uppercase tracking-wider">
-            Verified Template
+          
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-600 rounded-full text-xs font-bold uppercase tracking-wider">
+              <FileText className="w-3.5 h-3.5" /> {documentType} Template
+            </div>
+            <div className="text-slate-400 text-xs font-medium">
+               Updated {new Date().getFullYear()}
+            </div>
           </div>
+
           <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight leading-tight">
             Free <span className="text-blue-400">{title}</span> Template
           </h1>
+          
+          {/* 🧠 DYNAMIC PAIN POINT HOOK */}
           <p className="text-lg md:text-xl text-slate-300 mb-8 max-w-2xl mx-auto leading-relaxed">
-            A battle-tested agreement for {title}s. Define your scope, set your price, and protect your time.
+            {painPoint}
           </p>
+          
+          {/* 🛡️ PRO LEGAL TIP (Conditional Render) */}
+          {legalTip && (
+             <div className="max-w-2xl mx-auto bg-amber-500/10 border border-amber-500/30 p-4 rounded-xl mb-8 flex gap-4 text-left">
+                <div className="bg-amber-500/20 p-2 rounded-lg shrink-0 h-fit">
+                   <Shield className="w-5 h-5 text-amber-400" />
+                </div>
+                <div>
+                   <h3 className="font-bold text-amber-400 text-xs uppercase mb-1">Pro Legal Tip</h3>
+                   <p className="text-amber-100 text-sm leading-relaxed">{legalTip}</p>
+                </div>
+             </div>
+          )}
+
           <Link href={`/create?template=${params.slug}`}>
             <button className="bg-white text-blue-900 font-bold px-8 py-4 rounded-full text-lg shadow-xl hover:bg-blue-50 hover:-translate-y-1 transition-all">
               ✨ Customize This Contract
@@ -115,8 +164,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
       {/* TWO COLUMN LAYOUT */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 grid lg:grid-cols-2 gap-12 lg:gap-20">
         
-        {/* LEFT: Educational Content (CLEANED UP) */}
-        <div className="flex flex-col justify-center">
+        {/* LEFT: Educational Content */}
+        <div className="flex flex-col">
           
           {/* Section 1: The 'Why' */}
           <div className="mb-10">
@@ -125,49 +174,44 @@ export default async function TemplatePage({ params }: { params: { slug: string 
             </h2>
             <p className="text-base md:text-lg text-slate-600 leading-relaxed">
               Handshake deals are risky. As a <strong>{title}</strong>, "scope creep" is your biggest enemy. 
-              A client asks for "one small change," and suddenly you're working for free. This template protects you.
+              A clear <strong>Statement of Work (SOW)</strong> ensures everyone agrees on the deliverables before money changes hands.
             </p>
           </div>
           
-          {/* Section 2: What's Included (Card Style) */}
+          {/* Section 2: What's Included */}
           <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 md:p-8 mb-10">
             <h3 className="text-lg md:text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
               <span className="text-blue-600">🛡️</span> What this template covers:
             </h3>
             <ul className="space-y-4">
-               <li className="flex gap-4 items-start">
-                  <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center shrink-0 text-green-600 font-bold text-sm">✓</div>
-                  <div>
-                    <strong className="block text-slate-900">Deliverables List</strong>
-                    <span className="text-slate-600 text-sm">Clear output definitions.</span>
-                  </div>
-               </li>
-               <li className="flex gap-4 items-start">
-                  <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center shrink-0 text-green-600 font-bold text-sm">✓</div>
-                  <div>
-                    <strong className="block text-slate-900">Payment Terms</strong>
-                    <span className="text-slate-600 text-sm">Deposit and final payment schedule.</span>
-                  </div>
-               </li>
-               <li className="flex gap-4 items-start">
-                  <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center shrink-0 text-green-600 font-bold text-sm">✓</div>
-                  <div>
-                    <strong className="block text-slate-900">IP Rights</strong>
-                    <span className="text-slate-600 text-sm">Who owns the work upon payment.</span>
-                  </div>
-               </li>
-               <li className="flex gap-4 items-start">
-                  <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center shrink-0 text-green-600 font-bold text-sm">✓</div>
-                  <div>
-                    <strong className="block text-slate-900">Revision Limits</strong>
-                    <span className="text-slate-600 text-sm">Prevent endless feedback loops.</span>
-                  </div>
-               </li>
+               {['Deliverables List', 'Payment Terms', 'IP Rights', 'Revision Limits', 'Cancellation Policy'].map((item, i) => (
+                  <li key={i} className="flex gap-4 items-start">
+                    <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center shrink-0 text-green-600 font-bold text-sm">✓</div>
+                    <span className="font-bold text-slate-900">{item}</span>
+                  </li>
+               ))}
             </ul>
           </div>
 
-          {/* Section 3: CTA Box */}
-          <div className="p-6 bg-blue-50 rounded-xl border border-blue-100">
+          {/* 🆕 Section 3: Related Templates (Dynamic) */}
+          {relatedDocs.length > 0 && (
+             <div className="mb-10">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Related Templates</h3>
+                <div className="space-y-3">
+                   {relatedDocs.map((item: any) => (
+                      <Link key={item.slug} href={`/templates/${item.slug}`} className="block group">
+                         <div className="bg-white border border-slate-200 p-4 rounded-xl hover:border-blue-400 hover:shadow-md transition-all flex items-center justify-between">
+                            <span className="font-bold text-slate-800 text-sm group-hover:text-blue-600">{item.job_title}</span>
+                            <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500" />
+                         </div>
+                      </Link>
+                   ))}
+                </div>
+             </div>
+          )}
+
+          {/* Section 4: CTA Box */}
+          <div className="p-6 bg-blue-50 rounded-xl border border-blue-100 mt-auto">
             <h4 className="font-bold text-blue-900 mb-2 text-lg">Ready to send?</h4>
             <p className="text-slate-700 mb-4 leading-relaxed">
               Our AI will fill in the client's name, dates, and specific project details for you.
