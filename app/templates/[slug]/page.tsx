@@ -56,8 +56,12 @@ async function findDoc(slug: string) {
     'copywriting-contract': 'case-study-copywriter',
     // Fix for Grant Writer:
     'freelance-grant-writer-contract-template': 'hire-freelance-grant-writer',
-    // 🚨 NEW FIX for Graphic Designer:
+    // Fix for Graphic Designer:
     'graphic-designer-contract-template': 'hire-freelance-graphic-designer',
+    
+    // ✅ THE NEW FIXES:
+    'commercial-photographer-contract-template': 'commercial-photography-rates',
+    'game-developer-contract-template': 'game-developer-rates',
   };
 
   if (manualOverrides[slug]) {
@@ -162,14 +166,15 @@ export default async function TemplatePage({ params }: { params: { slug: string 
             {painPoint}
           </p>
           
-          {/* 🛡️ PRO LEGAL TIP (Conditional Render) */}
+          {/* 🛡️ PRO CONTRACTOR TIP (Conditional Render) */}
           {legalTip && (
              <div className="max-w-2xl mx-auto bg-amber-500/10 border border-amber-500/30 p-4 rounded-xl mb-8 flex gap-4 text-left">
                 <div className="bg-amber-500/20 p-2 rounded-lg shrink-0 h-fit">
                    <Shield className="w-5 h-5 text-amber-400" />
                 </div>
                 <div>
-                   <h3 className="font-bold text-amber-400 text-xs uppercase mb-1">Pro Legal Tip</h3>
+                   {/* ✅ SAFETY FIX: Changed 'Legal' to 'Contractor' */}
+                   <h3 className="font-bold text-amber-400 text-xs uppercase mb-1">Pro Contractor Tip</h3>
                    <p className="text-amber-100 text-sm leading-relaxed">{legalTip}</p>
                 </div>
              </div>
@@ -310,6 +315,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                 <p>1. <strong>Payment:</strong> 50% Non-refundable deposit required to begin work.</p>
                 <p>2. <strong>Copyright:</strong> Rights transfer to Client only upon full payment.</p>
                 <p>3. <strong>Liability:</strong> Contractor liability limited to total project fee.</p>
+                <p className="mt-4 italic text-[9px] text-slate-300">Disclaimer: This template is for educational purposes only and does not constitute legal advice.</p>
               </div>
 
               {/* Overlay Button */}
