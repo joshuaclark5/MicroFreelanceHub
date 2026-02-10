@@ -12,7 +12,6 @@ if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) throw new Error('MISSING: GOOGLE_
 
 // --- CONFIGURATION ---
 // ⚡ SPEED DEMON MODE
-// Since you added billing, we can go fast.
 const DELAY_MS = 500;   // Wait only 0.5 seconds between items
 
 // --- INIT CLIENTS ---
@@ -25,16 +24,17 @@ const model = google('gemini-flash-latest');
 
 // --- MAIN FUNCTION ---
 async function enrichContent() {
-  console.log('💎 Starting SEO Enrichment (SPEED MODE)...');
+  console.log('💎 Starting SEO Enrichment V2 (Hooks + Tips + Deliverables)...');
 
   // Loop until no more rows are found
   while (true) {
     // 1. Fetch rows that need content
+    // We check if 'deliverables' is NULL to target the new batch
     const { data: rows, error } = await supabase
       .from('seo_pages')
       .select('id, job_title, slug')
-      .is('pain_point_hook', null)
-      .limit(50); // Increased batch size to 50 for efficiency
+      .is('deliverables', null) 
+      .limit(50); // Increased batch size for efficiency
 
     if (error) {
       console.error('❌ DB Error:', error);
@@ -69,15 +69,17 @@ async function processRowWithRetry(row: { id: string; job_title: string }) {
         You are a grumpy, seasoned veteran contractor and freelancer mentor. 
         You speak in direct, punchy, "Blue Collar" professional terms. No fluff.
         
-        TASK: Generate a "Pain Point Hook" and a "Legal Tip" for a: ${row.job_title}.
+        TASK: Generate Content for a: ${row.job_title}.
         
         1. pain_point_hook: 2 sentences max. Focus on specific financial risks (lost money, damaged gear, lawsuits). VISCERAL.
         2. legal_tip: 1 sentence. Recommend a specific contract clause (e.g. "Kill Fee", "Overtime", "Lien Waiver").
+        3. deliverables: A JSON Array of 5-7 specific, physical tasks this job performs. (e.g. "Rough-in Inspection", "Pressure Test", "Debris Removal").
         
         CRITICAL OUTPUT FORMAT: Return ONLY a valid JSON object.
         {
           "pain_point_hook": "...",
-          "legal_tip": "..."
+          "legal_tip": "...",
+          "deliverables": ["...", "..."]
         }
       `;
 
@@ -94,12 +96,15 @@ async function processRowWithRetry(row: { id: string; job_title: string }) {
         .from('seo_pages')
         .update({
           pain_point_hook: json.pain_point_hook,
-          legal_tip: json.legal_tip
+          legal_tip: json.legal_tip,
+          deliverables: json.deliverables // ✅ Now saving the checklist!
         })
         .eq('id', row.id);
 
       if (error) throw error;
-      console.log(`   ✅ Saved: "${json.legal_tip.substring(0, 40)}..."`);
+      // Show us the first deliverable so we know it worked
+      const preview = json.deliverables ? json.deliverables[0] : "No deliverables";
+      console.log(`   ✅ Saved: "${preview}..."`);
       return; // Success! Exit the retry loop
 
     } catch (err: any) {
@@ -107,7 +112,7 @@ async function processRowWithRetry(row: { id: string; job_title: string }) {
       console.error(`   ⚠️ Attempt ${attempts} failed: ${err.message}`);
       
       if (err.message.includes('Quota exceeded') || err.message.includes('429')) {
-        console.log('   ⏳ Hit rate limit (Even on paid?). Sleeping for 30 seconds...');
+        console.log('   ⏳ Hit rate limit. Sleeping for 30 seconds...');
         await new Promise(r => setTimeout(r, 30000)); 
       } else {
         // If it's a different error, short wait
