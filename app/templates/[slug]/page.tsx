@@ -4,11 +4,11 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { 
   Shield, 
-  CheckCircle, 
   FileText, 
-  ArrowRight, 
-  Star
+  ArrowRight
 } from 'lucide-react';
+// 👇 1. IMPORT THE NEW WIDGET
+import RelatedRoles from '../../components/seo/RelatedRoles';
 
 // Initialize Supabase (Public)
 const supabase = createClient(
@@ -28,24 +28,18 @@ async function findDoc(slug: string) {
   if (exactDoc) return { doc: exactDoc, source: 'seo' };
 
   // 3. 🛡️ SAFETY NET: The "Rescue" Logic
-  // This catches cases where the URL redirected but the DB row hasn't been renamed yet.
-  
-  // A. Try removing "-contract-template" (e.g. "plumber-contract-template" -> "plumber")
   const baseSlug = slug.replace(/-contract-template$/, '');
   
   if (baseSlug !== slug) {
-     // Check if "plumber" exists
-     const { data: baseDoc } = await supabase.from('seo_pages').select('*').eq('slug', baseSlug).single();
-     if (baseDoc) return { doc: baseDoc, source: 'seo' };
+      const { data: baseDoc } = await supabase.from('seo_pages').select('*').eq('slug', baseSlug).single();
+      if (baseDoc) return { doc: baseDoc, source: 'seo' };
   }
 
-  // B. Try the OLD "hire-" format (e.g. "hire-plumber")
-  // This is the most likely fallback for your current situation.
   const oldHireSlug = `hire-${baseSlug}`;
   const { data: hireDoc } = await supabase.from('seo_pages').select('*').eq('slug', oldHireSlug).single();
   if (hireDoc) return { doc: hireDoc, source: 'seo' };
 
-  // 4. DICTIONARY: Manual overrides for known tricky ones
+  // 4. DICTIONARY: Manual overrides
   const manualOverrides: Record<string, string> = {
     'graphic-design-contract': 'freelance-logo-designer',
     'video-editor-contract': 'freelance-videographer',
@@ -54,12 +48,8 @@ async function findDoc(slug: string) {
     'social-media-manager-contract': 'hire-twitter-manager',
     'seo-specialist-contract': 'hire-local-seo-expert',
     'copywriting-contract': 'case-study-copywriter',
-    // Fix for Grant Writer:
     'freelance-grant-writer-contract-template': 'hire-freelance-grant-writer',
-    // Fix for Graphic Designer:
     'graphic-designer-contract-template': 'hire-freelance-graphic-designer',
-    
-    // ✅ THE NEW FIXES:
     'commercial-photographer-contract-template': 'commercial-photography-rates',
     'game-developer-contract-template': 'game-developer-rates',
   };
@@ -81,7 +71,7 @@ function toTitleCase(str: string | null) {
   });
 }
 
-// --- METADATA (Updated with Canonical Fix) ---
+// --- METADATA ---
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const result = await findDoc(params.slug);
   if (!result) return { title: 'Template Not Found' };
@@ -90,14 +80,11 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const title = source === 'sow' ? doc.title : (doc.job_title || doc.keyword);
   const displayTitle = toTitleCase(title);
   
-  // Use the new hook for description if available
   const hook = doc.pain_point_hook || `Download a professional ${displayTitle} contract. Includes scope, payments, and legal terms.`;
 
   return {
     title: `Free ${displayTitle} Contract Template (2026)`,
     description: hook,
-    
-    // 🚨 SEO DUPLICATE FIX
     alternates: {
       canonical: `https://www.microfreelancehub.com/templates/${params.slug}`,
     },
@@ -115,28 +102,26 @@ export default async function TemplatePage({ params }: { params: { slug: string 
   const title = toTitleCase(source === 'sow' ? doc.title : (doc.job_title || doc.keyword));
   const price = source === 'sow' ? doc.price : 0;
   
-  // 🆕 ENRICHED DATA (The "Beefy" Update)
   const documentType = doc.document_type || 'Contract';
   const painPoint = doc.pain_point_hook || `A battle-tested agreement for ${title}s. Define your scope, set your price, and protect your time.`;
-  const legalTip = doc.legal_tip; // Might be null, handled below
+  const legalTip = doc.legal_tip;
   
   const rawDeliverables = doc.deliverables;
   const deliverablesList = Array.isArray(rawDeliverables) 
     ? rawDeliverables 
     : (typeof rawDeliverables === 'string' ? [rawDeliverables] : ["Scope of work details...", "Payment Milestones", "Timeline"]);
 
-  // 🧠 SMART FILLER TEXT
   const introParagraph = `This Agreement is entered into by and between the Client and the Contractor. The Client wishes to engage the Contractor for professional ${title} services, and the Contractor agrees to perform such services in accordance with the terms and conditions set forth below.`;
   
   const standardsParagraph = `The Contractor agrees to perform the ${title} services in a professional manner, using the degree of skill and care that is required by current industry standards. The Contractor shall provide all tools and equipment necessary to complete the tasks unless otherwise agreed.`;
 
-  // 🆕 FETCH RELATED TEMPLATES (If Batch Label Exists)
+  // Inline Related (Keep this for the sidebar)
   let relatedDocs = [];
   if (doc.batch_label) {
     const { data } = await supabase.from('seo_pages')
       .select('slug, job_title')
       .eq('batch_label', doc.batch_label)
-      .neq('slug', params.slug) // Don't show current page
+      .neq('slug', params.slug)
       .limit(3);
     relatedDocs = data || [];
   }
@@ -161,19 +146,16 @@ export default async function TemplatePage({ params }: { params: { slug: string 
             Free <span className="text-blue-400">{title}</span> Template
           </h1>
           
-          {/* 🧠 DYNAMIC PAIN POINT HOOK */}
           <p className="text-lg md:text-xl text-slate-300 mb-8 max-w-2xl mx-auto leading-relaxed">
             {painPoint}
           </p>
           
-          {/* 🛡️ PRO CONTRACTOR TIP (Conditional Render) */}
           {legalTip && (
              <div className="max-w-2xl mx-auto bg-amber-500/10 border border-amber-500/30 p-4 rounded-xl mb-8 flex gap-4 text-left">
                 <div className="bg-amber-500/20 p-2 rounded-lg shrink-0 h-fit">
                    <Shield className="w-5 h-5 text-amber-400" />
                 </div>
                 <div>
-                   {/* ✅ SAFETY FIX: Changed 'Legal' to 'Contractor' */}
                    <h3 className="font-bold text-amber-400 text-xs uppercase mb-1">Pro Contractor Tip</h3>
                    <p className="text-amber-100 text-sm leading-relaxed">{legalTip}</p>
                 </div>
@@ -220,7 +202,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
             </ul>
           </div>
 
-          {/* 🆕 Section 3: Related Templates (Dynamic) */}
+          {/* Section 3: Sidebar Related Templates */}
           {relatedDocs.length > 0 && (
              <div className="mb-10">
                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Related Templates</h3>
@@ -332,6 +314,12 @@ export default async function TemplatePage({ params }: { params: { slug: string 
         </div>
 
       </div>
+
+      {/* 👇 2. INJECT THE WIDGET AT THE BOTTOM */}
+      <div className="max-w-7xl mx-auto px-4 pb-20">
+          <RelatedRoles currentSlug={params.slug} batchLabel={doc.batch_label} />
+      </div>
+
     </div>
   );
 }

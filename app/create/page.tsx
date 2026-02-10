@@ -161,10 +161,32 @@ function CreateProjectContent() {
 
   // Helper to clean up lists
   const formatDeliverablesList = (raw: any) => {
-      if (typeof raw === 'string') return raw;
+      if (!raw) return "• Scope details...";
+      
+      // 1. If it's already a clean array
       if (Array.isArray(raw)) {
           return raw.map(item => `• ${item}`).join('\n');
       }
+
+      // 2. If it's a string, check if it's "Ugly JSON" (starts with { or [)
+      if (typeof raw === 'string') {
+          const trimmed = raw.trim();
+          if ((trimmed.startsWith('{') || trimmed.startsWith('[')) && trimmed.endsWith('}')) {
+              try {
+                  // Remove curly braces and quotes to make it readable
+                  const clean = trimmed
+                      .replace(/^\{|^\[|^\}|\]$/g, '') // Remove brackets
+                      .split(',') // Split by comma
+                      .map((s: string) => `• ${s.trim().replace(/^"|"$/g, '')}`) // Remove quotes
+                      .join('\n');
+                  return clean;
+              } catch (e) {
+                  return raw; // Fallback
+              }
+          }
+          return raw; // It's just a normal string
+      }
+      
       return "• Scope details...";
   };
 
@@ -576,7 +598,7 @@ If the Client cancels the project after work has begun, the Freelancer retains t
                              <CalendarDays className="w-4 h-4" /> <span className="hidden sm:inline">Monthly</span>
                           </button>
                           
-                          {/* 🆕 AGREEMENT ONLY (PRO FEATURE) */}
+                          {/* 🆕 AGREEMENT ONLY (PRO FEATURE) - FIXED ALIGNMENT */}
                           <button 
                              onClick={() => {
                                  if (!isPro) {
@@ -587,9 +609,9 @@ If the Client cancels the project after work has begun, the Freelancer retains t
                                      setManualPriceOverride('0'); // Free
                                  }
                              }}
-                             className={`flex-1 py-2 px-2 rounded-lg text-xs font-bold border transition-all flex items-center justify-center gap-1.5 ${paymentType === 'none' ? 'bg-black text-white border-black' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}
+                             className={`flex-1 py-2 px-2 rounded-lg text-xs font-bold border transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 ${paymentType === 'none' ? 'bg-black text-white border-black' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}
                           >
-                             {isPro ? <FileSignature className="w-3.5 h-3.5 flex-shrink-0" /> : <Lock className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />}
+                             {isPro ? <FileSignature className="w-4 h-4 flex-shrink-0" /> : <Lock className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />}
                              <span className="leading-tight text-center">Agreement Only</span>
                           </button>
                        </div>
@@ -776,9 +798,9 @@ If the Client cancels the project after work has begun, the Freelancer retains t
 }
 
 export default function CreateProject() {
-  return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-500 font-medium">Loading editor...</div>}>
-      <CreateProjectContent />
-    </Suspense>
-  );
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-500 font-medium">Loading editor...</div>}>
+      <CreateProjectContent />
+    </Suspense>
+  );
 }
