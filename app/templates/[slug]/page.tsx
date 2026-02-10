@@ -71,6 +71,26 @@ function toTitleCase(str: string | null) {
   });
 }
 
+// Helper: Get Document Label based on Job Title
+function getDocLabel(jobTitle: string) {
+  const whiteCollar = ['Designer', 'Developer', 'Consultant', 'Writer', 'Marketer', 'Manager', 'Strategist', 'Editor', 'Virtual Assistant', 'Analyst', 'Coach', 'Engineer'];
+  
+  // Normalize checking
+  const titleLower = jobTitle.toLowerCase();
+  const isWhiteCollar = whiteCollar.some(role => titleLower.includes(role.toLowerCase()));
+  
+  return isWhiteCollar ? "Statement of Work (SOW)" : "Service Agreement";
+}
+
+function getDocHeader(jobTitle: string) {
+  const whiteCollar = ['Designer', 'Developer', 'Consultant', 'Writer', 'Marketer', 'Manager', 'Strategist', 'Editor', 'Virtual Assistant', 'Analyst', 'Coach', 'Engineer'];
+   
+  const titleLower = jobTitle.toLowerCase();
+  const isWhiteCollar = whiteCollar.some(role => titleLower.includes(role.toLowerCase()));
+   
+  return isWhiteCollar ? "Statement of Work" : "Service Agreement";
+}
+
 // --- METADATA ---
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const result = await findDoc(params.slug);
@@ -79,11 +99,12 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const { doc, source } = result;
   const title = source === 'sow' ? doc.title : (doc.job_title || doc.keyword);
   const displayTitle = toTitleCase(title);
+  const docLabel = getDocLabel(displayTitle); // Determine label for metadata too
   
-  const hook = doc.pain_point_hook || `Download a professional ${displayTitle} contract. Includes scope, payments, and legal terms.`;
+  const hook = doc.pain_point_hook || `Download a professional ${displayTitle} ${docLabel}. Includes scope, payments, and legal terms.`;
 
   return {
-    title: `Free ${displayTitle} Contract Template (2026)`,
+    title: `Free ${displayTitle} ${docLabel} Template (2026)`,
     description: hook,
     alternates: {
       canonical: `https://www.microfreelancehub.com/templates/${params.slug}`,
@@ -99,9 +120,14 @@ export default async function TemplatePage({ params }: { params: { slug: string 
   const { doc, source } = result;
   
   // Normalize Data
-  const title = toTitleCase(source === 'sow' ? doc.title : (doc.job_title || doc.keyword));
+  const jobTitleRaw = source === 'sow' ? doc.title : (doc.job_title || doc.keyword);
+  const title = toTitleCase(jobTitleRaw);
   const price = source === 'sow' ? doc.price : 0;
   
+  // --- DYNAMIC LABEL LOGIC ---
+  const docLabel = getDocLabel(title);
+  const docHeader = getDocHeader(title);
+
   const documentType = doc.document_type || 'Contract';
   const painPoint = doc.pain_point_hook || `A battle-tested agreement for ${title}s. Define your scope, set your price, and protect your time.`;
   const legalTip = doc.legal_tip;
@@ -143,7 +169,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
           </div>
 
           <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight leading-tight">
-            Free <span className="text-blue-400">{title}</span> Template
+            Free <span className="text-blue-400">{title}</span> <br className="hidden md:block"/>
+            <span className="text-white">{docHeader} Template</span>
           </h1>
           
           <p className="text-lg md:text-xl text-slate-300 mb-8 max-w-2xl mx-auto leading-relaxed">
@@ -164,7 +191,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
 
           <Link href={`/create?template=${params.slug}`}>
             <button className="bg-white text-blue-900 font-bold px-8 py-4 rounded-full text-lg shadow-xl hover:bg-blue-50 hover:-translate-y-1 transition-all">
-              ✨ Customize This Contract
+              ✨ Customize This {docHeader}
             </button>
           </Link>
         </div>
@@ -179,11 +206,11 @@ export default async function TemplatePage({ params }: { params: { slug: string 
           {/* Section 1: The 'Why' */}
           <div className="mb-10">
             <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-4">
-              Why use a written contract?
+              Why use a written agreement?
             </h2>
             <p className="text-base md:text-lg text-slate-600 leading-relaxed">
               Handshake deals are risky. As a <strong>{title}</strong>, "scope creep" is your biggest enemy. 
-              A clear <strong>Statement of Work (SOW)</strong> ensures everyone agrees on the deliverables before money changes hands.
+              A clear <strong>{docLabel}</strong> ensures everyone agrees on the deliverables before money changes hands.
             </p>
           </div>
           
@@ -249,7 +276,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
               
               {/* HEADER */}
               <div className="border-b-2 border-slate-900 pb-4 mb-6 flex justify-between items-end">
-                <h2 className="text-xl md:text-2xl font-bold uppercase tracking-tight text-slate-900">Statement of Work</h2>
+                <h2 className="text-xl md:text-2xl font-bold uppercase tracking-tight text-slate-900">{docHeader}</h2>
                 <span className="text-xs md:text-sm font-mono text-slate-500">REF: {new Date().getFullYear()}-001</span>
               </div>
 
