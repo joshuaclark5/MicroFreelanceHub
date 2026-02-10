@@ -7,7 +7,8 @@ import { generateQuestions, generateFinalSOW, refineSOW } from '../actions/gener
 import Link from 'next/link';
 import { 
   ArrowLeft, Sparkles, PenTool, Trash2, Repeat, CreditCard, Wand2, 
-  AlertCircle, Plus, X, Undo2, CalendarClock, Split, Loader2, DollarSign
+  AlertCircle, Plus, X, Undo2, CalendarClock, Split, Loader2, DollarSign,
+  CalendarDays, Briefcase, FileSignature, Lock 
 } from 'lucide-react';
 import PricingModal from '../components/PricingModal';
 import { AuthRequiredModal } from '../components/modals/AuthRequiredModal';
@@ -70,7 +71,9 @@ function CreateProjectContent() {
   const [loadingMessage, setLoadingMessage] = useState('');
   const [questions, setQuestions] = useState<string[]>([]);
   const [answers, setAnswers] = useState<string[]>(['', '', '']);
-  const [paymentType, setPaymentType] = useState<'one_time' | 'monthly'>('one_time');
+  
+  // 🆕 PAYMENT TYPE (Now includes 'none')
+  const [paymentType, setPaymentType] = useState<'one_time' | 'monthly' | 'none'>('one_time');
 
   // AI Refiner State
   const [showAiRefiner, setShowAiRefiner] = useState(false);
@@ -128,6 +131,11 @@ function CreateProjectContent() {
 
   // --- DYNAMIC CONTENT GENERATORS ---
   const getPaymentTermsText = () => {
+    // 🆕 Agreement Only Clause
+    if (paymentType === 'none') {
+        return `1. PAYMENT TERMS\nThis agreement outlines the scope of work and legal terms. Payment handling is separate from this document and shall be arranged directly between Client and Contractor.`;
+    }
+
     const { depositAmount, grandTotal, splitAmount } = financials;
     const formattedDeposit = depositAmount.toFixed(2);
     const formattedTotal = grandTotal.toFixed(2);
@@ -140,7 +148,7 @@ function CreateProjectContent() {
     if (paymentTerms === 'net60') termsLabel = "Net 60 (due 60 days after completion)";
 
     if (paymentType === 'monthly') {
-        return `1. PAYMENT TERMS\nServices will be billed monthly at a rate of $${formattedTotal}. Payment is due upon receipt of invoice.`;
+        return `1. PAYMENT TERMS\nServices will be billed monthly at a rate of $${formattedTotal}. Payment is due upon receipt of invoice on a recurring basis.`;
     }
     if (isSplit) {
         return `1. PAYMENT TERMS\nThe Total Contract Value of $${formattedTotal} shall be paid in ${splitCount} installments of $${splitAmount.toFixed(2)}. The first installment is due immediately. Subsequent payments are due every ${splitFrequency} days.`;
@@ -149,6 +157,15 @@ function CreateProjectContent() {
         return `1. PAYMENT TERMS\nA deposit of $${formattedDeposit} is required to begin work. The remaining balance ($${remaining}) is ${termsLabel}.`;
     }
     return `1. PAYMENT TERMS\nFull payment of $${formattedTotal} is required. Terms: ${termsLabel}.`;
+  };
+
+  // Helper to clean up lists
+  const formatDeliverablesList = (raw: any) => {
+      if (typeof raw === 'string') return raw;
+      if (Array.isArray(raw)) {
+          return raw.map(item => `• ${item}`).join('\n');
+      }
+      return "• Scope details...";
   };
 
   const generateFullContract = (title: string, scopeBullets: string) => {
@@ -216,15 +233,15 @@ If the Client cancels the project after work has begun, the Freelancer retains t
         }
 
         if (foundData) {
-             const bullets = typeof foundData.deliverables === 'string' ? foundData.deliverables : "• Scope details...";
-             const fullContent = generateFullContract(foundData.title, bullets);
-             setFormData(prev => ({ ...prev, projectTitle: foundData.title, deliverables: fullContent, description: `Contract for ${foundData.title}` }));
-             
-             // Set initial manual price if template has one, but keep line items empty to let user build them
-             if(foundData.price) setManualPriceOverride(foundData.price.toString());
-             
-             setIsTemplateLoaded(true);
-             setStep('final'); 
+              // ✅ FIX: Use formatter here to prevent JSON string
+              const bullets = formatDeliverablesList(foundData.deliverables);
+              const fullContent = generateFullContract(foundData.title, bullets);
+              setFormData(prev => ({ ...prev, projectTitle: foundData.title, deliverables: fullContent, description: `Contract for ${foundData.title}` }));
+              
+              if(foundData.price) setManualPriceOverride(foundData.price.toString());
+              
+              setIsTemplateLoaded(true);
+              setStep('final'); 
         }
         if (localSlug) localStorage.removeItem('pending_template');
         setLoading(false);
@@ -248,7 +265,7 @@ If the Client cancels the project after work has begun, the Freelancer retains t
             const newTerms = getPaymentTermsText();
             const currentTermsSection = fullText.substring(startIndex, endIndex);
             if (!currentTermsSection.includes(newTerms.split('\n')[1])) { 
-                 setFormData(prev => ({ ...prev, deliverables: beforeTerms + newTerms + "\n\n" + afterTerms }));
+                  setFormData(prev => ({ ...prev, deliverables: beforeTerms + newTerms + "\n\n" + afterTerms }));
             }
         }
     }
@@ -358,7 +375,7 @@ If the Client cancels the project after work has begun, the Freelancer retains t
 
     // Prepare Line Items (If empty, create a dummy item for the total)
     let finalLineItems = [...lineItems];
-    if (finalLineItems.length === 0 && financials.subtotal > 0) {
+    if (finalLineItems.length === 0 && financials.subtotal > 0 && paymentType !== 'none') {
         finalLineItems.push({
             id: 'auto-generated',
             description: 'Project Service Fee',
@@ -367,7 +384,7 @@ If the Client cancels the project after work has begun, the Freelancer retains t
         });
     }
 
-    if (includeFee) {
+    if (includeFee && paymentType !== 'none') {
         finalLineItems.push({
             id: 'fee-auto',
             description: `Payment Processing Fee (3.9%)`, 
@@ -399,8 +416,8 @@ If the Client cancels the project after work has begun, the Freelancer retains t
       user_id: user.id,
       client_name: formData.clientName,
       title: formData.projectTitle,
-      price: financials.grandTotal,
-      line_items: finalLineItems, // 🆕 Saving the breakdown
+      price: paymentType === 'none' ? 0 : financials.grandTotal, // Zero price if agreement only
+      line_items: finalLineItems, 
       deliverables: formData.deliverables,
       status: 'Draft',
       payment_type: paymentType,
@@ -542,150 +559,208 @@ If the Client cancels the project after work has begun, the Freelancer retains t
                   <div className="space-y-6 flex-1">
                     <div><label className="block text-sm font-bold text-gray-700 mb-2">Client Name</label><input required type="text" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" value={formData.clientName} onChange={(e) => setFormData({...formData, clientName: e.target.value})} placeholder="e.g. John Smith" /></div>
                     
-                    {/* 🆕 INVOICE BUILDER (Trades Upgrade) */}
+                    {/* 🆕 PAYMENT STRUCTURE SELECTOR */}
                     <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                       <label className="block text-xs font-bold text-gray-500 uppercase mb-3">Itemized Invoice</label>
-                       
-                       {/* Add Item Row */}
-                       <div className="flex gap-2 items-end mb-4">
-                          <div className="flex-1">
-                             <input className="w-full p-2 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:bg-white transition-colors" placeholder="Item (e.g. Labor)" value={newItem.description} onChange={(e) => setNewItem({ ...newItem, description: e.target.value })} />
-                          </div>
-                          <div className="w-16">
-                             <input type="number" className="w-full p-2 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:bg-white text-center" placeholder="Qty" value={newItem.quantity} onChange={(e) => setNewItem({ ...newItem, quantity: parseInt(e.target.value) || 1 })} />
-                          </div>
-                          <div className="w-20">
-                             <input type="number" className="w-full p-2 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:bg-white" placeholder="Price" value={newItem.amount} onChange={(e) => setNewItem({ ...newItem, amount: e.target.value })} />
-                          </div>
-                          <button onClick={handleAddItem} className="p-2 bg-black text-white rounded-lg hover:bg-gray-800"><Plus className="w-4 h-4" /></button>
+                       <label className="block text-xs font-bold text-gray-500 uppercase mb-3">Structure</label>
+                       <div className="flex gap-2">
+                          <button 
+                             onClick={() => setPaymentType('one_time')}
+                             className={`flex-1 py-2 rounded-lg text-xs font-bold border transition-all flex items-center justify-center gap-2 ${paymentType === 'one_time' ? 'bg-black text-white border-black' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}
+                          >
+                             <Briefcase className="w-4 h-4" /> <span className="hidden sm:inline">One-Time</span>
+                          </button>
+                          <button 
+                             onClick={() => setPaymentType('monthly')}
+                             className={`flex-1 py-2 rounded-lg text-xs font-bold border transition-all flex items-center justify-center gap-2 ${paymentType === 'monthly' ? 'bg-black text-white border-black' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}
+                          >
+                             <CalendarDays className="w-4 h-4" /> <span className="hidden sm:inline">Monthly</span>
+                          </button>
+                          
+                          {/* 🆕 AGREEMENT ONLY (PRO FEATURE) */}
+                          <button 
+                             onClick={() => {
+                                 if (!isPro) {
+                                     setShowPricingModal(true);
+                                 } else {
+                                     setPaymentType('none');
+                                     setLineItems([]); // Clear money items
+                                     setManualPriceOverride('0'); // Free
+                                 }
+                             }}
+                             className={`flex-1 py-2 px-2 rounded-lg text-xs font-bold border transition-all flex items-center justify-center gap-1.5 ${paymentType === 'none' ? 'bg-black text-white border-black' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}
+                          >
+                             {isPro ? <FileSignature className="w-3.5 h-3.5 flex-shrink-0" /> : <Lock className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />}
+                             <span className="leading-tight text-center">Agreement Only</span>
+                          </button>
                        </div>
+                    </div>
 
-                       {/* Items List */}
-                       {lineItems.length > 0 ? (
-                           <div className="space-y-2 mb-4">
-                               {lineItems.map((item) => (
-                                   <div key={item.id} className="flex justify-between items-center text-sm bg-gray-50 p-2 rounded-lg border border-gray-100 group">
-                                       <div className="flex-1"><span className="font-medium text-gray-900">{item.description}</span> <span className="text-gray-400 text-xs">x{item.quantity}</span></div>
-                                       <div className="flex items-center gap-3">
-                                           <span className="font-mono font-bold">${(item.amount * item.quantity).toFixed(2)}</span>
-                                           <button onClick={() => handleRemoveItem(item.id)} className="text-gray-300 hover:text-red-500"><X className="w-3 h-3" /></button>
+                    {/* 🆕 HIDE MONEY SECTIONS IF AGREEMENT ONLY */}
+                    {paymentType !== 'none' && (
+                        <>
+                            {/* 🆕 INVOICE BUILDER (Trades Upgrade) */}
+                            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm animate-in fade-in slide-in-from-top-2">
+                               <label className="block text-xs font-bold text-gray-500 uppercase mb-3">Itemized Invoice</label>
+                               
+                               {/* Add Item Row */}
+                               <div className="flex gap-2 items-end mb-4">
+                                  <div className="flex-1">
+                                     <input className="w-full p-2 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:bg-white transition-colors" placeholder="Item (e.g. Labor)" value={newItem.description} onChange={(e) => setNewItem({ ...newItem, description: e.target.value })} />
+                                  </div>
+                                  <div className="w-16">
+                                     <input type="number" className="w-full p-2 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:bg-white text-center" placeholder="Qty" value={newItem.quantity} onChange={(e) => setNewItem({ ...newItem, quantity: parseInt(e.target.value) || 1 })} />
+                                  </div>
+                                  <div className="w-20">
+                                     <input type="number" className="w-full p-2 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:bg-white" placeholder="Price" value={newItem.amount} onChange={(e) => setNewItem({ ...newItem, amount: e.target.value })} />
+                                  </div>
+                                  <button onClick={handleAddItem} className="p-2 bg-black text-white rounded-lg hover:bg-gray-800"><Plus className="w-4 h-4" /></button>
+                               </div>
+
+                               {/* Items List */}
+                               {lineItems.length > 0 ? (
+                                   <div className="space-y-2 mb-4">
+                                       {lineItems.map((item) => (
+                                           <div key={item.id} className="flex justify-between items-center text-sm bg-gray-50 p-2 rounded-lg border border-gray-100 group">
+                                                   <div className="flex-1"><span className="font-medium text-gray-900">{item.description}</span> <span className="text-gray-400 text-xs">x{item.quantity}</span></div>
+                                                   <div className="flex items-center gap-3">
+                                                       <span className="font-mono font-bold">${(item.amount * item.quantity).toFixed(2)}</span>
+                                                       <button onClick={() => handleRemoveItem(item.id)} className="text-gray-300 hover:text-red-500"><X className="w-3 h-3" /></button>
+                                                   </div>
+                                           </div>
+                                       ))}
+                                   </div>
+                               ) : (
+                                   <div className="mb-4">
+                                       <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Manual Total Price</label>
+                                       <div className="relative">
+                                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
+                                           <input type="number" className="w-full pl-7 p-2 border border-gray-200 rounded-lg font-bold text-gray-900" placeholder="0.00" value={manualPriceOverride} onChange={(e) => setManualPriceOverride(e.target.value)} />
                                        </div>
                                    </div>
-                               ))}
-                           </div>
-                       ) : (
-                           <div className="mb-4">
-                               <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Manual Total Price</label>
-                               <div className="relative">
-                                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
-                                   <input type="number" className="w-full pl-7 p-2 border border-gray-200 rounded-lg font-bold text-gray-900" placeholder="0.00" value={manualPriceOverride} onChange={(e) => setManualPriceOverride(e.target.value)} />
-                               </div>
-                           </div>
-                       )}
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">Tax Rate (%)</label>
-                        <div className="relative"><input type="number" placeholder="0" className="w-full pl-4 pr-8 py-3 rounded-xl border border-gray-200 bg-white" value={formData.taxRate} onChange={(e) => setFormData({ ...formData, taxRate: e.target.value })} /><span className="absolute right-4 top-3.5 text-gray-500 font-bold">%</span></div>
-                        
-                        <div className="flex items-center gap-2 mt-4 select-none">
-                            <input type="checkbox" id="fee-toggle" checked={includeFee} onChange={(e) => setIncludeFee(e.target.checked)} className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer"/>
-                            <label htmlFor="fee-toggle" className="text-sm font-bold text-gray-700 cursor-pointer">3.9% Processing Fee <span className="text-xs font-normal text-gray-500">(Covers Stripe)</span></label>
-                        </div>
-                    </div>
-
-                    {/* Deposit & Terms Section */}
-                    {paymentType === 'one_time' && (
-                        <div className="pt-6 border-t border-gray-200 space-y-4">
-                            {/* Split Payment Toggle */}
-                            <div className="flex justify-between items-center mb-1">
-                                <label className="block text-sm font-bold text-gray-700">Split into Installments?</label>
-                                <button 
-                                    onClick={() => { setIsSplit(!isSplit); setDepositType('none'); }}
-                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isSplit ? 'bg-black' : 'bg-gray-200'}`}
-                                >
-                                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isSplit ? 'translate-x-6' : 'translate-x-1'}`} />
-                                </button>
+                               )}
                             </div>
 
-                            {isSplit ? (
-                                <div className="space-y-3 bg-gray-50 p-4 rounded-xl border border-gray-200 animate-in fade-in slide-in-from-top-1">
-                                    <div className="flex gap-4">
-                                        <div className="flex-1">
-                                            <label className="text-xs font-bold text-gray-500 uppercase">Payments</label>
-                                            <input type="number" value={splitCount} onChange={(e) => setSplitCount(e.target.value)} className="w-full mt-1 px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black text-center" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <label className="text-xs font-bold text-gray-500 uppercase">Every (Days)</label>
-                                            <input type="number" value={splitFrequency} onChange={(e) => setSplitFrequency(e.target.value)} className="w-full mt-1 px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black text-center" />
-                                        </div>
-                                    </div>
-                                    <div className="text-xs text-center text-gray-500 font-medium">
-                                        {splitCount} payments of ${financials.splitAmount.toFixed(2)}
-                                    </div>
+                            <div className="animate-in fade-in slide-in-from-top-3">
+                                <label className="block text-sm font-bold text-gray-700 mb-2">Tax Rate (%)</label>
+                                <div className="relative"><input type="number" placeholder="0" className="w-full pl-4 pr-8 py-3 rounded-xl border border-gray-200 bg-white" value={formData.taxRate} onChange={(e) => setFormData({ ...formData, taxRate: e.target.value })} /><span className="absolute right-4 top-3.5 text-gray-500 font-bold">%</span></div>
+                                
+                                <div className="flex items-center gap-2 mt-4 select-none">
+                                    <input type="checkbox" id="fee-toggle" checked={includeFee} onChange={(e) => setIncludeFee(e.target.checked)} className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer"/>
+                                    <label htmlFor="fee-toggle" className="text-sm font-bold text-gray-700 cursor-pointer">3.9% Processing Fee <span className="text-xs font-normal text-gray-500">(Covers Stripe)</span></label>
                                 </div>
-                            ) : (
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">Require Deposit?</label>
-                                    <div className="flex gap-2">
-                                        <button type="button" onClick={() => setDepositType('none')} className={`px-4 py-2 rounded-lg text-sm font-bold border transition-all ${depositType === 'none' ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}>None</button>
-                                        <button type="button" onClick={() => setDepositType('50')} className={`px-4 py-2 rounded-lg text-sm font-bold border transition-all ${depositType === '50' ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}>50%</button>
-                                        <button type="button" onClick={() => setDepositType('fixed')} className={`px-4 py-2 rounded-lg text-sm font-bold border transition-all ${depositType === 'fixed' ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}>Fixed $</button>
+                            </div>
+
+                            {/* Deposit & Terms Section */}
+                            {paymentType === 'one_time' && (
+                                <div className="pt-6 border-t border-gray-200 space-y-4 animate-in fade-in slide-in-from-top-4">
+                                    {/* Split Payment Toggle */}
+                                    <div className="flex justify-between items-center mb-1">
+                                        <label className="block text-sm font-bold text-gray-700">Split into Installments?</label>
+                                        <button 
+                                            onClick={() => { setIsSplit(!isSplit); setDepositType('none'); }}
+                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isSplit ? 'bg-black' : 'bg-gray-200'}`}
+                                        >
+                                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isSplit ? 'translate-x-6' : 'translate-x-1'}`} />
+                                        </button>
                                     </div>
-                                    {depositType === 'fixed' && (
-                                        <div className="mt-2 relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span><input type="number" placeholder="500.00" className="w-full pl-7 px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black" value={fixedDepositAmount} onChange={(e) => setFixedDepositAmount(e.target.value)} /></div>
+
+                                    {isSplit ? (
+                                        <div className="space-y-3 bg-gray-50 p-4 rounded-xl border border-gray-200 animate-in fade-in slide-in-from-top-1">
+                                            <div className="flex gap-4">
+                                                <div className="flex-1">
+                                                    <label className="text-xs font-bold text-gray-500 uppercase">Payments</label>
+                                                    <input type="number" value={splitCount} onChange={(e) => setSplitCount(e.target.value)} className="w-full mt-1 px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black text-center" />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <label className="text-xs font-bold text-gray-500 uppercase">Every (Days)</label>
+                                                    <input type="number" value={splitFrequency} onChange={(e) => setSplitFrequency(e.target.value)} className="w-full mt-1 px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black text-center" />
+                                                </div>
+                                            </div>
+                                            <div className="text-xs text-center text-gray-500 font-medium">
+                                                {splitCount} payments of ${financials.splitAmount.toFixed(2)}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">Require Deposit?</label>
+                                            <div className="flex gap-2">
+                                                <button type="button" onClick={() => setDepositType('none')} className={`px-4 py-2 rounded-lg text-sm font-bold border transition-all ${depositType === 'none' ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}>None</button>
+                                                <button type="button" onClick={() => setDepositType('50')} className={`px-4 py-2 rounded-lg text-sm font-bold border transition-all ${depositType === '50' ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}>50%</button>
+                                                <button type="button" onClick={() => setDepositType('fixed')} className={`px-4 py-2 rounded-lg text-sm font-bold border transition-all ${depositType === 'fixed' ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}>Fixed $</button>
+                                            </div>
+                                            {depositType === 'fixed' && (
+                                                <div className="mt-2 relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span><input type="number" placeholder="500.00" className="w-full pl-7 px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black" value={fixedDepositAmount} onChange={(e) => setFixedDepositAmount(e.target.value)} /></div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {!isSplit && (
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">Balance Due Date</label>
+                                            <div className="relative">
+                                                <select 
+                                                    className="w-full appearance-none px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-black cursor-pointer text-sm font-medium"
+                                                    value={paymentTerms}
+                                                    onChange={(e) => setPaymentTerms(e.target.value as any)}
+                                                >
+                                                    <option value="immediate">Due Upon Receipt</option>
+                                                    <option value="completion">Due Upon Completion</option>
+                                                    <option value="net15">Net 15 (15 Days Later)</option>
+                                                    <option value="net30">Net 30 (30 Days Later)</option>
+                                                    <option value="net60">Net 60 (60 Days Later)</option>
+                                                </select>
+                                                <CalendarClock className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                                            </div>
+                                        </div>
                                     )}
                                 </div>
                             )}
-
-                            {!isSplit && (
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">Balance Due Date</label>
-                                    <div className="relative">
-                                        <select 
-                                            className="w-full appearance-none px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-black cursor-pointer text-sm font-medium"
-                                            value={paymentTerms}
-                                            onChange={(e) => setPaymentTerms(e.target.value as any)}
-                                        >
-                                            <option value="immediate">Due Upon Receipt</option>
-                                            <option value="completion">Due Upon Completion</option>
-                                            <option value="net15">Net 15 (15 Days Later)</option>
-                                            <option value="net30">Net 30 (30 Days Later)</option>
-                                            <option value="net60">Net 60 (60 Days Later)</option>
-                                        </select>
-                                        <CalendarClock className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                                    </div>
-                                </div>
-                            )}
-                        </div>
+                        </>
                     )}
                   </div>
 
                   <div className="mt-8">
-                      <div className="bg-slate-900 text-white p-6 rounded-2xl shadow-lg mb-6">
-                        <div className="flex justify-between items-center mb-1"><span className="text-slate-400 text-sm font-medium">Subtotal</span><span className="text-slate-300 font-bold">${financials.subtotal.toFixed(2)}</span></div>
-                        
-                        {parseFloat(formData.taxRate) > 0 && (<div className="flex justify-between items-center mb-1 pb-1 border-b border-slate-800/50"><span className="text-slate-400 text-sm font-medium">Tax ({formData.taxRate}%)</span><span className="text-slate-300 font-bold">+${financials.taxAmount.toFixed(2)}</span></div>)}
-                        {includeFee && (<div className="flex justify-between items-center mb-3 pb-3 border-b border-slate-800"><span className="text-slate-400 text-sm font-medium">Processing Fee (3.9%)</span><span className="text-slate-300 font-bold">+${financials.feeAmount.toFixed(2)}</span></div>)}
+                      {paymentType === 'none' ? (
+                          <div className="bg-slate-900 text-white p-6 rounded-2xl shadow-lg mb-6 flex flex-col items-center justify-center text-center animate-in zoom-in-95">
+                              <div className="bg-slate-800 p-3 rounded-full mb-3"><FileSignature className="w-8 h-8 text-indigo-400" /></div>
+                              <h3 className="text-lg font-bold text-white">Agreement Only</h3>
+                              <p className="text-slate-400 text-xs mt-1 max-w-[200px]">This contract collects signatures but requires no payment through MicroFreelance.</p>
+                          </div>
+                      ) : (
+                          <div className="bg-slate-900 text-white p-6 rounded-2xl shadow-lg mb-6 animate-in zoom-in-95">
+                            <div className="flex justify-between items-center mb-1"><span className="text-slate-400 text-sm font-medium">Subtotal</span><span className="text-slate-300 font-bold">${financials.subtotal.toFixed(2)}</span></div>
+                            
+                            {parseFloat(formData.taxRate) > 0 && (<div className="flex justify-between items-center mb-1 pb-1 border-b border-slate-800/50"><span className="text-slate-400 text-sm font-medium">Tax ({formData.taxRate}%)</span><span className="text-slate-300 font-bold">+${financials.taxAmount.toFixed(2)}</span></div>)}
+                            {includeFee && (<div className="flex justify-between items-center mb-3 pb-3 border-b border-slate-800"><span className="text-slate-400 text-sm font-medium">Processing Fee (3.9%)</span><span className="text-slate-300 font-bold">+${financials.feeAmount.toFixed(2)}</span></div>)}
 
-                        <div className="flex justify-between items-end mb-4"><span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Contract Value</span><div className="text-right leading-none"><span className="text-3xl font-bold">${financials.grandTotal.toFixed(2)}</span></div></div>
-                        
-                        {/* DEPOSIT DISPLAY */}
-                        {!isSplit && depositType !== 'none' && paymentType === 'one_time' && (
-                            <div className="bg-emerald-900/50 border border-emerald-800 rounded-lg p-3 flex justify-between items-center animate-in fade-in slide-in-from-bottom-2">
-                                <span className="text-emerald-400 text-sm font-bold uppercase tracking-wider">Due Now (Deposit)</span>
-                                <span className="text-xl font-bold text-white">${financials.depositAmount.toFixed(2)}</span>
-                            </div>
-                        )}
+                            <div className="flex justify-between items-end mb-4"><span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Contract Value</span><div className="text-right leading-none"><span className="text-3xl font-bold">${financials.grandTotal.toFixed(2)}</span></div></div>
+                            
+                            {/* DEPOSIT DISPLAY */}
+                            {!isSplit && depositType !== 'none' && paymentType === 'one_time' && (
+                                <div className="bg-emerald-900/50 border border-emerald-800 rounded-lg p-3 flex justify-between items-center animate-in fade-in slide-in-from-bottom-2">
+                                    <span className="text-emerald-400 text-sm font-bold uppercase tracking-wider">Due Now (Deposit)</span>
+                                    <span className="text-xl font-bold text-white">${financials.depositAmount.toFixed(2)}</span>
+                                </div>
+                            )}
 
-                        {/* SPLIT DISPLAY */}
-                        {isSplit && (
-                            <div className="bg-indigo-900/50 border border-indigo-800 rounded-lg p-3 flex justify-between items-center animate-in fade-in slide-in-from-bottom-2">
-                                <span className="text-indigo-300 text-sm font-bold uppercase tracking-wider">Per Payment</span>
-                                <span className="text-xl font-bold text-white">${financials.splitAmount.toFixed(2)}</span>
-                            </div>
-                        )}
-                      </div>
+                            {/* SPLIT DISPLAY */}
+                            {isSplit && (
+                                <div className="bg-indigo-900/50 border border-indigo-800 rounded-lg p-3 flex justify-between items-center animate-in fade-in slide-in-from-bottom-2">
+                                    <span className="text-indigo-300 text-sm font-bold uppercase tracking-wider">Per Payment</span>
+                                    <span className="text-xl font-bold text-white">${financials.splitAmount.toFixed(2)}</span>
+                                </div>
+                            )}
+
+                             {/* MONTHLY RETAINER DISPLAY */}
+                             {paymentType === 'monthly' && (
+                                <div className="bg-blue-900/50 border border-blue-800 rounded-lg p-3 flex justify-between items-center animate-in fade-in slide-in-from-bottom-2">
+                                    <span className="text-blue-300 text-sm font-bold uppercase tracking-wider">Billed Monthly</span>
+                                    <span className="text-xl font-bold text-white">${financials.grandTotal.toFixed(2)}</span>
+                                </div>
+                            )}
+                          </div>
+                      )}
+                      
                       <button onClick={handleSubmit} disabled={loading} className={`w-full font-bold py-4 rounded-xl transition-all shadow-md hover:shadow-lg text-lg bg-black text-white hover:bg-gray-900 transform hover:-translate-y-0.5`}>{loading ? 'Saving...' : 'Save to Dashboard'}</button>
                       <p className="text-center text-xs text-gray-400 mt-4 leading-snug">By clicking Save, you agree to the <Link href="/terms-of-service" className="underline hover:text-gray-600">Terms</Link> and acknowledge that you are responsible for the legal validity of this contract.</p>
                   </div>

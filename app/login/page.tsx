@@ -29,14 +29,21 @@ function LoginForm() {
     }
   }, [templateSlug]);
 
-  // --- GOOGLE LOGIN HANDLER ---
+  // --- GOOGLE LOGIN HANDLER (FIXED) ---
   const handleGoogleLogin = async () => {
     const currentDomain = typeof window !== 'undefined' ? window.location.origin : '';
     
+    // 🧠 SMART REDIRECT FIX:
+    // We build a URL that explicitly includes the template ID
+    const redirectUrl = new URL(`${currentDomain}/auth/callback`);
+    if (templateSlug) {
+      redirectUrl.searchParams.set('template', templateSlug);
+    }
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${currentDomain}/auth/callback`,
+        redirectTo: redirectUrl.toString(), // ✅ Pass the smart URL here
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
@@ -51,7 +58,7 @@ function LoginForm() {
     }
   };
 
-  // --- MAGIC LINK HANDLER ---
+  // --- MAGIC LINK HANDLER (FIXED) ---
   const handleMagicLinkLogin = async (e: React.FormEvent) => {
     e.preventDefault(); 
     setLoading(true);
@@ -60,10 +67,17 @@ function LoginForm() {
 
     const currentDomain = typeof window !== 'undefined' ? window.location.origin : '';
 
+    // 🧠 SMART REDIRECT FIX:
+    // Same logic for email links
+    const redirectUrl = new URL(`${currentDomain}/auth/callback`);
+    if (templateSlug) {
+      redirectUrl.searchParams.set('template', templateSlug);
+    }
+
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${currentDomain}/auth/callback`,
+        emailRedirectTo: redirectUrl.toString(), // ✅ Pass the smart URL here
       },
     });
 
@@ -114,8 +128,8 @@ function LoginForm() {
           <div className={`p-4 rounded-xl text-sm font-medium flex items-start gap-3 ${
               isSuccess ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'
           }`}>
-             {isSuccess ? <CheckCircle2 className="w-5 h-5 shrink-0" /> : null}
-             <p>{message}</p>
+              {isSuccess ? <CheckCircle2 className="w-5 h-5 shrink-0" /> : null}
+              <p>{message}</p>
           </div>
         )}
 
@@ -209,7 +223,7 @@ export default function LoginPage() {
                 {[1,2,3,4,5].map(i => <Star key={i} className="w-5 h-5 text-amber-400 fill-amber-400" />)}
             </div>
             <h2 className="text-4xl font-bold leading-tight mb-6">
-               "This tool saved me from a $2,000 scope creep nightmare. Every freelancer needs this."
+                "This tool saved me from a $2,000 scope creep nightmare. Every freelancer needs this."
             </h2>
             <div className="flex items-center gap-4">
                <div className="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center font-bold text-lg">JS</div>

@@ -8,7 +8,7 @@ import { signContract } from '../../actions/signSOW';
 import { 
   ArrowLeft, CheckCircle, Lock, X, Share2, Download, Edit3, 
   MoreHorizontal, PenTool, AlertTriangle, Info, PieChart, 
-  CreditCard, ChevronDown, ChevronUp, Receipt 
+  CreditCard, ChevronDown, ChevronUp, Receipt, UserCheck, Smartphone, FileSignature
 } from 'lucide-react'; 
 import PayContractButton from '../../components/PayContractButton';
 
@@ -29,14 +29,17 @@ export default function ViewContract({ params }: { params: { id: string } }) {
   const [doc, setDoc] = useState<any>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [showInvoice, setShowInvoice] = useState(false); // 🆕 Invoice Toggle State
+  const [showInvoice, setShowInvoice] = useState(false); 
 
   // Signing
   const [showSignModal, setShowSignModal] = useState(false);
   const [signerName, setSignerName] = useState('');
   const [isSigning, setIsSigning] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const [shareText, setShareText] = useState('Share Link');
+  const [shareText, setShareText] = useState('Share');
+  
+  // KIOSK MODE STATE
+  const [signingRole, setSigningRole] = useState<'provider' | 'client'>('client');
 
   const supabase = createClientComponentClient();
   const searchParams = useSearchParams();
@@ -48,7 +51,6 @@ export default function ViewContract({ params }: { params: { id: string } }) {
       
       if (error || !docData) { setLoading(false); return; }
 
-      // 🧠 SMART STATUS UPDATE
       if (paymentStatus === 'success' && docData.status !== 'Paid') {
          await fetch('/api/sow/mark-paid', {
            method: 'POST',
@@ -62,6 +64,14 @@ export default function ViewContract({ params }: { params: { id: string } }) {
 
       const { data: { user } } = await supabase.auth.getUser();
       setCurrentUser(user);
+      
+      // Smart Default: If owner, default sign role to Provider. Else Client.
+      if (user && user.id === docData.user_id) {
+          setSigningRole('provider');
+      } else {
+          setSigningRole('client');
+      }
+      
       setLoading(false);
     };
     load();
@@ -70,31 +80,31 @@ export default function ViewContract({ params }: { params: { id: string } }) {
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
     setShareText('Copied!');
-    setTimeout(() => { setShareText('Share Link'); setShowMenu(false); }, 1500);
+    setTimeout(() => { setShareText('Share'); }, 1500);
   };
 
   const isOwner = currentUser?.id === doc?.user_id;
   const isFullySigned = doc?.signed_by && doc?.provider_sign;
   const isPaid = doc?.status === 'Paid' || paymentStatus === 'success';
-  const userRole = isOwner ? 'provider' : 'client';
+  const isAgreementOnly = doc?.payment_type === 'none' || doc?.price === 0;
 
   // --- 💰 DYNAMIC PAYMENT CALCULATOR ---
   const getPaymentDetails = () => {
       if (!doc) return { amount: 0, label: 'Total' };
       
-      const sched = doc.payment_schedule_structured || {};
-      
-      if (isPaid) return { amount: 0, label: 'Paid in Full' };
+      // 🆕 Agreement Only Check
+      if (isAgreementOnly) {
+          return { amount: 0, label: 'Agreement Only' };
+      }
 
-      // Case 1: Split Payment
+      const sched = doc.payment_schedule_structured || {};
+      if (isPaid) return { amount: 0, label: 'Paid in Full' };
       if (sched.type === 'split' && sched.depositAmount) {
           return { amount: sched.depositAmount, label: `Installment (1 of ${sched.splitCount || '?'})` };
       }
-      // Case 2: Deposit
       if ((sched.type === '50' || sched.type === 'fixed') && sched.depositAmount) {
           return { amount: sched.depositAmount, label: 'Deposit Due' };
       }
-      // Case 3: Full
       return { amount: doc.price, label: 'Total Due' };
   };
 
@@ -103,13 +113,16 @@ export default function ViewContract({ params }: { params: { id: string } }) {
   const handleSign = async () => {
     if (!signerName) return alert("Please type your name.");
     setIsSigning(true);
-    const result = await signContract(params.id, signerName, userRole);
+    
+    const result = await signContract(params.id, signerName, signingRole);
+    
     if (result.success) {
       const newDoc = { ...doc };
-      if (userRole === 'client') { newDoc.status = 'Signed'; newDoc.signed_by = signerName; } 
+      if (signingRole === 'client') { newDoc.status = 'Signed'; newDoc.signed_by = signerName; } 
       else { newDoc.provider_sign = signerName; }
       setDoc(newDoc);
       setShowSignModal(false);
+      setSignerName(''); 
     } else { alert("Signing failed. Please try again."); }
     setIsSigning(false);
   };
@@ -121,35 +134,53 @@ export default function ViewContract({ params }: { params: { id: string } }) {
     <div className="min-h-screen bg-gray-50 py-8 px-4 print:bg-white print:p-0 print:m-0">
       
       {/* 🖨️ HEADER */}
-      <div className="max-w-3xl mx-auto mb-6 flex items-center justify-between print:hidden relative">
-        <Link href="/dashboard" className="text-gray-500 hover:text-black font-semibold text-sm flex items-center gap-1">
-          <ArrowLeft className="w-4 h-4" /> Back
-        </Link>
+      <div className="max-w-3xl mx-auto mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 print:hidden relative">
+        <div className="w-full sm:w-auto flex justify-between sm:justify-start items-center gap-4">
+            <Link href="/dashboard" className="text-gray-500 hover:text-black font-semibold text-sm flex items-center gap-1">
+            <ArrowLeft className="w-4 h-4" /> Back
+            </Link>
+            
+            {/* VISIBLE SHARE BUTTON */}
+            <button onClick={handleShare} className="sm:hidden text-sm font-bold text-gray-600 flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-gray-200 shadow-sm">
+                <Share2 className="w-4 h-4" /> {shareText}
+            </button>
+        </div>
 
-        {/* Sign Button */}
-        {!isFullySigned && !isPaid && (
-           <button 
-             onClick={() => setShowSignModal(true)}
-             className="absolute left-1/2 transform -translate-x-1/2 px-8 py-2.5 bg-black text-white rounded-full text-sm font-bold hover:bg-gray-800 shadow-lg transition-all flex items-center gap-2"
-           >
-             <PenTool className="w-4 h-4" /> Sign Contract
-           </button>
-        )}
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+            {/* Desktop Share */}
+            <button onClick={handleShare} className="hidden sm:flex text-sm font-bold text-gray-600 items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200 hover:bg-gray-50 transition-colors shadow-sm">
+                <Share2 className="w-4 h-4" /> {shareText}
+            </button>
 
-        <div className="relative">
-           <button onClick={() => setShowMenu(!showMenu)} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
-              <MoreHorizontal className="w-6 h-6 text-gray-700" />
-           </button>
-           {showMenu && (
-             <div className="absolute right-0 top-10 w-48 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50 animate-in fade-in zoom-in-95 origin-top-right">
-                {isOwner && !isFullySigned && (
-                  <Link href={`/edit/${doc.id}`} className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-3"><Edit3 className="w-4 h-4" /> Edit Contract</Link>
+            {/* Sign / Download Actions */}
+            {!isFullySigned && !isPaid ? (
+                <button 
+                onClick={() => setShowSignModal(true)}
+                className="flex-1 sm:flex-none px-6 py-2.5 bg-black text-white rounded-full text-sm font-bold hover:bg-gray-800 shadow-lg transition-all flex items-center justify-center gap-2"
+                >
+                <PenTool className="w-4 h-4" /> Sign Contract
+                </button>
+            ) : (
+                <button onClick={() => window.print()} className="flex-1 sm:flex-none px-6 py-2.5 bg-white text-gray-900 border border-gray-200 rounded-full text-sm font-bold hover:bg-gray-50 shadow-sm transition-all flex items-center justify-center gap-2">
+                    <Download className="w-4 h-4" /> Download PDF
+                </button>
+            )}
+
+            {/* More Menu */}
+            <div className="relative">
+                <button onClick={() => setShowMenu(!showMenu)} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
+                <MoreHorizontal className="w-6 h-6 text-gray-700" />
+                </button>
+                {showMenu && (
+                <div className="absolute right-0 top-10 w-48 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50 animate-in fade-in zoom-in-95 origin-top-right">
+                    {isOwner && !isFullySigned && (
+                    <Link href={`/edit/${doc.id}`} className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-3"><Edit3 className="w-4 h-4" /> Edit Contract</Link>
+                    )}
+                    <button onClick={() => window.print()} className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-3"><Download className="w-4 h-4" /> Download PDF</button>
+                </div>
                 )}
-                <button onClick={() => window.print()} className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-3"><Download className="w-4 h-4" /> Download PDF</button>
-                <button onClick={handleShare} className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-3 border-t border-gray-100"><Share2 className="w-4 h-4" /> {shareText}</button>
-             </div>
-           )}
-           {showMenu && <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)}></div>}
+                {showMenu && <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)}></div>}
+            </div>
         </div>
       </div>
 
@@ -171,12 +202,21 @@ export default function ViewContract({ params }: { params: { id: string } }) {
           </div>
           
           <div className="text-left sm:text-right print:text-right min-w-[200px]">
-            <div className="bg-gray-100 px-4 py-2 rounded mb-2 inline-block print:bg-white print:border print:border-black">
-              <span className="block text-[10px] text-gray-500 uppercase font-bold tracking-wide print:text-black">{dueLabel}</span>
-              <span className="text-xl font-bold">{formatMoney(dueNow)}</span>
-            </div>
+            {isAgreementOnly ? (
+                // 🆕 AGREEMENT ONLY BADGE
+                <div className="bg-gray-100 px-4 py-2 rounded mb-2 inline-block print:bg-white print:border print:border-black">
+                    <span className="block text-[10px] text-gray-500 uppercase font-bold tracking-wide print:text-black">Document Type</span>
+                    <span className="text-sm font-bold">Standard Agreement</span>
+                </div>
+            ) : (
+                <div className="bg-gray-100 px-4 py-2 rounded mb-2 inline-block print:bg-white print:border print:border-black">
+                    <span className="block text-[10px] text-gray-500 uppercase font-bold tracking-wide print:text-black">{dueLabel}</span>
+                    <span className="text-xl font-bold">{formatMoney(dueNow)}</span>
+                </div>
+            )}
+            
             {/* Show Total if Split */}
-            {dueNow !== doc.price && !isPaid && (
+            {!isAgreementOnly && dueNow !== doc.price && !isPaid && (
                  <p className="text-xs text-gray-400 mt-1">Total Contract: {formatMoney(doc.price)}</p>
             )}
             <p className="text-sm text-gray-700 print:text-black"><strong>Client:</strong> {doc.client_name}</p>
@@ -209,8 +249,8 @@ export default function ViewContract({ params }: { params: { id: string } }) {
             </div>
         </div>
 
-        {/* 🧾 NEW: MOBILE INVOICE ACCORDION (Hidden in Print) */}
-        {doc.line_items && doc.line_items.length > 0 && (
+        {/* 🧾 INVOICE ACCORDION (Hide if Agreement Only) */}
+        {!isAgreementOnly && doc.line_items && doc.line_items.length > 0 && (
             <div className="mt-16 print:hidden">
                 <button 
                     onClick={() => setShowInvoice(!showInvoice)}
@@ -247,27 +287,37 @@ export default function ViewContract({ params }: { params: { id: string } }) {
 
         {/* PAYMENT & FOOTER */}
         <div className="mt-4 print:hidden">
-            {isPaid ? (
-                <button disabled className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 cursor-default"><CheckCircle className="w-5 h-5" /> Paid in Full</button>
-            ) : isFullySigned ? (
-                <PayContractButton sowId={doc.id} price={dueNow} paymentType={doc.payment_type} label={dueLabel === 'Total Due' ? 'Pay Full Amount' : `Pay ${dueLabel}`} />
+            {/* 🆕 AGREEMENT ONLY VIEW */}
+            {isAgreementOnly ? (
+                <div className="w-full bg-gray-50 text-gray-600 font-bold py-4 rounded-xl flex items-center justify-center gap-2 border border-gray-200">
+                    <FileSignature className="w-5 h-5" /> 
+                    {isFullySigned ? 'Legally Binding & Active' : 'Waiting for Signatures'}
+                </div>
             ) : (
-                <button disabled className="w-full bg-gray-100 text-gray-400 font-bold py-4 rounded-xl cursor-not-allowed flex items-center justify-center gap-3 border border-gray-200">
-                   <Lock className="w-4 h-4" /> 
-                   Payment Locked (Awaiting Signatures)
-                </button>
+                <>
+                    {isPaid ? (
+                        <button disabled className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 cursor-default"><CheckCircle className="w-5 h-5" /> Paid in Full</button>
+                    ) : isFullySigned ? (
+                        <PayContractButton sowId={doc.id} price={dueNow} paymentType={doc.payment_type} label={dueLabel === 'Total Due' ? 'Pay Full Amount' : `Pay ${dueLabel}`} />
+                    ) : (
+                        <button disabled className="w-full bg-gray-100 text-gray-400 font-bold py-4 rounded-xl cursor-not-allowed flex items-center justify-center gap-3 border border-gray-200">
+                        <Lock className="w-4 h-4" /> 
+                        Payment Locked (Awaiting Signatures)
+                        </button>
+                    )}
+                    
+                    <div className="text-center mt-4 space-y-2">
+                        <p className="text-xs text-gray-400 flex justify-center items-center gap-1">
+                        <Lock className="w-3 h-3" /> Secure Payment via Stripe Connect
+                        </p>
+                        {doc.payment_type === 'monthly' && (
+                            <p className="text-[10px] text-gray-400 max-w-md mx-auto">
+                                <strong>Billing Info:</strong> This subscription is managed directly between you and the Service Provider. To cancel or modify billing, check your email receipt for a management link or contact {isOwner ? 'the Client' : 'the Service Provider'} directly.
+                            </p>
+                        )}
+                    </div>
+                </>
             )}
-            
-            <div className="text-center mt-4 space-y-2">
-                <p className="text-xs text-gray-400 flex justify-center items-center gap-1">
-                   <Lock className="w-3 h-3" /> Secure Payment via Stripe Connect
-                </p>
-                {doc.payment_type === 'monthly' && (
-                    <p className="text-[10px] text-gray-400 max-w-md mx-auto">
-                        <strong>Billing Info:</strong> This subscription is managed directly between you and the Service Provider. To cancel or modify billing, check your email receipt for a management link or contact {isOwner ? 'the Client' : 'the Service Provider'} directly.
-                    </p>
-                )}
-            </div>
         </div>
         
         <div className="mt-8 text-center print:hidden opacity-50 hover:opacity-100 transition-opacity">
@@ -278,7 +328,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
         </div>
       </div>
 
-      {/* 📝 SIGNING MODAL */}
+      {/* 📝 KIOSK MODE SIGNING MODAL */}
       {showSignModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 print:hidden">
           <div className="bg-white rounded-xl p-8 w-full max-w-md shadow-2xl animate-in zoom-in-95">
@@ -287,22 +337,45 @@ export default function ViewContract({ params }: { params: { id: string } }) {
                 <button onClick={() => setShowSignModal(false)}><X className="w-5 h-5 text-gray-400" /></button>
             </div>
             
+            {/* ROLE TOGGLE */}
+            <div className="flex bg-gray-100 p-1 rounded-lg mb-6">
+                <button 
+                    onClick={() => setSigningRole('provider')}
+                    disabled={!!doc.provider_sign} 
+                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-bold transition-all ${signingRole === 'provider' ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:text-gray-700'} ${doc.provider_sign ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                    {doc.provider_sign && <CheckCircle className="w-3 h-3 text-green-500" />} Provider
+                </button>
+                <button 
+                    onClick={() => setSigningRole('client')}
+                    disabled={!!doc.signed_by} 
+                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-bold transition-all ${signingRole === 'client' ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:text-gray-700'} ${doc.signed_by ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                    {doc.signed_by && <CheckCircle className="w-3 h-3 text-green-500" />} Client
+                </button>
+            </div>
+
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
                 <p className="text-xs font-bold text-gray-500 uppercase mb-1">Signing As</p>
                 <p className="font-bold text-gray-900 flex items-center gap-2">
-                    {userRole === 'provider' ? <PenTool className="w-4 h-4 text-indigo-600"/> : <CheckCircle className="w-4 h-4 text-blue-600"/>}
-                    {userRole === 'provider' ? 'Service Provider (You)' : `Client (${doc.client_name})`}
+                    {signingRole === 'provider' ? <PenTool className="w-4 h-4 text-indigo-600"/> : <UserCheck className="w-4 h-4 text-blue-600"/>}
+                    {signingRole === 'provider' ? 'Service Provider (You)' : `Client (${doc.client_name})`}
                 </p>
+                {signingRole === 'client' && isOwner && (
+                    <div className="mt-2 text-[10px] text-blue-600 bg-blue-50 px-2 py-1 rounded inline-flex items-center gap-1">
+                        <Smartphone className="w-3 h-3" /> Hand device to client
+                    </div>
+                )}
             </div>
 
-            {userRole === 'client' && (
+            {signingRole === 'client' && !isAgreementOnly && (
                 <div className="bg-amber-50 border-l-4 border-amber-400 p-3 mb-6">
                     <div className="flex items-center gap-2 mb-1">
                         <AlertTriangle className="w-4 h-4 text-amber-600" />
                         <span className="text-xs font-bold text-amber-800">Financial Responsibility</span>
                     </div>
                     <p className="text-[11px] text-amber-700 leading-snug">
-                        You acknowledge that you are entering a direct financial agreement with the Service Provider. You confirm that you are paying the correct individual.
+                        By signing, you acknowledge a direct financial agreement with the Service Provider.
                     </p>
                 </div>
             )}

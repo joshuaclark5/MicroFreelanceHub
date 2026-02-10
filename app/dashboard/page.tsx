@@ -8,7 +8,7 @@ import {
   MoreVertical, Edit2, Copy, Trash2, CheckSquare, LogOut, Plus, 
   Gem, ArrowUpRight, FileText, ExternalLink, 
   LayoutGrid, Clock, TrendingUp, CheckCircle,
-  PenTool, Repeat, Wallet, ArrowRight, History
+  PenTool, Repeat, Wallet, ArrowRight, History, Search, Filter
 } from 'lucide-react';
 import ConnectStripeButton from '../components/ConnectStripeButton'; 
 import PricingModal from '../components/PricingModal'; 
@@ -31,8 +31,7 @@ const Sparkline = ({ color = "text-emerald-500" }) => (
   </svg>
 );
 
-// 🛠️ FIX 1: Responsive Upgrade Button
-// Icon-only on mobile (w-9), Full text on Desktop
+// Responsive Upgrade Button
 function UpgradeButton({ onClick }: { onClick: () => void }) {
   return (
     <button 
@@ -53,8 +52,12 @@ export default function Dashboard() {
   const [userEmail, setUserEmail] = useState('');
   const [userId, setUserId] = useState('');
   
+  // Selection & Filtering
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'DRAFT' | 'PAID'>('ALL');
+  
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
   
@@ -105,6 +108,50 @@ export default function Dashboard() {
             setStripeId(profile.stripe_account_id || null);
         }
 
+        // 🧠 RECOVERY LOGIC: Check for "Lost Luggage" (Pending SOW)
+        const pendingSOW = localStorage.getItem('pendingSOW');
+        if (pendingSOW) {
+            console.log("📦 Found pending SOW, saving...");
+            const sowData = JSON.parse(pendingSOW);
+            
+            // Calculate totals for recovery (Summing line items including fees)
+            let grandTotal = 0;
+            if (sowData.line_items && sowData.line_items.length > 0) {
+               // Simple sum because 'line_items' in create page already includes fees/manual overrides
+               grandTotal = sowData.line_items.reduce((acc: any, item: any) => acc + (item.quantity * item.amount), 0);
+               
+               // Apply Tax if needed
+               const taxRate = parseFloat(sowData.tax_rate) || 0;
+               if (taxRate > 0) {
+                   // We need the subtotal excluding tax to calculate tax, but simple recovery:
+                   // The grandTotal calculated above is Pre-Tax.
+                   grandTotal = grandTotal + (grandTotal * (taxRate/100));
+               }
+            }
+
+            const { error } = await supabase.from('sow_documents').insert({
+                user_id: user.id,
+                client_name: sowData.client_name,
+                title: sowData.title,
+                price: grandTotal > 0 ? grandTotal : 0, 
+                line_items: sowData.line_items,
+                deliverables: sowData.deliverables,
+                status: 'Draft',
+                payment_type: sowData.payment_type || 'one_time',
+                payment_schedule_structured: {
+                    depositAmount: sowData.deposit_amount || 0,
+                    type: sowData.deposit_amount ? 'fixed' : 'none'
+                }
+            });
+
+            if (!error) {
+                console.log("✅ Pending SOW saved successfully!");
+                localStorage.removeItem('pendingSOW'); // Clear luggage
+            } else {
+                console.error("❌ Failed to save pending SOW:", error);
+            }
+        }
+
         await refreshData(); 
 
       } catch (err) { console.error(err); } finally { setLoading(false); }
@@ -134,7 +181,9 @@ export default function Dashboard() {
           deliverables: sow.deliverables,
           status: 'Draft',
           slug: null,
-          payment_type: sow.payment_type 
+          payment_type: sow.payment_type,
+          line_items: sow.line_items,
+          payment_schedule_structured: sow.payment_schedule_structured
         }).select().single();
     if (!error && newDoc) setSows([newDoc, ...sows]);
     setProcessing(false);
@@ -156,11 +205,31 @@ export default function Dashboard() {
     else setSelectedIds([...selectedIds, id]);
   };
 
+  // 🆕 SELECT ALL FEATURE
+  const handleSelectAll = () => {
+      if (selectedIds.length === filteredSows.length) {
+          setSelectedIds([]);
+      } else {
+          setSelectedIds(filteredSows.map(s => s.id));
+      }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.refresh();
     router.push('/login');
   };
+
+  // --- FILTERING LOGIC ---
+  const filteredSows = sows.filter(s => {
+      const matchesSearch = (s.title?.toLowerCase() || '').includes(searchQuery.toLowerCase()) || 
+                            (s.client_name?.toLowerCase() || '').includes(searchQuery.toLowerCase());
+      
+      if (statusFilter === 'ALL') return matchesSearch;
+      if (statusFilter === 'PAID') return matchesSearch && s.status === 'Paid';
+      if (statusFilter === 'DRAFT') return matchesSearch && (s.status === 'Draft' || !s.status);
+      return matchesSearch;
+  });
 
   const totalPaid = sows.filter(s => s.status === 'Paid').reduce((acc, curr) => acc + (curr.price || 0), 0);
   const profit = totalPaid - totalExpenses;
@@ -172,7 +241,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-32">
       
-      {/* 🟢 TOP NAV - Fixed Mobile Spacing */}
+      {/* 🟢 TOP NAV */}
       <div className="bg-white border-b border-gray-100 sticky top-0 z-40 backdrop-blur-md bg-white/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -197,7 +266,7 @@ export default function Dashboard() {
         {/* 🟢 STATS ROW */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            {/* 1. FINANCIAL HEALTH CARD - Mobile Optimized Actions */}
+            {/* 1. FINANCIAL HEALTH CARD */}
             <div className="lg:col-span-2 bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-xl shadow-gray-200/40 flex flex-col justify-between relative overflow-hidden group">
                 
                 <div className="flex justify-between items-start z-10">
@@ -207,7 +276,6 @@ export default function Dashboard() {
                         <p className="text-sm font-medium text-emerald-600 mt-1 flex items-center gap-1"><TrendingUp className="w-4 h-4" /> Net Profit</p>
                     </div>
                     
-                    {/* Visual Breakdown (Desktop Only) */}
                     <div className="text-right hidden sm:block">
                         <div className="flex flex-col gap-1 items-end">
                             <div className="flex items-center gap-2">
@@ -222,7 +290,6 @@ export default function Dashboard() {
                     </div>
                 </div>
 
-                {/* Profit Bar */}
                 <div className="mt-8 mb-8 z-10">
                     <div className="h-3 w-full bg-emerald-100 rounded-full overflow-hidden flex">
                         <div className="h-full bg-red-400 transition-all duration-1000" style={{ width: `${expensePercentage}%` }}></div>
@@ -234,19 +301,11 @@ export default function Dashboard() {
                     </div>
                 </div>
 
-                {/* 🛠️ FIX 2: Mobile Grid Actions */}
-                {/* On mobile: Log Expense is full width. History & Stripe are half-width below. */}
                 <div className="grid grid-cols-2 sm:flex sm:items-center gap-3 z-10 mt-auto">
-                    <button 
-                        onClick={() => setShowExpenseModal(true)}
-                        className="col-span-2 sm:flex-1 bg-slate-900 text-white hover:bg-slate-800 px-4 py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-slate-900/10 flex items-center justify-center gap-2"
-                    >
+                    <button onClick={() => setShowExpenseModal(true)} className="col-span-2 sm:flex-1 bg-slate-900 text-white hover:bg-slate-800 px-4 py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-slate-900/10 flex items-center justify-center gap-2">
                         <Plus className="w-4 h-4" /> Log Expense
                     </button>
-                    <button 
-                        onClick={() => setShowHistoryModal(true)}
-                        className="col-span-1 px-4 py-3 rounded-xl text-sm font-bold text-slate-600 bg-slate-50 hover:bg-slate-100 transition-colors border border-slate-100 flex items-center justify-center gap-2"
-                    >
+                    <button onClick={() => setShowHistoryModal(true)} className="col-span-1 px-4 py-3 rounded-xl text-sm font-bold text-slate-600 bg-slate-50 hover:bg-slate-100 transition-colors border border-slate-100 flex items-center justify-center gap-2">
                         <History className="w-4 h-4" /> History
                     </button>
                     <div className="col-span-1">
@@ -262,7 +321,6 @@ export default function Dashboard() {
                     </div>
                 </div>
 
-                {/* Background Decor */}
                 <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
                     <Wallet className="w-64 h-64 -rotate-12 translate-x-20 -translate-y-20" />
                 </div>
@@ -277,11 +335,9 @@ export default function Dashboard() {
                     <h3 className="text-2xl sm:text-3xl font-bold tracking-tight">New Project</h3>
                     <p className="text-indigo-100 text-xs sm:text-sm mt-2 font-medium leading-relaxed">Draft a new proposal or invoice in seconds.</p>
                 </div>
-                
                 <div className="mt-auto pt-6 relative z-10 flex items-center gap-2 font-bold text-sm">
                     Start Now <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </div>
-
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                 <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/30 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
             </Link>
@@ -289,33 +345,79 @@ export default function Dashboard() {
 
         {/* 🟢 PROJECTS SECTION */}
         <div className="space-y-6">
-            <div className="flex items-end justify-between border-b border-gray-100 pb-4">
-                 <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
-                    <LayoutGrid className="w-5 h-5 text-gray-400" /> Recent Projects
-                 </h2>
+            
+            {/* SEARCH & FILTER BAR */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-4">
+                 <div className="flex items-center gap-3">
+                    <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
+                        <LayoutGrid className="w-5 h-5 text-gray-400" /> Recent Projects
+                    </h2>
+                    {/* Status Tabs */}
+                    <div className="hidden md:flex bg-gray-100 p-1 rounded-lg">
+                        {['ALL', 'DRAFT', 'PAID'].map(status => (
+                            <button 
+                                key={status}
+                                onClick={() => setStatusFilter(status as any)}
+                                className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${statusFilter === status ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                            >
+                                {status}
+                            </button>
+                        ))}
+                    </div>
+                 </div>
+
                  <div className="flex items-center gap-2">
+                   {/* Search Input */}
+                   <div className="relative group">
+                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
+                       <input 
+                          type="text" 
+                          placeholder="Search clients..." 
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="pl-9 pr-4 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-40 sm:w-64 transition-all"
+                       />
+                   </div>
+
+                   {/* Select Toggle */}
                    {sows.length > 0 && (
-                     <button onClick={() => setSelectionMode(!selectionMode)} className={`text-xs font-bold px-3 py-1.5 rounded-lg border transition-all flex items-center gap-2 ${selectionMode ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-500 border-gray-200 hover:border-slate-300'}`}>
+                     <button onClick={() => { setSelectionMode(!selectionMode); setSelectedIds([]); }} className={`text-xs font-bold px-3 py-1.5 rounded-lg border transition-all flex items-center gap-2 ${selectionMode ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-500 border-gray-200 hover:border-slate-300'}`}>
                         <CheckSquare className="w-3.5 h-3.5" /> {selectionMode ? 'Done' : 'Select'}
                      </button>
+                   )}
+                   
+                   {/* 🆕 SELECT ALL BUTTON */}
+                   {selectionMode && (
+                        <button onClick={handleSelectAll} className="text-xs font-bold text-indigo-600 hover:text-indigo-800 px-2">
+                            {selectedIds.length === filteredSows.length ? 'Deselect All' : 'Select All'}
+                        </button>
                    )}
                  </div>
             </div>
 
-            <div className={sows.length > 0 ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "block"}>
-              {sows.length === 0 ? (
+            <div className={filteredSows.length > 0 ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "block"}>
+              {filteredSows.length === 0 ? (
                 <div className="text-center py-24 bg-white rounded-[2rem] border border-dashed border-gray-200 shadow-sm">
                   <div className="bg-gray-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300"><FileText className="w-10 h-10" /></div>
-                  <h3 className="text-xl font-bold text-slate-900">No projects yet</h3>
-                  <p className="text-slate-500 mt-2 max-w-xs mx-auto">Your dashboard is empty. Create your first contract to get started.</p>
+                  <h3 className="text-xl font-bold text-slate-900">No projects found</h3>
+                  <p className="text-slate-500 mt-2 max-w-xs mx-auto">
+                      {searchQuery ? "Try a different search term." : "Your dashboard is empty. Create your first contract to get started."}
+                  </p>
+                  {!searchQuery && (
+                      <Link href="/create">
+                          <button className="mt-6 bg-slate-900 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-slate-800 transition-all shadow-lg hover:-translate-y-0.5">
+                              + Create Project
+                          </button>
+                      </Link>
+                  )}
                 </div>
               ) : (
-                sows.map((sow) => {
+                filteredSows.map((sow) => {
                    const isMonthly = sow.payment_type === 'monthly';
                    const isPaid = sow.status === 'Paid';
                    const sched = sow.payment_schedule_structured || {};
                    
-                   let statusConfig = { label: sow.status, color: "bg-gray-100 text-gray-600", icon: Clock };
+                   let statusConfig = { label: sow.status || 'Draft', color: "bg-gray-100 text-gray-600", icon: Clock };
 
                    if (isPaid) {
                        statusConfig = { label: "Paid", color: "bg-emerald-100 text-emerald-700", icon: CheckCircle };
@@ -382,7 +484,6 @@ export default function Dashboard() {
       
       <PricingModal isOpen={showPricingModal} onClose={() => setShowPricingModal(false)} userId={userId} />
       
-      {/* Modals */}
       <AddExpenseModal 
         isOpen={showExpenseModal} 
         onClose={() => setShowExpenseModal(false)} 
