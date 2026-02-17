@@ -9,7 +9,7 @@ import {
   Receipt,
   CheckCircle2
 } from 'lucide-react';
-// 👇 1. IMPORT THE NEW WIDGET
+// 👇 IMPORT THE WIDGET
 import RelatedRoles from '../../components/seo/RelatedRoles';
 
 // Initialize Supabase (Public)
@@ -73,7 +73,7 @@ function toTitleCase(str: string | null) {
   });
 }
 
-// --- METADATA ---
+// --- METADATA (Updated for Safety 🛡️) ---
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const result = await findDoc(params.slug);
   if (!result) return { title: 'Template Not Found' };
@@ -85,7 +85,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const isInvoice = doc.document_type === 'Invoice';
   const label = isInvoice ? 'Invoice' : 'Contract';
   
-  const hook = doc.pain_point_hook || `Download a professional ${displayTitle} ${label}. Includes items, prices, and terms.`;
+  // ✅ SAFE FALLBACK: Uses "Industry standard" instead of "Legally tested"
+  const hook = doc.pain_point_hook || `Download a professional ${displayTitle} ${label} template. Industry standard, ready-to-use, and printable.`;
 
   return {
     title: `Free ${displayTitle} ${label} Template (2026)`,
@@ -108,7 +109,6 @@ export default async function TemplatePage({ params }: { params: { slug: string 
   const price = source === 'sow' ? doc.price : 0;
   
   const isInvoice = doc.document_type === 'Invoice';
-  const docTypeLabel = isInvoice ? 'Invoice' : (doc.document_type || 'Contract');
 
   const painPoint = doc.pain_point_hook || (isInvoice 
     ? `Stop acting like a bank. Send a professional ${title} Invoice and get paid instantly via credit card or ACH.` 
@@ -197,7 +197,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
               {isInvoice ? 'Why use a digital invoice?' : 'Why use a written agreement?'}
             </h2>
             
-            {/* ✅ FIXED: Use React Elements instead of raw HTML string */}
+            {/* React Elements for Bold Text */}
             <p className="text-base md:text-lg text-slate-600 leading-relaxed">
               {isInvoice ? (
                 <>
