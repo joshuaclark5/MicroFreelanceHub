@@ -5,7 +5,9 @@ import { Metadata } from 'next';
 import { 
   Shield, 
   FileText, 
-  ArrowRight
+  ArrowRight,
+  Receipt,
+  CheckCircle2
 } from 'lucide-react';
 // 👇 1. IMPORT THE NEW WIDGET
 import RelatedRoles from '../../components/seo/RelatedRoles';
@@ -16,7 +18,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-// --- 🧠 THE BRAIN: Smart Slug Resolver (Upgraded) ---
+// --- 🧠 THE BRAIN: Smart Slug Resolver ---
 async function findDoc(slug: string) {
   
   // 1. PRIORITY: Check 'sow_documents' (System Templates)
@@ -28,7 +30,7 @@ async function findDoc(slug: string) {
   if (exactDoc) return { doc: exactDoc, source: 'seo' };
 
   // 3. 🛡️ SAFETY NET: The "Rescue" Logic
-  const baseSlug = slug.replace(/-contract-template$/, '');
+  let baseSlug = slug.replace(/-invoice-template$/, '').replace(/-contract-template$/, '');
   
   if (baseSlug !== slug) {
       const { data: baseDoc } = await supabase.from('seo_pages').select('*').eq('slug', baseSlug).single();
@@ -71,26 +73,6 @@ function toTitleCase(str: string | null) {
   });
 }
 
-// Helper: Get Document Label based on Job Title
-function getDocLabel(jobTitle: string) {
-  const whiteCollar = ['Designer', 'Developer', 'Consultant', 'Writer', 'Marketer', 'Manager', 'Strategist', 'Editor', 'Virtual Assistant', 'Analyst', 'Coach', 'Engineer'];
-  
-  // Normalize checking
-  const titleLower = jobTitle.toLowerCase();
-  const isWhiteCollar = whiteCollar.some(role => titleLower.includes(role.toLowerCase()));
-  
-  return isWhiteCollar ? "Statement of Work (SOW)" : "Service Agreement";
-}
-
-function getDocHeader(jobTitle: string) {
-  const whiteCollar = ['Designer', 'Developer', 'Consultant', 'Writer', 'Marketer', 'Manager', 'Strategist', 'Editor', 'Virtual Assistant', 'Analyst', 'Coach', 'Engineer'];
-   
-  const titleLower = jobTitle.toLowerCase();
-  const isWhiteCollar = whiteCollar.some(role => titleLower.includes(role.toLowerCase()));
-   
-  return isWhiteCollar ? "Statement of Work" : "Service Agreement";
-}
-
 // --- METADATA ---
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const result = await findDoc(params.slug);
@@ -99,12 +81,14 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const { doc, source } = result;
   const title = source === 'sow' ? doc.title : (doc.job_title || doc.keyword);
   const displayTitle = toTitleCase(title);
-  const docLabel = getDocLabel(displayTitle); // Determine label for metadata too
   
-  const hook = doc.pain_point_hook || `Download a professional ${displayTitle} ${docLabel}. Includes scope, payments, and legal terms.`;
+  const isInvoice = doc.document_type === 'Invoice';
+  const label = isInvoice ? 'Invoice' : 'Contract';
+  
+  const hook = doc.pain_point_hook || `Download a professional ${displayTitle} ${label}. Includes items, prices, and terms.`;
 
   return {
-    title: `Free ${displayTitle} ${docLabel} Template (2026)`,
+    title: `Free ${displayTitle} ${label} Template (2026)`,
     description: hook,
     alternates: {
       canonical: `https://www.microfreelancehub.com/templates/${params.slug}`,
@@ -119,29 +103,32 @@ export default async function TemplatePage({ params }: { params: { slug: string 
 
   const { doc, source } = result;
   
-  // Normalize Data
   const jobTitleRaw = source === 'sow' ? doc.title : (doc.job_title || doc.keyword);
   const title = toTitleCase(jobTitleRaw);
   const price = source === 'sow' ? doc.price : 0;
   
-  // --- DYNAMIC LABEL LOGIC ---
-  const docLabel = getDocLabel(title);
-  const docHeader = getDocHeader(title);
+  const isInvoice = doc.document_type === 'Invoice';
+  const docTypeLabel = isInvoice ? 'Invoice' : (doc.document_type || 'Contract');
 
-  const documentType = doc.document_type || 'Contract';
-  const painPoint = doc.pain_point_hook || `A battle-tested agreement for ${title}s. Define your scope, set your price, and protect your time.`;
+  const painPoint = doc.pain_point_hook || (isInvoice 
+    ? `Stop acting like a bank. Send a professional ${title} Invoice and get paid instantly via credit card or ACH.` 
+    : `Handshake deals are risky. Define your scope and protect your time with a solid agreement.`);
+    
   const legalTip = doc.legal_tip;
   
   const rawDeliverables = doc.deliverables;
-  const deliverablesList = Array.isArray(rawDeliverables) 
+  const listItems = Array.isArray(rawDeliverables) 
     ? rawDeliverables 
-    : (typeof rawDeliverables === 'string' ? [rawDeliverables] : ["Scope of work details...", "Payment Milestones", "Timeline"]);
+    : (typeof rawDeliverables === 'string' ? [rawDeliverables] : ["Item 1", "Item 2", "Item 3"]);
 
-  const introParagraph = `This Agreement is entered into by and between the Client and the Contractor. The Client wishes to engage the Contractor for professional ${title} services, and the Contractor agrees to perform such services in accordance with the terms and conditions set forth below.`;
+  const introParagraph = isInvoice
+    ? `This Invoice is for professional ${title} services rendered. By using this digital template, you can enable instant payments and automatic tax calculations.`
+    : `This Agreement is entered into by and between the Client and the Contractor. The Client wishes to engage the Contractor for professional ${title} services.`;
   
-  const standardsParagraph = `The Contractor agrees to perform the ${title} services in a professional manner, using the degree of skill and care that is required by current industry standards. The Contractor shall provide all tools and equipment necessary to complete the tasks unless otherwise agreed.`;
+  const standardsParagraph = isInvoice
+    ? `Payment is due upon receipt. Late payments may be subject to a fee. Please make checks payable to the Contractor or use the secure payment link provided.`
+    : `The Contractor agrees to perform the ${title} services in a professional manner, using the degree of skill and care that is required by current industry standards.`;
 
-  // Inline Related (Keep this for the sidebar)
   let relatedDocs = [];
   if (doc.batch_label) {
     const { data } = await supabase.from('seo_pages')
@@ -160,8 +147,9 @@ export default async function TemplatePage({ params }: { params: { slug: string 
         <div className="max-w-4xl mx-auto text-center">
           
           <div className="flex items-center justify-center gap-3 mb-6">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-600 rounded-full text-xs font-bold uppercase tracking-wider">
-              <FileText className="w-3.5 h-3.5" /> {documentType} Template
+            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${isInvoice ? 'bg-emerald-600 text-white' : 'bg-blue-600 text-white'}`}>
+              {isInvoice ? <Receipt className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />} 
+              {isInvoice ? 'Invoice Template' : 'Contract Template'}
             </div>
             <div className="text-slate-400 text-xs font-medium">
                Updated {new Date().getFullYear()}
@@ -169,8 +157,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
           </div>
 
           <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight leading-tight">
-            Free <span className="text-blue-400">{title}</span> <br className="hidden md:block"/>
-            <span className="text-white">{docHeader} Template</span>
+            Free <span className={isInvoice ? "text-emerald-400" : "text-blue-400"}>{title}</span> <br className="hidden md:block"/>
+            <span className="text-white">{isInvoice ? 'Invoice Template' : 'Service Agreement'}</span>
           </h1>
           
           <p className="text-lg md:text-xl text-slate-300 mb-8 max-w-2xl mx-auto leading-relaxed">
@@ -178,20 +166,20 @@ export default async function TemplatePage({ params }: { params: { slug: string 
           </p>
           
           {legalTip && (
-             <div className="max-w-2xl mx-auto bg-amber-500/10 border border-amber-500/30 p-4 rounded-xl mb-8 flex gap-4 text-left">
-                <div className="bg-amber-500/20 p-2 rounded-lg shrink-0 h-fit">
-                   <Shield className="w-5 h-5 text-amber-400" />
+             <div className={`max-w-2xl mx-auto border p-4 rounded-xl mb-8 flex gap-4 text-left ${isInvoice ? 'bg-emerald-900/30 border-emerald-500/30' : 'bg-amber-500/10 border-amber-500/30'}`}>
+                <div className={`p-2 rounded-lg shrink-0 h-fit ${isInvoice ? 'bg-emerald-500/20' : 'bg-amber-500/20'}`}>
+                   <Shield className={`w-5 h-5 ${isInvoice ? 'text-emerald-400' : 'text-amber-400'}`} />
                 </div>
                 <div>
-                   <h3 className="font-bold text-amber-400 text-xs uppercase mb-1">Pro Contractor Tip</h3>
-                   <p className="text-amber-100 text-sm leading-relaxed">{legalTip}</p>
+                   <h3 className={`font-bold text-xs uppercase mb-1 ${isInvoice ? 'text-emerald-400' : 'text-amber-400'}`}>{isInvoice ? 'Cash Flow Tip' : 'Pro Contractor Tip'}</h3>
+                   <p className={`text-sm leading-relaxed ${isInvoice ? 'text-emerald-100' : 'text-amber-100'}`}>{legalTip}</p>
                 </div>
              </div>
           )}
 
           <Link href={`/create?template=${params.slug}`}>
-            <button className="bg-white text-blue-900 font-bold px-8 py-4 rounded-full text-lg shadow-xl hover:bg-blue-50 hover:-translate-y-1 transition-all">
-              ✨ Customize This {docHeader}
+            <button className={`font-bold px-8 py-4 rounded-full text-lg shadow-xl hover:-translate-y-1 transition-all ${isInvoice ? 'bg-emerald-500 text-white hover:bg-emerald-400' : 'bg-white text-blue-900 hover:bg-blue-50'}`}>
+              ✨ {isInvoice ? 'Create Invoice Now' : 'Customize This Contract'}
             </button>
           </Link>
         </div>
@@ -206,23 +194,35 @@ export default async function TemplatePage({ params }: { params: { slug: string 
           {/* Section 1: The 'Why' */}
           <div className="mb-10">
             <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-4">
-              Why use a written agreement?
+              {isInvoice ? 'Why use a digital invoice?' : 'Why use a written agreement?'}
             </h2>
+            
+            {/* ✅ FIXED: Use React Elements instead of raw HTML string */}
             <p className="text-base md:text-lg text-slate-600 leading-relaxed">
-              Handshake deals are risky. As a <strong>{title}</strong>, "scope creep" is your biggest enemy. 
-              A clear <strong>{docLabel}</strong> ensures everyone agrees on the deliverables before money changes hands.
+              {isInvoice ? (
+                <>
+                  Paper invoices get lost. PDFs get ignored. As a <strong className="font-bold text-slate-900">{title}</strong>, cash flow is everything. Sending a digital invoice with a "Pay Now" button gets you paid 3x faster.
+                </>
+              ) : (
+                <>
+                  Handshake deals are risky. As a <strong className="font-bold text-slate-900">{title}</strong>, "scope creep" is your biggest enemy. A clear agreement ensures everyone agrees on the deliverables before money changes hands.
+                </>
+              )}
             </p>
           </div>
           
           {/* Section 2: What's Included */}
           <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 md:p-8 mb-10">
             <h3 className="text-lg md:text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-              <span className="text-blue-600">🛡️</span> What this template covers:
+              <span className={isInvoice ? "text-emerald-600" : "text-blue-600"}>{isInvoice ? '💸' : '🛡️'}</span> What this template covers:
             </h3>
             <ul className="space-y-4">
-               {['Deliverables List', 'Payment Terms', 'IP Rights', 'Revision Limits', 'Cancellation Policy'].map((item, i) => (
+               {(isInvoice 
+                  ? ['Itemized Labor & Materials', 'Automatic Tax Calculation', 'Instant "Pay Now" Button', 'Late Fee Terms', 'Professional Branding'] 
+                  : ['Deliverables List', 'Payment Terms', 'IP Rights', 'Revision Limits', 'Cancellation Policy']
+               ).map((item, i) => (
                   <li key={i} className="flex gap-4 items-start">
-                    <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center shrink-0 text-green-600 font-bold text-sm">✓</div>
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 font-bold text-sm ${isInvoice ? 'bg-emerald-100 text-emerald-600' : 'bg-green-100 text-green-600'}`}>✓</div>
                     <span className="font-bold text-slate-900">{item}</span>
                   </li>
                ))}
@@ -247,12 +247,12 @@ export default async function TemplatePage({ params }: { params: { slug: string 
           )}
 
           {/* Section 4: CTA Box */}
-          <div className="p-6 bg-blue-50 rounded-xl border border-blue-100 mt-auto">
-            <h4 className="font-bold text-blue-900 mb-2 text-lg">Ready to send?</h4>
+          <div className={`p-6 rounded-xl border mt-auto ${isInvoice ? 'bg-emerald-50 border-emerald-100' : 'bg-blue-50 border-blue-100'}`}>
+            <h4 className={`font-bold mb-2 text-lg ${isInvoice ? 'text-emerald-900' : 'text-blue-900'}`}>Ready to send?</h4>
             <p className="text-slate-700 mb-4 leading-relaxed">
-              Our AI will fill in the client's name, dates, and specific project details for you.
+              {isInvoice ? 'Our AI will organize your line items and calculate totals automatically.' : 'Our AI will fill in the client\'s name, dates, and specific project details for you.'}
             </p>
-            <Link href={`/create?template=${params.slug}`} className="text-blue-600 font-bold hover:underline flex items-center gap-1">
+            <Link href={`/create?template=${params.slug}`} className={`font-bold hover:underline flex items-center gap-1 ${isInvoice ? 'text-emerald-700' : 'text-blue-600'}`}>
               Start building now &rarr;
             </Link>
           </div>
@@ -260,7 +260,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
 
         {/* RIGHT: The "Meaty" Macbook Window Preview */}
         <div className="relative lg:sticky lg:top-24 h-fit">
-          <div className="absolute inset-0 bg-blue-600/5 transform rotate-1 rounded-2xl"></div>
+          <div className={`absolute inset-0 transform rotate-1 rounded-2xl ${isInvoice ? 'bg-emerald-600/5' : 'bg-blue-600/5'}`}></div>
           <div className="relative bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden">
             
             {/* Mock Browser Bar */}
@@ -276,35 +276,46 @@ export default async function TemplatePage({ params }: { params: { slug: string 
               
               {/* HEADER */}
               <div className="border-b-2 border-slate-900 pb-4 mb-6 flex justify-between items-end">
-                <h2 className="text-xl md:text-2xl font-bold uppercase tracking-tight text-slate-900">{docHeader}</h2>
+                <h2 className="text-xl md:text-2xl font-bold uppercase tracking-tight text-slate-900">
+                    {isInvoice ? 'INVOICE' : 'Statement of Work'}
+                </h2>
                 <span className="text-xs md:text-sm font-mono text-slate-500">REF: {new Date().getFullYear()}-001</span>
               </div>
 
-              {/* SECTION 1: BACKGROUND */}
+              {/* SECTION 1: BACKGROUND / BILL TO */}
               <div className="mb-6">
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">1. Project Background</h3>
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+                    {isInvoice ? '1. Bill To' : '1. Project Background'}
+                </h3>
                 <p className="text-slate-600 text-justify">
                     {introParagraph}
                 </p>
               </div>
 
-              {/* SECTION 2: SCOPE */}
+              {/* SECTION 2: SCOPE / ITEMS */}
               <div className="mb-6">
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">2. Scope of Services</h3>
-                <p className="text-slate-600 mb-3">The Contractor shall provide the following specific deliverables:</p>
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+                    {isInvoice ? '2. Billable Items' : '2. Scope of Services'}
+                </h3>
+                <p className="text-slate-600 mb-3">
+                    {isInvoice ? 'The following items are billed for this period:' : 'The Contractor shall provide the following deliverables:'}
+                </p>
                 <ul className="space-y-2 pl-2">
-                  {deliverablesList.map((item: string, i: number) => (
+                  {listItems.map((item: string, i: number) => (
                     <li key={i} className="flex items-start gap-3 text-slate-800 font-medium">
-                      <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0"></div>
+                      <div className={`mt-1.5 w-1.5 h-1.5 rounded-full shrink-0 ${isInvoice ? 'bg-emerald-600' : 'bg-blue-600'}`}></div>
                       <span className="leading-relaxed">{item}</span>
+                      {isInvoice && <span className="ml-auto font-mono text-slate-400">$0.00</span>}
                     </li>
                   ))}
                 </ul>
               </div>
 
-              {/* SECTION 3: STANDARDS */}
+              {/* SECTION 3: STANDARDS / TERMS */}
               <div className="mb-6">
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">3. Performance Standards</h3>
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+                    {isInvoice ? '3. Payment Instructions' : '3. Performance Standards'}
+                </h3>
                 <p className="text-slate-600 text-justify">
                     {standardsParagraph}
                 </p>
@@ -312,26 +323,25 @@ export default async function TemplatePage({ params }: { params: { slug: string 
 
               {/* SECTION 4: PRICE */}
               <div className="mb-8 p-4 bg-slate-50 rounded-lg border border-slate-100 flex justify-between items-center">
-                <span className="font-bold text-slate-600">Total Project Value</span>
+                <span className="font-bold text-slate-600">Total {isInvoice ? 'Due' : 'Value'}</span>
                 <span className="font-bold text-xl md:text-2xl text-slate-900">
-                  {price > 0 ? `$${price.toLocaleString()}` : 'Variable'}
+                  {price > 0 ? `$${price.toLocaleString()}` : (isInvoice ? '$0.00' : 'Variable')}
                 </span>
               </div>
 
               {/* SECTION 5: LEGAL FOOTER */}
               <div className="text-[10px] text-slate-400 leading-normal border-t border-slate-100 pt-6">
                 <p className="mb-2"><strong>TERMS & CONDITIONS (Summary):</strong></p>
-                <p>1. <strong>Payment:</strong> 50% Non-refundable deposit required to begin work.</p>
-                <p>2. <strong>Copyright:</strong> Rights transfer to Client only upon full payment.</p>
-                <p>3. <strong>Liability:</strong> Contractor liability limited to total project fee.</p>
+                <p>1. <strong>Payment:</strong> {isInvoice ? 'Due upon receipt.' : '50% Deposit required.'}</p>
+                <p>2. <strong>Copyright:</strong> Rights transfer to Client upon full payment.</p>
                 <p className="mt-4 italic text-[9px] text-slate-300">Disclaimer: This template is for educational purposes only and does not constitute legal advice.</p>
               </div>
 
               {/* Overlay Button */}
               <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white via-white/95 to-transparent flex items-end justify-center pb-6">
                   <Link href={`/create?template=${params.slug}`}>
-                    <button className="bg-slate-900 text-white px-6 py-3 rounded-lg font-bold shadow-lg hover:bg-slate-800 transition-transform hover:-translate-y-1">
-                      Use This Template Free &rarr;
+                    <button className={`text-white px-6 py-3 rounded-lg font-bold shadow-lg transition-transform hover:-translate-y-1 ${isInvoice ? 'bg-emerald-900 hover:bg-emerald-800' : 'bg-slate-900 hover:bg-slate-800'}`}>
+                      {isInvoice ? 'Use This Invoice Free' : 'Use This Template Free'} &rarr;
                     </button>
                   </Link>
               </div>
