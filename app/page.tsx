@@ -8,7 +8,10 @@ import {
   CheckCircle2, 
   ShieldCheck, 
   Smartphone,
-  FileSignature
+  Wrench,
+  Paintbrush,
+  Code2,
+  TrendingUp
 } from 'lucide-react';
 
 export default function Home() {
@@ -58,27 +61,26 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* 2. HERO SECTION (Updated for Trades) */}
-      <section className="px-6 pt-24 pb-24 md:pt-32 md:pb-32 max-w-5xl mx-auto text-center relative overflow-hidden">
+      {/* 2. HERO SECTION (Honest & High-Converting) */}
+      <section className="px-6 pt-20 pb-12 md:pt-28 md:pb-16 max-w-6xl mx-auto text-center relative">
         {/* Background Gradients */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-indigo-50 rounded-full blur-3xl opacity-50 -z-10 pointer-events-none"></div>
 
-        <div className="space-y-8 relative z-10">
+        <div className="space-y-8 relative z-10 max-w-4xl mx-auto">
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
             Send Contracts. <br className="hidden md:block" />
             Get Signed. <span className="text-blue-600">Get Paid.</span>
           </h1>
           
           <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            The operating system built for <b>Contractors & Trades</b>. 
-            Hand your phone to the client for an instant signature, or email a secure link.
-            <br/><span className="text-sm text-slate-500 mt-2 block">(Works for Creative Freelancers too).</span>
+            The operating system built for <strong className="text-slate-900 font-bold">Contractors & Trades</strong>. 
+            Hand your phone to the client for an instant signature, or email a secure link to get paid instantly.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link href="/create" className="w-full sm:w-auto">
               <div className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-200 rounded-xl px-8 py-4 font-bold text-lg flex items-center justify-center transition-all hover:-translate-y-1 hover:shadow-blue-300">
-                Start Service Agreement
+                Build Free Contract
                 <ArrowRight className="ml-2 h-5 w-5" />
               </div>
             </Link>
@@ -88,20 +90,89 @@ export default function Home() {
               </div>
             </Link>
           </div>
-          
-          <div className="flex flex-wrap justify-center gap-4 text-sm text-slate-500 pt-6">
-            <span className="inline-flex items-center"><Smartphone className="h-4 w-4 mr-1 text-blue-600"/> Kiosk Mode (Sign on Glass)</span>
-            <span className="hidden sm:inline text-slate-300">•</span>
-            <span className="inline-flex items-center"><CheckCircle2 className="h-4 w-4 mr-1 text-green-600"/> Free for 3 projects</span>
-            <span className="hidden sm:inline text-slate-300">•</span>
-            <span className="inline-flex items-center"><FileSignature className="h-4 w-4 mr-1 text-purple-600"/> Zero Liability (You own the contract)</span>
+
+          {/* Honest Trust Badges */}
+          <div className="flex flex-wrap justify-center gap-3 sm:gap-6 pt-6">
+            <div className="flex items-center gap-2 bg-slate-50/80 backdrop-blur-sm px-4 py-2 rounded-full border border-slate-200 shadow-sm">
+              <Smartphone className="h-4 w-4 text-blue-600" />
+              <span className="text-sm font-bold text-slate-700">Mobile Friendly</span>
+            </div>
+            <div className="flex items-center gap-2 bg-slate-50/80 backdrop-blur-sm px-4 py-2 rounded-full border border-slate-200 shadow-sm">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+              <span className="text-sm font-bold text-slate-700">Free for 3 Projects</span>
+            </div>
+            <div className="flex items-center gap-2 bg-slate-50/80 backdrop-blur-sm px-4 py-2 rounded-full border border-slate-200 shadow-sm">
+              <ShieldCheck className="h-4 w-4 text-purple-600" />
+              <span className="text-sm font-bold text-slate-700">Zero Liability</span>
+            </div>
           </div>
+        </div>
+
+        {/* 3. THE MOCKUP (Realistic & Honest) */}
+        <div className="mt-16 relative max-w-4xl mx-auto translate-y-12 z-20 hidden md:block hover:-translate-y-2 transition-transform duration-500">
+           <div className="absolute inset-0 bg-gradient-to-b from-blue-500/10 to-transparent blur-3xl -z-10 rounded-full"></div>
+           <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col text-left">
+              
+              {/* Mock Browser/App Header */}
+              <div className="bg-slate-50 border-b border-slate-100 px-6 py-4 flex items-center justify-between">
+                 <div className="flex gap-2">
+                    <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                    <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                    <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                 </div>
+                 <div className="text-xs font-mono font-bold text-slate-400 tracking-widest uppercase flex items-center gap-2">
+                    <Smartphone className="w-3 h-3" /> Client View
+                 </div>
+              </div>
+              
+              {/* Mock App Body - REAL TEXT */}
+              <div className="p-8 grid md:grid-cols-2 gap-8 bg-slate-50/50">
+                 
+                 {/* Left side: Invoice Details */}
+                 <div className="bg-white p-6 border border-slate-200 rounded-xl shadow-sm">
+                    <div className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-4">Invoice #2026-001</div>
+                    <div className="text-2xl font-extrabold text-slate-900 mb-2">Emergency Plumbing Repair</div>
+                    <div className="text-sm text-slate-500 mb-6">Billed to: John Doe (123 Main St)</div>
+                    <div className="space-y-3">
+                       <div className="flex justify-between text-sm border-b border-slate-50 pb-2">
+                          <span className="text-slate-600 font-medium">Labor (2 hours)</span>
+                          <span className="text-slate-900">$190.00</span>
+                       </div>
+                       <div className="flex justify-between text-sm border-b border-slate-50 pb-2">
+                          <span className="text-slate-600 font-medium">Parts (PVC & Sealant)</span>
+                          <span className="text-slate-900">$45.00</span>
+                       </div>
+                    </div>
+                 </div>
+                 
+                 {/* Right side: Total & Action */}
+                 <div className="bg-white p-6 border border-slate-200 rounded-xl shadow-sm flex flex-col justify-center">
+                    <div className="flex justify-between border-b border-slate-100 pb-3 mb-3">
+                       <span className="text-slate-500 text-sm">Subtotal</span>
+                       <span className="font-medium text-slate-900 text-sm">$235.00</span>
+                    </div>
+                    <div className="flex justify-between border-b border-slate-100 pb-3 mb-6">
+                       <span className="text-slate-500 text-sm">Tax (7%)</span>
+                       <span className="font-medium text-slate-900 text-sm">$16.45</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                       <div>
+                          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Due</div>
+                          <div className="text-3xl font-extrabold text-slate-900">$251.45</div>
+                       </div>
+                       <button className="bg-emerald-500 text-white px-6 py-3 rounded-lg shadow-lg shadow-emerald-200 font-bold text-sm flex items-center gap-2 cursor-default hover:-translate-y-0.5 transition-transform">
+                          <CheckCircle2 className="w-4 h-4" /> Pay Now
+                       </button>
+                    </div>
+                 </div>
+
+              </div>
+           </div>
         </div>
       </section>
 
       {/* 4. FOUNDER STORY SECTION */}
-      <section className="bg-slate-900 text-white py-20 md:py-28 relative overflow-hidden">
-        {/* Background Pattern */}
+      <section className="bg-slate-900 text-white py-20 md:pt-40 md:pb-28 relative overflow-hidden z-10">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10 pointer-events-none"></div>
         
         <div className="max-w-4xl mx-auto px-6 relative z-10 text-center">
@@ -132,7 +203,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. TEMPLATES SECTION (REORDERED: Trades First) */}
+      {/* 5. TEMPLATES SECTION */}
       <div className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-200 bg-white relative z-10">
         <div className="text-center mb-16">
           <div className="inline-block px-3 py-1 rounded-full bg-gray-100 text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Templates</div>
@@ -143,9 +214,11 @@ export default function Home() {
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           
-          {/* Trades (MOVED TO FIRST POSITION) */}
+          {/* Trades */}
           <div className="bg-white border border-slate-200 rounded-xl p-6 hover:border-indigo-600 transition-colors group shadow-sm hover:shadow-md">
-            <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-lg group-hover:text-indigo-600 transition-colors">🔨 Trades & Service</h3>
+            <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-lg group-hover:text-indigo-600 transition-colors">
+              <Wrench className="w-5 h-5 text-indigo-500" /> Trades & Service
+            </h3>
             <ul className="space-y-3 text-sm">
               <li><Link href="/templates/plumber-contract-template" className="text-slate-500 hover:text-black hover:underline">Plumbing Agreement</Link></li>
               <li><Link href="/templates/electrician-contract-template" className="text-slate-500 hover:text-black hover:underline">Electrician Service Agrmt</Link></li>
@@ -157,31 +230,37 @@ export default function Home() {
 
           {/* Creative */}
           <div className="bg-white border border-slate-200 rounded-xl p-6 hover:border-indigo-600 transition-colors group">
-            <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-lg group-hover:text-indigo-600 transition-colors">🎨 Creative</h3>
+            <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-lg group-hover:text-indigo-600 transition-colors">
+              <Paintbrush className="w-5 h-5 text-indigo-500" /> Creative
+            </h3>
             <ul className="space-y-3 text-sm">
-              <li><Link href="/templates/graphic-design-contract" className="text-slate-500 hover:text-black">Graphic Design SOW</Link></li>
-              <li><Link href="/templates/video-editor-contract" className="text-slate-500 hover:text-black">Video Editor Agreement</Link></li>
-              <li><Link href="/templates/freelance-ux-designer" className="text-slate-500 hover:text-black">UX/UI Design Scope</Link></li>
+              <li><Link href="/templates/graphic-design-contract" className="text-slate-500 hover:text-black hover:underline">Graphic Design SOW</Link></li>
+              <li><Link href="/templates/video-editor-contract" className="text-slate-500 hover:text-black hover:underline">Video Editor Agreement</Link></li>
+              <li><Link href="/templates/freelance-ux-designer" className="text-slate-500 hover:text-black hover:underline">UX/UI Design Scope</Link></li>
             </ul>
           </div>
 
           {/* Tech */}
           <div className="bg-white border border-slate-200 rounded-xl p-6 hover:border-indigo-600 transition-colors group">
-            <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-lg group-hover:text-indigo-600 transition-colors">💻 Tech</h3>
+            <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-lg group-hover:text-indigo-600 transition-colors">
+              <Code2 className="w-5 h-5 text-indigo-500" /> Tech
+            </h3>
             <ul className="space-y-3 text-sm">
-              <li><Link href="/templates/web-development-contract" className="text-slate-500 hover:text-black">Web Developer Contract</Link></li>
-              <li><Link href="/templates/mobile-app-developer-contract" className="text-slate-500 hover:text-black">Mobile App SOW</Link></li>
-              <li><Link href="/templates/full-stack-engineer-contractor" className="text-slate-500 hover:text-black">Software Engineer Agreement</Link></li>
+              <li><Link href="/templates/web-development-contract" className="text-slate-500 hover:text-black hover:underline">Web Developer Contract</Link></li>
+              <li><Link href="/templates/mobile-app-developer-contract" className="text-slate-500 hover:text-black hover:underline">Mobile App SOW</Link></li>
+              <li><Link href="/templates/full-stack-engineer-contractor" className="text-slate-500 hover:text-black hover:underline">Software Engineer Agreement</Link></li>
             </ul>
           </div>
 
           {/* Marketing */}
           <div className="bg-white border border-slate-200 rounded-xl p-6 hover:border-indigo-600 transition-colors group">
-            <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-lg group-hover:text-indigo-600 transition-colors">📈 Marketing</h3>
+            <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-lg group-hover:text-indigo-600 transition-colors">
+              <TrendingUp className="w-5 h-5 text-indigo-500" /> Marketing
+            </h3>
             <ul className="space-y-3 text-sm">
-              <li><Link href="/templates/social-media-manager-contract" className="text-slate-500 hover:text-black">Social Media Contract</Link></li>
-              <li><Link href="/templates/seo-specialist-contract" className="text-slate-500 hover:text-black">SEO Retainer</Link></li>
-              <li><Link href="/templates/copywriting-contract" className="text-slate-500 hover:text-black">Copywriting SOW</Link></li>
+              <li><Link href="/templates/social-media-manager-contract" className="text-slate-500 hover:text-black hover:underline">Social Media Contract</Link></li>
+              <li><Link href="/templates/seo-specialist-contract" className="text-slate-500 hover:text-black hover:underline">SEO Retainer</Link></li>
+              <li><Link href="/templates/copywriting-contract" className="text-slate-500 hover:text-black hover:underline">Copywriting SOW</Link></li>
             </ul>
           </div>
           
@@ -190,7 +269,6 @@ export default function Home() {
 
       {/* 6. CTA Footer */}
       <section className="bg-black py-24 relative overflow-hidden">
-        {/* Background glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-indigo-600 opacity-20 blur-[120px] rounded-full pointer-events-none"></div>
         
         <div className="max-w-4xl mx-auto text-center px-4 relative z-10">
