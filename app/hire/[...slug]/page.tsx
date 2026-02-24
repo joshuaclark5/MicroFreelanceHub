@@ -1,8 +1,8 @@
-import { redirect } from 'next/navigation';
+import { permanentRedirect } from 'next/navigation';
 
-// 🛑 THE TRAP DOOR
+// 🛑 THE TRAP DOOR (Upgraded for SEO)
 // This page catches ANY traffic to /hire/anything
-// and forces it to the new /templates/ location.
+// and forces it to the new /templates/ location PERMANENTLY.
 
 export default function HireRedirect({ params }: { params: { slug: string[] } }) {
   // 1. Grab the URL parts (e.g. "hire-freelance-grant-writer")
@@ -13,7 +13,8 @@ export default function HireRedirect({ params }: { params: { slug: string[] } })
   // Example: "hire-plumber" -> "plumber"
   const cleanSlug = slugPath.replace(/^hire-/, '');
   
-  // 3. FORCE THE MOVE
-  // Send them to: /templates/plumber-contract-template
-  redirect(`/templates/${cleanSlug}-contract-template`);
+  // 3. FORCE THE PERMANENT MOVE (308 Redirect)
+  // This tells Google to delete the old /hire/ link from its memory 
+  // and replace it with the new safe link.
+  permanentRedirect(`/templates/${cleanSlug}-contract-template`);
 }

@@ -4,7 +4,7 @@ import { ImageResponse } from 'next/og'
 export const runtime = 'edge'
  
 // Image metadata
-export const alt = 'Free Freelance Contract Template'
+export const alt = 'Free MicroFreelanceHub Template'
 export const size = {
   width: 1200,
   height: 630,
@@ -17,11 +17,14 @@ export default async function Image({ params }: { params: { slug: string } }) {
   // 1. Get the slug
   const slug = params.slug
   
-  // 2. ROBUST FORMATTING (Fixes "General Contractor" bug)
+  // ✅ 2. DETECT MODE: Is this an Invoice or a Contract?
+  const isInvoice = slug.includes('-invoice');
+  
+  // 3. ROBUST FORMATTING
   let cleanSlug = slug;
 
   // Remove known suffixes from the END of the string only
-  const suffixes = ['-contract-template', '-contract', '-template'];
+  const suffixes = ['-invoice-template', '-invoice', '-contract-template', '-contract', '-template'];
   for (const suffix of suffixes) {
     if (cleanSlug.endsWith(suffix)) {
       cleanSlug = cleanSlug.slice(0, -suffix.length);
@@ -38,12 +41,23 @@ export default async function Image({ params }: { params: { slug: string } }) {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
  
+  // ✅ 4. CHAMELEON STYLING
+  const bgGradient = isInvoice 
+    ? 'linear-gradient(to bottom right, #0f172a, #064e3b)' // Slate to Emerald
+    : 'linear-gradient(to bottom right, #0f172a, #1e3a8a)'; // Slate to Blue
+
+  const badgeColor = isInvoice ? '#059669' : '#2563eb'; // Emerald-600 vs Blue-600
+  const docTypeLabel = isInvoice ? 'Invoice' : 'Contract';
+  const subtitleText = isInvoice 
+    ? 'Itemized Billing & Instant Payments' 
+    : 'Professional Scope of Work & Legal Terms';
+
   return new ImageResponse(
     (
       // ImageDesign
       <div
         style={{
-          background: 'linear-gradient(to bottom right, #0f172a, #1e3a8a)', // Slate-900 to Blue-900
+          background: bgGradient,
           height: '100%',
           width: '100%',
           display: 'flex',
@@ -74,7 +88,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: '#2563eb', // Blue-600
+            background: badgeColor,
             color: 'white',
             padding: '8px 20px',
             borderRadius: '50px',
@@ -94,7 +108,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
         <div
           style={{
             display: 'flex', 
-            fontSize: 70, // Slightly smaller to prevent overflow
+            fontSize: 70, 
             fontWeight: 900,
             lineHeight: 1.1,
             marginBottom: 20,
@@ -107,7 +121,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
             zIndex: 10,
           }}
         >
-          {title} Contract
+          {title} {docTypeLabel}
         </div>
 
         {/* Subtitle */}
@@ -115,14 +129,14 @@ export default async function Image({ params }: { params: { slug: string } }) {
           style={{
             display: 'flex',
             fontSize: 30,
-            color: '#93c5fd', // Blue-300
+            color: isInvoice ? '#6ee7b7' : '#93c5fd', // Emerald-300 vs Blue-300
             marginTop: 10,
             justifyContent: 'center',
             textAlign: 'center',
             zIndex: 10,
           }}
         >
-          Professional Scope of Work & Legal Terms
+          {subtitleText}
         </div>
 
         {/* Footer Brand */}
@@ -137,7 +151,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
             zIndex: 10,
           }}
         >
-            <div style={{ fontSize: 24, fontWeight: 'bold' }}>MicroFreelanceHub</div>
+          <div style={{ fontSize: 24, fontWeight: 'bold' }}>MicroFreelanceHub</div>
         </div>
       </div>
     ),
