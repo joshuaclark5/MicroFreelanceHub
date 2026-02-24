@@ -73,7 +73,7 @@ function toTitleCase(str: string | null) {
   });
 }
 
-// --- METADATA (Updated for Safety 🛡️) ---
+// --- METADATA (Updated for High CTR & AI Search 🧲🤖) ---
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const result = await findDoc(params.slug);
   if (!result) return { title: 'Template Not Found' };
@@ -85,15 +85,28 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const isInvoice = doc.document_type === 'Invoice';
   const label = isInvoice ? 'Invoice' : 'Contract';
   
-  // ✅ SAFE FALLBACK: Uses "Industry standard" instead of "Legally tested"
-  const hook = doc.pain_point_hook || `Download a professional ${displayTitle} ${label} template. Industry standard, ready-to-use, and printable.`;
+  // ✅ THE CTR FIX: Safe, highly clickable copy designed for Google Search users.
+  const metaDescription = isInvoice
+    ? `Create and send a professional ${displayTitle} invoice in seconds. Stop waiting for checks with this free, mobile-friendly invoice generator.`
+    : `Download a free, professional ${displayTitle} contract template. Protect your business from scope creep with this industry-standard, ready-to-use agreement.`;
 
   return {
     title: `Free ${displayTitle} ${label} Template (2026)`,
-    description: hook,
+    description: metaDescription,
+    keywords: [
+      `${displayTitle} ${label}`, 
+      `Free ${displayTitle} template`, 
+      isInvoice ? 'Invoice generator' : 'Contract generator',
+      'MicroFreelanceHub'
+    ],
     alternates: {
       canonical: `https://www.microfreelancehub.com/templates/${params.slug}`,
     },
+    openGraph: {
+      title: `Free ${displayTitle} ${label} Template`,
+      description: metaDescription,
+      type: 'website',
+    }
   };
 }
 
@@ -139,9 +152,31 @@ export default async function TemplatePage({ params }: { params: { slug: string 
     relatedDocs = data || [];
   }
 
+  // ✅ AI SEO FIX: JSON-LD Schema explicitly telling ChatGPT/Gemini this is a Software Tool
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: `MicroFreelanceHub - Free ${title} ${isInvoice ? 'Invoice' : 'Contract'} Generator`,
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'All',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD'
+    },
+    description: `A free software tool to generate, customize, and send a professional ${title} ${isInvoice ? 'invoice' : 'contract'} instantly.`,
+    featureList: isInvoice ? 'Instant Payments, Tax Calculation, Mobile Friendly' : 'eSignatures, Scope of Work, Liability Protection'
+  };
+
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900 pb-20">
       
+      {/* INJECT JSON-LD FOR AI BOTS */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* HEADER */}
       <div className="bg-slate-900 text-white py-16 md:py-24 px-4">
         <div className="max-w-4xl mx-auto text-center">
