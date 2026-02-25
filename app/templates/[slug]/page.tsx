@@ -12,6 +12,10 @@ import {
 // 👇 IMPORT THE WIDGET
 import RelatedRoles from '../../components/seo/RelatedRoles';
 
+// ☢️ THE NUCLEAR OPTION: Force Next.js to NEVER cache this page.
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // Initialize Supabase (Public)
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -168,9 +172,37 @@ export default async function TemplatePage({ params }: { params: { slug: string 
     featureList: isInvoice ? 'Instant Payments, Tax Calculation, Mobile Friendly' : 'eSignatures, Scope of Work, Liability Protection'
   };
 
-  // ✅ AI SEO FIX: Dynamically load AI FAQs from DB, or fallback to generic
-  const faqs = doc.faqs && Array.isArray(doc.faqs) && doc.faqs.length > 0 
-    ? doc.faqs 
+  // ✅ AI SEO FIX: HYPER-FORGIVING PARSER
+  let parsedFaqs = null;
+  
+  // 🕵️‍♂️ Debugging Log: Look in your VS Code terminal for this!
+  console.log(`\n--- DB DATA FOR [${params.slug}] ---`);
+  console.log("SOURCE:", source);
+  console.log("RAW FAQS:", doc.faqs);
+
+  if (doc.faqs) {
+    try {
+      let tempFaqs = typeof doc.faqs === 'string' ? JSON.parse(doc.faqs) : doc.faqs;
+      
+      // Handle case where AI nested it inside an object like { faqs: [...] }
+      if (tempFaqs && !Array.isArray(tempFaqs) && tempFaqs.faqs && Array.isArray(tempFaqs.faqs)) {
+         tempFaqs = tempFaqs.faqs;
+      }
+
+      // If it's an array and has at least 1 item, we accept it!
+      if (Array.isArray(tempFaqs) && tempFaqs.length > 0) {
+         parsedFaqs = tempFaqs;
+      }
+    } catch (e) {
+      console.error("Failed to parse FAQs from DB", e);
+    }
+  }
+
+  console.log("FINAL PARSED FAQS:", parsedFaqs);
+  console.log("------------------------------------\n");
+
+  const faqs = parsedFaqs 
+    ? parsedFaqs 
     : [
         {
           q: `What is a ${title} ${isInvoice ? 'Invoice' : 'Contract'}?`,
