@@ -20,20 +20,21 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-const model = google('gemini-flash-latest'); 
+const model = google('gemini-flash-latest');
 
 // --- MAIN FUNCTION ---
 async function enrichContent() {
-  console.log('💎 Starting SEO Enrichment V2 (Hooks + Tips + Deliverables)...');
+  console.log('💎 Starting SEO Enrichment V3 (Adding FAQs)...');
 
   // Loop until no more rows are found
   while (true) {
     // 1. Fetch rows that need content
-    // We check if 'deliverables' is NULL to target the new batch
+    // ✅ CHANGED: Now targeting pages where 'faqs' is null so it updates existing pages!
     const { data: rows, error } = await supabase
       .from('seo_pages')
       .select('id, job_title, slug')
-      .is('deliverables', null) 
+      .neq('document_type', 'Invoice')
+      .is('faqs', null) 
       .limit(50); // Increased batch size for efficiency
 
     if (error) {
@@ -42,7 +43,7 @@ async function enrichContent() {
     }
 
     if (!rows || rows.length === 0) {
-      console.log('✅ All pages are already enriched!');
+      console.log('✅ All Contract pages are already enriched with FAQs!');
       break;
     }
 
@@ -69,17 +70,23 @@ async function processRowWithRetry(row: { id: string; job_title: string }) {
         You are a grumpy, seasoned veteran contractor and freelancer mentor. 
         You speak in direct, punchy, "Blue Collar" professional terms. No fluff.
         
-        TASK: Generate Content for a: ${row.job_title}.
+        TASK: Generate Content for a: ${row.job_title} Contract Template.
         
         1. pain_point_hook: 2 sentences max. Focus on specific financial risks (lost money, damaged gear, lawsuits). VISCERAL.
         2. legal_tip: 1 sentence. Recommend a specific contract clause (e.g. "Kill Fee", "Overtime", "Lien Waiver").
         3. deliverables: A JSON Array of 5-7 specific, physical tasks this job performs. (e.g. "Rough-in Inspection", "Pressure Test", "Debris Removal").
+        4. faqs: A JSON array of exactly 3 unique, realistic questions this specific professional would ask about getting paid or managing client scope. CRITICAL: Do NOT give legal advice. Give practical business advice and explain how using a written agreement helps enforce those boundaries.
         
         CRITICAL OUTPUT FORMAT: Return ONLY a valid JSON object.
         {
           "pain_point_hook": "...",
           "legal_tip": "...",
-          "deliverables": ["...", "..."]
+          "deliverables": ["...", "..."],
+          "faqs": [
+            { "q": "...", "a": "..." },
+            { "q": "...", "a": "..." },
+            { "q": "...", "a": "..." }
+          ]
         }
       `;
 
@@ -97,14 +104,13 @@ async function processRowWithRetry(row: { id: string; job_title: string }) {
         .update({
           pain_point_hook: json.pain_point_hook,
           legal_tip: json.legal_tip,
-          deliverables: json.deliverables // ✅ Now saving the checklist!
+          deliverables: json.deliverables,
+          faqs: json.faqs // ✅ Saving the new FAQs!
         })
         .eq('id', row.id);
 
       if (error) throw error;
-      // Show us the first deliverable so we know it worked
-      const preview = json.deliverables ? json.deliverables[0] : "No deliverables";
-      console.log(`   ✅ Saved: "${preview}..."`);
+      console.log(`   ✅ Saved FAQs for: ${row.job_title}`);
       return; // Success! Exit the retry loop
 
     } catch (err: any) {

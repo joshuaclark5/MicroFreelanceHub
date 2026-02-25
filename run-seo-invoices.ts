@@ -19,20 +19,19 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// ✅ Using the exact same model tag that works in your other file
-const model = google('gemini-flash-latest'); 
+const model = google('gemini-flash-latest');
 
 // --- MAIN FUNCTION ---
 async function enrichInvoices() {
-  console.log('💸 Starting INVOICE Enrichment (Cash Flow Edition)...');
+  console.log('💸 Starting INVOICE Enrichment (Cash Flow Edition + FAQs)...');
 
   while (true) {
-    // 1. Fetch rows: specifically INVOICES that have no deliverables yet
+    // 1. Fetch rows: specifically INVOICES where 'faqs' is null
     const { data: rows, error } = await supabase
       .from('seo_pages')
       .select('id, job_title, slug')
-      .eq('document_type', 'Invoice') // <--- TARGETS THE NEW BATCH
-      .is('deliverables', null) 
+      .eq('document_type', 'Invoice') 
+      .is('faqs', null) 
       .limit(10);
 
     if (error) {
@@ -41,7 +40,7 @@ async function enrichInvoices() {
     }
 
     if (!rows || rows.length === 0) {
-      console.log('✅ All Invoice pages are enriched!');
+      console.log('✅ All Invoice pages are enriched with FAQs!');
       break;
     }
 
@@ -61,7 +60,7 @@ async function processInvoiceWithRetry(row: { id: string; job_title: string }) {
   
   while (attempts < 5) {
     try {
-      console.log(`📝 Generating Invoice for: ${row.job_title}...`);
+      console.log(`📝 Generating Invoice Data for: ${row.job_title}...`);
 
       const prompt = `
         You are a veteran ${row.job_title} business mentor.
@@ -71,9 +70,10 @@ async function processInvoiceWithRetry(row: { id: string; job_title: string }) {
         
         1. pain_point_hook: Write 1 sentence about the pain of clients paying late or disputing bills. (e.g., "Stop chasing checks and get paid instantly.")
         2. legal_tip: Write 1 professional tip about payment terms (e.g., "Always demand a 50% deposit for materials upfront.")
-        3. deliverables: A JSON Array of 5-7 common billable line items for a ${row.job_title} invoice. (e.g., "Rough-in Labor", "Materials", "Disposal Fee").
+        3. deliverables: A JSON Array of 5-7 common billable line items for a ${row.job_title} invoice.
         4. seo_title: "Free ${row.job_title} Invoice Template & Generator"
         5. seo_desc: "Create and send a professional ${row.job_title} invoice in seconds. Mobile-friendly, printable, and accepts credit card payments instantly."
+        6. faqs: A JSON array of exactly 3 unique, realistic questions this specific professional would ask about getting paid, deposits, or late fees. CRITICAL: Do NOT give legal advice. Explain how using a digital invoice helps solve these problems.
         
         CRITICAL OUTPUT FORMAT: Return ONLY a valid JSON object.
         {
@@ -81,7 +81,12 @@ async function processInvoiceWithRetry(row: { id: string; job_title: string }) {
           "legal_tip": "...",
           "deliverables": ["...", "..."],
           "seo_title": "...",
-          "seo_desc": "..."
+          "seo_desc": "...",
+          "faqs": [
+            { "q": "...", "a": "..." },
+            { "q": "...", "a": "..." },
+            { "q": "...", "a": "..." }
+          ]
         }
       `;
 
@@ -103,14 +108,14 @@ async function processInvoiceWithRetry(row: { id: string; job_title: string }) {
           deliverables: json.deliverables,
           seo_title: json.seo_title,
           seo_desc: json.seo_desc,
+          faqs: json.faqs, // ✅ Saving the new FAQs!
           updated_at: new Date().toISOString()
         })
         .eq('id', row.id);
 
       if (error) throw error;
       
-      const preview = json.deliverables ? json.deliverables[0] : "No items";
-      console.log(`   ✅ Saved: "${preview}..."`);
+      console.log(`   ✅ Saved FAQs for: ${row.job_title}`);
       return; // Success!
 
     } catch (err: any) {

@@ -82,7 +82,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
           }}
         />
 
-        {/* Badge */}
+        {/* High-CTR Badge */}
         <div
           style={{
             display: 'flex',
@@ -101,7 +101,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
             zIndex: 10,
           }}
         >
-          Verified Template
+          Free Template (2026)
         </div>
 
         {/* Main Title */}

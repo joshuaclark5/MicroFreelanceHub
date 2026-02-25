@@ -168,30 +168,32 @@ export default async function TemplatePage({ params }: { params: { slug: string 
     featureList: isInvoice ? 'Instant Payments, Tax Calculation, Mobile Friendly' : 'eSignatures, Scope of Work, Liability Protection'
   };
 
-  // ✅ AI SEO FIX: Dynamic FAQ Schema
-  const faqs = [
-    {
-      q: `What is a ${title} ${isInvoice ? 'Invoice' : 'Contract'}?`,
-      a: isInvoice 
-        ? `A ${title} invoice is a professional billing document used to request payment for services. Our free digital template includes itemized billing, automatic tax calculations, and a secure "Pay Now" button.`
-        : `A ${title} contract is a professional agreement that outlines the scope of work, deliverables, and payment terms. It protects both you and your client from scope creep and miscommunication.`
-    },
-    {
-      q: `Is this ${title} template really free?`,
-      a: `Yes. MicroFreelanceHub allows you to generate, customize, and manage up to 3 active projects completely free. You do not need a credit card to start.`
-    },
-    {
-      q: isInvoice ? `Can clients pay this ${title} invoice online?` : `Does this ${title} contract include e-signatures?`,
-      a: isInvoice
-        ? `Absolutely. When you send this digital invoice, your clients can pay instantly via credit card or ACH transfer. We handle the secure processing so you get paid faster.`
-        : `Yes. Both you and your client can legally sign this agreement from any device, including mobile phones. We securely log the signature and timestamp for your protection.`
-    }
-  ];
+  // ✅ AI SEO FIX: Dynamically load AI FAQs from DB, or fallback to generic
+  const faqs = doc.faqs && Array.isArray(doc.faqs) && doc.faqs.length > 0 
+    ? doc.faqs 
+    : [
+        {
+          q: `What is a ${title} ${isInvoice ? 'Invoice' : 'Contract'}?`,
+          a: isInvoice 
+            ? `A ${title} invoice is a professional billing document used to request payment for services. Our free digital template includes itemized billing, automatic tax calculations, and a secure "Pay Now" button.`
+            : `A ${title} contract is a professional agreement that outlines the scope of work, deliverables, and payment terms. It protects both you and your client from scope creep and miscommunication.`
+        },
+        {
+          q: `Is this ${title} template really free?`,
+          a: `Yes. MicroFreelanceHub allows you to generate, customize, and manage up to 3 active projects completely free. You do not need a credit card to start.`
+        },
+        {
+          q: isInvoice ? `Can clients pay this ${title} invoice online?` : `Does this ${title} contract include e-signatures?`,
+          a: isInvoice
+            ? `Absolutely. When you send this digital invoice, your clients can pay instantly via credit card or ACH transfer. We handle the secure processing so you get paid faster.`
+            : `Yes. Both you and your client can legally sign this agreement from any device, including mobile phones. We securely log the signature and timestamp for your protection.`
+        }
+      ];
 
   const faqJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: faqs.map(faq => ({
+    mainEntity: faqs.map((faq: any) => ({
       '@type': 'Question',
       name: faq.q,
       acceptedAnswer: {
@@ -429,7 +431,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
       <div className="max-w-4xl mx-auto px-4 py-16 border-t border-slate-100">
         <h2 className="text-2xl font-bold text-slate-900 mb-8 text-center">Frequently Asked Questions</h2>
         <div className="space-y-6">
-          {faqs.map((faq, index) => (
+          {faqs.map((faq: any, index: number) => (
             <div key={index} className="bg-slate-50 rounded-xl p-6 border border-slate-100">
               <h3 className="font-bold text-slate-900 text-lg mb-2">{faq.q}</h3>
               <p className="text-slate-600 leading-relaxed">{faq.a}</p>
