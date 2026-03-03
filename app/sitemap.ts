@@ -46,9 +46,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   // 2. FETCH SEO PAGES (The New "Enriched" Content)
+  // 🟢 We now select 'document_type' so we know how to route it
   const { data: seoPages, error: seoError } = await supabase
     .from('seo_pages')
-    .select('slug');
+    .select('slug, document_type');
 
   if (seoError) {
     console.error('Error fetching SEO pages:', seoError.message);
@@ -66,12 +67,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // SEO Pages
-  const seoUrls = (seoPages || []).map((page) => ({
-    url: `${baseUrl}/templates/${page.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.9,
-  }));
+  // 🟢 The logic that puts Comparisons into the /alternatives/ folder
+  const seoUrls = (seoPages || []).map((page) => {
+    const folder = page.document_type === 'Comparison' ? 'alternatives' : 'templates';
+    
+    return {
+      url: `${baseUrl}/${folder}/${page.slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.9,
+    };
+  });
 
   // 4. STATIC ROUTES (VIP ONLY)
   // Removed /login, /dashboard, /privacy-policy, /terms-of-service

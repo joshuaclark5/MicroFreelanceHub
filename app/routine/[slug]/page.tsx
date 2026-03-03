@@ -2,7 +2,18 @@ import hairData from './../../components/data/hair-data.json';
 import { notFound } from 'next/navigation';
 import EmailCapture from './../../components/EmailCapture';
 
-// This generates the static pages at build time for maximum SEO speed
+// SEO: This dynamically creates the title and description for each specific hair type
+export async function generateMetadata({ params }: { params: { slug: string } }) {
+  const data = (hairData as any)[params.slug];
+  if (!data) return { title: 'Routine Not Found' };
+
+  return {
+    title: `${data.title} | 90-Day Custom Protocol`,
+    description: `Your science-backed diagnostic results for ${params.slug.replace('-', ' ')}. Download your custom routine.`,
+  };
+}
+
+// Generates static paths for all 50+ combinations in your JSON
 export async function generateStaticParams() {
   return Object.keys(hairData).map((slug) => ({
     slug: slug,
@@ -48,9 +59,10 @@ export default function RoutinePage({ params }: { params: { slug: string } }) {
           </div>
         </section>
 
-        {/* STEP 6 ADDITION: Email Capture (AI Insurance) */}
-<EmailCapture slug={params.slug} />
-        {/* The $27 Upsell (The "Manual") */}
+        {/* Lead Capture */}
+        <EmailCapture slug={params.slug} />
+
+        {/* The $27 Upsell */}
         <section className="bg-slate-900 rounded-3xl p-10 text-white text-center shadow-2xl">
           <span className="text-pink-400 font-bold uppercase tracking-widest text-xs">Required Protocol</span>
           <h2 className="text-3xl font-bold mt-2">{data.ladder.primary_cta.title}</h2>
@@ -60,7 +72,7 @@ export default function RoutinePage({ params }: { params: { slug: string } }) {
           </button>
         </section>
 
-        {/* High Ticket Affiliate Anchor */}
+        {/* Affiliate Anchor */}
         <div className="border-t pt-8">
           <p className="text-center text-slate-400 text-xs font-bold uppercase tracking-widest mb-6">Recommended Professional Tools</p>
           <div className="bg-white border p-6 rounded-2xl flex justify-between items-center group cursor-pointer hover:border-pink-200 transition-colors shadow-sm">
