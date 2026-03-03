@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation'; // <-- Added redirect here
 import { Metadata } from 'next';
 import { 
   Shield, 
@@ -120,6 +120,11 @@ export default async function TemplatePage({ params }: { params: { slug: string 
   if (!result) return notFound();
 
   const { doc, source } = result;
+
+  // 🛑 THE BOUNCER: Redirect Competitor pages to the correct folder
+  if (doc.document_type === 'Comparison') {
+      redirect(`/alternatives/${params.slug}`);
+  }
   
   const jobTitleRaw = source === 'sow' ? doc.title : (doc.job_title || doc.keyword);
   const title = toTitleCase(jobTitleRaw);

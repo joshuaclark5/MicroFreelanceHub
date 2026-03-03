@@ -1,0 +1,203 @@
+{
+  "2a-low-porosity": {
+    "slug": "2a-low-porosity",
+    "title": "The 2A Low-Porosity Wave Protocol",
+    "analysis": { "pattern_weight": "20%", "porosity_impact": "60%", "climate_risk": "20%" },
+    "diagnostic_summary": "Your 2A waves are easily weighed down. Low porosity means products sit on the surface, making hair look greasy rather than wavy.",
+    "insightWarning": {
+      "title": "Weight Management Alert",
+      "message": "Stop using heavy creams. 2A waves with low porosity require 'weightless' moisture. Switch to foams or light sprays."
+    },
+    "ladder": {
+      "primary_cta": { "title": "The Weightless Wave Manual", "price": "$27", "hook": "Get definition without the grease." },
+      "upsell_tool": { "name": "Shark FlexStyle (Diffuser)", "price": "$299", "context": "Hover-dry on low heat to set waves." }
+    }
+  },
+  "2a-high-porosity": {
+    "slug": "2a-high-porosity",
+    "title": "The 2A High-Porosity Restoration Routine",
+    "analysis": { "pattern_weight": "20%", "porosity_impact": "70%", "climate_risk": "10%" },
+    "diagnostic_summary": "High porosity 2A waves absorb moisture fast but lose it instantly, leading to frizz and 'limp' waves.",
+    "insightWarning": { "title": "Cuticle Seal Alert", "message": "You must use a lightweight oil to seal the cuticle immediately after washing." },
+    "ladder": {
+      "primary_cta": { "title": "Wave Strength Protocol", "price": "$27", "hook": "Repair the wave structure from within." },
+      "upsell_tool": { "name": "Shark FlexStyle", "price": "$299", "context": "Controlled drying to prevent frizz." }
+    }
+  },
+  "2b-low-porosity": {
+    "slug": "2b-low-porosity",
+    "title": "The 2B Low-Porosity Definition Routine",
+    "analysis": { "pattern_weight": "25%", "porosity_impact": "55%", "climate_risk": "20%" },
+    "diagnostic_summary": "2B waves have a stronger 'S' shape but struggle with volume at the roots. Low porosity blocks deep hydration.",
+    "insightWarning": { "title": "Root Volume Alert", "message": "Apply products away from the scalp to avoid oil buildup at the root." },
+    "ladder": {
+      "primary_cta": { "title": "The Root-Lift Blueprint", "price": "$27", "hook": "Master the art of volume for 2B waves." },
+      "upsell_tool": { "name": "Denman D3 Brush", "price": "$22", "context": "Perfect for tension-styling waves." }
+    }
+  },
+  "2b-high-porosity": {
+    "slug": "2b-high-porosity",
+    "title": "The 2B High-Porosity Frizz-Proof Guide",
+    "analysis": { "pattern_weight": "25%", "porosity_impact": "65%", "climate_risk": "10%" },
+    "diagnostic_summary": "High porosity makes 2B waves look frizzy and undefined. You need protein to help 'hold' the shape.",
+    "insightWarning": { "title": "Protein Balance", "message": "Incorporate a protein-rich leave-in to give your waves more structure." },
+    "ladder": {
+      "primary_cta": { "title": "The Frizz-Free Wave System", "price": "$27", "hook": "Lock in definition for 72 hours." },
+      "upsell_tool": { "name": "Shark FlexStyle", "price": "$299", "context": "Smooth drying for textured waves." }
+    }
+  },
+  "2c-low-porosity": {
+    "slug": "2c-low-porosity",
+    "title": "The 2C Low-Porosity Coil-Prep Routine",
+    "analysis": { "pattern_weight": "30%", "porosity_impact": "55%", "climate_risk": "15%" },
+    "diagnostic_summary": "2C hair is between a wave and a curl. Low porosity makes it hard for the 'inner loop' of the wave to get hydrated.",
+    "insightWarning": { "title": "Hydration Wall", "message": "Use a warm towel over your conditioner to 'melt' the product into the hair." },
+    "ladder": {
+      "primary_cta": { "title": "The 2C Wave-to-Curl Bridge", "price": "$27", "hook": "Final step to turning waves into curls." },
+      "upsell_tool": { "name": "Dyson Airwrap", "price": "$599", "context": "Gentle heat for stubborn 2C textures." }
+    }
+  },
+  "2c-high-porosity": {
+    "slug": "2c-high-porosity",
+    "title": "The 2C High-Porosity Structure Protocol",
+    "analysis": { "pattern_weight": "30%", "porosity_impact": "60%", "climate_risk": "10%" },
+    "diagnostic_summary": "Your 2C hair is fragile and prone to drying out mid-day. You need heavy sealants to lock in water.",
+    "insightWarning": { "title": "Moisture Evaporation", "message": "If you don't seal your ends with a serum, your curls will 'vanish' by 4:00 PM." },
+    "ladder": {
+      "primary_cta": { "title": "All-Day Definition Manual", "price": "$27", "hook": "Keep your texture looking fresh until night." },
+      "upsell_tool": { "name": "Shark FlexStyle", "price": "$299", "context": "The best tool for setting 2C shapes." }
+    }
+  },
+  "3a-low-porosity": {
+    "slug": "3a-low-porosity",
+    "title": "The 3A Low-Porosity Loop Protocol",
+    "analysis": { "pattern_weight": "35%", "porosity_impact": "50%", "climate_risk": "15%" },
+    "diagnostic_summary": "3A curls are large and loopy. Low porosity means you likely struggle with 'crunchy' hair even when wet.",
+    "insightWarning": { "title": "The Steam Factor", "message": "You must use steam during conditioning to open your tightly closed cuticles." },
+    "ladder": {
+      "primary_cta": { "title": "The 3A Hydration Engine", "price": "$27", "hook": "Force moisture into the core of your loops." },
+      "upsell_tool": { "name": "Dyson Airwrap", "price": "$599", "context": "Precision heat for low-porosity loops." }
+    }
+  },
+  "3a-high-porosity": {
+    "slug": "3a-high-porosity",
+    "title": "The 3A High-Porosity Frizz-Lock Routine",
+    "analysis": { "pattern_weight": "35%", "porosity_impact": "50%", "climate_risk": "15%" },
+    "diagnostic_summary": "Your 3A curls lose moisture through the 'open' scales. This leads to 'halo frizz' where the top is dry but the bottom is wet.",
+    "insightWarning": { "title": "Halo-Frizz Warning", "message": "Apply product to soaking wet hair. Once it starts to damp-dry, the frizz is already permanent." },
+    "ladder": {
+      "primary_cta": { "title": "The 3A Moisture Sealant Guide", "price": "$27", "hook": "Stop halo frizz before it starts." },
+      "upsell_tool": { "name": "Dyson Airwrap", "price": "$599", "context": "Smooth airflow for pattern retention." }
+    }
+  },
+  "3b-low-porosity": {
+    "slug": "3b-low-porosity",
+    "title": "The 3B Low-Porosity Hydration Engine",
+    "analysis": { "pattern_weight": "35%", "porosity_impact": "50%", "climate_risk": "15%" },
+    "diagnostic_summary": "Low porosity 3B hair has tightly closed cuticles. Moisture has a hard time getting in, but once it is there, it stays.",
+    "insightWarning": { "title": "The 'Buildup' Alert", "message": "Heavy butters will sit on top of your hair. Use lightweight, warm applications." },
+    "ladder": {
+      "primary_cta": { "title": "The Low-Porosity Detox", "price": "$27", "hook": "Learn the 'Heat-First' method." },
+      "upsell_tool": { "name": "Dyson Airwrap", "price": "$599", "context": "Precision heat control." }
+    }
+  },
+  "3b-high-porosity": {
+    "slug": "3b-high-porosity",
+    "title": "The 3B High-Porosity Restoration Routine",
+    "analysis": { "pattern_weight": "40%", "porosity_impact": "45%", "climate_risk": "15%" },
+    "diagnostic_summary": "Your 3B pattern combined with high porosity means your hair cuticle is permanently 'open,' leading to instant frizz.",
+    "insightWarning": { "title": "The 'Flash Drying' Trap", "message": "Stop using heavy oils first. High porosity hair requires a water-based leave-in BEFORE any sealant." },
+    "ladder": {
+      "primary_cta": { "title": "Download Your 90-Day Protocol", "price": "$27", "hook": "The step-by-step calendar to close your cuticles." },
+      "upsell_tool": { "name": "Shark FlexStyle", "price": "$299", "context": "Professional-grade drying." }
+    }
+  },
+  "3c-low-porosity": {
+    "slug": "3c-low-porosity",
+    "title": "The 3C Low-Porosity Volume System",
+    "analysis": { "pattern_weight": "45%", "porosity_impact": "40%", "climate_risk": "15%" },
+    "diagnostic_summary": "3C curls are tight corkscrews. Low porosity makes the very center of the curl feel dry even after a wash.",
+    "insightWarning": { "title": "Centrifuged Drying", "message": "Product often misses the middle of the curl. Work product in using the 'prayer hands' method for 2 minutes." },
+    "ladder": {
+      "primary_cta": { "title": "The 3C Definition Blueprint", "price": "$27", "hook": "Get 100% saturation for every corkscrew." },
+      "upsell_tool": { "name": "Dyson Airwrap", "price": "$599", "context": "Internal hydration drying technology." }
+    }
+  },
+  "3c-high-porosity": {
+    "slug": "3c-high-porosity",
+    "title": "The 3C High-Porosity Strengthening Path",
+    "analysis": { "pattern_weight": "45%", "porosity_impact": "45%", "climate_risk": "10%" },
+    "diagnostic_summary": "Tightly packed 3C curls with high porosity are extremely prone to breakage. Your hair is naturally 'thirsty'.",
+    "insightWarning": { "title": "Breakage Point", "message": "If you don't use a silk pillowcase, your high-porosity curls will snap simply from pillow friction." },
+    "ladder": {
+      "primary_cta": { "title": "The 3C Length Retention Guide", "price": "$27", "hook": "Stop the breakage and actually grow length." },
+      "upsell_tool": { "name": "Shark FlexStyle", "price": "$299", "context": "Gentle styling for tight textures." }
+    }
+  },
+  "4a-low-porosity": {
+    "slug": "4a-low-porosity",
+    "title": "The 4A Low-Porosity Coil Management",
+    "analysis": { "pattern_weight": "50%", "porosity_impact": "40%", "climate_risk": "10%" },
+    "diagnostic_summary": "4A coils have a visible pattern but struggle with 'stiffness' due to low porosity moisture rejection.",
+    "insightWarning": { "title": "Stiffness Alert", "message": "Use warm water during your final rinse to keep the cuticle open as long as possible." },
+    "ladder": {
+      "primary_cta": { "title": "Soft Coil Protocol", "price": "$27", "hook": "How to get soft, bouncy 4A coils." },
+      "upsell_tool": { "name": "Redmond Hooded Dryer", "price": "$120", "context": "Essential for deep-conditioning 4A coils." }
+    }
+  },
+  "4a-high-porosity": {
+    "slug": "4a-high-porosity",
+    "title": "The 4A High-Porosity Moisture Lock",
+    "analysis": { "pattern_weight": "50%", "porosity_impact": "40%", "climate_risk": "10%" },
+    "diagnostic_summary": "High porosity 4A hair is like a sponge—it absorbs everything and then dries out in 20 minutes.",
+    "insightWarning": { "title": "Moisture Leakage", "message": "The L.O.C. (Liquid-Oil-Cream) method is non-negotiable for your profile." },
+    "ladder": {
+      "primary_cta": { "title": "L.O.C. Masterclass", "price": "$27", "hook": "Learn to lock moisture in for days." },
+      "upsell_tool": { "name": "Shark FlexStyle", "price": "$299", "context": "Professional sealing drying." }
+    }
+  },
+  "4b-low-porosity": {
+    "slug": "4b-low-porosity",
+    "title": "The 4B Low-Porosity Softening Routine",
+    "analysis": { "pattern_weight": "55%", "porosity_impact": "35%", "climate_risk": "10%" },
+    "diagnostic_summary": "4B 'Z' patterns are delicate. Low porosity makes the hair feel wiry or rough to the touch.",
+    "insightWarning": { "title": "Wiry Texture", "message": "Deep condition with heat every single week. It is the only way to soften the 4B shaft." },
+    "ladder": {
+      "primary_cta": { "title": "4B Texture Softener", "price": "$27", "hook": "Turn 'wiry' hair into 'cloud-like' coils." },
+      "upsell_tool": { "name": "Redmond Hooded Dryer", "price": "$120", "context": "Thermal opening for 4B cuticles." }
+    }
+  },
+  "4b-high-porosity": {
+    "slug": "4b-high-porosity",
+    "title": "The 4B High-Porosity Strength Protocol",
+    "analysis": { "pattern_weight": "55%", "porosity_impact": "35%", "climate_risk": "10%" },
+    "diagnostic_summary": "4B high porosity hair is the most likely to tangle into knots. You need high 'slip' and moisture retention.",
+    "insightWarning": { "title": "Single-Strand Knots", "message": "Keep your hair stretched. High porosity 4B hair that shrinks will knot up instantly." },
+    "ladder": {
+      "primary_cta": { "title": "The Stretch & Protect System", "price": "$27", "hook": "Eliminate knots and retain 100% of growth." },
+      "upsell_tool": { "name": "Shark FlexStyle", "price": "$299", "context": "Low-tension stretching drying." }
+    }
+  },
+  "4c-low-porosity": {
+    "slug": "4c-low-porosity",
+    "title": "The 4C Low-Porosity Growth Engine",
+    "analysis": { "pattern_weight": "60%", "porosity_impact": "30%", "climate_risk": "10%" },
+    "diagnostic_summary": "4C hair is highly fragile. Low porosity creates a barrier that makes your hair 'immune' to standard conditioners.",
+    "insightWarning": { "title": "Conditioner Failure", "message": "Standard conditioning is useless for you without heat. Use a steamer." },
+    "ladder": {
+      "primary_cta": { "title": "The 4C Growth Engine", "price": "$27", "hook": "Unlock growth by finally hydrating the core." },
+      "upsell_tool": { "name": "Redmond Hooded Dryer", "price": "$120", "context": "The standard for 4C deep conditioning." }
+    }
+  },
+  "4c-high-porosity": {
+    "slug": "4c-high-porosity",
+    "title": "The 4C High-Porosity Maximum Strength Routine",
+    "analysis": { "pattern_weight": "60%", "porosity_impact": "30%", "climate_risk": "10%" },
+    "diagnostic_summary": "4C hair is the most fragile. High porosity makes it prone to snapping because internal moisture vanishes instantly.",
+    "insightWarning": { "title": "The 'Snap' Warning", "message": "Never detangle dry. High porosity 4C hair requires massive slip to prevent micro-tears." },
+    "ladder": {
+      "primary_cta": { "title": "The 4C Growth & Retention Bible", "price": "$27", "hook": "Stop the breakage and actually see length." },
+      "upsell_tool": { "name": "Redmond Hooded Dryer", "price": "$120", "context": "Stable heat for deep treatment." }
+    }
+  }
+}

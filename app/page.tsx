@@ -11,7 +11,11 @@ import {
   Wrench,
   Paintbrush,
   Code2,
-  TrendingUp
+  TrendingUp,
+  BellRing,
+  Calculator,
+  FileEdit,
+  Link as LinkIcon
 } from 'lucide-react';
 
 export default function Home() {
@@ -73,14 +77,13 @@ export default function Home() {
           </h1>
           
           <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            The operating system built for <strong className="text-slate-900 font-bold">Contractors & Trades</strong>. 
-            Hand your phone to the client for an instant signature, or email a secure link to get paid instantly.
+            The automated contract and payment engine for freelancers. <strong className="text-slate-900 font-bold">We handle the awkward "please pay me" texts</strong>, you focus on the work.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link href="/create" className="w-full sm:w-auto">
               <div className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-200 rounded-xl px-8 py-4 font-bold text-lg flex items-center justify-center transition-all hover:-translate-y-1 hover:shadow-blue-300">
-                Build Free Contract
+                Start Free Project
                 <ArrowRight className="ml-2 h-5 w-5" />
               </div>
             </Link>
@@ -171,8 +174,69 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. FOUNDER STORY SECTION */}
-      <section className="bg-slate-900 text-white py-20 md:pt-40 md:pb-28 relative overflow-hidden z-10">
+      {/* 4. THE BENTO BOX: CORE FEATURES */}
+      <section className="py-24 bg-slate-50 border-y border-slate-200 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16 max-w-3xl mx-auto">
+            <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">More than just a PDF generator.</h2>
+            <p className="text-lg text-slate-600">
+              MicroFreelanceHub automates your entire accounts receivable flow. Ditch the bloated CRMs and stop paying $40/month just to send an invoice.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            {/* Feature 1: Automated Handoffs (Large) */}
+            <div className="md:col-span-2 bg-white rounded-3xl p-8 md:p-10 border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+              <div className="absolute -right-10 -top-10 bg-blue-50 w-40 h-40 rounded-full blur-3xl"></div>
+              <BellRing className="w-10 h-10 text-blue-600 mb-6" />
+              <h3 className="text-2xl font-bold text-slate-900 mb-3">Automated Handoffs & Collections</h3>
+              <p className="text-slate-600 mb-6 max-w-md leading-relaxed">
+                Upload your final files and hit "Project Complete." We automatically email the client their deliverables along with a secure pay link. If they don't pay, our system follows up automatically on days 3, 5, 7, 10, and beyond.
+              </p>
+              <div className="flex gap-2">
+                <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider rounded-md border border-blue-100">Zero Awkward Texts</span>
+                <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold uppercase tracking-wider rounded-md border border-emerald-100">Get Paid 3x Faster</span>
+              </div>
+            </div>
+
+            {/* Feature 2: All-in-one Link (Small) */}
+            <div className="md:col-span-1 bg-white rounded-3xl p-8 md:p-10 border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+              <LinkIcon className="w-10 h-10 text-indigo-600 mb-6" />
+              <h3 className="text-xl font-bold text-slate-900 mb-3">The All-in-One Link</h3>
+              <p className="text-slate-600 text-sm leading-relaxed">
+                Scope of work, legal terms, e-signatures, and Stripe checkout are all bundled into one secure link. Once they sign, the payment options instantly unlock.
+              </p>
+            </div>
+
+            {/* Feature 3: Built-in Accounting (Small/Dark) */}
+            <div className="md:col-span-1 bg-slate-900 text-white rounded-3xl p-8 md:p-10 border border-slate-800 shadow-xl relative overflow-hidden">
+              <div className="absolute right-0 bottom-0 bg-emerald-500/20 w-32 h-32 rounded-full blur-2xl"></div>
+              <Calculator className="w-10 h-10 text-emerald-400 mb-6 relative z-10" />
+              <h3 className="text-xl font-bold text-white mb-3 relative z-10">Simple Accounting</h3>
+              <p className="text-slate-300 text-sm leading-relaxed relative z-10">
+                Track all your Stripe earnings and log your manual expenses directly in the dashboard. At the end of the year, download a clean P&L sheet for tax season.
+              </p>
+            </div>
+
+            {/* Feature 4: Change Orders (Large) */}
+            <div className="md:col-span-2 bg-white rounded-3xl p-8 md:p-10 border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+              <FileEdit className="w-10 h-10 text-amber-500 mb-6" />
+              <h3 className="text-2xl font-bold text-slate-900 mb-3">Bulletproof Change Orders</h3>
+              <p className="text-slate-600 mb-6 max-w-lg leading-relaxed">
+                Client wants to add "just one more quick thing" mid-project? Edit the live agreement and update the price. The system instantly locks the project and forces a re-signature before you start the new work.
+              </p>
+              <div className="inline-block px-4 py-2 bg-slate-100 text-slate-700 text-sm font-medium rounded-lg border border-slate-200">
+                Never do unpaid "Scope Creep" work again.
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* 5. FOUNDER STORY SECTION */}
+      <section className="bg-slate-900 text-white py-20 md:pt-32 md:pb-28 relative overflow-hidden z-10">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10 pointer-events-none"></div>
         
         <div className="max-w-4xl mx-auto px-6 relative z-10 text-center">
@@ -203,7 +267,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. TEMPLATES SECTION */}
+      {/* 6. TEMPLATES SECTION */}
       <div className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-200 bg-white relative z-10">
         <div className="text-center mb-16">
           <div className="inline-block px-3 py-1 rounded-full bg-gray-100 text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Templates</div>
@@ -267,21 +331,21 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 6. CTA Footer */}
+      {/* 7. CTA Footer */}
       <section className="bg-black py-24 relative overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-indigo-600 opacity-20 blur-[120px] rounded-full pointer-events-none"></div>
         
         <div className="max-w-4xl mx-auto text-center px-4 relative z-10">
           <h2 className="text-5xl font-extrabold text-white mb-8 tracking-tight">Ready to level up?</h2>
           <p className="text-slate-400 mb-12 text-xl max-w-2xl mx-auto leading-relaxed">
-             Join the new standard. Create your first agreement in 30 seconds.
+             Join the new standard. Create your first agreement and automated invoice in 30 seconds.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
              <Link 
                href="/create" 
                className="inline-block bg-white text-black font-bold px-10 py-5 rounded-full shadow-xl hover:bg-gray-100 transition-all text-lg hover:-translate-y-1 hover:shadow-white/20"
              >
-               Start New Agreement
+               Start Free Project
              </Link>
              <Link 
                href="/login" 
@@ -290,7 +354,7 @@ export default function Home() {
                Login to Account
              </Link>
           </div>
-          <p className="mt-8 text-sm text-slate-500">No credit card required · Free plan available</p>
+          <p className="mt-8 text-sm text-slate-500">No credit card required · Free for 3 projects</p>
         </div>
       </section>
       
