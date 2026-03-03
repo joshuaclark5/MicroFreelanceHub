@@ -46,7 +46,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   // 2. FETCH SEO PAGES (The New "Enriched" Content)
-  // 🟢 We now select 'document_type' so we know how to route it
   const { data: seoPages, error: seoError } = await supabase
     .from('seo_pages')
     .select('slug, document_type');
@@ -66,10 +65,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  // SEO Pages
-  // 🟢 The logic that puts Comparisons into the /alternatives/ folder
+  // SEO Pages (BULLETPROOF ROUTING)
   const seoUrls = (seoPages || []).map((page) => {
-    const folder = page.document_type === 'Comparison' ? 'alternatives' : 'templates';
+    // 🛡️ Bulletproof Check: If it starts with 'alternative-to-', it's a comparison page.
+    const isCompetitor = page.slug?.startsWith('alternative-to-') || page.document_type?.toLowerCase() === 'comparison';
+    
+    const folder = isCompetitor ? 'alternatives' : 'templates';
     
     return {
       url: `${baseUrl}/${folder}/${page.slug}`,
@@ -80,7 +81,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   });
 
   // 4. STATIC ROUTES (VIP ONLY)
-  // Removed /login, /dashboard, /privacy-policy, /terms-of-service
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: baseUrl, lastModified: new Date(), changeFrequency: 'daily', priority: 1.0 },
     { url: `${baseUrl}/create`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
@@ -90,7 +90,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let finalSitemap = [...staticRoutes, ...systemUrls, ...seoUrls];
   
   // 5. DEDUPLICATION
-  // Google will throw errors if the same URL appears twice.
   const uniqueUrls = new Set();
   finalSitemap = finalSitemap.filter((item) => {
     if (uniqueUrls.has(item.url)) {
