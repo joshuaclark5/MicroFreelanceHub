@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 
 // Force dynamic so Vercel rebuilds this on every request (no caching)
 export const dynamic = 'force-dynamic';
+export const revalidate = 0; // 🛑 ABSOLUTE CACHE KILLER: Forces Vercel to generate this fresh every time.
 
 // CUSTOM FETCH: Forces Next.js to never cache the database response
 const fetchNoCache = (url: string, options?: RequestInit) => {
