@@ -34,6 +34,10 @@ export const metadata: Metadata = {
     title: 'MicroFreelance | Professional Contracts',
     description: 'The fastest way to sign clients and automate monthly billing.',
   },
+  // 👇 TRUSTPILOT VERIFICATION META TAG 👇
+  other: {
+    "trustpilot-one-time-domain-verification-id": "f8ddb3e0-179a-4c7d-95d2-983a759cbafb"
+  }
 };
 
 export default function RootLayout({
