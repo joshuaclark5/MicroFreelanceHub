@@ -17,11 +17,16 @@ export default async function Image({ params }: { params: { slug: string } }) {
   // 1. Get the slug
   const slug = params.slug
   
-  // ✅ 2. DETECT MODE: Is this an Invoice or a Contract?
-  const isInvoice = slug.includes('-invoice');
+  // ✅ 2. DETECT MODE: Is this an Email, Invoice, or Contract?
+  const isEmail = slug.startsWith('late-payment-email-');
+  const isInvoice = !isEmail && slug.includes('-invoice');
   
   // 3. ROBUST FORMATTING
   let cleanSlug = slug;
+
+  // Remove email and hire prefixes
+  cleanSlug = cleanSlug.replace(/^late-payment-email-/, '');
+  cleanSlug = cleanSlug.replace(/^hire-/, '');
 
   // Remove known suffixes from the END of the string only
   const suffixes = ['-invoice-template', '-invoice', '-contract-template', '-contract', '-template'];
@@ -32,9 +37,6 @@ export default async function Image({ params }: { params: { slug: string } }) {
     }
   }
 
-  // Remove "hire-" prefix if it exists (legacy support)
-  cleanSlug = cleanSlug.replace(/^hire-/, '');
-
   // Convert "graphic-designer" to "Graphic Designer"
   const title = cleanSlug
     .split('-')
@@ -42,15 +44,21 @@ export default async function Image({ params }: { params: { slug: string } }) {
     .join(' ');
  
   // ✅ 4. CHAMELEON STYLING
-  const bgGradient = isInvoice 
+  const bgGradient = isEmail
+    ? 'linear-gradient(to bottom right, #0f172a, #312e81)' // Slate to Indigo
+    : isInvoice 
     ? 'linear-gradient(to bottom right, #0f172a, #064e3b)' // Slate to Emerald
     : 'linear-gradient(to bottom right, #0f172a, #1e3a8a)'; // Slate to Blue
 
-  const badgeColor = isInvoice ? '#059669' : '#2563eb'; // Emerald-600 vs Blue-600
-  const docTypeLabel = isInvoice ? 'Invoice' : 'Contract';
-  const subtitleText = isInvoice 
+  const badgeColor = isEmail ? '#4f46e5' : (isInvoice ? '#059669' : '#2563eb'); // Indigo vs Emerald vs Blue
+  const docTypeLabel = isEmail ? 'Email Templates' : (isInvoice ? 'Invoice' : 'Contract');
+  const subtitleText = isEmail
+    ? 'Automated Dunning & Escalation Notices'
+    : isInvoice 
     ? 'Itemized Billing & Instant Payments' 
     : 'Professional Scope of Work & Legal Terms';
+    
+  const subtitleColor = isEmail ? '#a5b4fc' : (isInvoice ? '#6ee7b7' : '#93c5fd'); // Indigo-300 vs Emerald-300 vs Blue-300
 
   return new ImageResponse(
     (
@@ -101,7 +109,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
             zIndex: 10,
           }}
         >
-          Free Template (2026)
+          Free {docTypeLabel} (2026)
         </div>
 
         {/* Main Title */}
@@ -129,7 +137,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
           style={{
             display: 'flex',
             fontSize: 30,
-            color: isInvoice ? '#6ee7b7' : '#93c5fd', // Emerald-300 vs Blue-300
+            color: subtitleColor, 
             marginTop: 10,
             justifyContent: 'center',
             textAlign: 'center',
