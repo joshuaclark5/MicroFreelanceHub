@@ -11,6 +11,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import RelatedRoles from '../../components/seo/RelatedRoles';
+import WaitlistModal from '../../components/WaitlistModal'; // 👈 NEW: Imported the waitlist modal
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -238,11 +239,21 @@ export default async function TemplatePage({ params }: { params: { slug: string 
              </div>
           )}
 
-          <Link href={isEmail ? '#email-preview' : `/create?template=${params.slug}`}>
-            <button className={`font-bold px-8 py-4 rounded-full text-lg shadow-xl hover:-translate-y-1 transition-all ${isEmail ? 'bg-indigo-500 text-white hover:bg-indigo-400' : (isInvoice ? 'bg-emerald-500 text-white hover:bg-emerald-400' : 'bg-white text-blue-900 hover:bg-blue-50')}`}>
-              ✨ {isEmail ? 'View Email Templates' : (isInvoice ? 'Create Invoice Now' : 'Customize This Contract')}
-            </button>
-          </Link>
+          {/* 👈 NEW: Scroll Anchor Fix */}
+          {isEmail ? (
+            <a href="#email-preview">
+              <button className="font-bold px-8 py-4 rounded-full text-lg shadow-xl hover:-translate-y-1 transition-all bg-indigo-500 text-white hover:bg-indigo-400">
+                ✨ View Email Templates
+              </button>
+            </a>
+          ) : (
+            <Link href={`/create?template=${params.slug}`}>
+              <button className={`font-bold px-8 py-4 rounded-full text-lg shadow-xl hover:-translate-y-1 transition-all ${isInvoice ? 'bg-emerald-500 text-white hover:bg-emerald-400' : 'bg-white text-blue-900 hover:bg-blue-50'}`}>
+                ✨ {isInvoice ? 'Create Invoice Now' : 'Customize This Contract'}
+              </button>
+            </Link>
+          )}
+
         </div>
       </div>
 
@@ -331,7 +342,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                 // 📧 EMAIL UI MODE
                 <div className="space-y-6 pb-20">
                   <h2 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900 mb-6">
-                     Email Drafts
+                      Email Drafts
                   </h2>
                   {listItems.map((emailText: string, i: number) => {
                       const labels = ['Day 3: Gentle Reminder', 'Day 15: Firm Notice', 'Day 30: Final Demand'];
@@ -405,13 +416,17 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                 </div>
               )}
 
-              {/* Overlay Button */}
+              {/* 👈 NEW: Overlay Button updated to use the WaitlistModal */}
               <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white via-white/95 to-transparent flex items-end justify-center pb-6">
-                  <Link href={isEmail ? '/dashboard' : `/create?template=${params.slug}`}>
-                    <button className={`text-white px-6 py-3 rounded-lg font-bold shadow-lg transition-transform hover:-translate-y-1 ${isEmail ? 'bg-indigo-900 hover:bg-indigo-800' : (isInvoice ? 'bg-emerald-900 hover:bg-emerald-800' : 'bg-slate-900 hover:bg-slate-800')}`}>
-                      {isEmail ? 'Automate This Sequence' : (isInvoice ? 'Use This Invoice Free' : 'Use This Template Free')} &rarr;
-                    </button>
-                  </Link>
+                  {isEmail ? (
+                    <WaitlistModal templateSlug={params.slug} />
+                  ) : (
+                    <Link href={`/create?template=${params.slug}`}>
+                      <button className={`text-white px-6 py-3 rounded-lg font-bold shadow-lg transition-transform hover:-translate-y-1 ${isInvoice ? 'bg-emerald-900 hover:bg-emerald-800' : 'bg-slate-900 hover:bg-slate-800'}`}>
+                        {isInvoice ? 'Use This Invoice Free' : 'Use This Template Free'} &rarr;
+                      </button>
+                    </Link>
+                  )}
               </div>
 
             </div>
