@@ -40,6 +40,7 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No user found');
+      if (!user.email) throw new Error('No email found');
 
       const { error } = await supabase.from('profiles').update({
         full_name: name,
@@ -47,6 +48,21 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
       }).eq('id', user.id);
 
       if (error) throw error;
+
+      // Send welcome email via Edge Function
+      try {
+        const emailResponse = await supabase.functions.invoke('welcome-email', {
+          body: { email: user.email, name },
+        });
+
+        if (emailResponse.error) {
+          console.warn('Welcome email failed to send:', emailResponse.error);
+          // Don't block completion if email fails, but log it
+        }
+      } catch (emailErr) {
+        console.warn('Error invoking welcome-email function:', emailErr);
+        // Don't block completion if email function fails
+      }
 
       // Set localStorage flag
       localStorage.setItem('hasCompletedWizard', 'true');
@@ -61,12 +77,32 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
 
   const handleSkip = () => {
     localStorage.setItem('hasCompletedWizard', 'true');
+
+    // Fire and forget: send welcome email asynchronously without blocking the modal close
+    (async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user?.email) {
+          await supabase.functions.invoke('welcome-email', {
+            body: {
+              email: user.email,
+              name: name.trim() || 'Freelancer'
+            },
+          });
+        }
+      } catch (err) {
+        console.warn('Welcome email failed to send on skip:', err);
+        // Silently fail - don't block the skip action
+      }
+    })();
+
     if (onComplete) onComplete();
   };
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="relative bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 rounded-3xl max-w-lg w-full shadow-2xl border border-indigo-500/20 overflow-hidden">
+      {/* ADDED hide-scrollbar HERE */}
+      <div className="relative bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 rounded-3xl max-w-lg w-full shadow-2xl border border-indigo-500/20 overflow-hidden max-h-[90vh] overflow-y-auto hide-scrollbar">
 
         {/* Close Button */}
         <button
