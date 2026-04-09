@@ -4,17 +4,18 @@ import { useEffect, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { 
-  MoreVertical, Edit2, Copy, Trash2, CheckSquare, LogOut, Plus, 
-  Gem, ArrowUpRight, FileText, ExternalLink, 
+import {
+  MoreVertical, Edit2, Copy, Trash2, CheckSquare, LogOut, Plus,
+  Gem, ArrowUpRight, FileText, ExternalLink,
   LayoutGrid, Clock, TrendingUp, CheckCircle,
   PenTool, Repeat, Wallet, ArrowRight, History, Search, Filter,
   FileWarning, Link2
 } from 'lucide-react';
-import ConnectStripeButton from '../components/ConnectStripeButton'; 
-import PricingModal from '../components/PricingModal'; 
+import ConnectStripeButton from '../components/ConnectStripeButton';
+import PricingModal from '../components/PricingModal';
 import AddExpenseModal from '../components/AddExpenseModal';
 import ExpenseHistoryModal from '../components/ExpenseHistoryModal';
+import WelcomeWizard from '../components/WelcomeWizard';
 
 const formatMoney = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -70,6 +71,9 @@ export default function Dashboard() {
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [totalExpenses, setTotalExpenses] = useState(0);
 
+  // Welcome Wizard State
+  const [showWelcomeWizard, setShowWelcomeWizard] = useState(false);
+
   const supabase = createClientComponentClient();
   const router = useRouter();
 
@@ -99,6 +103,12 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Check if user has completed the welcome wizard
+        const hasCompletedWizard = localStorage.getItem('hasCompletedWizard');
+        if (!hasCompletedWizard) {
+          setShowWelcomeWizard(true);
+        }
+
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) { router.push('/login'); return; }
         setUserEmail(user.email || '');
@@ -245,14 +255,17 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-32">
-      
+
+      {/* Welcome Wizard Modal */}
+      {showWelcomeWizard && <WelcomeWizard onComplete={() => setShowWelcomeWizard(false)} />}
+
       {/* 🟢 TOP NAV */}
       <div className="bg-white border-b border-gray-100 sticky top-0 z-40 backdrop-blur-md bg-white/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
               <div className="bg-slate-900 text-white w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl font-bold text-lg shadow-lg shadow-slate-900/20">M</div>
               <div className="flex flex-col">
-                 <h1 className="text-sm font-bold text-slate-900 leading-tight">MicroFreelance</h1>
+                 <h1 className="text-sm font-bold text-slate-900 leading-tight">MicroFreelanceHub</h1>
                  <p className="text-[10px] text-slate-400 font-medium tracking-wide">DASHBOARD</p>
               </div>
           </div>
