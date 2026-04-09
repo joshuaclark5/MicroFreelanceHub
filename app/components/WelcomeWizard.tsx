@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Hexagon, CreditCard, CheckCircle, ArrowRight } from 'lucide-react';
+import { Hexagon, CreditCard, CheckCircle, ArrowRight, X } from 'lucide-react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 interface WelcomeWizardProps {
@@ -59,9 +59,23 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
     }
   };
 
+  const handleSkip = () => {
+    localStorage.setItem('hasCompletedWizard', 'true');
+    if (onComplete) onComplete();
+  };
+
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 rounded-3xl max-w-lg w-full shadow-2xl border border-indigo-500/20 overflow-hidden">
+      <div className="relative bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 rounded-3xl max-w-lg w-full shadow-2xl border border-indigo-500/20 overflow-hidden">
+
+        {/* Close Button */}
+        <button
+          onClick={handleSkip}
+          className="absolute top-6 right-6 z-10 text-slate-400 hover:text-white transition-colors duration-200"
+          aria-label="Close wizard"
+        >
+          <X className="w-6 h-6" />
+        </button>
 
         {/* Header with background decoration */}
         <div className="relative overflow-hidden p-8 sm:p-12 border-b border-indigo-500/20">
