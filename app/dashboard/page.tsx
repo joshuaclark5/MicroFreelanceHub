@@ -9,7 +9,7 @@ import {
   Gem, ArrowUpRight, FileText, ExternalLink,
   LayoutGrid, Clock, TrendingUp, CheckCircle,
   PenTool, Repeat, Wallet, ArrowRight, History, Search, Filter,
-  FileWarning, Link2
+  FileWarning, Link2, Mail, Loader2
 } from 'lucide-react';
 import ConnectStripeButton from '../components/ConnectStripeButton';
 import PricingModal from '../components/PricingModal';
@@ -63,6 +63,8 @@ export default function Dashboard() {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null); // For copy link feedback
+  const [sendingId, setSendingId] = useState<string | null>(null);
+  const [invoiceSentIds, setInvoiceSentIds] = useState<string[]>([]);
   
   const [showPricingModal, setShowPricingModal] = useState(false);
   
@@ -227,6 +229,94 @@ export default function Dashboard() {
       setCopiedId(id);
       setTimeout(() => setCopiedId(null), 2000);
       setOpenMenuId(null);
+  };
+
+  const handleSendInvoice = async (e: React.MouseEvent, sow: any) => {
+    e.stopPropagation();
+    setSendingId(sow.id);
+
+    try {
+      // Get client email - try different possible field names
+      const clientEmail = sow.client_data?.email || sow.client_email || sow.email;
+      if (!clientEmail) {
+        alert('Client email not found. Please update the project details.');
+        setSendingId(null);
+        return;
+      }
+
+      // Step 1: Generate Stripe Payment Link
+      let paymentLink = null;
+      try {
+        const checkoutRes = await fetch('/api/stripe/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sowId: sow.id,
+            amount: sow.price || 0,
+          }),
+        });
+
+        const checkoutData = await checkoutRes.json();
+        if (checkoutData.url) {
+          paymentLink = checkoutData.url;
+        } else {
+          console.error('Failed to generate payment link:', checkoutData.error);
+          alert('Failed to generate payment link. Please try again.');
+          setSendingId(null);
+          return;
+        }
+      } catch (checkoutErr) {
+        console.error('Checkout generation error:', checkoutErr);
+        alert('Failed to generate payment link. Please try again.');
+        setSendingId(null);
+        return;
+      }
+
+      // Step 2: Call the Edge Function with the payment link
+      const { data: invoiceResult, error: invoiceError } = await supabase.functions.invoke('send-invoice-email', {
+        body: {
+          invoice_id: sow.id,
+          client_email: clientEmail,
+          client_name: sow.client_name || 'Client',
+          amount_due: sow.price || 0,
+          project_name: sow.title || 'Project',
+          payment_link: paymentLink,
+        }
+      });
+
+      if (invoiceError) {
+        console.error('Invoice email error:', invoiceError);
+        alert('Failed to send invoice email. Please try again.');
+        setSendingId(null);
+        return;
+      }
+
+      // Step 3: Update the database to mark as 'unpaid'
+      const { error: updateError } = await supabase
+        .from('sow_documents')
+        .update({ status: 'unpaid' })
+        .eq('id', sow.id);
+
+      if (updateError) {
+        console.error('Database update error:', updateError);
+        alert('Failed to update invoice status. Please try again.');
+        setSendingId(null);
+        return;
+      }
+
+      // Mark as sent
+      setInvoiceSentIds([...invoiceSentIds, sow.id]);
+      // Update the local state to reflect the status change
+      setSows(sows.map(s => s.id === sow.id ? { ...s, status: 'unpaid' } : s));
+
+      // Optionally show success message
+      console.log('✅ Invoice sent successfully to', clientEmail);
+    } catch (err) {
+      console.error('Send invoice error:', err);
+      alert('An error occurred while sending the invoice.');
+    } finally {
+      setSendingId(null);
+    }
   };
 
   const handleLogout = async () => {
@@ -528,6 +618,40 @@ export default function Dashboard() {
                         <h3 className="font-bold text-lg text-slate-900 leading-snug group-hover:text-indigo-600 transition-colors line-clamp-2">{sow.title || 'Untitled Project'}</h3>
                         <p className="text-xs text-slate-500 mt-1 font-medium bg-slate-50 inline-block px-2 py-1 rounded">{sow.client_name || 'No Client'}</p>
                      </div>
+
+                     {/* Send Invoice Button - Only show if not paid */}
+                     {!isPaid && (
+                       <div className="mb-4 mt-4">
+                         <button
+                           onClick={(e) => handleSendInvoice(e, sow)}
+                           disabled={sendingId === sow.id || invoiceSentIds.includes(sow.id)}
+                           className={`w-full py-2.5 px-3 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${
+                             invoiceSentIds.includes(sow.id)
+                               ? 'bg-emerald-100 text-emerald-700 cursor-default'
+                               : sendingId === sow.id
+                               ? 'bg-indigo-100 text-indigo-600 cursor-wait'
+                               : 'bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95'
+                           }`}
+                         >
+                           {invoiceSentIds.includes(sow.id) ? (
+                             <>
+                               <CheckCircle className="w-4 h-4" />
+                               Invoice Sent
+                             </>
+                           ) : sendingId === sow.id ? (
+                             <>
+                               <Loader2 className="w-4 h-4 animate-spin" />
+                               Sending...
+                             </>
+                           ) : (
+                             <>
+                               <Mail className="w-4 h-4" />
+                               Send Invoice
+                             </>
+                           )}
+                         </button>
+                       </div>
+                     )}
 
                      <div className="pt-4 border-t border-gray-100 flex items-center justify-between mt-auto">
                         <span className="text-lg font-bold text-slate-900">{formatMoney(sow.price || 0)}</span>

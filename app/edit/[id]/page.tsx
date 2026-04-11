@@ -24,10 +24,12 @@ interface LineItem {
 function EditProjectContent() {
   const [formData, setFormData] = useState({
     clientName: '',
+    clientEmail: '',
     projectTitle: '',
-    taxRate: '', 
-    deliverables: '', 
-    description: ''
+    taxRate: '',
+    deliverables: '',
+    description: '',
+    dueDate: ''
   });
 
   // 🆕 Line Items State
@@ -54,6 +56,7 @@ function EditProjectContent() {
   // 🛡️ Signature State
   const [hasSignatures, setHasSignatures] = useState(false);
   const [confirmUpdate, setConfirmUpdate] = useState(false); // Smart Button State
+  const [dunningEnabled, setDunningEnabled] = useState(true);
 
   // UI States
   const [showAiRefiner, setShowAiRefiner] = useState(false);
@@ -160,14 +163,17 @@ function EditProjectContent() {
         if (project.signed_by || project.provider_sign) {
             setHasSignatures(true);
         }
-        
+
         setFormData({
             clientName: project.client_name || '',
+            clientEmail: project.client_data?.email || '',
             projectTitle: project.title || '',
             taxRate: project.tax_rate?.toString() || '',
             deliverables: project.deliverables || '',
-            description: ''
+            description: '',
+            dueDate: project.due_date ? new Date(project.due_date).toISOString().split('T')[0] : ''
         });
+        setDunningEnabled(project.dunning_enabled !== false);
         setPaymentType(project.payment_type || 'one_time');
 
         // Load Line Items
@@ -383,12 +389,18 @@ function EditProjectContent() {
         .from('sow_documents')
         .update({
             client_name: formData.clientName,
+            client_data: {
+                name: formData.clientName,
+                email: formData.clientEmail
+            },
             title: formData.projectTitle,
             price: paymentType === 'none' ? 0 : financials.grandTotal, // Zero price if agreement only
-            line_items: finalLineItems, 
+            line_items: finalLineItems,
             deliverables: finalDeliv,
+            due_date: formData.dueDate || null,
+            dunning_enabled: dunningEnabled,
             payment_type: paymentType,
-            payment_schedule_structured: { 
+            payment_schedule_structured: {
                 type: isSplit ? 'split' : depositType,
                 depositAmount: isSplit ? financials.splitAmount : financials.depositAmount,
                 remainingAmount: financials.grandTotal - (isSplit ? financials.splitAmount : financials.depositAmount),
@@ -487,7 +499,23 @@ function EditProjectContent() {
                   <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2"><CreditCard className="w-5 h-5"/> Contract Details</h3>
                   <div className="space-y-6 flex-1">
                     <div><label className="block text-sm font-bold text-gray-700 mb-2">Client Name</label><input required type="text" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" value={formData.clientName} onChange={(e) => setFormData({...formData, clientName: e.target.value})} placeholder="e.g. John Smith" /></div>
-                    
+
+                    <div><label className="block text-sm font-bold text-gray-700 mb-2">Client Email</label><input required type="email" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" value={formData.clientEmail} onChange={(e) => setFormData({...formData, clientEmail: e.target.value})} placeholder="e.g. john@example.com" /></div>
+
+                    <div><label className="block text-sm font-bold text-gray-700 mb-2">Payment Due Date</label><input type="date" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" value={formData.dueDate} onChange={(e) => setFormData({...formData, dueDate: e.target.value})} /></div>
+
+                    <div className="flex items-center justify-between bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+                      <div><label htmlFor="dunning-toggle" className="text-sm font-bold text-gray-700 cursor-pointer">Automated Late Reminders</label><p className="text-xs text-gray-500 mt-1">Send dunning emails if invoice is unpaid</p></div>
+                      <button
+                        id="dunning-toggle"
+                        type="button"
+                        onClick={() => setDunningEnabled(!dunningEnabled)}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${dunningEnabled ? 'bg-green-600' : 'bg-gray-300'}`}
+                      >
+                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${dunningEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
+                      </button>
+                    </div>
+
                     {/* 🆕 PAYMENT STRUCTURE SELECTOR */}
                     <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                        <label className="block text-xs font-bold text-gray-500 uppercase mb-3">Structure</label>

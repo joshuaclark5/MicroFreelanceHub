@@ -28,7 +28,6 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
       return;
     }
 
-    // Store wizard state before redirect
     localStorage.setItem('fromWelcomeWizard', 'true');
 
     const stripeUrl = `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=${clientId}&scope=read_write&redirect_uri=${redirectUri}`;
@@ -49,22 +48,15 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
 
       if (error) throw error;
 
-      // Send welcome email via Edge Function
       try {
         const emailResponse = await supabase.functions.invoke('welcome-email', {
           body: { email: user.email, name },
         });
-
-        if (emailResponse.error) {
-          console.warn('Welcome email failed to send:', emailResponse.error);
-          // Don't block completion if email fails, but log it
-        }
+        if (emailResponse.error) console.warn('Welcome email failed to send:', emailResponse.error);
       } catch (emailErr) {
         console.warn('Error invoking welcome-email function:', emailErr);
-        // Don't block completion if email function fails
       }
 
-      // Set localStorage flag
       localStorage.setItem('hasCompletedWizard', 'true');
       setIsProcessing(false);
       if (onComplete) onComplete();
@@ -77,8 +69,6 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
 
   const handleSkip = () => {
     localStorage.setItem('hasCompletedWizard', 'true');
-
-    // Fire and forget: send welcome email asynchronously without blocking the modal close
     (async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
@@ -92,28 +82,23 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
         }
       } catch (err) {
         console.warn('Welcome email failed to send on skip:', err);
-        // Silently fail - don't block the skip action
       }
     })();
-
     if (onComplete) onComplete();
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      {/* ADDED hide-scrollbar HERE */}
-      <div className="relative bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 rounded-3xl max-w-lg w-full shadow-2xl border border-indigo-500/20 overflow-hidden max-h-[90vh] overflow-y-auto hide-scrollbar">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <button
+        onClick={handleSkip}
+        className="absolute top-4 right-4 z-[60] p-3 rounded-full bg-slate-900/50 text-slate-300 hover:text-white hover:bg-slate-800 transition-all duration-200 border border-slate-700/50"
+        aria-label="Close wizard"
+      >
+        <X className="w-6 h-6" />
+      </button>
 
-        {/* Close Button */}
-        <button
-          onClick={handleSkip}
-          className="absolute top-6 right-6 z-10 text-slate-400 hover:text-white transition-colors duration-200"
-          aria-label="Close wizard"
-        >
-          <X className="w-6 h-6" />
-        </button>
-
-        {/* Header with background decoration */}
+      <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto hide-scrollbar rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 shadow-2xl border border-indigo-500/20">
+        
         <div className="relative overflow-hidden p-8 sm:p-12 border-b border-indigo-500/20">
           <div className="absolute -top-16 -right-16 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
           <div className="absolute -bottom-8 -left-8 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -125,7 +110,6 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
             <h1 className="text-2xl sm:text-3xl font-bold text-white">MicroFreelanceHub</h1>
           </div>
 
-          {/* Step Indicator */}
           <div className="relative z-10">
             <div className="flex justify-between mb-3">
               {[1, 2, 3].map((s) => (
@@ -143,29 +127,51 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
           </div>
         </div>
 
-        {/* Content */}
-        <div className="p-8 sm:p-12 min-h-96">
+        <div className="p-8 sm:p-12 min-h-[300px]">
           {step === 1 && (
             <div className="space-y-6 animate-in fade-in duration-300">
               <div>
-                <h2 className="text-3xl font-bold text-white mb-4">Welcome to MicroFreelanceHub! 🎉</h2>
-                <div className="space-y-4">
-                  <p className="text-indigo-100 text-lg leading-relaxed">
-                    We're thrilled to have you on board. MicroFreelanceHub is built to{' '}
-                    <span className="font-semibold text-white">automate your entire business</span> so you can focus on what matters.
-                  </p>
-                  <p className="text-indigo-100 text-lg leading-relaxed">
-                    Here's the best part:{' '}
+                <h2 className="text-3xl font-bold text-white mb-6">Welcome to the Hub! 🎉</h2>
+                
+                <div className="space-y-4 mb-6">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-white">Rock-Solid Agreements</p>
+                      <p className="text-sm text-indigo-200">Send contracts and handle extra work with strict Change Orders that force a re-signature.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-white">Automate Payments</p>
+                      <p className="text-sm text-indigo-200">Select your terms and we automatically generate a secure pay link once both parties sign.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-white">Track Everything</p>
+                      <p className="text-sm text-indigo-200">Manage all your invoicing and log your business expenses in one single place.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-white">Mega-Easy Taxes</p>
+                      <p className="text-sm text-indigo-200">At the end of the year, Stripe automatically sends your 1099 for all invoices processed here.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-indigo-500/10 border border-indigo-500/30 rounded-xl">
+                  <p className="text-indigo-100 text-sm leading-relaxed">
+                    Your first 3 projects are <span className="font-bold text-white">completely free</span>. Plus, our smart pass-through option allows you to add the processing fee to the client's bill, so you{' '}
                     <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
-                      Keep 100% of your cash
+                      keep all your profits.
                     </span>
-                    . No middleman. No fees. Just pure profit.
                   </p>
                 </div>
-              </div>
-
-              <div>
-                <p className="text-sm text-slate-400 mb-3">Let's get you set up in less than 2 minutes...</p>
               </div>
             </div>
           )}
@@ -198,7 +204,7 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
                   <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="font-semibold text-white">The Pass-Through Fee</p>
-                    <p className="text-sm text-indigo-200">We automatically pass the standard 3.9% card processing fee to your client, so you keep 100% of your principal</p>
+                    <p className="text-sm text-indigo-200">Automatically pass processing fees to your client so you keep your principal cash.</p>
                   </div>
                 </div>
               </div>
@@ -243,7 +249,6 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
           )}
         </div>
 
-        {/* Footer with Actions */}
         <div className="px-8 sm:px-12 py-6 border-t border-indigo-500/20 bg-slate-800/50">
           {step === 1 && (
             <div className="flex justify-end gap-3">
