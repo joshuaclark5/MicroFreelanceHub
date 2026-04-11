@@ -5,10 +5,11 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, useParams } from 'next/navigation';
 import { refineSOW } from '../../actions/generateSOW'; 
 import Link from 'next/link';
-import { 
-  ArrowLeft, Sparkles, Trash2, Repeat, CreditCard, Wand2, 
-  AlertTriangle, Plus, X, Undo2, Loader2, AlertCircle, 
-  Briefcase, DollarSign, CalendarClock, CalendarDays, FileSignature, Lock // Added FileSignature & Lock
+import {
+  ArrowLeft, Sparkles, Trash2, Repeat, CreditCard, Wand2,
+  AlertTriangle, Plus, X, Undo2, Loader2, AlertCircle,
+  Briefcase, DollarSign, CalendarClock, CalendarDays, FileSignature, Lock,
+  Mail, Clock, CheckCircle, Ban, ChevronDown // Added for timeline
 } from 'lucide-react';
 import PricingModal from '../../components/PricingModal';
 import { AuthRequiredModal } from '../../components/modals/AuthRequiredModal';
@@ -57,6 +58,10 @@ function EditProjectContent() {
   const [hasSignatures, setHasSignatures] = useState(false);
   const [confirmUpdate, setConfirmUpdate] = useState(false); // Smart Button State
   const [dunningEnabled, setDunningEnabled] = useState(true);
+
+  // Timeline State
+  const [projectStatus, setProjectStatus] = useState('Draft');
+  const [expandedEmail, setExpandedEmail] = useState<number | null>(null);
 
   // UI States
   const [showAiRefiner, setShowAiRefiner] = useState(false);
@@ -163,6 +168,8 @@ function EditProjectContent() {
         if (project.signed_by || project.provider_sign) {
             setHasSignatures(true);
         }
+
+        setProjectStatus(project.status || 'Draft');
 
         setFormData({
             clientName: project.client_name || '',
@@ -436,6 +443,40 @@ function EditProjectContent() {
       </div>
     </div>
   );
+
+  // Helper: Calculate scheduled date for dunning stage
+  const calculateScheduledDate = (daysFromDue: number): string => {
+    if (!formData.dueDate) return 'N/A';
+    const dueDate = new Date(formData.dueDate);
+    const scheduledDate = new Date(dueDate.getTime() + daysFromDue * 24 * 60 * 60 * 1000);
+    return scheduledDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  // Helper: Get timeline node status & label
+  const getTimelineStatus = (daysFromDue: number): { label: string; color: string; icon: any; bgColor: string } => {
+    if (projectStatus === 'paid') {
+      return {
+        label: 'Canceled - Invoice Paid',
+        color: 'text-green-700',
+        bgColor: 'bg-green-50 border-green-200',
+        icon: CheckCircle
+      };
+    }
+    if (!dunningEnabled) {
+      return {
+        label: 'Paused',
+        color: 'text-gray-600',
+        bgColor: 'bg-gray-100 border-gray-200',
+        icon: Ban
+      };
+    }
+    return {
+      label: `Scheduled for ${calculateScheduledDate(daysFromDue)}`,
+      color: 'text-blue-700',
+      bgColor: 'bg-blue-50 border-blue-200',
+      icon: Clock
+    };
+  };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-500 font-medium">Loading project...</div>;
 
@@ -732,7 +773,86 @@ function EditProjectContent() {
             </div>
         </div>
       </div>
-      
+
+      {/* AUTOMATED COLLECTIONS TIMELINE */}
+      <div className="mt-8 bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="p-8 md:p-10">
+          {/* Header */}
+          <div className="mb-8">
+            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <Mail className="w-5 h-5 text-blue-600" />
+              Automated Collections
+            </h3>
+            <p className="text-sm text-gray-600 mt-2">
+              Our system automatically sends reminder emails if this invoice remains unpaid after the due date. You can disable this feature using the toggle in the Contract Details panel.
+            </p>
+          </div>
+
+          {/* Timeline */}
+          <div className="relative space-y-4">
+            {[
+              { day: 3, title: 'Day 3 Gentle Reminder', color: 'blue', snippet: 'A friendly reminder that your invoice is now a few days overdue. Please prioritize payment.' },
+              { day: 5, title: 'Day 5 Second Notice', color: 'blue', snippet: 'A follow-up reminder with invoice details. If you\'ve already paid, please disregard.' },
+              { day: 10, title: 'Day 10 Overdue Warning', color: 'amber', snippet: 'Your account is now significantly overdue. Prompt payment is required to avoid service interruption.' },
+              { day: 15, title: 'Day 15 Firm Notice', color: 'amber', snippet: 'Final reminder before escalation. Please remit payment immediately to resolve this matter.' },
+              { day: 30, title: 'Day 30 Final Legal Demand', color: 'red', snippet: 'Final notice. Failure to pay may result in legal action, suspension of services, or collection proceedings.' }
+            ].map((stage, idx) => {
+              const status = getTimelineStatus(stage.day);
+              const StatusIcon = status.icon;
+
+              return (
+                <div key={idx} className={`border rounded-xl p-5 transition-all ${status.bgColor}`}>
+                  {/* Timeline Item Header */}
+                  <div className="flex items-start gap-4">
+                    <div className={`mt-1 p-2 rounded-full ${stage.color === 'red' ? 'bg-red-100' : stage.color === 'amber' ? 'bg-amber-100' : 'bg-blue-100'}`}>
+                      <StatusIcon className={`w-5 h-5 ${status.color}`} />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-bold text-gray-900">{stage.title}</h4>
+                      <p className={`text-sm font-medium mt-1 ${status.color}`}>
+                        {status.label}
+                      </p>
+                    </div>
+
+                    {/* Preview Email Button */}
+                    <button
+                      type="button"
+                      onClick={() => setExpandedEmail(expandedEmail === idx ? null : idx)}
+                      className="flex-shrink-0 px-3 py-2 rounded-lg border border-gray-300 hover:border-gray-400 bg-white text-gray-700 text-sm font-medium transition-colors flex items-center gap-2"
+                    >
+                      Preview <ChevronDown className={`w-4 h-4 transition-transform ${expandedEmail === idx ? 'rotate-180' : ''}`} />
+                    </button>
+                  </div>
+
+                  {/* Email Preview Accordion */}
+                  {expandedEmail === idx && (
+                    <div className="mt-4 pt-4 border-t border-gray-300/50 animate-in fade-in slide-in-from-top-2">
+                      <div className="bg-white rounded-lg p-4 border border-gray-200">
+                        <h5 className="text-xs font-bold text-gray-500 uppercase mb-2">Email Preview</h5>
+                        <div className="space-y-2 text-sm text-gray-700 leading-relaxed">
+                          <p><span className="font-bold">From:</span> MicroFreelanceHub &lt;support@microfreelancehub.com&gt;</p>
+                          <p><span className="font-bold">Subject:</span> {`Invoice Reminder - ${stage.title}`}</p>
+                          <div className="bg-gray-50 rounded p-3 mt-3 border border-gray-200">
+                            <p className="text-gray-700">{stage.snippet}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Status Indicator */}
+          <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+            <p className="text-sm text-blue-800">
+              <span className="font-bold">Current Status:</span> {projectStatus === 'paid' ? '✓ Invoice Paid - No emails will be sent' : dunningEnabled ? '⏱ Active - Emails will be sent on schedule' : '⏸ Paused - Dunning is disabled'}
+            </p>
+          </div>
+        </div>
+      </div>
+
       <PricingModal isOpen={showPricingModal} onClose={() => setShowPricingModal(false)} userId={userId} />
     </div>
   );

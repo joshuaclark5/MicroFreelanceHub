@@ -2,16 +2,16 @@ import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { Metadata } from 'next';
-import { 
-  Shield, 
-  FileText, 
+import {
+  Shield,
+  FileText,
   ArrowRight,
   Receipt,
   Mail, // 👈 Added Mail icon for the new UI
-  CheckCircle2
+  CheckCircle2,
+  Lock
 } from 'lucide-react';
 import RelatedRoles from '../../components/seo/RelatedRoles';
-import WaitlistModal from '../../components/WaitlistModal'; // 👈 NEW: Imported the waitlist modal
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -239,13 +239,13 @@ export default async function TemplatePage({ params }: { params: { slug: string 
              </div>
           )}
 
-          {/* 👈 NEW: Scroll Anchor Fix */}
+          {/* 👈 UPDATED: Hero CTA now drives to login */}
           {isEmail ? (
-            <a href="#email-preview">
+            <Link href="/login">
               <button className="font-bold px-8 py-4 rounded-full text-lg shadow-xl hover:-translate-y-1 transition-all bg-indigo-500 text-white hover:bg-indigo-400">
-                ✨ View Email Templates
+                🚀 Automate These Emails
               </button>
-            </a>
+            </Link>
           ) : (
             <Link href={`/create?template=${params.slug}`}>
               <button className={`font-bold px-8 py-4 rounded-full text-lg shadow-xl hover:-translate-y-1 transition-all ${isInvoice ? 'bg-emerald-500 text-white hover:bg-emerald-400' : 'bg-white text-blue-900 hover:bg-blue-50'}`}>
@@ -312,12 +312,12 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                 {isEmail ? 'Tired of copy-pasting?' : 'Ready to send?'}
             </h4>
             <p className="text-slate-700 mb-4 leading-relaxed">
-              {isEmail 
-                ? 'Join our Automated Dunning waitlist. MicroFreelanceHub will automatically send these emails on days 3, 15, and 30 for you.' 
+              {isEmail
+                ? 'Stop doing this manually. MicroFreelanceHub will automatically send these exact emails on days 3, 15, and 30 for you.'
                 : (isInvoice ? 'Our AI will organize your line items and calculate totals automatically.' : 'Our AI will fill in the client\'s name, dates, and specific project details for you.')}
             </p>
-            <Link href={isEmail ? `/dashboard` : `/create?template=${params.slug}`} className={`font-bold hover:underline flex items-center gap-1 ${isEmail ? 'text-indigo-700' : (isInvoice ? 'text-emerald-700' : 'text-blue-600')}`}>
-              {isEmail ? 'Join the Automation Waitlist \u2192' : 'Start building now \u2192'}
+            <Link href={isEmail ? `/login` : `/create?template=${params.slug}`} className={`font-bold hover:underline flex items-center gap-1 ${isEmail ? 'text-indigo-700' : (isInvoice ? 'text-emerald-700' : 'text-blue-600')}`}>
+              {isEmail ? 'Create your free account \u2192' : 'Start building now \u2192'}
             </Link>
           </div>
         </div>
@@ -340,14 +340,14 @@ export default async function TemplatePage({ params }: { params: { slug: string 
               
               {isEmail ? (
                 // 📧 EMAIL UI MODE
-                <div className="space-y-6 pb-20">
+                <div className="space-y-6 pb-20 relative">
                   <h2 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900 mb-6">
                       Email Drafts
                   </h2>
                   {listItems.map((emailText: string, i: number) => {
                       const labels = ['Day 3: Gentle Reminder', 'Day 15: Firm Notice', 'Day 30: Final Demand'];
                       return (
-                        <div key={i} className="border border-slate-200 rounded-lg overflow-hidden shadow-sm">
+                        <div key={i} className={`border border-slate-200 rounded-lg overflow-hidden shadow-sm ${i >= 2 ? 'blur-sm select-none opacity-40 pointer-events-none' : ''}`}>
                           <div className="bg-slate-50 border-b border-slate-200 px-4 py-2 flex justify-between items-center">
                               <span className="font-bold text-xs text-indigo-700 uppercase tracking-wider">{labels[i] || `Draft ${i+1}`}</span>
                           </div>
@@ -357,6 +357,23 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                         </div>
                       )
                   })}
+
+                  {/* Paywall Overlay for Freemium Tease */}
+                  {listItems.length > 2 && (
+                    <div className="absolute inset-0 top-[35%] bg-gradient-to-t from-white via-white/95 to-transparent flex flex-col items-center justify-center z-10">
+                      <div className="bg-white rounded-xl border border-slate-200 p-8 text-center max-w-sm shadow-xl">
+                        <Lock className="w-12 h-12 text-indigo-600 mx-auto mb-4" />
+                        <p className="text-slate-700 font-semibold mb-6">
+                          Create a free account to unlock the Legal Escalation templates (and automate sending).
+                        </p>
+                        <Link href="/login">
+                          <button className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-indigo-700 transition-colors w-full">
+                            Unlock Free Templates
+                          </button>
+                        </Link>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 // 📄 CONTRACT / INVOICE UI MODE
@@ -416,18 +433,16 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                 </div>
               )}
 
-              {/* 👈 NEW: Overlay Button updated to use the WaitlistModal */}
-              <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white via-white/95 to-transparent flex items-end justify-center pb-6">
-                  {isEmail ? (
-                    <WaitlistModal templateSlug={params.slug} />
-                  ) : (
-                    <Link href={`/create?template=${params.slug}`}>
-                      <button className={`text-white px-6 py-3 rounded-lg font-bold shadow-lg transition-transform hover:-translate-y-1 ${isInvoice ? 'bg-emerald-900 hover:bg-emerald-800' : 'bg-slate-900 hover:bg-slate-800'}`}>
-                        {isInvoice ? 'Use This Invoice Free' : 'Use This Template Free'} &rarr;
-                      </button>
-                    </Link>
-                  )}
-              </div>
+              {/* 👈 UPDATED: Bottom overlay only shows for contracts/invoices */}
+              {!isEmail && (
+                <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white via-white/95 to-transparent flex items-end justify-center pb-6">
+                  <Link href={`/create?template=${params.slug}`}>
+                    <button className={`text-white px-6 py-3 rounded-lg font-bold shadow-lg transition-transform hover:-translate-y-1 ${isInvoice ? 'bg-emerald-900 hover:bg-emerald-800' : 'bg-slate-900 hover:bg-slate-800'}`}>
+                      {isInvoice ? 'Use This Invoice Free' : 'Use This Template Free'} &rarr;
+                    </button>
+                  </Link>
+                </div>
+              )}
 
             </div>
           </div>
