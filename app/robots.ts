@@ -1,19 +1,20 @@
-import { MetadataRoute } from 'next'
+import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
-        // Allow human search engines (Google, Bing)
+        // General rule for all standard search engines
         userAgent: '*',
         allow: '/',
+        disallow: ['/login', '/dashboard', '/create', '/api'],
       },
       {
-        // Explicitly invite AI Bots to read your templates
-        userAgent: ['GPTBot', 'ClaudeBot', 'Google-Extended', 'PerplexityBot', 'anthropic-ai'],
-        allow: '/',
+        // Explicit VIP pass for all major AI crawlers
+        userAgent: ['GPTBot', 'ChatGPT-User', 'OAI-SearchBot', 'ClaudeBot', 'Google-Extended', 'PerplexityBot', 'anthropic-ai'],
+        allow: ['/', '/templates', '/alternatives'],
       }
     ],
     sitemap: 'https://www.microfreelancehub.com/sitemap.xml',
-  }
+  };
 }
