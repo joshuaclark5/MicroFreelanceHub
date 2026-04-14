@@ -1,13 +1,19 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+
+// 👉 WE ARE STATICALLY IMPORTING THE IMAGES HERE
+import paymentImg from './payment.png';
+import builderImg from './builder.png';
+import dashboardImg from './dashboard.png';
+
 import { 
   ArrowRight, 
   CheckCircle2, 
   ShieldCheck, 
-  Smartphone,
   Wrench,
   Paintbrush,
   Code2,
@@ -68,34 +74,57 @@ export default function Home() {
       </nav>
 
       {/* 2. HERO SECTION */}
-      <section className="px-6 pt-24 pb-16 md:pt-32 md:pb-24 max-w-5xl mx-auto text-center relative">
+      <section className="px-6 pt-16 pb-16 md:pt-24 md:pb-24 max-w-7xl mx-auto relative overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-blue-50 rounded-full blur-3xl opacity-50 -z-10 pointer-events-none"></div>
 
-        <div className="space-y-8 relative z-10">
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
-            Never do <span className="text-blue-600">unpaid work</span> again.
-          </h1>
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center relative z-10">
           
-          <p className="text-lg md:text-2xl text-slate-600 max-w-3xl mx-auto leading-relaxed font-medium">
-        Create a contract, get it signed, and collect the deposit, all in one simple link.
-</p>
+          {/* Left Side: Copy */}
+          <div className="space-y-8 text-center lg:text-left">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
+              Never do <span className="text-blue-600">unpaid work</span> again.
+            </h1>
+            
+            <p className="text-lg md:text-2xl text-slate-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-medium">
+              Create a contract, get it signed, and collect the deposit, all in one simple link.
+            </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
-            <Link href="/create" className="w-full sm:w-auto">
-              <div className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-200 rounded-xl px-8 py-4 font-bold text-lg flex items-center justify-center transition-all hover:-translate-y-1 hover:shadow-blue-300">
-                Create your first contract free
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </div>
-            </Link>
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
+              <Link href="/create" className="w-full sm:w-auto">
+                <div className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-200 rounded-xl px-8 py-4 font-bold text-lg flex items-center justify-center transition-all hover:-translate-y-1 hover:shadow-blue-300">
+                  Create your first contract free
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </div>
+              </Link>
+            </div>
+
+            <p className="text-sm font-bold text-slate-500 uppercase tracking-widest pt-4">
+              Built by a freelancer who got tired of chasing payments.
+            </p>
           </div>
 
-          <p className="text-sm font-bold text-slate-500 uppercase tracking-widest pt-4">
-            Built by a freelancer who got tired of chasing payments.
-          </p>
+          {/* Right Side: The Money Shot */}
+          <div className="relative mx-auto w-full max-w-md lg:max-w-none mt-8 lg:mt-0 lg:pl-12">
+             <div className="absolute -top-5 -left-5 bg-slate-900 text-white text-sm font-bold px-5 py-2 rounded-full z-20 shadow-xl border-2 border-white transform -rotate-2">
+               👉 This is what your client sees
+             </div>
+             {/* 👉 Crispy high-quality hero image */}
+             <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200 bg-white">
+               <Image 
+                 src={paymentImg} 
+                 alt="Client Payment Screen" 
+                 className="w-full h-auto object-contain"
+                 quality={100}
+                 unoptimized
+                 priority
+               />
+             </div>
+          </div>
+
         </div>
 
         {/* VISUAL FLOW GRAPHIC */}
-        <div className="mt-20 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 relative z-20">
+        <div className="mt-24 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 relative z-20">
            <div className="hidden md:block absolute top-1/2 left-1/6 right-1/6 h-1 bg-gradient-to-r from-slate-200 via-blue-300 to-emerald-300 -z-10 translate-y-2"></div>
            
            <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-lg flex flex-col items-center text-center hover:-translate-y-1 transition-transform">
@@ -170,56 +199,80 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. THE SOLUTION BENTO BOX */}
+      {/* 4. THE VISUAL SOLUTION SECTION */}
       <section className="py-24 relative z-10 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 max-w-3xl mx-auto">
             <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">One link handles everything.</h2>
             <p className="text-lg text-slate-600">
-              Built for real freelancers, not corporate teams. No complicated software, no chasing invoices.
+              Built for real freelancers, not corporate teams.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             
-            {/* Feature 1: Automated Handoffs (Large) */}
-            <div className="md:col-span-2 bg-slate-50 rounded-3xl p-8 md:p-10 border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
-              <BellRing className="w-10 h-10 text-blue-600 mb-6" />
-              <h3 className="text-2xl font-bold text-slate-900 mb-3">Automated Collections</h3>
-              <p className="text-slate-600 mb-6 max-w-md leading-relaxed">
-                We handle the awkward stuff. If the client doesn't pay, our system automatically follows up with polite, legally-backed reminders on days 3, 15, and 30 so you don't have to.
-              </p>
-              <div className="inline-block px-4 py-2 bg-blue-100 text-blue-800 text-sm font-bold rounded-lg border border-blue-200">
-                Stop chasing money manually.
+            {/* Image Feature 1: The Builder */}
+            <div className="bg-slate-50 rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col">
+              <div className="mb-8">
+                 <h3 className="text-2xl font-bold text-slate-900 mb-3">1. Build it in seconds</h3>
+                 <p className="text-slate-600 leading-relaxed">
+                   Itemize your scope, set your tax rates, and clearly define the deliverables. Our builder organizes everything into a clean, professional legal document.
+                 </p>
+              </div>
+              {/* 👉 Fixed 350px height + object-top to balance with the dashboard image */}
+              <div className="mt-auto relative rounded-xl overflow-hidden border border-slate-200 shadow-lg h-[350px] bg-white">
+                 <Image 
+                   src={builderImg} 
+                   alt="Contract Builder Screen" 
+                   className="w-full h-full object-cover object-top" 
+                   quality={100}
+                   unoptimized
+                 />
               </div>
             </div>
 
-            {/* Feature 2: All-in-one Link (Small) */}
-            <div className="md:col-span-1 bg-slate-50 rounded-3xl p-8 md:p-10 border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-              <LinkIcon className="w-10 h-10 text-indigo-600 mb-6" />
-              <h3 className="text-xl font-bold text-slate-900 mb-3">The Magic Link</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">
-                Scope of work, legal terms, e-signatures, and Stripe checkout are all bundled into one secure link.
-              </p>
+            {/* Image Feature 2: The Dashboard */}
+            <div className="bg-slate-50 rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col">
+              <div className="mb-8">
+                 <h3 className="text-2xl font-bold text-slate-900 mb-3">2. Track the money</h3>
+                 <p className="text-slate-600 leading-relaxed">
+                   Treat your freelance gig like a real business. Track your revenue, active projects, and profit margins all from one simple dashboard.
+                 </p>
+              </div>
+              {/* 👉 Fixed 350px height + object-left-top to balance with the builder image */}
+              <div className="mt-auto relative rounded-xl overflow-hidden border border-slate-200 shadow-lg h-[350px] bg-white flex items-start">
+                 <Image 
+                   src={dashboardImg} 
+                   alt="Analytics Dashboard Screen" 
+                   className="w-full h-full object-cover object-left-top" 
+                   quality={100}
+                   unoptimized
+                 />
+              </div>
             </div>
 
-            {/* Feature 4: Change Orders (Large) */}
-            <div className="md:col-span-3 bg-slate-900 text-white rounded-3xl p-8 md:p-10 shadow-xl flex flex-col md:flex-row items-center justify-between gap-8">
+            {/* Feature 3: Automated Collections (Text Row) */}
+            <div className="md:col-span-2 bg-slate-900 text-white rounded-3xl p-8 md:p-12 shadow-xl flex flex-col md:flex-row items-center justify-between gap-8 mt-4">
               <div className="max-w-xl">
                  <ShieldCheck className="w-12 h-12 text-emerald-400 mb-6" />
                  <h3 className="text-3xl font-bold text-white mb-4">"If it's not signed, you don't start."</h3>
-                 <p className="text-slate-300 text-lg leading-relaxed">
+                 <p className="text-slate-300 text-lg leading-relaxed mb-6">
                    Client wants to add "just one more quick thing" mid-project? Edit the live agreement. The system locks the project and forces a re-signature and payment before you do any extra work.
                  </p>
+                 <div className="flex gap-4">
+                    <div className="flex items-center gap-2 bg-emerald-500/20 text-emerald-300 px-4 py-2 rounded-lg text-sm font-bold border border-emerald-500/30">
+                       <CheckCircle2 className="w-4 h-4" /> Deposit Secured
+                    </div>
+                    <div className="flex items-center gap-2 bg-blue-500/20 text-blue-300 px-4 py-2 rounded-lg text-sm font-bold border border-blue-500/30">
+                       <BellRing className="w-4 h-4" /> Automated Reminders
+                    </div>
+                 </div>
               </div>
               <div className="shrink-0 w-full md:w-auto">
-                 <div className="bg-slate-800 border border-slate-700 p-6 rounded-xl flex items-center gap-4">
-                    <div className="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center">
-                       <CheckCircle2 className="text-emerald-400 w-6 h-6" />
-                    </div>
-                    <div>
-                       <div className="text-emerald-400 font-bold">Deposit Secured</div>
-                       <div className="text-slate-400 text-sm">Via Stripe Checkout</div>
+                 <div className="bg-slate-800 border border-slate-700 p-6 rounded-xl text-center">
+                    <div className="text-slate-400 text-sm font-bold uppercase tracking-wider mb-2">Powered by</div>
+                    <div className="text-2xl font-extrabold text-white flex items-center gap-2 justify-center">
+                       <CreditCard className="w-6 h-6 text-indigo-400" /> Stripe
                     </div>
                  </div>
               </div>
@@ -237,13 +290,13 @@ export default function Home() {
 
             <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto text-left">
                {/* Free Tier */}
-               <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+               <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
                   <h3 className="text-2xl font-bold text-slate-900 mb-2">Starter</h3>
                   <div className="text-4xl font-extrabold text-slate-900 mb-6">$0<span className="text-lg text-slate-500 font-medium">/mo</span></div>
-                  <ul className="space-y-4 mb-8">
-                     <li className="flex items-center gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-600" /> First 3 Contracts Free</li>
-                     <li className="flex items-center gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-600" /> Legally Binding e-Signatures</li>
-                     <li className="flex items-center gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-600" /> Stripe Payment Integration</li>
+                  <ul className="space-y-4 mb-8 flex-1">
+                     <li className="flex items-center gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0" /> First 3 Contracts Free</li>
+                     <li className="flex items-center gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0" /> Legally Binding e-Signatures</li>
+                     <li className="flex items-center gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0" /> Stripe Payment Integration</li>
                   </ul>
                   <Link href="/login">
                      <button className="w-full py-4 rounded-xl border-2 border-slate-200 font-bold text-slate-700 hover:border-slate-300 hover:bg-slate-50 transition-all">Start Free</button>
@@ -251,14 +304,14 @@ export default function Home() {
                </div>
 
                {/* Pro Tier */}
-               <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-xl relative overflow-hidden">
+               <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-xl relative overflow-hidden flex flex-col">
                   <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">Most Popular</div>
                   <h3 className="text-2xl font-bold text-white mb-2">Professional</h3>
                   <div className="text-4xl font-extrabold text-white mb-6">$29<span className="text-lg text-slate-400 font-medium">/mo</span></div>
-                  <ul className="space-y-4 mb-8">
-                     <li className="flex items-center gap-3 text-slate-300"><CheckCircle2 className="w-5 h-5 text-blue-400" /> Unlimited Contracts</li>
-                     <li className="flex items-center gap-3 text-slate-300"><CheckCircle2 className="w-5 h-5 text-blue-400" /> Automated Dunning Emails</li>
-                     <li className="flex items-center gap-3 text-slate-300"><CheckCircle2 className="w-5 h-5 text-blue-400" /> Remove Watermarks</li>
+                  <ul className="space-y-4 mb-8 flex-1">
+                     <li className="flex items-center gap-3 text-slate-300"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> Unlimited Contracts</li>
+                     <li className="flex items-center gap-3 text-slate-300"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> Automated Dunning Emails</li>
+                     <li className="flex items-center gap-3 text-slate-300"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> Remove Watermarks</li>
                   </ul>
                   <Link href="/login">
                      <button className="w-full py-4 rounded-xl bg-blue-600 font-bold text-white hover:bg-blue-500 transition-all shadow-lg shadow-blue-900/50">Get Started</button>
@@ -376,6 +429,10 @@ export default function Home() {
                Get Started Free
              </Link>
           </div>
+          <p className="mt-8 text-sm text-blue-200">No credit card required · Free for 3 projects</p>
+          <p className="mt-4 text-[10px] text-blue-200/50 max-w-xl mx-auto">
+             Disclaimer: MicroFreelanceHub is a software platform, not a law firm. The templates and tools provided are for educational and operational purposes and do not constitute formal legal advice.
+          </p>
         </div>
       </section>
       
