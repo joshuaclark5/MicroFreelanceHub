@@ -4,7 +4,11 @@ import { useState, useEffect, Suspense } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { CheckCircle2, Star, ShieldCheck, ArrowRight } from 'lucide-react';
+
+// 👉 Statically import the real review photo
+import stumpGrinderImg from '../stump-grinder.jpg';
 
 // --- 1. The Form Component ---
 function LoginForm() {
@@ -218,28 +222,32 @@ export default function LoginPage() {
             </Link>
          </div>
 
+         {/* 👉 UPDATED: The Real Review */}
          <div className="relative z-10 max-w-lg">
             <div className="flex gap-1 mb-6">
                 {[1,2,3,4,5].map(i => <Star key={i} className="w-5 h-5 text-amber-400 fill-amber-400" />)}
             </div>
-            <h2 className="text-4xl font-bold leading-tight mb-6">
-                "This tool saved me from a $2,000 scope creep nightmare. Every freelancer needs this."
+            <h2 className="text-3xl lg:text-4xl font-bold leading-tight mb-8">
+                "Absolutely love this tool. I do quick stump grinding jobs, and it helps me protect the work... and get paid upfront before doing extra work. I'd definitely recommend it."
             </h2>
             <div className="flex items-center gap-4">
-               <div className="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center font-bold text-lg">JS</div>
+               {/* 👉 UPDATED: The Real User Photo */}
+               <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-slate-700 shadow-md">
+                   <Image src={stumpGrinderImg} alt="User Review" className="w-full h-full object-cover" unoptimized />
+               </div>
                <div>
-                  <div className="font-bold">Joshua S.</div>
-                  <div className="text-slate-400 text-sm">Freelance Web Developer</div>
+                  <div className="font-bold text-lg">Drake Fawson</div>
+                  <div className="text-slate-400 text-sm">Stump Grinding & Tree Service</div>
                </div>
             </div>
          </div>
 
          <div className="relative z-10 flex gap-8 text-sm text-slate-400">
             <div className="flex items-center gap-2">
-               <CheckCircle2 className="w-4 h-4 text-blue-500" /> Free Forever Plan
+               <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Free 3-Contract Plan
             </div>
             <div className="flex items-center gap-2">
-               <CheckCircle2 className="w-4 h-4 text-blue-500" /> No Credit Card Required
+               <CheckCircle2 className="w-4 h-4 text-emerald-400" /> No Credit Card Required
             </div>
          </div>
       </div>

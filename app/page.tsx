@@ -5,10 +5,11 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
-// 👉 WE ARE STATICALLY IMPORTING THE IMAGES HERE
+// 👉 WE ARE STATICALLY IMPORTING ALL IMAGES HERE
 import paymentImg from './payment.png';
 import builderImg from './builder.png';
 import dashboardImg from './dashboard.png';
+import stumpGrinderImg from './stump-grinder.jpg'; // 👉 The new review photo
 
 import { 
   ArrowRight, 
@@ -108,7 +109,6 @@ export default function Home() {
              <div className="absolute -top-5 -left-5 bg-slate-900 text-white text-sm font-bold px-5 py-2 rounded-full z-20 shadow-xl border-2 border-white transform -rotate-2">
                👉 This is what your client sees
              </div>
-             {/* 👉 Crispy high-quality hero image */}
              <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200 bg-white">
                <Image 
                  src={paymentImg} 
@@ -219,7 +219,6 @@ export default function Home() {
                    Itemize your scope, set your tax rates, and clearly define the deliverables. Our builder organizes everything into a clean, professional legal document.
                  </p>
               </div>
-              {/* 👉 Fixed 350px height + object-top to balance with the dashboard image */}
               <div className="mt-auto relative rounded-xl overflow-hidden border border-slate-200 shadow-lg h-[350px] bg-white">
                  <Image 
                    src={builderImg} 
@@ -239,7 +238,6 @@ export default function Home() {
                    Treat your freelance gig like a real business. Track your revenue, active projects, and profit margins all from one simple dashboard.
                  </p>
               </div>
-              {/* 👉 Fixed 350px height + object-left-top to balance with the builder image */}
               <div className="mt-auto relative rounded-xl overflow-hidden border border-slate-200 shadow-lg h-[350px] bg-white flex items-start">
                  <Image 
                    src={dashboardImg} 
@@ -278,6 +276,34 @@ export default function Home() {
               </div>
             </div>
 
+          </div>
+        </div>
+      </section>
+
+      {/* 4.5 REAL USER TESTIMONIAL */}
+      <section className="bg-white py-24 border-t border-slate-200">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <div className="inline-block mb-8">
+            <div className="flex text-amber-400 justify-center gap-1 mb-6">
+              {/* 5 Stars */}
+              {[...Array(5)].map((_, i) => (
+                <svg key={i} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8">
+                  <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clipRule="evenodd" />
+                </svg>
+              ))}
+            </div>
+            <h3 className="text-2xl md:text-3xl font-bold text-slate-900 leading-relaxed mb-8 italic">
+              “Absolutely love this tool. I do quick stump grinding jobs, and it helps me protect the work, set expectations, and get paid upfront before doing extra work. I’d definitely recommend it.”
+            </h3>
+            <div className="flex items-center justify-center gap-4">
+              <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-slate-200 shadow-md">
+                  <Image src={stumpGrinderImg} alt="User Review" className="w-full h-full object-cover" unoptimized />
+              </div>
+              <div className="text-left">
+                <div className="font-extrabold text-slate-900">Drake Fawson</div>
+                <div className="text-slate-500 text-sm font-medium">Stump Grinding & Tree Service</div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -334,7 +360,7 @@ export default function Home() {
                 I had no legal leg to stand on.
               </p>
               <p>
-                I built MicroFreelanceHub so that never happens to you. 
+                MicroFreelanceHub was created so that never happens to you. 
                 Whether you are fixing a sink or designing a logo, you need a safety net.
               </p>
             </div>
