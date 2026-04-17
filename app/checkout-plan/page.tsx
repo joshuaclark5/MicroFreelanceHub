@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 
-export default function CheckoutPlanPage() {
+// 1. We move all the actual logic into this child component
+function CheckoutLogic() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const searchParams = useSearchParams();
@@ -80,4 +81,20 @@ export default function CheckoutPlanPage() {
   }
 
   return null;
+}
+
+// 2. The Parent Page wraps the logic in a Suspense boundary to make Vercel happy
+export default function CheckoutPlanPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600 mb-4"></div>
+          <p className="text-slate-600">Loading secure checkout...</p>
+        </div>
+      </div>
+    }>
+      <CheckoutLogic />
+    </Suspense>
+  );
 }
