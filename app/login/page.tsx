@@ -7,10 +7,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { CheckCircle2, Star, ShieldCheck, ArrowRight } from 'lucide-react';
 
-// 👉 Statically import the real review photo
 import stumpGrinderImg from '../stump-grinder.jpg';
 
-// --- 1. The Form Component ---
 function LoginForm() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,36 +16,38 @@ function LoginForm() {
   const [isSuccess, setIsSuccess] = useState(false);
   const supabase = createClientComponentClient();
   const searchParams = useSearchParams();
-  
-  // Get the template name from the URL
+
   const templateSlug = searchParams.get('template');
-  
-  // Format it nicely
-  const templateName = templateSlug 
-    ? templateSlug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') 
+  const plan = searchParams.get('plan') as 'pro' | 'agency' | null;
+
+  const templateName = templateSlug
+    ? templateSlug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
     : null;
 
   useEffect(() => {
     if (templateSlug) {
       localStorage.setItem('pending_template', templateSlug);
     }
-  }, [templateSlug]);
+    if (plan) {
+      localStorage.setItem('pending_plan', plan);
+    }
+  }, [templateSlug, plan]);
 
-  // --- GOOGLE LOGIN HANDLER (FIXED) ---
   const handleGoogleLogin = async () => {
     const currentDomain = typeof window !== 'undefined' ? window.location.origin : '';
-    
-    // 🧠 SMART REDIRECT FIX:
-    // We build a URL that explicitly includes the template ID
+
     const redirectUrl = new URL(`${currentDomain}/auth/callback`);
     if (templateSlug) {
       redirectUrl.searchParams.set('template', templateSlug);
+    }
+    if (plan) {
+      redirectUrl.searchParams.set('plan', plan);
     }
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: redirectUrl.toString(), // ✅ Pass the smart URL here
+        redirectTo: redirectUrl.toString(),
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
@@ -62,26 +62,26 @@ function LoginForm() {
     }
   };
 
-  // --- MAGIC LINK HANDLER (FIXED) ---
   const handleMagicLinkLogin = async (e: React.FormEvent) => {
-    e.preventDefault(); 
+    e.preventDefault();
     setLoading(true);
     setMessage('');
     setIsSuccess(false);
 
     const currentDomain = typeof window !== 'undefined' ? window.location.origin : '';
 
-    // 🧠 SMART REDIRECT FIX:
-    // Same logic for email links
     const redirectUrl = new URL(`${currentDomain}/auth/callback`);
     if (templateSlug) {
       redirectUrl.searchParams.set('template', templateSlug);
+    }
+    if (plan) {
+      redirectUrl.searchParams.set('plan', plan);
     }
 
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: redirectUrl.toString(), // ✅ Pass the smart URL here
+        emailRedirectTo: redirectUrl.toString(),
       },
     });
 
@@ -91,17 +91,32 @@ function LoginForm() {
     } else {
       setMessage('Check your email! We sent you a secure magic link.');
       setIsSuccess(true);
-      setEmail(''); // Clear field
+      setEmail('');
     }
     setLoading(false);
   };
 
   return (
     <div className="w-full max-w-md mx-auto space-y-8">
-        
-        {/* HEADER: Context Aware */}
+
         <div className="text-center">
-            {templateName ? (
+            {plan ? (
+                <>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold uppercase tracking-wide mb-4 border border-blue-100">
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                        </span>
+                        {templateSlug ? 'Step 3 of 3: Upgrade' : 'Step 2 of 2: Upgrade'}
+                    </div>
+                    <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+                        Upgrade to <span className="text-blue-600">{plan === 'pro' ? 'Professional' : 'Agency'}</span>
+                    </h1>
+                    <p className="mt-3 text-slate-500 text-sm leading-relaxed">
+                        Create an account or sign in to continue with your {plan === 'pro' ? 'Professional' : 'Agency'} plan purchase.
+                    </p>
+                </>
+            ) : templateName ? (
                 <>
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold uppercase tracking-wide mb-4 border border-blue-100">
                         <span className="relative flex h-2 w-2">
@@ -127,7 +142,6 @@ function LoginForm() {
             )}
         </div>
 
-        {/* ALERTS */}
         {message && (
           <div className={`p-4 rounded-xl text-sm font-medium flex items-start gap-3 ${
               isSuccess ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'
@@ -139,7 +153,6 @@ function LoginForm() {
 
         <div className="space-y-4">
             
-            {/* GOOGLE BUTTON */}
             <button
                 onClick={handleGoogleLogin}
                 className="group relative w-full flex items-center justify-center gap-3 bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold py-3.5 px-4 rounded-xl transition-all shadow-sm hover:shadow-md"
@@ -153,14 +166,12 @@ function LoginForm() {
                 <span>Continue with Google</span>
             </button>
 
-            {/* DIVIDER */}
             <div className="relative flex items-center py-2">
                 <div className="flex-grow border-t border-slate-200"></div>
                 <span className="flex-shrink-0 mx-4 text-slate-400 text-xs uppercase font-bold tracking-wider">Or</span>
                 <div className="flex-grow border-t border-slate-200"></div>
             </div>
 
-            {/* MAGIC LINK FORM */}
             <form onSubmit={handleMagicLinkLogin} className="space-y-4">
                 <div>
                     <label htmlFor="email" className="sr-only">Email address</label>
@@ -198,19 +209,15 @@ function LoginForm() {
   );
 }
 
-// --- 2. The Main Layout (Split Screen) ---
 export default function LoginPage() {
   return (
     <div className="min-h-screen bg-white flex">
       
-      {/* LEFT SIDE: Branding (Hidden on Mobile) */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-slate-900 text-white flex-col justify-between p-16 overflow-hidden">
-         {/* Background Pattern */}
          <div className="absolute inset-0 opacity-10" 
               style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}>
          </div>
          
-         {/* Gradient Orb */}
          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/30 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
          
          <div className="relative z-10">
@@ -222,16 +229,14 @@ export default function LoginPage() {
             </Link>
          </div>
 
-         {/* 👉 UPDATED: The Real Review */}
          <div className="relative z-10 max-w-lg">
             <div className="flex gap-1 mb-6">
                 {[1,2,3,4,5].map(i => <Star key={i} className="w-5 h-5 text-amber-400 fill-amber-400" />)}
             </div>
             <h2 className="text-3xl lg:text-4xl font-bold leading-tight mb-8">
-                "Absolutely love this tool. I do quick stump grinding jobs, and it helps me protect the work... and get paid upfront before doing extra work. I'd definitely recommend it."
+                "Absolutely love this tool. I do quick stump grinding jobs, and it helps me protect the work, set expectations, and get paid upfront before doing extra work. I'd definitely recommend it."
             </h2>
             <div className="flex items-center gap-4">
-               {/* 👉 UPDATED: The Real User Photo */}
                <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-slate-700 shadow-md">
                    <Image src={stumpGrinderImg} alt="User Review" className="w-full h-full object-cover" unoptimized />
                </div>
@@ -252,7 +257,6 @@ export default function LoginPage() {
          </div>
       </div>
 
-      {/* RIGHT SIDE: Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 relative">
          <div className="absolute top-6 right-6 lg:top-12 lg:right-12">
             <Link href="/" className="text-sm font-semibold text-slate-500 hover:text-slate-900 transition-colors">

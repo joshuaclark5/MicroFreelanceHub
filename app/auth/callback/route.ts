@@ -5,6 +5,8 @@ import { NextResponse } from 'next/server';
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
+  const plan = requestUrl.searchParams.get('plan');
+  const template = requestUrl.searchParams.get('template');
 
   if (code) {
     const cookieStore = cookies();
@@ -12,6 +14,11 @@ export async function GET(request: Request) {
     await supabase.auth.exchangeCodeForSession(code);
   }
 
-  // URL to redirect to after sign in process completes
+  // If plan is present, redirect to checkout instead of dashboard
+  if (plan) {
+    return NextResponse.redirect(new URL(`/checkout-plan?plan=${plan}`, request.url));
+  }
+
+  // Otherwise redirect to dashboard (template handling happens there)
   return NextResponse.redirect(new URL('/dashboard', request.url));
 }

@@ -62,8 +62,8 @@ export default function Home() {
                 <Link href="/login" className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors hidden sm:block">
                   Log in
                 </Link>
-                <Link 
-                  href="/login" 
+                <Link
+                  href="/login?plan=pro"
                   className="bg-blue-600 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg"
                 >
                   Get Started
@@ -339,7 +339,7 @@ export default function Home() {
                      <li className="flex items-center gap-3 text-slate-300"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> Automated Dunning Emails</li>
                      <li className="flex items-center gap-3 text-slate-300"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> Remove Watermarks</li>
                   </ul>
-                  <Link href="/login">
+                  <Link href="/login?plan=pro">
                      <button className="w-full py-4 rounded-xl bg-blue-600 font-bold text-white hover:bg-blue-500 transition-all shadow-lg shadow-blue-900/50">Get Started</button>
                   </Link>
                </div>
