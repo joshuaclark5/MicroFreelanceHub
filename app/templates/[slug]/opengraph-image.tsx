@@ -17,9 +17,12 @@ export default async function Image({ params }: { params: { slug: string } }) {
   // 1. Get the slug
   const slug = params.slug
   
-  // ✅ 2. DETECT MODE: Is this an Email, Invoice, or Contract?
+  // ✅ 2. DETECT MODE: The Upgraded Chameleon Engine
   const isEmail = slug.startsWith('late-payment-email-');
   const isInvoice = !isEmail && slug.includes('-invoice');
+  const isEstimate = !isEmail && slug.includes('-estimate');
+  const isQuote = !isEmail && slug.includes('-quote');
+  const isProposal = isEstimate || isQuote;
   
   // 3. ROBUST FORMATTING
   let cleanSlug = slug;
@@ -29,7 +32,14 @@ export default async function Image({ params }: { params: { slug: string } }) {
   cleanSlug = cleanSlug.replace(/^hire-/, '');
 
   // Remove known suffixes from the END of the string only
-  const suffixes = ['-invoice-template', '-invoice', '-contract-template', '-contract', '-template'];
+  const suffixes = [
+    '-invoice-template', '-invoice', 
+    '-contract-template', '-contract', 
+    '-estimate-template', '-estimate', 
+    '-quote-template', '-quote', 
+    '-template'
+  ];
+  
   for (const suffix of suffixes) {
     if (cleanSlug.endsWith(suffix)) {
       cleanSlug = cleanSlug.slice(0, -suffix.length);
@@ -43,22 +53,28 @@ export default async function Image({ params }: { params: { slug: string } }) {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
  
-  // ✅ 4. CHAMELEON STYLING
+  // ✅ 4. CHAMELEON STYLING (Added Amber/Gold for Proposals)
   const bgGradient = isEmail
     ? 'linear-gradient(to bottom right, #0f172a, #312e81)' // Slate to Indigo
     : isInvoice 
     ? 'linear-gradient(to bottom right, #0f172a, #064e3b)' // Slate to Emerald
+    : isProposal
+    ? 'linear-gradient(to bottom right, #0f172a, #78350f)' // Slate to Amber/Gold
     : 'linear-gradient(to bottom right, #0f172a, #1e3a8a)'; // Slate to Blue
 
-  const badgeColor = isEmail ? '#4f46e5' : (isInvoice ? '#059669' : '#2563eb'); // Indigo vs Emerald vs Blue
-  const docTypeLabel = isEmail ? 'Email Templates' : (isInvoice ? 'Invoice' : 'Contract');
+  const badgeColor = isEmail ? '#4f46e5' : isInvoice ? '#059669' : isProposal ? '#d97706' : '#2563eb'; 
+  
+  const docTypeLabel = isEmail ? 'Email Templates' : isInvoice ? 'Invoice' : isEstimate ? 'Estimate' : isQuote ? 'Quote' : 'Contract';
+  
   const subtitleText = isEmail
     ? 'Automated Dunning & Escalation Notices'
     : isInvoice 
     ? 'Itemized Billing & Instant Payments' 
+    : isProposal
+    ? 'Professional Proposals & Upfront Deposits'
     : 'Professional Scope of Work & Legal Terms';
     
-  const subtitleColor = isEmail ? '#a5b4fc' : (isInvoice ? '#6ee7b7' : '#93c5fd'); // Indigo-300 vs Emerald-300 vs Blue-300
+  const subtitleColor = isEmail ? '#a5b4fc' : isInvoice ? '#6ee7b7' : isProposal ? '#fcd34d' : '#93c5fd'; 
 
   return new ImageResponse(
     (
