@@ -14,7 +14,7 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// Get the Webhook Secret from Vercel env vars
+// Get the Webhook Secret from environment
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
 export async function POST(req: Request) {
@@ -27,58 +27,48 @@ export async function POST(req: Request) {
   try {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (err: any) {
-    console.error(`❌ Webhook Error: ${err.message}`);
+    console.error(`❌ Webhook Signature Error: ${err.message}`);
     return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
   }
 
-  // 2. Handle the "Payment Successful" event
+  // 2. Handle checkout.session.completed
   if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as Stripe.Checkout.Session;
-    
-    // Get the User ID we sent from the client
-    const userId = session.client_reference_id;
-    const subscriptionId = session.subscription as string;
-    const customerId = session.customer as string;
-    const customerEmail = session.customer_details?.email;
+    try {
+      const session = event.data.object as Stripe.Checkout.Session;
 
-    if (userId) {
-        // ✅ BEST CASE: We have the exact User ID
-        console.log(`💰 Payment success for User: ${userId}`);
-        
-        const { error } = await supabaseAdmin
-           .from('profiles')
-           .update({ 
-               is_pro: true,
-               stripe_customer_id: customerId,  // Save this for cancellations
-               subscription_id: subscriptionId  // Save this for tracking
-           })
-           .eq('id', userId);
-           
-        if (error) console.error('Error updating profile by ID:', error);
-        else console.log(`✅ Upgraded user ${userId} to PRO`);
-        
-    } else if (customerEmail) {
-        // ⚠️ FALLBACK: Use email if ID is missing
-        console.log(`💰 Payment with Email (No ID): ${customerEmail}`);
-        const { data } = await supabaseAdmin.auth.admin.listUsers();
-        const users = data?.users || []; 
-        const user = users.find(u => u.email === customerEmail);
+      // Extract data from session
+      const userId = session.client_reference_id;
+      const stripeCustomerId = session.customer as string;
+      const subscriptionId = session.subscription as string;
 
-        if (user) {
-            const { error } = await supabaseAdmin
-            .from('profiles')
-            .update({ 
-                is_pro: true,
-                stripe_customer_id: customerId,
-                subscription_id: subscriptionId
-            })
-            .eq('id', user.id);
+      // Validate we have userId
+      if (!userId) {
+        console.warn('⚠️ Webhook received but no client_reference_id (userId) found');
+        return NextResponse.json({ error: 'No user reference' }, { status: 400 });
+      }
 
-            if (error) console.error('Error updating profile by Email:', error);
-            else console.log(`✅ Upgraded user ${user.id} to PRO (via Email)`);
-        } else {
-            console.error('User not found for email:', customerEmail);
-        }
+      console.log(`💰 Processing payment for User: ${userId}, Customer: ${stripeCustomerId}`);
+
+      // Update user's profile with is_pro=true and save Stripe IDs
+      const { error } = await supabaseAdmin
+        .from('profiles')
+        .update({
+          is_pro: true,
+          stripe_customer_id: stripeCustomerId,
+          subscription_id: subscriptionId,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', userId);
+
+      if (error) {
+        console.error(`❌ Error updating profile for user ${userId}:`, error);
+        return NextResponse.json({ error: 'Database update failed' }, { status: 500 });
+      }
+
+      console.log(`✅ Successfully upgraded user ${userId} to PRO`);
+    } catch (err: any) {
+      console.error('❌ Error processing checkout.session.completed:', err);
+      return NextResponse.json({ error: err.message }, { status: 500 });
     }
   }
 

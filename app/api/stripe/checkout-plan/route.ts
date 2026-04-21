@@ -64,10 +64,14 @@ export async function POST(request: Request) {
       stripeCustomerId = customer.id;
 
       // Save the Stripe customer ID
-      await supabase
+      const { error: updateError } = await supabase
         .from('profiles')
         .update({ stripe_customer_id: stripeCustomerId })
         .eq('id', userId);
+
+      if (updateError) {
+        console.error('Error saving Stripe customer ID:', updateError);
+      }
     }
 
     const planConfig = PLAN_PRICES[plan as keyof typeof PLAN_PRICES];
@@ -76,6 +80,7 @@ export async function POST(request: Request) {
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       customer: stripeCustomerId,
+      client_reference_id: userId, // Pass userId so webhook can identify the user
       line_items: [
         {
           price_data: {
