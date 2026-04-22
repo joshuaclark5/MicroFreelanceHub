@@ -9,7 +9,7 @@ import {
   Gem, ArrowUpRight, FileText, ExternalLink,
   LayoutGrid, Clock, TrendingUp, CheckCircle,
   PenTool, Repeat, Wallet, ArrowRight, History, Search, Filter,
-  FileWarning, Link2, Mail, Loader2
+  FileWarning, Link2, Mail, Loader2, Settings
 } from 'lucide-react';
 import ConnectStripeButton from '../components/ConnectStripeButton';
 import PricingModal from '../components/PricingModal';
@@ -364,7 +364,10 @@ export default function Dashboard() {
             {!isPro && <UpgradeButton onClick={() => setShowPricingModal(true)} />}
             {isPro && <span className="text-[10px] font-bold bg-amber-50 text-amber-700 px-2 py-1 rounded border border-amber-100 whitespace-nowrap">PRO</span>}
             <div className="h-4 w-px bg-gray-200"></div>
-            <button onClick={handleLogout} className="text-gray-400 hover:text-red-500 transition-colors p-1"><LogOut className="w-5 h-5" /></button>
+            <Link href="/settings" className="text-gray-400 hover:text-slate-900 transition-colors p-1 rounded hover:bg-gray-50" title="Settings">
+              <Settings className="w-5 h-5" />
+            </Link>
+            <button onClick={handleLogout} className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded hover:bg-gray-50" title="Logout"><LogOut className="w-5 h-5" /></button>
           </div>
         </div>
       </div>
