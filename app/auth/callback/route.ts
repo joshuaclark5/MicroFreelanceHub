@@ -8,17 +8,23 @@ export async function GET(request: Request) {
   const plan = requestUrl.searchParams.get('plan');
   const template = requestUrl.searchParams.get('template');
 
+  // Exchange auth code for session
   if (code) {
     const cookieStore = cookies();
     const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
     await supabase.auth.exchangeCodeForSession(code);
   }
 
-  // If plan is present, redirect to checkout instead of dashboard
-  if (plan) {
+  // Rule 1: Paywall Flow - Plan selection takes priority
+  if (plan === 'pro' || plan === 'agency') {
     return NextResponse.redirect(new URL(`/checkout-plan?plan=${plan}`, request.url));
   }
 
-  // Otherwise redirect to dashboard (template handling happens there)
+  // Rule 2: SEO Template Flow - Template preservation is second priority
+  if (template) {
+    return NextResponse.redirect(new URL(`/templates/${template}`, request.url));
+  }
+
+  // Rule 3: Organic Flow - Default destination for unparametrized auth
   return NextResponse.redirect(new URL('/dashboard', request.url));
 }

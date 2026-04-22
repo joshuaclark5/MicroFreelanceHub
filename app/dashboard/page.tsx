@@ -65,6 +65,8 @@ export default function Dashboard() {
   const [copiedId, setCopiedId] = useState<string | null>(null); // For copy link feedback
   const [sendingId, setSendingId] = useState<string | null>(null);
   const [invoiceSentIds, setInvoiceSentIds] = useState<string[]>([]);
+  const [copiedPayLinkId, setCopiedPayLinkId] = useState<string | null>(null); // For payment link copy feedback
+  const [paymentLinkLoadingId, setPaymentLinkLoadingId] = useState<string | null>(null);
   
   const [showPricingModal, setShowPricingModal] = useState(false);
   
@@ -316,6 +318,40 @@ export default function Dashboard() {
       alert('An error occurred while sending the invoice.');
     } finally {
       setSendingId(null);
+    }
+  };
+
+  const handleCopyPayLink = async (e: React.MouseEvent, sow: any) => {
+    e.stopPropagation();
+    setPaymentLinkLoadingId(sow.id);
+
+    try {
+      // Generate Stripe Payment Link
+      const checkoutRes = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sowId: sow.id,
+          amount: sow.price || 0,
+        }),
+      });
+
+      const checkoutData = await checkoutRes.json();
+      if (checkoutData.url) {
+        // Copy to clipboard
+        await navigator.clipboard.writeText(checkoutData.url);
+        setCopiedPayLinkId(sow.id);
+        setTimeout(() => setCopiedPayLinkId(null), 2000);
+        setOpenMenuId(null);
+      } else {
+        console.error('Failed to generate payment link:', checkoutData.error);
+        alert('Failed to generate payment link. Please try again.');
+      }
+    } catch (err) {
+      console.error('Error copying payment link:', err);
+      alert('Failed to copy payment link. Please try again.');
+    } finally {
+      setPaymentLinkLoadingId(null);
     }
   };
 
@@ -574,25 +610,26 @@ export default function Dashboard() {
                           )}
                           {openMenuId === sow.id && (
                              <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 animate-in fade-in zoom-in-95 origin-top-right">
-                                
-                                <button 
-                                    onClick={(e) => { e.stopPropagation(); copyToClipboard(e, sow.id); }} 
-                                    className="w-full text-left px-4 py-2.5 text-xs font-bold text-blue-600 hover:bg-blue-50 flex items-center justify-between"
+
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); handleCopyPayLink(e, sow); }}
+                                    disabled={paymentLinkLoadingId === sow.id}
+                                    className="w-full text-left px-4 py-2.5 text-xs font-bold text-blue-600 hover:bg-blue-50 flex items-center justify-between disabled:opacity-60"
                                 >
                                     <span className="flex items-center gap-2">
-                                      {copiedId === sow.id ? <CheckCircle className="w-3.5 h-3.5" /> : <Link2 className="w-3.5 h-3.5" />} 
-                                      {copiedId === sow.id ? 'Copied!' : 'Copy Pay Link'}
+                                      {copiedPayLinkId === sow.id ? <CheckCircle className="w-3.5 h-3.5" /> : paymentLinkLoadingId === sow.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Wallet className="w-3.5 h-3.5" />}
+                                      {copiedPayLinkId === sow.id ? 'Copied!' : paymentLinkLoadingId === sow.id ? 'Copying...' : 'Copy Pay Link'}
                                     </span>
                                 </button>
 
-                                <button 
-                                    onClick={(e) => { e.stopPropagation(); router.push(`/edit/${sow.id}`); }} 
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); router.push(`/edit/${sow.id}`); }}
                                     className="w-full text-left px-4 py-2.5 text-xs font-bold text-amber-600 hover:bg-amber-50 flex items-center justify-between"
                                 >
                                     <span className="flex items-center gap-2"><FileWarning className="w-3.5 h-3.5" /> Change Order</span>
                                     {isSigned && <span className="text-[9px] bg-amber-100 px-1.5 py-0.5 rounded">Resign Req.</span>}
                                 </button>
-                                
+
                                 <button onClick={(e) => { e.stopPropagation(); router.push(`/edit/${sow.id}`); }} className="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-50 flex items-center gap-2">
                                     <Edit2 className="w-3.5 h-3.5" /> Edit Details
                                 </button>
@@ -608,7 +645,7 @@ export default function Dashboard() {
                                 )}
 
                                 <div className="h-px bg-gray-100 my-1"></div>
-                                
+
                                 <button onClick={(e) => { e.stopPropagation(); handleDelete(sow.id); }} className="w-full text-left px-4 py-2.5 text-xs font-bold text-red-600 hover:bg-red-50 flex items-center gap-2">
                                     <Trash2 className="w-3.5 h-3.5" /> Delete
                                 </button>
