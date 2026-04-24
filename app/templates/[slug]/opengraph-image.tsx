@@ -14,24 +14,18 @@ export const contentType = 'image/png'
  
 // Image generation
 export default async function Image({ params }: { params: { slug: string } }) {
-  // 1. Get the slug
   const slug = params.slug
   
-  // ✅ 2. DETECT MODE: The Upgraded Chameleon Engine
   const isEmail = slug.startsWith('late-payment-email-');
   const isInvoice = !isEmail && slug.includes('-invoice');
   const isEstimate = !isEmail && slug.includes('-estimate');
   const isQuote = !isEmail && slug.includes('-quote');
   const isProposal = isEstimate || isQuote;
   
-  // 3. ROBUST FORMATTING
   let cleanSlug = slug;
-
-  // Remove email and hire prefixes
   cleanSlug = cleanSlug.replace(/^late-payment-email-/, '');
   cleanSlug = cleanSlug.replace(/^hire-/, '');
 
-  // Remove known suffixes from the END of the string only
   const suffixes = [
     '-invoice-template', '-invoice', 
     '-contract-template', '-contract', 
@@ -47,38 +41,44 @@ export default async function Image({ params }: { params: { slug: string } }) {
     }
   }
 
-  // Convert "graphic-designer" to "Graphic Designer"
   const title = cleanSlug
     .split('-')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
  
-  // ✅ 4. CHAMELEON STYLING (Added Amber/Gold for Proposals)
   const bgGradient = isEmail
-    ? 'linear-gradient(to bottom right, #0f172a, #312e81)' // Slate to Indigo
+    ? 'linear-gradient(to bottom right, #0f172a, #312e81)'
     : isInvoice 
-    ? 'linear-gradient(to bottom right, #0f172a, #064e3b)' // Slate to Emerald
+    ? 'linear-gradient(to bottom right, #0f172a, #064e3b)'
     : isProposal
-    ? 'linear-gradient(to bottom right, #0f172a, #78350f)' // Slate to Amber/Gold
-    : 'linear-gradient(to bottom right, #0f172a, #1e3a8a)'; // Slate to Blue
+    ? 'linear-gradient(to bottom right, #0f172a, #78350f)'
+    : 'linear-gradient(to bottom right, #0f172a, #1e3a8a)';
 
   const badgeColor = isEmail ? '#4f46e5' : isInvoice ? '#059669' : isProposal ? '#d97706' : '#2563eb'; 
   
-  const docTypeLabel = isEmail ? 'Email Templates' : isInvoice ? 'Invoice' : isEstimate ? 'Estimate' : isQuote ? 'Quote' : 'Contract';
+  // 🔥 UPGRADE 1: High-Conversion Titles
+  const docTypeLabel = isEmail ? 'Email Sequence' : isInvoice ? 'Invoice Template' : isEstimate ? 'Estimate Template' : isQuote ? 'Quote Template' : 'Contract Template';
   
-  const subtitleText = isEmail
-    ? 'Automated Dunning & Escalation Notices'
+  const mainTitleSuffix = isEmail 
+    ? 'That Gets You Paid' 
     : isInvoice 
-    ? 'Itemized Billing & Instant Payments' 
+    ? 'With Instant Payments'
     : isProposal
-    ? 'Professional Proposals & Upfront Deposits'
-    : 'Professional Scope of Work & Legal Terms';
+    ? 'That Secures Deposits'
+    : 'That Protects Your Time';
+
+  const subtitleText = isEmail
+    ? 'Automate your collections & stop chasing checks'
+    : isInvoice 
+    ? 'Enable Stripe payments & streamline cash flow' 
+    : isProposal
+    ? 'Set clear boundaries & lock in your project rate'
+    : 'Prevent scope creep & secure your upfront deposit';
     
   const subtitleColor = isEmail ? '#a5b4fc' : isInvoice ? '#6ee7b7' : isProposal ? '#fcd34d' : '#93c5fd'; 
 
   return new ImageResponse(
     (
-      // ImageDesign
       <div
         style={{
           background: bgGradient,
@@ -95,7 +95,6 @@ export default async function Image({ params }: { params: { slug: string } }) {
           position: 'relative',
         }}
       >
-        {/* Background Grid Pattern */}
         <div
           style={{
             position: 'absolute',
@@ -106,7 +105,6 @@ export default async function Image({ params }: { params: { slug: string } }) {
           }}
         />
 
-        {/* High-CTR Badge */}
         <div
           style={{
             display: 'flex',
@@ -114,68 +112,85 @@ export default async function Image({ params }: { params: { slug: string } }) {
             justifyContent: 'center',
             background: badgeColor,
             color: 'white',
-            padding: '8px 20px',
+            padding: '8px 24px',
             borderRadius: '50px',
-            fontSize: 20,
+            fontSize: 22,
             fontWeight: 700,
             textTransform: 'uppercase',
             letterSpacing: '2px',
-            marginBottom: 40,
+            marginBottom: 30,
             boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)',
             zIndex: 10,
           }}
         >
-          Free {docTypeLabel} (2026)
+          Free {docTypeLabel}
         </div>
 
-        {/* Main Title */}
         <div
           style={{
             display: 'flex', 
-            fontSize: 70, 
+            fontSize: 72, 
             fontWeight: 900,
             lineHeight: 1.1,
             marginBottom: 20,
             color: 'white',
-            maxWidth: '1000px',
+            maxWidth: '1050px',
             justifyContent: 'center',
             textAlign: 'center',
             flexWrap: 'wrap',
-            textShadow: '0 4px 8px rgba(0,0,0,0.3)',
+            textShadow: '0 4px 8px rgba(0,0,0,0.4)',
             zIndex: 10,
           }}
         >
-          {title} {docTypeLabel}
+          {title} {mainTitleSuffix}
         </div>
 
-        {/* Subtitle */}
         <div
           style={{
             display: 'flex',
-            fontSize: 30,
+            fontSize: 32,
+            fontWeight: 600,
             color: subtitleColor, 
             marginTop: 10,
             justifyContent: 'center',
             textAlign: 'center',
             zIndex: 10,
+            maxWidth: '850px',
+            lineHeight: 1.3,
           }}
         >
           {subtitleText}
         </div>
-
-        {/* Footer Brand */}
+        
+        {/* 🔥 UPGRADE 2: The Action CTA */}
         <div
           style={{
-            position: 'absolute',
-            bottom: 40,
             display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            opacity: 0.8,
+            marginTop: 40,
+            padding: '12px 32px',
+            background: 'rgba(255,255,255,0.1)',
+            border: '2px solid rgba(255,255,255,0.2)',
+            borderRadius: '12px',
+            fontSize: 24,
+            fontWeight: 700,
+            color: 'white',
             zIndex: 10,
           }}
         >
-          <div style={{ fontSize: 24, fontWeight: 'bold' }}>MicroFreelanceHub</div>
+          Create & Send in 60 Seconds →
+        </div>
+
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 30,
+            display: 'flex',
+            alignItems: 'center',
+            opacity: 0.6,
+            zIndex: 10,
+          }}
+        >
+          <div style={{ fontSize: 20, fontWeight: 'bold', letterSpacing: '1px' }}>MICROFREELANCEHUB.COM</div>
         </div>
       </div>
     ),
