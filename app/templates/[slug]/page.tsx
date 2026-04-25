@@ -355,97 +355,100 @@ export default async function TemplatePage({ params }: { params: { slug: string 
 
         {/* RIGHT: The Preview Window */}
         <div id="email-preview" className="lg:col-span-7 relative lg:sticky lg:top-24 h-fit">
-          <div className={`absolute inset-0 transform rotate-1 rounded-2xl opacity-10 ${themeColors}`}></div>
-          <div className="relative bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden flex flex-col h-[700px]">
+          
+          {/* 🔥 FIX: Wrapped the document so the tilted background doesn't bleed */}
+          <div className="relative">
+            <div className={`absolute inset-0 transform rotate-1 rounded-2xl opacity-10 ${themeColors}`}></div>
             
-            <div className="bg-slate-100 border-b border-slate-200 p-3 flex gap-2 items-center shrink-0">
-              <div className="w-3 h-3 rounded-full bg-red-400"></div>
-              <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-              <div className="w-3 h-3 rounded-full bg-green-400"></div>
-              <span className="ml-auto text-xs font-mono text-slate-400">READ ONLY PREVIEW</span>
-            </div>
+            <div className="relative bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden flex flex-col h-[550px] md:h-[700px]">
+              
+              <div className="bg-slate-100 border-b border-slate-200 p-2 md:p-3 flex gap-2 items-center shrink-0">
+                <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-red-400"></div>
+                <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-yellow-400"></div>
+                <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-green-400"></div>
+                <span className="ml-auto text-[10px] md:text-xs font-mono text-slate-400">READ ONLY PREVIEW</span>
+              </div>
 
-            {/* 🔥 RESTORED DYNAMIC SEO TEXT: Google reads this perfectly! */}
-            <div className="p-8 text-sm leading-relaxed overflow-y-auto pb-64 prose max-w-none text-slate-700">
-              {isEmail ? (
-                <div className="space-y-6">
-                  <h2 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900 mb-6">Email Drafts</h2>
-                  {listItems.map((emailText: string, i: number) => {
-                      const labels = ['Day 3: Gentle Reminder', 'Day 15: Firm Notice', 'Day 30: Final Demand'];
-                      return (
-                        <div key={i} className={`border border-slate-200 rounded-lg overflow-hidden shadow-sm`}>
-                          <div className="bg-slate-50 border-b border-slate-200 px-4 py-2 flex justify-between items-center">
-                              <span className="font-bold text-xs text-indigo-700 uppercase tracking-wider">{labels[i] || `Draft ${i+1}`}</span>
+              <div className="p-5 md:p-8 text-xs md:text-sm leading-relaxed overflow-y-auto pb-48 md:pb-64 prose max-w-none text-slate-700">
+                {isEmail ? (
+                  <div className="space-y-6">
+                    <h2 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900 mb-6">Email Drafts</h2>
+                    {listItems.map((emailText: string, i: number) => {
+                        const labels = ['Day 3: Gentle Reminder', 'Day 15: Firm Notice', 'Day 30: Final Demand'];
+                        return (
+                          <div key={i} className={`border border-slate-200 rounded-lg overflow-hidden shadow-sm`}>
+                            <div className="bg-slate-50 border-b border-slate-200 px-4 py-2 flex justify-between items-center">
+                                <span className="font-bold text-xs text-indigo-700 uppercase tracking-wider">{labels[i] || `Draft ${i+1}`}</span>
+                            </div>
+                            <div className="p-4 bg-white text-slate-700 whitespace-pre-wrap font-sans text-[13px] md:text-sm">
+                                {emailText}
+                            </div>
                           </div>
-                          <div className="p-4 bg-white text-slate-700 whitespace-pre-wrap font-sans text-[13px] md:text-sm">
-                              {emailText}
-                          </div>
-                        </div>
-                      )
-                  })}
-                </div>
-              ) : (
-                <div>
-                    <div className="border-b-2 border-slate-900 pb-4 mb-6 flex justify-between items-end">
-                      <h2 className="text-xl md:text-2xl font-bold uppercase tracking-tight text-slate-900">
-                          {isInvoice ? 'INVOICE' : isEstimate ? 'ESTIMATE' : isQuote ? 'QUOTE' : 'Statement of Work'}
-                      </h2>
-                      <span className="text-xs md:text-sm font-mono text-slate-500">REF: {new Date().getFullYear()}-001</span>
-                    </div>
+                        )
+                    })}
+                  </div>
+                ) : (
+                  <div>
+                      <div className="border-b-2 border-slate-900 pb-4 mb-6 flex justify-between items-end">
+                        <h2 className="text-xl md:text-2xl font-bold uppercase tracking-tight text-slate-900">
+                            {isInvoice ? 'INVOICE' : isEstimate ? 'ESTIMATE' : isQuote ? 'QUOTE' : 'Statement of Work'}
+                        </h2>
+                        <span className="text-xs md:text-sm font-mono text-slate-500">REF: {new Date().getFullYear()}-001</span>
+                      </div>
 
-                    <div className="mb-6">
-                      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
-                          {isInvoice ? '1. Bill To' : '1. Project Background'}
-                      </h3>
-                      <p className="text-slate-600 text-justify">{introParagraph}</p>
-                    </div>
+                      <div className="mb-6">
+                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+                            {isInvoice ? '1. Bill To' : '1. Project Background'}
+                        </h3>
+                        <p className="text-slate-600 text-justify">{introParagraph}</p>
+                      </div>
 
-                    <div className="mb-6">
-                      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
-                          {isInvoice ? '2. Billable Items' : isProposal ? '2. Estimated Deliverables' : '2. Scope of Services'}
-                      </h3>
-                      <p className="text-slate-600 mb-3">
-                          {isInvoice ? 'The following items are billed for this period:' : 'The Contractor shall provide the following deliverables:'}
-                      </p>
-                      <ul className="space-y-2 pl-2">
-                        {listItems.map((item: string, i: number) => (
-                          <li key={i} className="flex items-start gap-3 text-slate-800 font-medium">
-                            <div className={`mt-1.5 w-1.5 h-1.5 rounded-full shrink-0 ${themeColors}`}></div>
-                            <span className="leading-relaxed">{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                      <div className="mb-6">
+                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+                            {isInvoice ? '2. Billable Items' : isProposal ? '2. Estimated Deliverables' : '2. Scope of Services'}
+                        </h3>
+                        <p className="text-slate-600 mb-3">
+                            {isInvoice ? 'The following items are billed for this period:' : 'The Contractor shall provide the following deliverables:'}
+                        </p>
+                        <ul className="space-y-2 pl-2">
+                          {listItems.map((item: string, i: number) => (
+                            <li key={i} className="flex items-start gap-3 text-slate-800 font-medium">
+                              <div className={`mt-1.5 w-1.5 h-1.5 rounded-full shrink-0 ${themeColors}`}></div>
+                              <span className="leading-relaxed">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
 
-                    <div className="mb-6">
-                      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
-                          {isInvoice ? '3. Payment Instructions' : isProposal ? '3. Next Steps & Terms' : '3. Performance Standards'}
-                      </h3>
-                      <p className="text-slate-600 text-justify">{standardsParagraph}</p>
-                    </div>
-                </div>
-              )}
+                      <div className="mb-6">
+                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+                            {isInvoice ? '3. Payment Instructions' : isProposal ? '3. Next Steps & Terms' : '3. Performance Standards'}
+                        </h3>
+                        <p className="text-slate-600 text-justify">{standardsParagraph}</p>
+                      </div>
+                  </div>
+                )}
+              </div>
+
+              {/* TIGHTER MOBILE FADE GATE */}
+              <div className="absolute bottom-0 left-0 right-0 h-48 md:h-72 bg-gradient-to-t from-white via-white/95 to-transparent flex flex-col items-center justify-end pb-6 md:pb-12 px-4 md:px-6 pointer-events-auto">
+                 <div className="bg-white p-4 md:p-6 rounded-xl md:rounded-2xl shadow-2xl border border-slate-100 max-w-sm w-full text-center transform transition-transform hover:-translate-y-1 md:hover:-translate-y-2">
+                    <Lock className={`w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 ${textColors}`} />
+                    <h3 className="font-bold text-slate-900 text-sm md:text-base mb-1 md:mb-2">Ready to use this template?</h3>
+                    <p className="text-[10px] md:text-xs text-slate-500 mb-3 md:mb-4">Create a free account to customize this document, collect e-signatures, and attach a Stripe payment link.</p>
+                    <Link href={`/login?plan=pro`}>
+                      <button className={`w-full py-2.5 md:py-3 rounded-lg font-bold text-white text-sm md:text-base shadow-md transition-colors ${themeColors}`}>
+                        Unlock & Send Template
+                      </button>
+                    </Link>
+                 </div>
+              </div>
             </div>
-
-            {/* The Fade Gate CTA (Sits on top of the real content) */}
-            <div className="absolute bottom-0 left-0 right-0 h-72 bg-gradient-to-t from-white via-white/95 to-transparent flex flex-col items-center justify-end pb-12 px-6 pointer-events-auto">
-               <div className="bg-white p-6 rounded-2xl shadow-2xl border border-slate-100 max-w-sm w-full text-center transform transition-transform hover:-translate-y-2">
-                  <Lock className={`w-8 h-8 mx-auto mb-3 ${textColors}`} />
-                  <h3 className="font-bold text-slate-900 mb-2">Ready to use this template?</h3>
-                  <p className="text-xs text-slate-500 mb-4">Create a free account to customize this document, collect e-signatures, and attach a Stripe payment link.</p>
-                  <Link href={`/login?plan=pro`}>
-                    <button className={`w-full py-3 rounded-lg font-bold text-white shadow-md transition-colors ${themeColors}`}>
-                      Unlock & Send Template
-                    </button>
-                  </Link>
-               </div>
-            </div>
-
           </div>
           
-          <div className="mt-6 bg-slate-50 border border-slate-200 rounded-xl p-4 flex gap-3 text-left">
-            <AlertTriangle className="w-5 h-5 text-slate-400 shrink-0" />
-            <p className="text-xs text-slate-500 leading-relaxed">
+          <div className="mt-4 md:mt-6 bg-slate-50 border border-slate-200 rounded-xl p-3 md:p-4 flex gap-3 text-left relative z-10">
+            <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 text-slate-400 shrink-0" />
+            <p className="text-[10px] md:text-xs text-slate-500 leading-relaxed">
               <strong>Legal Disclaimer:</strong> MicroFreelanceHub is a software workflow tool, not a law firm. The templates and information provided on this website are for general informational purposes only and do not constitute legal advice.
             </p>
           </div>
