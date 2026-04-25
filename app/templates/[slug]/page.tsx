@@ -109,7 +109,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
   
   const title = toTitleCase(doc.job_title || doc.keyword);
   const isEmail = params.slug.startsWith('late-payment-email');
-const docType = doc.document_type || 'Contract';
+  const docType = doc.document_type || 'Contract';
   const isInvoice = !isEmail && docType === 'Invoice';
   const isEstimate = !isEmail && docType === 'Estimate';
   const isQuote = !isEmail && docType === 'Quote';
@@ -398,7 +398,7 @@ const docType = doc.document_type || 'Contract';
                     <Lock className={`w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 ${textColors}`} />
                     <h3 className="font-bold text-slate-900 text-sm md:text-base mb-1 md:mb-2">Ready to use this template?</h3>
                     <p className="text-[10px] md:text-xs text-slate-500 mb-3 md:mb-4">Create a free account to customize this document, collect e-signatures, and attach a Stripe payment link.</p>
-                    <Link href={`/login?plan=pro`}>
+                    <Link href={isEmail ? "/login" : `/create?template=${params.slug}`}>
                       <button className={`w-full py-2.5 md:py-3 rounded-lg font-bold text-white text-sm md:text-base shadow-md transition-colors ${themeColors}`}>
                         Unlock & Send Template
                       </button>
