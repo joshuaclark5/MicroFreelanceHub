@@ -14,7 +14,10 @@ import {
   Clock,
   PenTool,
   CreditCard,
-  AlertTriangle
+  AlertTriangle,
+  Zap,
+  TrendingUp,
+  Award
 } from 'lucide-react';
 import RelatedRoles from '../../components/seo/RelatedRoles';
 
@@ -77,33 +80,20 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const result = await findDoc(params.slug);
   if (!result) return { title: 'Template Not Found' };
   
-  const { doc, source } = result;
-  const title = source === 'sow' ? doc.title : (doc.job_title || doc.keyword);
-  const displayTitle = toTitleCase(title);
-  
+  const { doc } = result;
+  const title = toTitleCase(doc.job_title || doc.keyword);
   const isEmail = params.slug.startsWith('late-payment-email');
   const documentType = doc.document_type || 'Contract';
   const label = isEmail ? 'Late Payment Emails' : documentType;
   
-  let metaDescription = '';
-  if (isEmail) {
-    metaDescription = `Download professional, escalated late payment email templates for ${displayTitle}s. Stop chasing checks manually.`;
-  } else if (documentType === 'Invoice') {
-    metaDescription = `Create and send a professional ${displayTitle} invoice in seconds. Stop waiting for checks with this free, mobile-friendly invoice generator.`;
-  } else if (documentType === 'Estimate') {
-    metaDescription = `Create and send a professional ${displayTitle} estimate. Convert approvals instantly into contracts and Stripe deposits.`;
-  } else if (documentType === 'Quote') {
-    metaDescription = `Send a fixed-price ${displayTitle} quote. Lock in the scope, get the signature, and collect the deposit in one link.`;
-  } else {
-    metaDescription = `Download a free, professional ${displayTitle} contract template. Protect your business from scope creep with this industry-standard agreement.`;
-  }
+  const metaDescription = doc.ai_summary || `Download a free, professional ${title} ${label.toLowerCase()} template. Protect your business from scope creep and get paid faster.`;
 
   return {
-    title: `Free ${displayTitle} ${label} (2026)`,
+    title: `Free ${title} ${label} (2026)`,
     description: metaDescription,
-    keywords: [`${displayTitle} ${label}`, `Free ${displayTitle} template`, 'MicroFreelanceHub'],
+    keywords: [`${title} ${label}`, `Free ${title} template`, 'MicroFreelanceHub'],
     alternates: { canonical: `https://www.microfreelancehub.com/templates/${params.slug}` },
-    openGraph: { title: `Free ${displayTitle} ${label}`, description: metaDescription, type: 'website' }
+    openGraph: { title: `Free ${title} ${label}`, description: metaDescription, type: 'website' }
   };
 }
 
@@ -111,98 +101,83 @@ export default async function TemplatePage({ params }: { params: { slug: string 
   const result = await findDoc(params.slug);
   if (!result) return notFound();
 
-  const { doc, source } = result;
+  const { doc } = result;
 
   if (doc.document_type === 'Comparison') {
       redirect(`/alternatives/${params.slug}`);
   }
   
-  const jobTitleRaw = source === 'sow' ? doc.title : (doc.job_title || doc.keyword);
-  const title = toTitleCase(jobTitleRaw);
-  
+  const title = toTitleCase(doc.job_title || doc.keyword);
   const isEmail = params.slug.startsWith('late-payment-email');
-  const docType = doc.document_type || 'Contract';
-  
+const docType = doc.document_type || 'Contract';
   const isInvoice = !isEmail && docType === 'Invoice';
   const isEstimate = !isEmail && docType === 'Estimate';
   const isQuote = !isEmail && docType === 'Quote';
-  const isContract = !isEmail && !isInvoice && !isEstimate && !isQuote;
   const isProposal = isEstimate || isQuote;
 
   const badgeText = isEmail ? 'Email Templates' : `${docType} Template`;
-
-  const painPoint = doc.pain_point_hook || (isInvoice 
-    ? `Stop acting like a bank. Send a professional ${title} Invoice and facilitate instant payments via credit card or ACH.` 
-    : isProposal 
-    ? `Set clear expectations. Send a professional ${docType} that builds trust and helps secure an upfront deposit.`
-    : `Handshake deals are risky. Define your scope and protect your time with a formal, written agreement.`);
-    
-  const legalTip = doc.legal_tip;
-
-  const rawDeliverables = doc.deliverables;
-  const listItems = Array.isArray(rawDeliverables) 
-    ? rawDeliverables 
-    : (typeof rawDeliverables === 'string' ? [rawDeliverables] : ["Deliverable Phase 1", "Deliverable Phase 2", "Deliverable Phase 3"]);
-
-  const introParagraph = isInvoice
-    ? `This Invoice is for professional ${title} services rendered. By using this digital template, you can enable instant payments and automatic tax calculations.`
-    : isEstimate
-    ? `This document is a good-faith Estimate for professional ${title} services. It outlines approximate costs based on initial discussions and is subject to change.`
-    : isQuote
-    ? `This document is a fixed-price Quote for professional ${title} services. Pricing is valid for 30 days from the date of issue.`
-    : `This Agreement is entered into by and between the Client and the Contractor. The Client wishes to engage the Contractor for professional ${title} services.`;
-  
-  const standardsParagraph = isInvoice
-    ? `Payment is due upon receipt. Late payments may be subject to a fee. Please make checks payable to the Contractor or use the secure payment link provided.`
-    : isProposal
-    ? `Upon approval of this ${docType}, the terms will transition into a binding Service Agreement. A deposit may be required before work commences via our secure portal.`
-    : `The Contractor agrees to perform the ${title} services in a professional manner, using the degree of skill and care that is required by current industry standards.`;
-
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'SoftwareApplication',
-    name: `MicroFreelanceHub - Free ${title} ${badgeText}`,
-    applicationCategory: 'BusinessApplication',
-    operatingSystem: 'All',
-    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-    description: `A free software tool to generate, customize, and send a professional ${title} ${badgeText.toLowerCase()} instantly.`,
-    featureList: isEmail ? 'Automated Dunning, Polite Reminders, Firm Escalations' : (isInvoice ? 'Instant Payments, Tax Calculation, Mobile Friendly' : 'eSignatures, Scope of Work, Liability Protection')
-  };
-
-  let parsedFaqs = null;
-  if (doc.faqs) {
-    try {
-      let tempFaqs = typeof doc.faqs === 'string' ? JSON.parse(doc.faqs) : doc.faqs;
-      if (tempFaqs && !Array.isArray(tempFaqs) && tempFaqs.faqs && Array.isArray(tempFaqs.faqs)) {
-         tempFaqs = tempFaqs.faqs;
-      }
-      if (Array.isArray(tempFaqs) && tempFaqs.length > 0) {
-         parsedFaqs = tempFaqs;
-      }
-    } catch (e) {
-      console.error("Failed to parse FAQs from DB", e);
-    }
-  }
-
-  const faqs = parsedFaqs || [
-        {
-          q: `What is a ${title} ${docType}?`,
-          a: `A professional document used to help organize and protect your business. Our free tools help you run your freelance business like a high-end agency.`
-        }
-      ];
-
   const themeColors = isEmail ? 'bg-indigo-600' : isInvoice ? 'bg-emerald-600' : isProposal ? 'bg-amber-600' : 'bg-blue-600';
   const textColors = isEmail ? 'text-indigo-400' : isInvoice ? 'text-emerald-400' : isProposal ? 'text-amber-400' : 'text-blue-400';
+
+  const safeParse = (data: any, fallback: any) => {
+    if (!data) return fallback;
+    if (typeof data === 'string') {
+        try { return JSON.parse(data); } catch { return fallback; }
+    }
+    return data;
+  };
+
+  // --- STRICT TYPESCRIPT GUARDS ---
+  const parsedDeliverables = safeParse(doc.deliverables, ["Deliverable Phase 1", "Deliverable Phase 2", "Deliverable Phase 3"]);
+  const listItems: string[] = Array.isArray(parsedDeliverables) ? parsedDeliverables : ["Deliverable Phase 1", "Deliverable Phase 2", "Deliverable Phase 3"];
+
+  const parsedFaqs = safeParse(doc.faqs, [{ q: `What is a ${title} ${docType}?`, a: `A professional document to protect your business.` }]);
+  const faqs: any[] = Array.isArray(parsedFaqs) ? parsedFaqs : [{ q: `What is a ${title} ${docType}?`, a: `A professional document to protect your business.` }];
+
+  const parsedRisks = safeParse(doc.unique_risks, null);
+  const displayRisks: any[] = Array.isArray(parsedRisks) ? parsedRisks : [
+    { title: "Client Ghosting", description: "Without upfront financial commitment, clients can disappear mid-project.", icon: Ghost, color: "text-red-500", bg: "bg-red-50" },
+    { title: "Infinite Revisions", description: "Without a documented scope of work, you risk doing unpaid tweaks forever.", icon: Ban, color: "text-orange-500", bg: "bg-orange-50" },
+    { title: "Chasing Checks", description: "Waiting 30 days for a paper check severely impacts freelance cash flow.", icon: Clock, color: "text-amber-500", bg: "bg-amber-50" }
+  ];
+
+  const bestPractices = safeParse(doc.best_practices, null);
+  const scopeCreep = safeParse(doc.scope_creep_examples, null);
+  // --------------------------------
+
+  const dynamicRiskIcons = [Ghost, Ban, Clock];
+  const dynamicRiskColors = ["text-red-500", "text-orange-500", "text-amber-500"];
+  const dynamicRiskBgs = ["bg-red-50", "bg-orange-50", "bg-amber-50"];
+
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq: any) => ({
+      '@type': 'Question', name: faq.q, acceptedAnswer: { '@type': 'Answer', text: faq.a }
+    }))
+  };
+
+  const howToJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: `How to create a ${title} ${docType}`,
+    description: `A step-by-step guide to generating and sending a professional ${title} ${docType.toLowerCase()}.`,
+    step: [
+      { '@type': 'HowToStep', name: 'Select the Template', text: `Click the CTA button to open the generator.` },
+      { '@type': 'HowToStep', name: 'Customize Deliverables', text: 'Add your specific project milestones and pricing.' },
+      { '@type': 'HowToStep', name: 'Enable Payments', text: 'Connect Stripe to accept deposits or full payments instantly.' },
+      { '@type': 'HowToStep', name: 'Send to Client', text: 'Generate a secure link and send it for e-signature.' }
+    ]
+  };
 
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900 pb-20">
       
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd) }} />
 
-      {/* HEADER */}
       <div className="bg-slate-900 text-white py-16 md:py-24 px-4 relative overflow-hidden">
         <div className="max-w-4xl mx-auto text-center relative z-10">
-          
           <div className="flex items-center justify-center gap-3 mb-6">
             <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-white ${themeColors}`}>
               {isEmail ? <Mail className="w-3.5 h-3.5" /> : isInvoice ? <Receipt className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />} 
@@ -217,113 +192,118 @@ export default async function TemplatePage({ params }: { params: { slug: string 
           </h1>
           
           <p className="text-lg md:text-xl text-slate-300 mb-8 max-w-2xl mx-auto leading-relaxed">
-            {painPoint}
+            {doc.pain_point_hook || `Handshake deals are risky. Define your scope and protect your time with a formal, written agreement.`}
           </p>
           
-          {legalTip && (
-             <div className={`max-w-2xl mx-auto border p-4 rounded-xl mb-8 flex gap-4 text-left ${
-                 isEmail ? 'bg-indigo-900/30 border-indigo-500/30' : isInvoice ? 'bg-emerald-900/30 border-emerald-500/30' : isProposal ? 'bg-amber-900/30 border-amber-500/30' : 'bg-blue-900/30 border-blue-500/30'
-             }`}>
-                <div className={`p-2 rounded-lg shrink-0 h-fit ${
-                    isEmail ? 'bg-indigo-500/20' : isInvoice ? 'bg-emerald-500/20' : isProposal ? 'bg-amber-500/20' : 'bg-blue-500/20'
-                }`}>
+          {doc.legal_tip && (
+             <div className={`max-w-2xl mx-auto border p-4 rounded-xl mb-8 flex gap-4 text-left ${isEmail ? 'bg-indigo-900/30 border-indigo-500/30' : isInvoice ? 'bg-emerald-900/30 border-emerald-500/30' : isProposal ? 'bg-amber-900/30 border-amber-500/30' : 'bg-blue-900/30 border-blue-500/30'}`}>
+                <div className={`p-2 rounded-lg shrink-0 h-fit ${isEmail ? 'bg-indigo-500/20' : isInvoice ? 'bg-emerald-500/20' : isProposal ? 'bg-amber-500/20' : 'bg-blue-500/20'}`}>
                    <Shield className={`w-5 h-5 ${textColors}`} />
                 </div>
                 <div>
-                   <h3 className={`font-bold text-xs uppercase mb-1 ${textColors}`}>
-                       {isEmail ? 'Collections Tip' : isInvoice ? 'Cash Flow Tip' : isProposal ? 'Conversion Tip' : 'Pro Contractor Tip'}
-                   </h3>
-                   <p className="text-sm leading-relaxed text-slate-200">{legalTip}</p>
+                   <h3 className={`font-bold text-xs uppercase mb-1 ${textColors}`}>Pro Tip</h3>
+                   <p className="text-sm leading-relaxed text-slate-200">{doc.legal_tip}</p>
                 </div>
              </div>
           )}
 
-          {/* Hero CTA */}
           <div className="flex justify-center">
-            {isEmail ? (
-              <Link href="/login">
-                <button className={`font-bold px-8 py-4 rounded-full text-lg shadow-xl hover:-translate-y-1 transition-all text-white ${themeColors} hover:opacity-90`}>
-                  🚀 Automate These Emails
-                </button>
-              </Link>
-            ) : (
-              <Link href={`/create?template=${params.slug}`}>
+             <Link href={isEmail ? "/login" : `/create?template=${params.slug}`}>
                 <button className={`font-bold px-8 py-4 rounded-full text-lg shadow-xl hover:-translate-y-1 transition-all text-white flex items-center gap-2 ${themeColors} hover:opacity-90`}>
-                  Create & Send This {docType} <ArrowRight className="w-5 h-5" />
+                  {isEmail ? '🚀 Automate These Emails' : isInvoice ? 'Secure Your Payment →' : 'Protect This Project →'}
                 </button>
-              </Link>
-            )}
+             </Link>
           </div>
-
         </div>
       </div>
 
-      {/* COST OF DOING NOTHING */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-20 mb-16">
          <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-2xl p-6 shadow-xl border border-slate-100 flex flex-col items-center text-center">
-               <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mb-4">
-                  <Ghost className="w-6 h-6 text-red-500" />
-               </div>
-               <h3 className="font-bold text-slate-900 mb-2">Client Ghosting</h3>
-               <p className="text-sm text-slate-600">Without upfront financial commitment, clients can disappear mid-project.</p>
-            </div>
-            <div className="bg-white rounded-2xl p-6 shadow-xl border border-slate-100 flex flex-col items-center text-center">
-               <div className="w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center mb-4">
-                  <Ban className="w-6 h-6 text-orange-500" />
-               </div>
-               <h3 className="font-bold text-slate-900 mb-2">Infinite Revisions</h3>
-               <p className="text-sm text-slate-600">Without a documented scope of work, you risk doing unpaid tweaks forever.</p>
-            </div>
-            <div className="bg-white rounded-2xl p-6 shadow-xl border border-slate-100 flex flex-col items-center text-center">
-               <div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center mb-4">
-                  <Clock className="w-6 h-6 text-amber-500" />
-               </div>
-               <h3 className="font-bold text-slate-900 mb-2">Chasing Checks</h3>
-               <p className="text-sm text-slate-600">Waiting 30 days for a paper check severely impacts freelance cash flow.</p>
-            </div>
+            {displayRisks.slice(0,3).map((risk: any, i: number) => {
+                const Icon = risk.icon || dynamicRiskIcons[i];
+                return (
+                  <div key={i} className="bg-white rounded-2xl p-6 shadow-xl border border-slate-100 flex flex-col items-center text-center">
+                     <div className={`w-12 h-12 ${risk.bg || dynamicRiskBgs[i]} rounded-full flex items-center justify-center mb-4`}>
+                        <Icon className={`w-6 h-6 ${risk.color || dynamicRiskColors[i]}`} />
+                     </div>
+                     <h3 className="font-bold text-slate-900 mb-2">{risk.title}</h3>
+                     <p className="text-sm text-slate-600">{risk.description}</p>
+                  </div>
+                )
+            })}
          </div>
       </div>
 
-      {/* TWO COLUMN LAYOUT */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid lg:grid-cols-12 gap-12 lg:gap-20">
         
-        {/* LEFT: Educational Content */}
         <div className="lg:col-span-5 flex flex-col">
           
-          <div className="mb-10">
-            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-4">
-              {isEmail ? 'Why use an automated sequence?' : isInvoice ? 'Why use a digital invoice?' : isEstimate ? 'Why use a professional estimate?' : isQuote ? 'Why use a fixed quote?' : 'Why use a written agreement?'}
-            </h2>
-            
-            <p className="text-base md:text-lg text-slate-600 leading-relaxed">
-              {isEmail ? (
-                <>Chasing money ruins client relationships. As a <strong className="font-bold text-slate-900">{title}</strong>, sending desperate, unstructured emails makes you look unprofessional. Using an escalating, structured email sequence removes the emotion and sets clear boundaries.</>
-              ) : isInvoice ? (
-                <>Paper invoices get lost. PDFs get ignored. As a <strong className="font-bold text-slate-900">{title}</strong>, cash flow is everything. Sending a digital invoice with a "Pay Now" button gets you paid faster.</>
-              ) : isEstimate ? (
-                <>Clients want to know what to expect. As a <strong className="font-bold text-slate-900">{title}</strong>, sending a clean, professional estimate builds trust and sets clear boundaries before you lock in a final price.</>
-              ) : isQuote ? (
-                <>Stop haggling over email. As a <strong className="font-bold text-slate-900">{title}</strong>, a formal quote locks in your scope and allows you to request a deposit before you start working.</>
-              ) : (
-                <>Handshake deals are risky. As a <strong className="font-bold text-slate-900">{title}</strong>, "scope creep" is your biggest enemy. A clear agreement ensures everyone understands the deliverables before work begins.</>
+          <section className="mb-10 bg-slate-50 border border-slate-200 rounded-xl p-6 relative overflow-hidden">
+             <div className={`absolute top-0 left-0 w-1 h-full ${themeColors}`}></div>
+             <h3 className="font-bold text-slate-900 mb-2 flex items-center gap-2">
+               <Award className={`w-5 h-5 ${textColors}`} /> Built from real freelance projects
+             </h3>
+             <p className="text-slate-600 text-sm leading-relaxed">
+               This template is based on real-world scenarios across freelance projects where unclear scope, missing payment terms, and revision creep led to lost revenue. It is designed to protect your time, define expectations, and ensure you get paid.
+             </p>
+          </section>
+
+          {doc.snippet_answer && (
+            <div className="mb-10 space-y-4">
+              <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                <h2 className="font-bold text-slate-900 mb-2 flex items-center gap-2">
+                  <Zap className={`w-4 h-4 ${textColors}`} />
+                  What is a {title} {docType}?
+                </h2>
+                <p className="text-slate-600 text-sm leading-relaxed">{doc.snippet_answer}</p>
+              </div>
+              {doc.ai_summary && (
+                <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                  <h3 className="font-bold text-slate-900 mb-2 text-sm">Quick Summary</h3>
+                  <p className="text-slate-600 text-sm leading-relaxed">{doc.ai_summary}</p>
+                </div>
               )}
+            </div>
+          )}
+
+          {doc.why_it_matters && (
+            <section className="mb-10">
+              <h2 className="text-2xl font-bold text-slate-900 mb-4">
+                Why {title}s need a clear {docType.toLowerCase()}
+              </h2>
+              <p className="text-slate-600 leading-relaxed">
+                {doc.why_it_matters}
+              </p>
+            </section>
+          )}
+
+          <section className="mb-10">
+            <h2 className="text-xl font-bold mb-4 text-slate-900">
+              Do you need an invoice or a contract?
+            </h2>
+            <p className="text-slate-600 text-sm leading-relaxed">
+              Invoices help you get paid, but they do not define scope, revisions, or ownership. For most projects, professionals use both a contract and an invoice to protect their work and cash flow. MicroFreelanceHub bundles both into a single link.
             </p>
-          </div>
+          </section>
+
+          {doc.real_world_scenario && (
+            <section className="mb-10 bg-slate-900 text-white rounded-2xl p-6 shadow-lg">
+              <h2 className="text-xl font-bold mb-3 flex items-center gap-2">
+                 <Shield className="w-5 h-5 text-emerald-400" />
+                 Real-world scenario
+              </h2>
+              <p className="text-slate-300 leading-relaxed text-sm">
+                {doc.real_world_scenario}
+              </p>
+            </section>
+          )}
           
           <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 md:p-8 mb-10">
             <h3 className="text-lg md:text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
               <span className={textColors}>{isEmail ? '📬' : isInvoice ? '💸' : isProposal ? '📈' : '🛡️'}</span> What this {docType.toLowerCase()} covers:
             </h3>
             <ul className="space-y-4">
-               {(isEmail 
-                 ? ['Day 3: The "Gentle Reminder"', 'Day 15: The Firm Notice', 'Day 30: Final Demand', 'Stop-Work Order Phrasing', 'Professional Escalation']
-                 : isInvoice 
-                 ? ['Itemized Labor & Materials', 'Automatic Tax Calculation', 'Instant "Pay Now" Button', 'Late Fee Terms', 'Professional Branding'] 
-                 : isProposal
-                 ? ['Itemized Deliverables Breakdown', 'One-Click Client Approval', 'Deposit Collection Settings', 'Seamless Contract Conversion', 'Professional Presentation']
-                 : ['Deliverables List', 'Payment Terms', 'IP Rights', 'Revision Limits', 'Cancellation Policy']
-               ).map((item, i) => (
+               {listItems.slice(0,6).map((item: string, i: number) => (
                   <li key={i} className="flex gap-4 items-start">
                     <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 font-bold text-sm bg-slate-200 ${textColors}`}>✓</div>
                     <span className="font-bold text-slate-900">{item}</span>
@@ -332,36 +312,39 @@ export default async function TemplatePage({ params }: { params: { slug: string 
             </ul>
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm mb-10">
-              <h3 className="font-bold text-slate-900 mb-6 text-lg">Platform Features</h3>
-              <ul className="space-y-5">
-                 <li className="flex gap-3">
-                    <div className="shrink-0 mt-0.5"><PenTool className={`w-5 h-5 ${textColors}`} /></div>
-                    <div>
-                      <h4 className="font-bold text-slate-900 text-sm">ESIGN-Compliant Workflow</h4>
-                      <p className="text-xs text-slate-600 mt-1">Digital signatures built directly into the platform.</p>
-                    </div>
-                 </li>
-                 <li className="flex gap-3">
-                    <div className="shrink-0 mt-0.5"><CreditCard className={`w-5 h-5 ${textColors}`} /></div>
-                    <div>
-                      <h4 className="font-bold text-slate-900 text-sm">Upfront Deposits</h4>
-                      <p className="text-xs text-slate-600 mt-1">Clients can pay immediately upon signing via Stripe integration.</p>
-                    </div>
-                 </li>
-              </ul>
-          </div>
+          {doc.pricing_guidance && (
+             <section className="mb-10">
+               <h3 className="text-lg font-bold text-slate-900 mb-3 flex items-center gap-2">
+                 <TrendingUp className={`w-5 h-5 ${textColors}`} /> Pricing & Payment Strategy
+               </h3>
+               <p className="text-slate-600 text-sm leading-relaxed bg-slate-50 p-5 rounded-xl border border-slate-100">
+                 {doc.pricing_guidance}
+               </p>
+             </section>
+          )}
+
+          {Array.isArray(bestPractices) && (
+            <section className="mb-10">
+              <h2 className="text-xl font-bold text-slate-900 mb-5">
+                Best practices for {title}s
+              </h2>
+              <div className="space-y-4">
+                {bestPractices.map((item: any, i: number) => (
+                  <div key={i} className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:border-slate-300 transition-colors">
+                    <h3 className="font-bold text-slate-900 mb-2 text-sm">{item.title}</h3>
+                    <p className="text-slate-600 text-sm leading-relaxed">{item.description}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
 
-        {/* RIGHT: The Preview Window */}
         <div id="email-preview" className="lg:col-span-7 relative lg:sticky lg:top-24 h-fit">
-          
-          {/* 🔥 FIX: Wrapped the document so the tilted background doesn't bleed */}
           <div className="relative">
             <div className={`absolute inset-0 transform rotate-1 rounded-2xl opacity-10 ${themeColors}`}></div>
             
             <div className="relative bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden flex flex-col h-[550px] md:h-[700px]">
-              
               <div className="bg-slate-100 border-b border-slate-200 p-2 md:p-3 flex gap-2 items-center shrink-0">
                 <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-red-400"></div>
                 <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-yellow-400"></div>
@@ -370,23 +353,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
               </div>
 
               <div className="p-5 md:p-8 text-xs md:text-sm leading-relaxed overflow-y-auto pb-48 md:pb-64 prose max-w-none text-slate-700">
-                {isEmail ? (
-                  <div className="space-y-6">
-                    <h2 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900 mb-6">Email Drafts</h2>
-                    {listItems.map((emailText: string, i: number) => {
-                        const labels = ['Day 3: Gentle Reminder', 'Day 15: Firm Notice', 'Day 30: Final Demand'];
-                        return (
-                          <div key={i} className={`border border-slate-200 rounded-lg overflow-hidden shadow-sm`}>
-                            <div className="bg-slate-50 border-b border-slate-200 px-4 py-2 flex justify-between items-center">
-                                <span className="font-bold text-xs text-indigo-700 uppercase tracking-wider">{labels[i] || `Draft ${i+1}`}</span>
-                            </div>
-                            <div className="p-4 bg-white text-slate-700 whitespace-pre-wrap font-sans text-[13px] md:text-sm">
-                                {emailText}
-                            </div>
-                          </div>
-                        )
-                    })}
-                  </div>
+                {doc.content ? (
+                  <div dangerouslySetInnerHTML={{ __html: doc.content }} />
                 ) : (
                   <div>
                       <div className="border-b-2 border-slate-900 pb-4 mb-6 flex justify-between items-end">
@@ -397,19 +365,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                       </div>
 
                       <div className="mb-6">
-                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
-                            {isInvoice ? '1. Bill To' : '1. Project Background'}
-                        </h3>
-                        <p className="text-slate-600 text-justify">{introParagraph}</p>
-                      </div>
-
-                      <div className="mb-6">
-                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
-                            {isInvoice ? '2. Billable Items' : isProposal ? '2. Estimated Deliverables' : '2. Scope of Services'}
-                        </h3>
-                        <p className="text-slate-600 mb-3">
-                            {isInvoice ? 'The following items are billed for this period:' : 'The Contractor shall provide the following deliverables:'}
-                        </p>
+                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">1. Scope of Services</h3>
+                        <p className="text-slate-600 mb-3">The Contractor shall provide the following deliverables:</p>
                         <ul className="space-y-2 pl-2">
                           {listItems.map((item: string, i: number) => (
                             <li key={i} className="flex items-start gap-3 text-slate-800 font-medium">
@@ -419,18 +376,23 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                           ))}
                         </ul>
                       </div>
-
-                      <div className="mb-6">
-                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
-                            {isInvoice ? '3. Payment Instructions' : isProposal ? '3. Next Steps & Terms' : '3. Performance Standards'}
-                        </h3>
-                        <p className="text-slate-600 text-justify">{standardsParagraph}</p>
-                      </div>
+                      
+                      {Array.isArray(scopeCreep) && !isInvoice && (
+                        <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg">
+                           <h3 className="text-xs font-bold text-red-800 uppercase tracking-widest mb-2">Exclusions (Out of Scope)</h3>
+                           <ul className="space-y-2">
+                              {scopeCreep.map((item: string, i: number) => (
+                                 <li key={i} className="flex items-start gap-2 text-red-900 text-xs">
+                                   <span className="font-bold">×</span> {item}
+                                 </li>
+                              ))}
+                           </ul>
+                        </div>
+                      )}
                   </div>
                 )}
               </div>
 
-              {/* TIGHTER MOBILE FADE GATE */}
               <div className="absolute bottom-0 left-0 right-0 h-48 md:h-72 bg-gradient-to-t from-white via-white/95 to-transparent flex flex-col items-center justify-end pb-6 md:pb-12 px-4 md:px-6 pointer-events-auto">
                  <div className="bg-white p-4 md:p-6 rounded-xl md:rounded-2xl shadow-2xl border border-slate-100 max-w-sm w-full text-center transform transition-transform hover:-translate-y-1 md:hover:-translate-y-2">
                     <Lock className={`w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 ${textColors}`} />
