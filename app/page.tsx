@@ -9,7 +9,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import paymentImg from './payment.png';
 import builderImg from './builder.png';
 import dashboardImg from './dashboard.png';
-import stumpGrinderImg from './stump-grinder.jpg'; // 👉 The new review photo
+import stumpGrinderImg from './stump-grinder.jpg';
 
 import { 
   ArrowRight, 
@@ -21,10 +21,10 @@ import {
   TrendingUp,
   BellRing,
   FileEdit,
-  Link as LinkIcon,
   CreditCard,
   FileSignature,
-  AlertTriangle
+  AlertTriangle,
+  Zap
 } from 'lucide-react';
 
 export default function Home() {
@@ -78,36 +78,50 @@ export default function Home() {
       <section className="px-6 pt-16 pb-16 md:pt-24 md:pb-24 max-w-7xl mx-auto relative overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-blue-50 rounded-full blur-3xl opacity-50 -z-10 pointer-events-none"></div>
 
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center relative z-10">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center lg:items-start relative z-10">
           
           {/* Left Side: Copy */}
-          <div className="space-y-8 text-center lg:text-left">
+          <div className="space-y-6 text-center lg:text-left lg:pt-12">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 font-semibold text-sm border border-blue-100 mb-2">
+               <Zap className="w-4 h-4" /> Built for freelancers & contractors
+            </div>
+            
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
               Never do <span className="text-blue-600">unpaid work</span> again.
             </h1>
             
-            <p className="text-lg md:text-2xl text-slate-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-medium">
-              Create a contract, get it signed, and collect the deposit, all in one simple link.
+            <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-medium">
+              Create a contract, get it signed, and collect the deposit—all in one simple link. <span className="font-bold text-slate-800">No PDFs. No chasing emails. No waiting 30 days.</span>
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
+            <div className="flex flex-col items-center lg:items-start gap-4 pt-4">
               <Link href="/create" className="w-full sm:w-auto">
                 <div className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-200 rounded-xl px-8 py-4 font-bold text-lg flex items-center justify-center transition-all hover:-translate-y-1 hover:shadow-blue-300">
-                  Create your first contract free
+                  Lock in your first deposit today
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </div>
               </Link>
+              
+              {/* Objection Handling & Risk Reversal */}
+              <div className="flex flex-col sm:flex-row flex-wrap justify-center lg:justify-start gap-3 sm:gap-5 text-sm font-medium text-slate-500 mt-2">
+                 <div className="flex items-center justify-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Free for 3 contracts
+                 </div>
+                 <div className="flex items-center justify-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" /> No credit card required
+                 </div>
+                 <div className="flex items-center justify-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Client doesn't need an account
+                 </div>
+              </div>
             </div>
 
-            <p className="text-sm font-bold text-slate-500 uppercase tracking-widest pt-4">
-              Built by a freelancer who got tired of chasing payments.
-            </p>
           </div>
 
           {/* Right Side: The Money Shot */}
           <div className="relative mx-auto w-full max-w-md lg:max-w-none mt-8 lg:mt-0 lg:pl-12">
              <div className="absolute -top-5 -left-5 bg-slate-900 text-white text-sm font-bold px-5 py-2 rounded-full z-20 shadow-xl border-2 border-white transform -rotate-2">
-               👉 This is what your client sees
+                👉 This is what your client sees
              </div>
              <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200 bg-white">
                <Image 
@@ -131,16 +145,16 @@ export default function Home() {
               <div className="w-16 h-16 bg-slate-100 text-slate-700 rounded-full flex items-center justify-center mb-4 border-4 border-white shadow-sm">
                  <FileEdit className="w-8 h-8" />
               </div>
-              <h3 className="font-bold text-slate-900 text-lg">1. Create Contract</h3>
-              <p className="text-sm text-slate-500 mt-2">Generate a bulletproof SOW in seconds.</p>
+              <h3 className="font-bold text-slate-900 text-lg">1. Send one link</h3>
+              <p className="text-sm text-slate-500 mt-2">Create and send your first contract in under 2 minutes.</p>
            </div>
 
            <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-lg flex flex-col items-center text-center hover:-translate-y-1 transition-transform">
               <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4 border-4 border-white shadow-sm">
                  <FileSignature className="w-8 h-8" />
               </div>
-              <h3 className="font-bold text-slate-900 text-lg">2. Client Signs</h3>
-              <p className="text-sm text-slate-500 mt-2">They review and e-sign from their phone.</p>
+              <h3 className="font-bold text-slate-900 text-lg">2. Client signs</h3>
+              <p className="text-sm text-slate-500 mt-2">They review and securely e-sign from their phone.</p>
            </div>
 
            <div className="bg-white border-2 border-emerald-400 p-6 rounded-2xl shadow-xl flex flex-col items-center text-center hover:-translate-y-1 transition-transform relative overflow-hidden">
@@ -148,7 +162,7 @@ export default function Home() {
               <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-4 border-4 border-white shadow-sm">
                  <CreditCard className="w-8 h-8" />
               </div>
-              <h3 className="font-bold text-slate-900 text-lg">3. You Get Paid</h3>
+              <h3 className="font-bold text-slate-900 text-lg">3. You get paid</h3>
               <p className="text-sm text-slate-700 mt-2">The deposit hits your Stripe account instantly.</p>
            </div>
         </div>
@@ -194,7 +208,7 @@ export default function Home() {
           </div>
 
           <h3 className="text-2xl md:text-3xl font-extrabold text-blue-600">
-            That stops here.
+            One bad client can wipe out weeks of work.
           </h3>
         </div>
       </section>
@@ -293,7 +307,7 @@ export default function Home() {
               ))}
             </div>
             <h3 className="text-2xl md:text-3xl font-bold text-slate-900 leading-relaxed mb-8 italic">
-              “Absolutely love this tool. I do quick stump grinding jobs, and it helps me protect the work, set expectations, and get paid upfront before doing extra work. I’d definitely recommend it.”
+              “I used to chase payments for weeks. Now I get paid before I even start. I do quick stump grinding jobs, and this helps me protect the work and set expectations. I’d definitely recommend it.”
             </h3>
             <div className="flex items-center justify-center gap-4">
               <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-slate-200 shadow-md">
@@ -443,7 +457,7 @@ export default function Home() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-white opacity-10 blur-[120px] rounded-full pointer-events-none"></div>
         
         <div className="max-w-4xl mx-auto text-center px-4 relative z-10">
-          <h2 className="text-4xl md:text-6xl font-extrabold text-white mb-6 tracking-tight">Stop working for free.</h2>
+          <h2 className="text-4xl md:text-6xl font-extrabold text-white mb-6 tracking-tight">Don't start your next project without this.</h2>
           <p className="text-blue-100 mb-12 text-xl max-w-2xl mx-auto font-medium">
              Create your first contract and collect a deposit in under 5 minutes.
           </p>
