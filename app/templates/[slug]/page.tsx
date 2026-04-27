@@ -346,7 +346,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
           <div className="relative">
             <div className={`absolute inset-0 transform rotate-1 rounded-2xl opacity-10 ${themeColors}`}></div>
             
-            <div className="relative bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden flex flex-col h-[550px] md:h-[700px]">
+            <div className={`relative bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden flex flex-col ${isEmail ? 'h-fit' : 'h-[550px] md:h-[700px]'}`}>
               <div className="bg-slate-100 border-b border-slate-200 p-2 md:p-3 flex gap-2 items-center shrink-0">
                 <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-red-400"></div>
                 <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-yellow-400"></div>
@@ -355,30 +355,29 @@ export default async function TemplatePage({ params }: { params: { slug: string 
               </div>
 
               {isEmail ? (
-                // 📧 EMAIL PREVIEW (No blur, full CTA at bottom)
+                // 📧 EMAIL PREVIEW (Dynamic height, CTA pulls up right below the text)
                 <>
-                  <div className="p-5 md:p-8 text-xs md:text-sm leading-relaxed overflow-y-auto prose max-w-none text-slate-700 flex-1">
+                  <div className="p-5 md:p-8 text-xs md:text-sm leading-relaxed prose max-w-none text-slate-700">
                     <h3 className="text-xl font-bold text-slate-900 border-b border-slate-200 pb-4 mb-6">
                       Draft: Past Due Notice
                     </h3>
                     <div dangerouslySetInnerHTML={{ __html: doc.content || '<p>Loading email draft...</p>' }} />
                   </div>
                   
-                  {/* Conversion CTA explicitly for Email Templates */}
                   <div className="bg-indigo-50 border-t border-indigo-100 p-6 text-center shrink-0">
                      <h3 className="font-bold text-slate-900 text-lg mb-2">Tired of sending these manually?</h3>
                      <p className="text-sm text-slate-600 mb-4 max-w-md mx-auto">
-                       With MicroFreelanceHub, you never have to chase payments again. Our system automatically sends polite, firm reminders with a one-click Stripe payment link.
+                       With MicroFreelanceHub, you never have to chase payments again. Send your invoice and our system automatically sends polite, firm follow-ups with a one-click payment link.
                      </p>
                      <Link href="/login">
                        <button className="bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors shadow-md w-full sm:w-auto">
-                         Automate Your Collections Free
+                         Automate Invoices & Follow-Ups (Free)
                        </button>
                      </Link>
                   </div>
                 </>
               ) : (
-                // 📝 CONTRACT/INVOICE PREVIEW (With blur overlay)
+                // 📝 CONTRACT/INVOICE PREVIEW (Fixed height with blur overlay)
                 <>
                   <div className="p-5 md:p-8 text-xs md:text-sm leading-relaxed overflow-y-auto pb-48 md:pb-64 prose max-w-none text-slate-700">
                     {doc.content ? (
@@ -421,7 +420,6 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                     )}
                   </div>
 
-                  {/* Gradient Lock exclusively for legal documents */}
                   <div className="absolute bottom-0 left-0 right-0 h-48 md:h-72 bg-gradient-to-t from-white via-white/95 to-transparent flex flex-col items-center justify-end pb-6 md:pb-12 px-4 md:px-6 pointer-events-auto">
                      <div className="bg-white p-4 md:p-6 rounded-xl md:rounded-2xl shadow-2xl border border-slate-100 max-w-sm w-full text-center transform transition-transform hover:-translate-y-1 md:hover:-translate-y-2">
                         <Lock className={`w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 ${textColors}`} />
