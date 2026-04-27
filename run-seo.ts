@@ -24,7 +24,10 @@ async function enrichContent() {
     const { data: rows, error } = await supabase
       .from('seo_pages')
       .select('id, job_title, slug, document_type')
-      .is('why_it_matters', null) 
+      // 👉 FIX 1: Catch both null and empty strings ("")
+      .or('why_it_matters.is.null,why_it_matters.eq.""')
+      // 👉 FIX 2: Explicitly skip competitor comparison pages so we don't waste API calls
+      .neq('document_type', 'Comparison')
       .limit(50);
 
     if (error) {

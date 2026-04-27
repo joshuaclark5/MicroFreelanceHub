@@ -109,7 +109,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
   
   const title = toTitleCase(doc.job_title || doc.keyword);
   const isEmail = params.slug.startsWith('late-payment-email');
-  const docType = doc.document_type || 'Contract';
+  const docType = doc.document_type || (isEmail ? 'Email' : 'Contract');
   const isInvoice = !isEmail && docType === 'Invoice';
   const isEstimate = !isEmail && docType === 'Estimate';
   const isQuote = !isEmail && docType === 'Quote';
@@ -277,14 +277,16 @@ export default async function TemplatePage({ params }: { params: { slug: string 
             </section>
           )}
 
-          <section className="mb-10">
-            <h2 className="text-xl font-bold mb-4 text-slate-900">
-              Do you need an invoice or a contract?
-            </h2>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              Invoices help you get paid, but they do not define scope, revisions, or ownership. For most projects, professionals use both a contract and an invoice to protect their work and cash flow. MicroFreelanceHub bundles both into a single link.
-            </p>
-          </section>
+          {!isEmail && (
+            <section className="mb-10">
+              <h2 className="text-xl font-bold mb-4 text-slate-900">
+                Do you need an invoice or a contract?
+              </h2>
+              <p className="text-slate-600 text-sm leading-relaxed">
+                Invoices help you get paid, but they do not define scope, revisions, or ownership. For most projects, professionals use both a contract and an invoice to protect their work and cash flow. MicroFreelanceHub bundles both into a single link.
+              </p>
+            </section>
+          )}
 
           {doc.real_world_scenario && (
             <section className="mb-10 bg-slate-900 text-white rounded-2xl p-6 shadow-lg">
@@ -352,59 +354,88 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                 <span className="ml-auto text-[10px] md:text-xs font-mono text-slate-400">READ ONLY PREVIEW</span>
               </div>
 
-              <div className="p-5 md:p-8 text-xs md:text-sm leading-relaxed overflow-y-auto pb-48 md:pb-64 prose max-w-none text-slate-700">
-                {doc.content ? (
-                  <div dangerouslySetInnerHTML={{ __html: doc.content }} />
-                ) : (
-                  <div>
-                      <div className="border-b-2 border-slate-900 pb-4 mb-6 flex justify-between items-end">
-                        <h2 className="text-xl md:text-2xl font-bold uppercase tracking-tight text-slate-900">
-                            {isInvoice ? 'INVOICE' : isEstimate ? 'ESTIMATE' : isQuote ? 'QUOTE' : 'Statement of Work'}
-                        </h2>
-                        <span className="text-xs md:text-sm font-mono text-slate-500">REF: {new Date().getFullYear()}-001</span>
-                      </div>
-
-                      <div className="mb-6">
-                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">1. Scope of Services</h3>
-                        <p className="text-slate-600 mb-3">The Contractor shall provide the following deliverables:</p>
-                        <ul className="space-y-2 pl-2">
-                          {listItems.map((item: string, i: number) => (
-                            <li key={i} className="flex items-start gap-3 text-slate-800 font-medium">
-                              <div className={`mt-1.5 w-1.5 h-1.5 rounded-full shrink-0 ${themeColors}`}></div>
-                              <span className="leading-relaxed">{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      
-                      {Array.isArray(scopeCreep) && !isInvoice && (
-                        <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg">
-                           <h3 className="text-xs font-bold text-red-800 uppercase tracking-widest mb-2">Exclusions (Out of Scope)</h3>
-                           <ul className="space-y-2">
-                              {scopeCreep.map((item: string, i: number) => (
-                                 <li key={i} className="flex items-start gap-2 text-red-900 text-xs">
-                                   <span className="font-bold">×</span> {item}
-                                 </li>
-                              ))}
-                           </ul>
-                        </div>
-                      )}
+              {isEmail ? (
+                // 📧 EMAIL PREVIEW (No blur, full CTA at bottom)
+                <>
+                  <div className="p-5 md:p-8 text-xs md:text-sm leading-relaxed overflow-y-auto prose max-w-none text-slate-700 flex-1">
+                    <h3 className="text-xl font-bold text-slate-900 border-b border-slate-200 pb-4 mb-6">
+                      Draft: Past Due Notice
+                    </h3>
+                    <div dangerouslySetInnerHTML={{ __html: doc.content || '<p>Loading email draft...</p>' }} />
                   </div>
-                )}
-              </div>
+                  
+                  {/* Conversion CTA explicitly for Email Templates */}
+                  <div className="bg-indigo-50 border-t border-indigo-100 p-6 text-center shrink-0">
+                     <h3 className="font-bold text-slate-900 text-lg mb-2">Tired of sending these manually?</h3>
+                     <p className="text-sm text-slate-600 mb-4 max-w-md mx-auto">
+                       With MicroFreelanceHub, you never have to chase payments again. Our system automatically sends polite, firm reminders with a one-click Stripe payment link.
+                     </p>
+                     <Link href="/login">
+                       <button className="bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors shadow-md w-full sm:w-auto">
+                         Automate Your Collections Free
+                       </button>
+                     </Link>
+                  </div>
+                </>
+              ) : (
+                // 📝 CONTRACT/INVOICE PREVIEW (With blur overlay)
+                <>
+                  <div className="p-5 md:p-8 text-xs md:text-sm leading-relaxed overflow-y-auto pb-48 md:pb-64 prose max-w-none text-slate-700">
+                    {doc.content ? (
+                      <div dangerouslySetInnerHTML={{ __html: doc.content }} />
+                    ) : (
+                      <div>
+                          <div className="border-b-2 border-slate-900 pb-4 mb-6 flex justify-between items-end">
+                            <h2 className="text-xl md:text-2xl font-bold uppercase tracking-tight text-slate-900">
+                                {isInvoice ? 'INVOICE' : isEstimate ? 'ESTIMATE' : isQuote ? 'QUOTE' : 'Statement of Work'}
+                            </h2>
+                            <span className="text-xs md:text-sm font-mono text-slate-500">REF: {new Date().getFullYear()}-001</span>
+                          </div>
 
-              <div className="absolute bottom-0 left-0 right-0 h-48 md:h-72 bg-gradient-to-t from-white via-white/95 to-transparent flex flex-col items-center justify-end pb-6 md:pb-12 px-4 md:px-6 pointer-events-auto">
-                 <div className="bg-white p-4 md:p-6 rounded-xl md:rounded-2xl shadow-2xl border border-slate-100 max-w-sm w-full text-center transform transition-transform hover:-translate-y-1 md:hover:-translate-y-2">
-                    <Lock className={`w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 ${textColors}`} />
-                    <h3 className="font-bold text-slate-900 text-sm md:text-base mb-1 md:mb-2">Ready to use this template?</h3>
-                    <p className="text-[10px] md:text-xs text-slate-500 mb-3 md:mb-4">Create a free account to customize this document, collect e-signatures, and attach a Stripe payment link.</p>
-                    <Link href={isEmail ? "/login" : `/create?template=${params.slug}`}>
-                      <button className={`w-full py-2.5 md:py-3 rounded-lg font-bold text-white text-sm md:text-base shadow-md transition-colors ${themeColors}`}>
-                        Unlock & Send Template
-                      </button>
-                    </Link>
-                 </div>
-              </div>
+                          <div className="mb-6">
+                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">1. Scope of Services</h3>
+                            <p className="text-slate-600 mb-3">The Contractor shall provide the following deliverables:</p>
+                            <ul className="space-y-2 pl-2">
+                              {listItems.map((item: string, i: number) => (
+                                <li key={i} className="flex items-start gap-3 text-slate-800 font-medium">
+                                  <div className={`mt-1.5 w-1.5 h-1.5 rounded-full shrink-0 ${themeColors}`}></div>
+                                  <span className="leading-relaxed">{item}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                          
+                          {Array.isArray(scopeCreep) && !isInvoice && (
+                            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg">
+                               <h3 className="text-xs font-bold text-red-800 uppercase tracking-widest mb-2">Exclusions (Out of Scope)</h3>
+                               <ul className="space-y-2">
+                                  {scopeCreep.map((item: string, i: number) => (
+                                     <li key={i} className="flex items-start gap-2 text-red-900 text-xs">
+                                       <span className="font-bold">×</span> {item}
+                                     </li>
+                                  ))}
+                               </ul>
+                            </div>
+                          )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Gradient Lock exclusively for legal documents */}
+                  <div className="absolute bottom-0 left-0 right-0 h-48 md:h-72 bg-gradient-to-t from-white via-white/95 to-transparent flex flex-col items-center justify-end pb-6 md:pb-12 px-4 md:px-6 pointer-events-auto">
+                     <div className="bg-white p-4 md:p-6 rounded-xl md:rounded-2xl shadow-2xl border border-slate-100 max-w-sm w-full text-center transform transition-transform hover:-translate-y-1 md:hover:-translate-y-2">
+                        <Lock className={`w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 ${textColors}`} />
+                        <h3 className="font-bold text-slate-900 text-sm md:text-base mb-1 md:mb-2">Ready to use this template?</h3>
+                        <p className="text-[10px] md:text-xs text-slate-500 mb-3 md:mb-4">Create a free account to customize this document, collect e-signatures, and attach a Stripe payment link.</p>
+                        <Link href={`/create?template=${params.slug}`}>
+                          <button className={`w-full py-2.5 md:py-3 rounded-lg font-bold text-white text-sm md:text-base shadow-md transition-colors ${themeColors}`}>
+                            Unlock & Send Template
+                          </button>
+                        </Link>
+                     </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
           
