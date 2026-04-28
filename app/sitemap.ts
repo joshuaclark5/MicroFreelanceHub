@@ -46,16 +46,37 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.log(`System Templates Found: ${systemTemplates?.length || 0}`);
   }
 
-  // 2. FETCH SEO PAGES (The New "Enriched" Content)
-  const { data: seoPages, error: seoError } = await supabase
-    .from('seo_pages')
-    .select('slug, document_type');
+  // 2. FETCH SEO PAGES (WITH PAGINATION TO BYPASS 1000 ROW LIMIT)
+  let allSeoPages: any[] = [];
+  let start = 0;
+  const limit = 1000;
+  let keepFetching = true;
 
-  if (seoError) {
-    console.error('Error fetching SEO pages:', seoError.message);
-  } else {
-    console.log(`SEO Pages Found: ${seoPages?.length || 0}`);
+  console.log('Fetching SEO pages (Paginated)...');
+
+  while (keepFetching) {
+    const { data, error: seoError } = await supabase
+      .from('seo_pages')
+      .select('slug, document_type')
+      .range(start, start + limit - 1);
+
+    if (seoError) {
+      console.error('Error fetching SEO pages:', seoError.message);
+      break;
+    }
+
+    if (data && data.length > 0) {
+      allSeoPages = [...allSeoPages, ...data];
+      start += limit;
+    }
+
+    // If we received fewer rows than the limit, we've hit the end of the table
+    if (!data || data.length < limit) {
+      keepFetching = false;
+    }
   }
+
+  console.log(`Total SEO Pages Found: ${allSeoPages.length}`);
 
   // 3. MAPPING
   // Legacy Templates
@@ -67,7 +88,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // SEO Pages (BULLETPROOF ROUTING)
-  const seoUrls = (seoPages || []).map((page) => {
+  const seoUrls = allSeoPages.map((page) => {
     // 🛡️ Bulletproof Check: If it starts with 'alternative-to-', it's a comparison page.
     const isCompetitor = page.slug?.startsWith('alternative-to-') || page.document_type?.toLowerCase() === 'comparison';
     
