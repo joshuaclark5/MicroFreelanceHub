@@ -1,11 +1,9 @@
 import { MetadataRoute } from 'next';
 import { createClient } from '@supabase/supabase-js';
 
-// Force dynamic so Vercel rebuilds this on every request (no caching)
 export const dynamic = 'force-dynamic';
-export const revalidate = 0; // 🛑 ABSOLUTE CACHE KILLER: Forces Vercel to generate this fresh every time.
+export const revalidate = 0; 
 
-// CUSTOM FETCH: Forces Next.js to never cache the database response
 const fetchNoCache = (url: string, options?: RequestInit) => {
   return fetch(url, { ...options, cache: 'no-store', next: { revalidate: 0 } });
 };
@@ -20,7 +18,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('CRITICAL: SUPABASE_SERVICE_ROLE_KEY is missing!');
   }
 
-  // Initialize Supabase with the Service Key (Bypasses RLS)
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     serviceKey || '', 
@@ -34,19 +31,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const baseUrl = 'https://www.microfreelancehub.com';
 
-  // 1. FETCH SYSTEM TEMPLATES (Legacy "sow_documents")
   const { data: systemTemplates, error: systemError } = await supabase
     .from('sow_documents')
     .select('slug')
     .not('slug', 'is', null);
 
-  if (systemError) {
-    console.error('Error fetching system templates:', systemError.message);
-  } else {
-    console.log(`System Templates Found: ${systemTemplates?.length || 0}`);
-  }
-
-  // 2. FETCH SEO PAGES (WITH PAGINATION TO BYPASS 1000 ROW LIMIT)
   let allSeoPages: any[] = [];
   let start = 0;
   const limit = 1000;
@@ -58,6 +47,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const { data, error: seoError } = await supabase
       .from('seo_pages')
       .select('slug, document_type')
+      .order('slug', { ascending: true }) // THE FIX
       .range(start, start + limit - 1);
 
     if (seoError) {
@@ -70,16 +60,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       start += limit;
     }
 
-    // If we received fewer rows than the limit, we've hit the end of the table
     if (!data || data.length < limit) {
       keepFetching = false;
     }
   }
 
-  console.log(`Total SEO Pages Found: ${allSeoPages.length}`);
-
-  // 3. MAPPING
-  // Legacy Templates
   const systemUrls = (systemTemplates || []).map((doc) => ({
     url: `${baseUrl}/templates/${doc.slug}`,
     lastModified: new Date(),
@@ -87,11 +72,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  // SEO Pages (BULLETPROOF ROUTING)
   const seoUrls = allSeoPages.map((page) => {
-    // 🛡️ Bulletproof Check: If it starts with 'alternative-to-', it's a comparison page.
     const isCompetitor = page.slug?.startsWith('alternative-to-') || page.document_type?.toLowerCase() === 'comparison';
-    
     const folder = isCompetitor ? 'alternatives' : 'templates';
     
     return {
@@ -102,16 +84,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     };
   });
 
-  // 4. STATIC ROUTES (VIP ONLY)
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: baseUrl, lastModified: new Date(), changeFrequency: 'daily', priority: 1.0 },
     { url: `${baseUrl}/create`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
   ];
 
-  // Combine ALL
   let finalSitemap = [...staticRoutes, ...systemUrls, ...seoUrls];
   
-  // 5. DEDUPLICATION
   const uniqueUrls = new Set();
   finalSitemap = finalSitemap.filter((item) => {
     if (uniqueUrls.has(item.url)) {
