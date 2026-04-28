@@ -110,14 +110,38 @@ export default async function TemplatePage({ params }: { params: { slug: string 
   const title = toTitleCase(doc.job_title || doc.keyword);
   const isEmail = params.slug.startsWith('late-payment-email');
   const docType = doc.document_type || (isEmail ? 'Email' : 'Contract');
+  
+  // 👉 NEW: Expanded Chameleon Logic
   const isInvoice = !isEmail && docType === 'Invoice';
   const isEstimate = !isEmail && docType === 'Estimate';
   const isQuote = !isEmail && docType === 'Quote';
+  const isRetainer = !isEmail && docType === 'Retainer';
+  const isChangeOrder = !isEmail && docType === 'Change Order';
   const isProposal = isEstimate || isQuote;
 
   const badgeText = isEmail ? 'Email Templates' : `${docType} Template`;
-  const themeColors = isEmail ? 'bg-indigo-600' : isInvoice ? 'bg-emerald-600' : isProposal ? 'bg-amber-600' : 'bg-blue-600';
-  const textColors = isEmail ? 'text-indigo-400' : isInvoice ? 'text-emerald-400' : isProposal ? 'text-amber-400' : 'text-blue-400';
+  
+  // 👉 NEW: Dynamic Colors including Violet and Rose
+  const themeColors = isEmail ? 'bg-indigo-600' 
+    : isInvoice ? 'bg-emerald-600' 
+    : isProposal ? 'bg-amber-600' 
+    : isRetainer ? 'bg-violet-600'
+    : isChangeOrder ? 'bg-rose-600'
+    : 'bg-blue-600';
+
+  const textColors = isEmail ? 'text-indigo-400' 
+    : isInvoice ? 'text-emerald-400' 
+    : isProposal ? 'text-amber-400' 
+    : isRetainer ? 'text-violet-400'
+    : isChangeOrder ? 'text-rose-400'
+    : 'text-blue-400';
+
+  // 👉 NEW: Dynamic Hero Button Copy
+  const ctaText = isEmail ? '🚀 Automate These Emails'
+    : isInvoice ? 'Secure Your Payment →'
+    : isRetainer ? 'Start Recurring Work Safely →'
+    : isChangeOrder ? 'Approve Extra Work Safely →'
+    : 'Protect This Project →';
 
   const safeParse = (data: any, fallback: any) => {
     if (!data) return fallback;
@@ -196,8 +220,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
           </p>
           
           {doc.legal_tip && (
-             <div className={`max-w-2xl mx-auto border p-4 rounded-xl mb-8 flex gap-4 text-left ${isEmail ? 'bg-indigo-900/30 border-indigo-500/30' : isInvoice ? 'bg-emerald-900/30 border-emerald-500/30' : isProposal ? 'bg-amber-900/30 border-amber-500/30' : 'bg-blue-900/30 border-blue-500/30'}`}>
-                <div className={`p-2 rounded-lg shrink-0 h-fit ${isEmail ? 'bg-indigo-500/20' : isInvoice ? 'bg-emerald-500/20' : isProposal ? 'bg-amber-500/20' : 'bg-blue-500/20'}`}>
+             <div className={`max-w-2xl mx-auto border p-4 rounded-xl mb-8 flex gap-4 text-left ${isEmail ? 'bg-indigo-900/30 border-indigo-500/30' : isInvoice ? 'bg-emerald-900/30 border-emerald-500/30' : isProposal ? 'bg-amber-900/30 border-amber-500/30' : isRetainer ? 'bg-violet-900/30 border-violet-500/30' : isChangeOrder ? 'bg-rose-900/30 border-rose-500/30' : 'bg-blue-900/30 border-blue-500/30'}`}>
+                <div className={`p-2 rounded-lg shrink-0 h-fit ${isEmail ? 'bg-indigo-500/20' : isInvoice ? 'bg-emerald-500/20' : isProposal ? 'bg-amber-500/20' : isRetainer ? 'bg-violet-500/20' : isChangeOrder ? 'bg-rose-500/20' : 'bg-blue-500/20'}`}>
                    <Shield className={`w-5 h-5 ${textColors}`} />
                 </div>
                 <div>
@@ -210,7 +234,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
           <div className="flex justify-center">
              <Link href={isEmail ? "/login" : `/create?template=${params.slug}`}>
                 <button className={`font-bold px-8 py-4 rounded-full text-lg shadow-xl hover:-translate-y-1 transition-all text-white flex items-center gap-2 ${themeColors} hover:opacity-90`}>
-                  {isEmail ? '🚀 Automate These Emails' : isInvoice ? 'Secure Your Payment →' : 'Protect This Project →'}
+                  {ctaText}
                 </button>
              </Link>
           </div>
@@ -377,7 +401,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                   </div>
                 </>
               ) : (
-                // 📝 CONTRACT/INVOICE PREVIEW (Fixed height with blur overlay)
+                // 📝 CONTRACT/INVOICE/RETAINER/CHANGE ORDER PREVIEW (Fixed height with blur overlay)
                 <>
                   <div className="p-5 md:p-8 text-xs md:text-sm leading-relaxed overflow-y-auto pb-48 md:pb-64 prose max-w-none text-slate-700">
                     {doc.content ? (
@@ -386,7 +410,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                       <div>
                           <div className="border-b-2 border-slate-900 pb-4 mb-6 flex justify-between items-end">
                             <h2 className="text-xl md:text-2xl font-bold uppercase tracking-tight text-slate-900">
-                                {isInvoice ? 'INVOICE' : isEstimate ? 'ESTIMATE' : isQuote ? 'QUOTE' : 'Statement of Work'}
+                                {/* 👉 NEW: Dynamic document headers based on type */}
+                                {isInvoice ? 'INVOICE' : isEstimate ? 'ESTIMATE' : isQuote ? 'QUOTE' : isRetainer ? 'RETAINER AGREEMENT' : isChangeOrder ? 'CHANGE ORDER' : 'Statement of Work'}
                             </h2>
                             <span className="text-xs md:text-sm font-mono text-slate-500">REF: {new Date().getFullYear()}-001</span>
                           </div>
