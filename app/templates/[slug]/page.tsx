@@ -98,19 +98,19 @@ export default async function TemplatePage({ params }: { params: { slug: string 
   const isEmail = params.slug.startsWith('late-payment-email');
   const docType = doc.document_type || (isEmail ? 'Email' : 'Contract');
   
-  // 👉 NEW: Expanded Chameleon Logic
+  // 👉 Expanded Chameleon Logic
   const isInvoice = !isEmail && docType === 'Invoice';
   const isEstimate = !isEmail && docType === 'Estimate';
   const isQuote = !isEmail && docType === 'Quote';
   const isRetainer = !isEmail && docType === 'Retainer';
   const isChangeOrder = !isEmail && docType === 'Change Order';
-  const isScopeOfWork = !isEmail && docType === 'Scope of Work'; // NEW
-  const isWorkOrder = !isEmail && docType === 'Work Order'; // NEW
+  const isScopeOfWork = !isEmail && docType === 'Scope of Work';
+  const isWorkOrder = !isEmail && docType === 'Work Order';
   const isProposal = isEstimate || isQuote;
 
   const badgeText = isEmail ? 'Email Templates' : `${docType} Template`;
   
-  // 👉 NEW: Dynamic Colors (Cyan for SOW, Orange for Work Order)
+  // 👉 Dynamic Colors
   const themeColors = isEmail ? 'bg-indigo-600' 
     : isInvoice ? 'bg-emerald-600' 
     : isProposal ? 'bg-amber-600' 
@@ -129,7 +129,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
     : isWorkOrder ? 'text-orange-600'
     : 'text-blue-400';
 
-  // 👉 NEW: Dynamic Hero Button Copy
+  // 👉 Dynamic Hero Button Copy
   const ctaText = isEmail ? '🚀 Automate These Emails'
     : isInvoice ? 'Secure Your Payment →'
     : isRetainer ? 'Start Recurring Work Safely →'
@@ -194,6 +194,14 @@ export default async function TemplatePage({ params }: { params: { slug: string 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd) }} />
 
       <div className="bg-slate-900 text-white py-16 md:py-24 px-4 relative overflow-hidden">
+        
+        {/* 👉 NEW: Back to Home Link */}
+        <div className="absolute top-4 left-4 md:top-8 md:left-8 z-50">
+           <Link href="/" className="text-slate-400 hover:text-white text-sm font-bold transition-all flex items-center gap-2">
+              ← MicroFreelanceHub
+           </Link>
+        </div>
+
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <div className="flex items-center justify-center gap-3 mb-6">
             <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-white ${themeColors}`}>
@@ -373,7 +381,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
 
               {isEmail ? (
                 <>
-                  <div className="p-5 md:p-8 text-xs md:text-sm leading-relaxed prose max-w-none text-slate-700">
+                  {/* 👉 NEW: whitespace-pre-wrap added below to fix text block formatting */}
+                  <div className="p-5 md:p-8 text-xs md:text-sm leading-relaxed prose max-w-none text-slate-700 whitespace-pre-wrap">
                     <h3 className="text-xl font-bold text-slate-900 border-b border-slate-200 pb-4 mb-6">
                       Draft: Past Due Notice
                     </h3>
@@ -394,7 +403,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                 </>
               ) : (
                 <>
-                  <div className="p-5 md:p-8 text-xs md:text-sm leading-relaxed overflow-y-auto pb-48 md:pb-64 prose max-w-none text-slate-700">
+                  {/* 👉 NEW: whitespace-pre-wrap added below to fix text block formatting */}
+                  <div className="p-5 md:p-8 text-xs md:text-sm leading-relaxed overflow-y-auto pb-48 md:pb-64 prose max-w-none text-slate-700 whitespace-pre-wrap">
                     {doc.content ? (
                       <div dangerouslySetInnerHTML={{ __html: doc.content }} />
                     ) : (

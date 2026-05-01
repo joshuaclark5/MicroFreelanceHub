@@ -25,6 +25,26 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL(`/templates/${template}`, request.url));
   }
 
-  // Rule 3: Organic Flow - Default destination for unparametrized auth
+  // Rule 3: Check if user is brand new or returning, route accordingly
+  const cookieStore = cookies();
+  const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (user?.created_at) {
+    const userCreatedAt = new Date(user.created_at);
+    const now = new Date();
+    const secondsSinceCreation = (now.getTime() - userCreatedAt.getTime()) / 1000;
+
+    // Brand new user (created within last 60 seconds) -> go to onboarding
+    if (secondsSinceCreation < 60) {
+      return NextResponse.redirect(new URL('/create', request.url));
+    }
+
+    // Existing user (created more than 60 seconds ago) -> go to dashboard
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
+  // Fallback: default to dashboard
   return NextResponse.redirect(new URL('/dashboard', request.url));
 }
