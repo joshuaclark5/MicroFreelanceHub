@@ -3,21 +3,8 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { Metadata } from 'next';
 import {
-  Shield,
-  FileText,
-  ArrowRight,
-  Receipt,
-  Mail, 
-  Lock,
-  Ghost,
-  Ban,
-  Clock,
-  PenTool,
-  CreditCard,
-  AlertTriangle,
-  Zap,
-  TrendingUp,
-  Award
+  Shield, FileText, Receipt, Mail, Lock, Ghost, Ban,
+  Clock, AlertTriangle, Zap, TrendingUp, Award
 } from 'lucide-react';
 import RelatedRoles from '../../components/seo/RelatedRoles';
 
@@ -117,16 +104,20 @@ export default async function TemplatePage({ params }: { params: { slug: string 
   const isQuote = !isEmail && docType === 'Quote';
   const isRetainer = !isEmail && docType === 'Retainer';
   const isChangeOrder = !isEmail && docType === 'Change Order';
+  const isScopeOfWork = !isEmail && docType === 'Scope of Work'; // NEW
+  const isWorkOrder = !isEmail && docType === 'Work Order'; // NEW
   const isProposal = isEstimate || isQuote;
 
   const badgeText = isEmail ? 'Email Templates' : `${docType} Template`;
   
-  // 👉 NEW: Dynamic Colors including Violet and Rose
+  // 👉 NEW: Dynamic Colors (Cyan for SOW, Orange for Work Order)
   const themeColors = isEmail ? 'bg-indigo-600' 
     : isInvoice ? 'bg-emerald-600' 
     : isProposal ? 'bg-amber-600' 
     : isRetainer ? 'bg-violet-600'
     : isChangeOrder ? 'bg-rose-600'
+    : isScopeOfWork ? 'bg-cyan-600'
+    : isWorkOrder ? 'bg-orange-600'
     : 'bg-blue-600';
 
   const textColors = isEmail ? 'text-indigo-400' 
@@ -134,6 +125,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
     : isProposal ? 'text-amber-400' 
     : isRetainer ? 'text-violet-400'
     : isChangeOrder ? 'text-rose-400'
+    : isScopeOfWork ? 'text-cyan-600'
+    : isWorkOrder ? 'text-orange-600'
     : 'text-blue-400';
 
   // 👉 NEW: Dynamic Hero Button Copy
@@ -141,6 +134,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
     : isInvoice ? 'Secure Your Payment →'
     : isRetainer ? 'Start Recurring Work Safely →'
     : isChangeOrder ? 'Approve Extra Work Safely →'
+    : isScopeOfWork ? 'Define Your Scope Safely →'
+    : isWorkOrder ? 'Create This Work Order →'
     : 'Protect This Project →';
 
   const safeParse = (data: any, fallback: any) => {
@@ -151,7 +146,6 @@ export default async function TemplatePage({ params }: { params: { slug: string 
     return data;
   };
 
-  // --- STRICT TYPESCRIPT GUARDS ---
   const parsedDeliverables = safeParse(doc.deliverables, ["Deliverable Phase 1", "Deliverable Phase 2", "Deliverable Phase 3"]);
   const listItems: string[] = Array.isArray(parsedDeliverables) ? parsedDeliverables : ["Deliverable Phase 1", "Deliverable Phase 2", "Deliverable Phase 3"];
 
@@ -167,7 +161,6 @@ export default async function TemplatePage({ params }: { params: { slug: string 
 
   const bestPractices = safeParse(doc.best_practices, null);
   const scopeCreep = safeParse(doc.scope_creep_examples, null);
-  // --------------------------------
 
   const dynamicRiskIcons = [Ghost, Ban, Clock];
   const dynamicRiskColors = ["text-red-500", "text-orange-500", "text-amber-500"];
@@ -220,8 +213,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
           </p>
           
           {doc.legal_tip && (
-             <div className={`max-w-2xl mx-auto border p-4 rounded-xl mb-8 flex gap-4 text-left ${isEmail ? 'bg-indigo-900/30 border-indigo-500/30' : isInvoice ? 'bg-emerald-900/30 border-emerald-500/30' : isProposal ? 'bg-amber-900/30 border-amber-500/30' : isRetainer ? 'bg-violet-900/30 border-violet-500/30' : isChangeOrder ? 'bg-rose-900/30 border-rose-500/30' : 'bg-blue-900/30 border-blue-500/30'}`}>
-                <div className={`p-2 rounded-lg shrink-0 h-fit ${isEmail ? 'bg-indigo-500/20' : isInvoice ? 'bg-emerald-500/20' : isProposal ? 'bg-amber-500/20' : isRetainer ? 'bg-violet-500/20' : isChangeOrder ? 'bg-rose-500/20' : 'bg-blue-500/20'}`}>
+             <div className={`max-w-2xl mx-auto border p-4 rounded-xl mb-8 flex gap-4 text-left ${isEmail ? 'bg-indigo-900/30 border-indigo-500/30' : isInvoice ? 'bg-emerald-900/30 border-emerald-500/30' : isProposal ? 'bg-amber-900/30 border-amber-500/30' : isRetainer ? 'bg-violet-900/30 border-violet-500/30' : isChangeOrder ? 'bg-rose-900/30 border-rose-500/30' : isScopeOfWork ? 'bg-cyan-900/30 border-cyan-500/30' : isWorkOrder ? 'bg-orange-900/30 border-orange-500/30' : 'bg-blue-900/30 border-blue-500/30'}`}>
+                <div className={`p-2 rounded-lg shrink-0 h-fit ${isEmail ? 'bg-indigo-500/20' : isInvoice ? 'bg-emerald-500/20' : isProposal ? 'bg-amber-500/20' : isRetainer ? 'bg-violet-500/20' : isChangeOrder ? 'bg-rose-500/20' : isScopeOfWork ? 'bg-cyan-500/20' : isWorkOrder ? 'bg-orange-500/20' : 'bg-blue-500/20'}`}>
                    <Shield className={`w-5 h-5 ${textColors}`} />
                 </div>
                 <div>
@@ -379,7 +372,6 @@ export default async function TemplatePage({ params }: { params: { slug: string 
               </div>
 
               {isEmail ? (
-                // 📧 EMAIL PREVIEW (Dynamic height, CTA pulls up right below the text)
                 <>
                   <div className="p-5 md:p-8 text-xs md:text-sm leading-relaxed prose max-w-none text-slate-700">
                     <h3 className="text-xl font-bold text-slate-900 border-b border-slate-200 pb-4 mb-6">
@@ -401,7 +393,6 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                   </div>
                 </>
               ) : (
-                // 📝 CONTRACT/INVOICE/RETAINER/CHANGE ORDER PREVIEW (Fixed height with blur overlay)
                 <>
                   <div className="p-5 md:p-8 text-xs md:text-sm leading-relaxed overflow-y-auto pb-48 md:pb-64 prose max-w-none text-slate-700">
                     {doc.content ? (
@@ -410,8 +401,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                       <div>
                           <div className="border-b-2 border-slate-900 pb-4 mb-6 flex justify-between items-end">
                             <h2 className="text-xl md:text-2xl font-bold uppercase tracking-tight text-slate-900">
-                                {/* 👉 NEW: Dynamic document headers based on type */}
-                                {isInvoice ? 'INVOICE' : isEstimate ? 'ESTIMATE' : isQuote ? 'QUOTE' : isRetainer ? 'RETAINER AGREEMENT' : isChangeOrder ? 'CHANGE ORDER' : 'Statement of Work'}
+                                {isInvoice ? 'INVOICE' : isEstimate ? 'ESTIMATE' : isQuote ? 'QUOTE' : isRetainer ? 'RETAINER AGREEMENT' : isChangeOrder ? 'CHANGE ORDER' : isScopeOfWork ? 'SCOPE OF WORK' : isWorkOrder ? 'WORK ORDER' : 'Statement of Work'}
                             </h2>
                             <span className="text-xs md:text-sm font-mono text-slate-500">REF: {new Date().getFullYear()}-001</span>
                           </div>
@@ -430,15 +420,17 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                           </div>
                           
                           {Array.isArray(scopeCreep) && !isInvoice && (
-                            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg">
-                               <h3 className="text-xs font-bold text-red-800 uppercase tracking-widest mb-2">Exclusions (Out of Scope)</h3>
-                               <ul className="space-y-2">
-                                  {scopeCreep.map((item: string, i: number) => (
-                                     <li key={i} className="flex items-start gap-2 text-red-900 text-xs">
-                                       <span className="font-bold">×</span> {item}
-                                     </li>
-                                  ))}
-                               </ul>
+                            <div className={`mb-6 p-4 border rounded-lg ${isWorkOrder ? 'bg-orange-50 border-orange-100' : 'bg-red-50 border-red-100'}`}>
+                                <h3 className={`text-xs font-bold uppercase tracking-widest mb-2 ${isWorkOrder ? 'text-orange-800' : 'text-red-800'}`}>
+                                  {isWorkOrder ? 'Job Execution Details' : 'Exclusions (Out of Scope)'}
+                                </h3>
+                                <ul className="space-y-2">
+                                    {scopeCreep.map((item: string, i: number) => (
+                                        <li key={i} className={`flex items-start gap-2 text-xs ${isWorkOrder ? 'text-orange-900' : 'text-red-900'}`}>
+                                          <span className="font-bold">{isWorkOrder ? '•' : '×'}</span> {item}
+                                        </li>
+                                    ))}
+                                </ul>
                             </div>
                           )}
                       </div>
