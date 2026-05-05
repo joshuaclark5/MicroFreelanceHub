@@ -98,7 +98,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
   const isEmail = params.slug.startsWith('late-payment-email');
   const docType = doc.document_type || (isEmail ? 'Email' : 'Contract');
   
-  // 👉 Expanded Chameleon Logic
+  // 👉 Chameleon Logic
   const isInvoice = !isEmail && docType === 'Invoice';
   const isEstimate = !isEmail && docType === 'Estimate';
   const isQuote = !isEmail && docType === 'Quote';
@@ -409,7 +409,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
 
               {isEmail ? (
                 <>
-                  <div className="p-5 md:p-8 text-xs md:text-sm leading-relaxed prose max-w-none text-slate-700 whitespace-pre-wrap">
+                  {/* 👉 HTML Formatting Fix applied here */}
+                  <div className="p-5 md:p-8 text-xs md:text-sm leading-relaxed max-w-none text-slate-700 whitespace-pre-wrap [&_h3]:font-bold [&_h3]:text-sm md:[&_h3]:text-base [&_h3]:mt-6 [&_h3]:mb-2 [&_h3]:text-slate-900 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-4 [&_li]:mb-1">
                     <h3 className="text-xl font-bold text-slate-900 border-b border-slate-200 pb-4 mb-6">
                       Draft: Past Due Notice
                     </h3>
@@ -430,7 +431,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                 </>
               ) : (
                 <>
-                  <div className="p-5 md:p-8 text-xs md:text-sm leading-relaxed overflow-y-auto pb-48 md:pb-64 prose max-w-none text-slate-700 whitespace-pre-wrap">
+                  {/* 👉 HTML Formatting Fix applied here */}
+                  <div className="p-5 md:p-8 text-xs md:text-sm leading-relaxed overflow-y-auto pb-48 md:pb-64 max-w-none text-slate-700 whitespace-pre-wrap [&_h3]:font-bold [&_h3]:text-sm md:[&_h3]:text-base [&_h3]:mt-6 [&_h3]:mb-2 [&_h3]:text-slate-900 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-4 [&_li]:mb-1">
                     {doc.content ? (
                       <div dangerouslySetInnerHTML={{ __html: doc.content }} />
                     ) : (
