@@ -20,6 +20,12 @@ export default async function Image({ params }: { params: { slug: string } }) {
   const isInvoice = !isEmail && slug.includes('-invoice');
   const isEstimate = !isEmail && slug.includes('-estimate');
   const isQuote = !isEmail && slug.includes('-quote');
+  const isRetainer = !isEmail && slug.includes('-retainer');
+  const isChangeOrder = !isEmail && slug.includes('-change-order');
+  const isScopeOfWork = !isEmail && slug.includes('-scope-of-work');
+  const isWorkOrder = !isEmail && slug.includes('-work-order');
+  const isSubcontractor = !isEmail && slug.includes('-subcontractor');
+  const isNDA = !isEmail && (slug.includes('-non-disclosure') || slug.includes('-nda'));
   const isProposal = isEstimate || isQuote;
   
   let cleanSlug = slug;
@@ -31,6 +37,12 @@ export default async function Image({ params }: { params: { slug: string } }) {
     '-contract-template', '-contract', 
     '-estimate-template', '-estimate', 
     '-quote-template', '-quote', 
+    '-retainer-agreement', '-retainer',
+    '-change-order-template', '-change-order',
+    '-scope-of-work-template', '-scope-of-work',
+    '-work-order-template', '-work-order',
+    '-subcontractor-agreement', '-subcontractor',
+    '-non-disclosure-agreement', '-nda',
     '-template'
   ];
   
@@ -46,36 +58,105 @@ export default async function Image({ params }: { params: { slug: string } }) {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
  
+  // 👉 Dynamic Background Colors
   const bgGradient = isEmail
-    ? 'linear-gradient(to bottom right, #0f172a, #312e81)'
+    ? 'linear-gradient(to bottom right, #0f172a, #312e81)' // Indigo
     : isInvoice 
-    ? 'linear-gradient(to bottom right, #0f172a, #064e3b)'
+    ? 'linear-gradient(to bottom right, #0f172a, #064e3b)' // Emerald
     : isProposal
-    ? 'linear-gradient(to bottom right, #0f172a, #78350f)'
-    : 'linear-gradient(to bottom right, #0f172a, #1e3a8a)';
+    ? 'linear-gradient(to bottom right, #0f172a, #78350f)' // Amber
+    : isRetainer
+    ? 'linear-gradient(to bottom right, #0f172a, #4c1d95)' // Violet
+    : isChangeOrder
+    ? 'linear-gradient(to bottom right, #0f172a, #881337)' // Rose
+    : isScopeOfWork
+    ? 'linear-gradient(to bottom right, #0f172a, #164e63)' // Cyan
+    : isWorkOrder
+    ? 'linear-gradient(to bottom right, #0f172a, #7c2d12)' // Orange
+    : isSubcontractor
+    ? 'linear-gradient(to bottom right, #0f172a, #134e4a)' // Teal
+    : isNDA
+    ? 'linear-gradient(to bottom right, #0f172a, #27272a)' // Zinc
+    : 'linear-gradient(to bottom right, #0f172a, #1e3a8a)'; // Blue
 
-  const badgeColor = isEmail ? '#4f46e5' : isInvoice ? '#059669' : isProposal ? '#d97706' : '#2563eb'; 
+  // 👉 Dynamic Badge Colors
+  const badgeColor = isEmail ? '#4f46e5' 
+    : isInvoice ? '#059669' 
+    : isProposal ? '#d97706' 
+    : isRetainer ? '#7c3aed'
+    : isChangeOrder ? '#e11d48'
+    : isScopeOfWork ? '#0891b2'
+    : isWorkOrder ? '#ea580c'
+    : isSubcontractor ? '#0d9488'
+    : isNDA ? '#52525b'
+    : '#2563eb'; 
   
-  // 🔥 UPGRADE 1: High-Conversion Titles
-  const docTypeLabel = isEmail ? 'Email Sequence' : isInvoice ? 'Invoice Template' : isEstimate ? 'Estimate Template' : isQuote ? 'Quote Template' : 'Contract Template';
+  // 👉 Dynamic Labels
+  const docTypeLabel = isEmail ? 'Email Sequence' 
+    : isInvoice ? 'Invoice Template' 
+    : isEstimate ? 'Estimate Template' 
+    : isQuote ? 'Quote Template' 
+    : isRetainer ? 'Retainer Agreement'
+    : isChangeOrder ? 'Change Order'
+    : isScopeOfWork ? 'Scope of Work'
+    : isWorkOrder ? 'Work Order'
+    : isSubcontractor ? 'Subcontractor Agreement'
+    : isNDA ? 'Non-Disclosure Agreement'
+    : 'Contract Template';
   
+  // 👉 High-Conversion Title Copy
   const mainTitleSuffix = isEmail 
     ? 'That Gets You Paid' 
     : isInvoice 
     ? 'With Instant Payments'
     : isProposal
     ? 'That Secures Deposits'
+    : isRetainer
+    ? 'For Recurring Revenue'
+    : isChangeOrder
+    ? 'To Stop Scope Creep'
+    : isScopeOfWork
+    ? 'To Protect Your Time'
+    : isWorkOrder
+    ? 'To Start The Job Fast'
+    : isSubcontractor
+    ? 'To Outsource Safely'
+    : isNDA
+    ? 'To Protect Your IP'
     : 'That Protects Your Time';
 
+  // 👉 Subtitle Copy
   const subtitleText = isEmail
     ? 'Automate your collections & stop chasing checks'
     : isInvoice 
     ? 'Enable Stripe payments & streamline cash flow' 
     : isProposal
     ? 'Set clear boundaries & lock in your project rate'
+    : isRetainer
+    ? 'Automate monthly billing & secure your baseline income'
+    : isChangeOrder
+    ? 'Never do unpaid extra work for clients again'
+    : isScopeOfWork
+    ? 'Define exact deliverables and revision limits'
+    : isWorkOrder
+    ? 'Document site details, labor, and authorize the start'
+    : isSubcontractor
+    ? 'Prevent client poaching and limit your liability'
+    : isNDA
+    ? 'Secure trade secrets and unreleased portfolio work'
     : 'Prevent scope creep & secure your upfront deposit';
     
-  const subtitleColor = isEmail ? '#a5b4fc' : isInvoice ? '#6ee7b7' : isProposal ? '#fcd34d' : '#93c5fd'; 
+  // 👉 Subtitle Colors
+  const subtitleColor = isEmail ? '#a5b4fc' 
+    : isInvoice ? '#6ee7b7' 
+    : isProposal ? '#fcd34d' 
+    : isRetainer ? '#c4b5fd'
+    : isChangeOrder ? '#fda4af'
+    : isScopeOfWork ? '#67e8f9'
+    : isWorkOrder ? '#fdba74'
+    : isSubcontractor ? '#5eead4'
+    : isNDA ? '#a1a1aa'
+    : '#93c5fd'; 
 
   return new ImageResponse(
     (
@@ -162,7 +243,6 @@ export default async function Image({ params }: { params: { slug: string } }) {
           {subtitleText}
         </div>
         
-        {/* 🔥 UPGRADE 2: The Action CTA */}
         <div
           style={{
             display: 'flex',
