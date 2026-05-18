@@ -8,25 +8,53 @@ export default async function RelatedRoles({ currentSlug, jobTitle }: { currentS
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  // 🎯 THE UPGRADE: Fetch documents for the EXACT same profession
-  let query = supabase
-    .from('seo_pages')
-    .select('slug, document_type, job_title')
-    .neq('slug', currentSlug)
-    .limit(8);
-  
+  let links: any[] = [];
+
+  // 🎯 TIER 1: Try exact 'job_title' match (Perfect for newer batches)
   if (jobTitle) {
-    query = query.eq('job_title', jobTitle);
+    const { data } = await supabase
+      .from('seo_pages')
+      .select('slug, document_type, job_title')
+      .eq('job_title', jobTitle)
+      .neq('slug', currentSlug)
+      .limit(8);
+      
+    if (data && data.length > 0) links = data;
   }
 
-  const { data: links } = await query;
+  // 🎯 TIER 2: Fallback to matching the URL slug prefix (Catches "web-developer" vs "web-development")
+  if (links.length === 0) {
+    const firstWord = currentSlug.split('-')[0]; 
+    const { data } = await supabase
+      .from('seo_pages')
+      .select('slug, document_type, job_title')
+      .ilike('slug', `${firstWord}-%`)
+      .neq('slug', currentSlug)
+      .limit(8);
+      
+    if (data && data.length > 0) links = data;
+  }
+
+  // 🎯 TIER 3: Absolute fallback (Never let the page be empty)
+  if (links.length === 0) {
+    const { data } = await supabase
+      .from('seo_pages')
+      .select('slug, document_type, job_title')
+      .neq('slug', currentSlug)
+      .limit(8);
+      
+    if (data) links = data;
+  }
 
   if (!links || links.length === 0) return null;
+
+  // Clean up the header text
+  const displayTitle = jobTitle || links[0]?.job_title || 'Freelance';
 
   return (
     <div className="w-full mt-10">
       <h3 className="text-2xl font-bold text-slate-900 mb-8 text-center">
-        Complete your <span className="text-blue-600">{jobTitle || 'Freelance'}</span> workflow
+        Complete your <span className="text-blue-600">{displayTitle}</span> workflow
       </h3>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
@@ -37,10 +65,12 @@ export default async function RelatedRoles({ currentSlug, jobTitle }: { currentS
                  <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 transition-colors">
                     <FileText className="w-4 h-4 text-slate-400 group-hover:text-blue-600" />
                  </div>
-                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{link.document_type}</span>
+                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider line-clamp-1">
+                   {link.document_type || 'Template'}
+                 </span>
               </div>
               <span className="font-bold text-slate-800 text-sm group-hover:text-blue-600 transition-colors leading-snug">
-                {link.job_title} {link.document_type}
+                {link.job_title ? `${link.job_title} ${link.document_type}` : link.slug.replace(/-/g, ' ')}
               </span>
               <div className="mt-auto pt-4 flex items-center text-xs font-bold text-slate-400 group-hover:text-blue-600 transition-colors">
                 View Template <ArrowRight className="w-3 h-3 ml-1" />
