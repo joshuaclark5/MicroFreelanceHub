@@ -4,7 +4,8 @@ import { notFound, redirect } from 'next/navigation';
 import { Metadata } from 'next';
 import {
   Shield, FileText, Receipt, Mail, Lock, Ghost, Ban,
-  Clock, AlertTriangle, Zap, TrendingUp, Award
+  Clock, AlertTriangle, Zap, TrendingUp, Award, Scale,
+  Briefcase, Wrench, UserCheck, ClipboardCheck
 } from 'lucide-react';
 import RelatedRoles from '../../components/seo/RelatedRoles';
 
@@ -98,7 +99,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
   const isEmail = params.slug.startsWith('late-payment-email');
   const docType = doc.document_type || (isEmail ? 'Email' : 'Contract');
   
-  // 👉 Chameleon Logic
+  // 👉 Expanded Chameleon Logic
   const isInvoice = !isEmail && docType === 'Invoice';
   const isEstimate = !isEmail && docType === 'Estimate';
   const isQuote = !isEmail && docType === 'Quote';
@@ -108,6 +109,12 @@ export default async function TemplatePage({ params }: { params: { slug: string 
   const isWorkOrder = !isEmail && docType === 'Work Order';
   const isSubcontractor = !isEmail && docType === 'Subcontractor Agreement';
   const isNDA = !isEmail && (docType === 'Non-Disclosure Agreement' || docType === 'NDA');
+  const isDemandLetter = !isEmail && docType === 'Late Payment Demand Letter';
+  const isCeaseAndDesist = !isEmail && docType === 'Cease and Desist Letter';
+  const isServiceAgreement = !isEmail && docType === 'Service Agreement';
+  const isMaintenance = !isEmail && docType === 'Maintenance Agreement';
+  const isContractor = !isEmail && docType === 'Independent Contractor Agreement'; // NEW
+  const isSignOff = !isEmail && docType === 'Project Sign-Off Form'; // NEW
   const isProposal = isEstimate || isQuote;
 
   const badgeText = isEmail ? 'Email Templates' : `${docType} Template`;
@@ -122,6 +129,12 @@ export default async function TemplatePage({ params }: { params: { slug: string 
     : isWorkOrder ? 'bg-orange-600'
     : isSubcontractor ? 'bg-teal-600'
     : isNDA ? 'bg-zinc-800'
+    : isDemandLetter ? 'bg-red-600'
+    : isCeaseAndDesist ? 'bg-stone-800'
+    : isServiceAgreement ? 'bg-fuchsia-600'
+    : isMaintenance ? 'bg-lime-600'
+    : isContractor ? 'bg-sky-600'
+    : isSignOff ? 'bg-pink-600'
     : 'bg-blue-600';
 
   const textColors = isEmail ? 'text-indigo-400' 
@@ -133,6 +146,12 @@ export default async function TemplatePage({ params }: { params: { slug: string 
     : isWorkOrder ? 'text-orange-600'
     : isSubcontractor ? 'text-teal-600'
     : isNDA ? 'text-zinc-600'
+    : isDemandLetter ? 'text-red-500'
+    : isCeaseAndDesist ? 'text-stone-400'
+    : isServiceAgreement ? 'text-fuchsia-500'
+    : isMaintenance ? 'text-lime-600'
+    : isContractor ? 'text-sky-500'
+    : isSignOff ? 'text-pink-500'
     : 'text-blue-400';
 
   // 👉 Dynamic Hero Button Copy
@@ -144,6 +163,12 @@ export default async function TemplatePage({ params }: { params: { slug: string 
     : isWorkOrder ? 'Create This Work Order →'
     : isSubcontractor ? 'Hire Subcontractor Safely →'
     : isNDA ? 'Protect Your IP Now →'
+    : isDemandLetter ? 'Generate Demand Letter →'
+    : isCeaseAndDesist ? 'Send Cease & Desist →'
+    : isServiceAgreement ? 'Define Your Services →'
+    : isMaintenance ? 'Start Ongoing Support →'
+    : isContractor ? 'Create Contractor Agreement →'
+    : isSignOff ? 'Get Final Sign-Off →'
     : 'Protect This Project →';
 
   const safeParse = (data: any, fallback: any) => {
@@ -203,7 +228,6 @@ export default async function TemplatePage({ params }: { params: { slug: string 
 
       <div className="bg-slate-900 text-white py-16 md:py-24 px-4 relative overflow-hidden">
         
-        {/* 👉 Back to Home Link */}
         <div className="absolute top-4 left-4 md:top-8 md:left-8 z-50">
            <Link href="/" className="text-slate-400 hover:text-white text-sm font-bold transition-all flex items-center gap-2">
               ← MicroFreelanceHub
@@ -213,7 +237,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <div className="flex items-center justify-center gap-3 mb-6">
             <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-white ${themeColors}`}>
-              {isEmail ? <Mail className="w-3.5 h-3.5" /> : isInvoice ? <Receipt className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />} 
+              {isEmail ? <Mail className="w-3.5 h-3.5" /> : isInvoice ? <Receipt className="w-3.5 h-3.5" /> : isDemandLetter || isCeaseAndDesist ? <Scale className="w-3.5 h-3.5" /> : isServiceAgreement ? <Briefcase className="w-3.5 h-3.5" /> : isMaintenance ? <Wrench className="w-3.5 h-3.5" /> : isContractor ? <UserCheck className="w-3.5 h-3.5" /> : isSignOff ? <ClipboardCheck className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />} 
               {badgeText}
             </div>
             <div className="text-slate-400 text-xs font-medium">Updated {new Date().getFullYear()}</div>
@@ -239,6 +263,12 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                  : isWorkOrder ? 'bg-orange-900/30 border-orange-500/30' 
                  : isSubcontractor ? 'bg-teal-900/30 border-teal-500/30'
                  : isNDA ? 'bg-zinc-900/30 border-zinc-500/30'
+                 : isDemandLetter ? 'bg-red-900/30 border-red-500/30'
+                 : isCeaseAndDesist ? 'bg-stone-900/30 border-stone-500/30'
+                 : isServiceAgreement ? 'bg-fuchsia-900/30 border-fuchsia-500/30'
+                 : isMaintenance ? 'bg-lime-900/30 border-lime-500/30'
+                 : isContractor ? 'bg-sky-900/30 border-sky-500/30'
+                 : isSignOff ? 'bg-pink-900/30 border-pink-500/30'
                  : 'bg-blue-900/30 border-blue-500/30'}`}>
                 <div className={`p-2 rounded-lg shrink-0 h-fit ${
                     isEmail ? 'bg-indigo-500/20' 
@@ -250,6 +280,12 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                     : isWorkOrder ? 'bg-orange-500/20' 
                     : isSubcontractor ? 'bg-teal-500/20'
                     : isNDA ? 'bg-zinc-500/20'
+                    : isDemandLetter ? 'bg-red-500/20'
+                    : isCeaseAndDesist ? 'bg-stone-500/20'
+                    : isServiceAgreement ? 'bg-fuchsia-500/20'
+                    : isMaintenance ? 'bg-lime-500/20'
+                    : isContractor ? 'bg-sky-500/20'
+                    : isSignOff ? 'bg-pink-500/20'
                     : 'bg-blue-500/20'}`}>
                    <Shield className={`w-5 h-5 ${textColors}`} />
                 </div>
@@ -330,7 +366,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
             </section>
           )}
 
-          {!isEmail && !isNDA && (
+          {!isEmail && !isNDA && !isDemandLetter && !isCeaseAndDesist && !isSignOff && (
             <section className="mb-10">
               <h2 className="text-xl font-bold mb-4 text-slate-900">
                 Do you need an invoice or a contract?
@@ -409,7 +445,6 @@ export default async function TemplatePage({ params }: { params: { slug: string 
 
               {isEmail ? (
                 <>
-                  {/* 👉 HTML Formatting Fix applied here */}
                   <div className="p-5 md:p-8 text-xs md:text-sm leading-relaxed max-w-none text-slate-700 whitespace-pre-wrap [&_h3]:font-bold [&_h3]:text-sm md:[&_h3]:text-base [&_h3]:mt-6 [&_h3]:mb-2 [&_h3]:text-slate-900 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-4 [&_li]:mb-1">
                     <h3 className="text-xl font-bold text-slate-900 border-b border-slate-200 pb-4 mb-6">
                       Draft: Past Due Notice
@@ -431,7 +466,6 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                 </>
               ) : (
                 <>
-                  {/* 👉 HTML Formatting Fix applied here */}
                   <div className="p-5 md:p-8 text-xs md:text-sm leading-relaxed overflow-y-auto pb-48 md:pb-64 max-w-none text-slate-700 whitespace-pre-wrap [&_h3]:font-bold [&_h3]:text-sm md:[&_h3]:text-base [&_h3]:mt-6 [&_h3]:mb-2 [&_h3]:text-slate-900 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-4 [&_li]:mb-1">
                     {doc.content ? (
                       <div dangerouslySetInnerHTML={{ __html: doc.content }} />
@@ -439,14 +473,14 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                       <div>
                           <div className="border-b-2 border-slate-900 pb-4 mb-6 flex justify-between items-end">
                             <h2 className="text-xl md:text-2xl font-bold uppercase tracking-tight text-slate-900">
-                                {isInvoice ? 'INVOICE' : isEstimate ? 'ESTIMATE' : isQuote ? 'QUOTE' : isRetainer ? 'RETAINER AGREEMENT' : isChangeOrder ? 'CHANGE ORDER' : isScopeOfWork ? 'SCOPE OF WORK' : isWorkOrder ? 'WORK ORDER' : isSubcontractor ? 'SUBCONTRACTOR AGREEMENT' : isNDA ? 'NON-DISCLOSURE AGREEMENT' : 'Statement of Work'}
+                                {isInvoice ? 'INVOICE' : isEstimate ? 'ESTIMATE' : isQuote ? 'QUOTE' : isRetainer ? 'RETAINER AGREEMENT' : isChangeOrder ? 'CHANGE ORDER' : isScopeOfWork ? 'SCOPE OF WORK' : isWorkOrder ? 'WORK ORDER' : isSubcontractor ? 'SUBCONTRACTOR AGREEMENT' : isNDA ? 'NON-DISCLOSURE AGREEMENT' : isDemandLetter ? 'DEMAND LETTER' : isCeaseAndDesist ? 'CEASE & DESIST' : isServiceAgreement ? 'SERVICE AGREEMENT' : isMaintenance ? 'MAINTENANCE AGREEMENT' : isContractor ? 'CONTRACTOR AGREEMENT' : isSignOff ? 'PROJECT SIGN-OFF' : 'Statement of Work'}
                             </h2>
                             <span className="text-xs md:text-sm font-mono text-slate-500">REF: {new Date().getFullYear()}-001</span>
                           </div>
 
                           <div className="mb-6">
                             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">1. Covered Provisions</h3>
-                            <p className="text-slate-600 mb-3">This agreement officially documents the following parameters:</p>
+                            <p className="text-slate-600 mb-3">This document officially outlines the following parameters:</p>
                             <ul className="space-y-2 pl-2">
                               {listItems.map((item: string, i: number) => (
                                 <li key={i} className="flex items-start gap-3 text-slate-800 font-medium">
@@ -462,17 +496,35 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                                 isWorkOrder ? 'bg-orange-50 border-orange-100' : 
                                 isNDA ? 'bg-zinc-50 border-zinc-200' :
                                 isSubcontractor ? 'bg-teal-50 border-teal-100' :
+                                isDemandLetter ? 'bg-red-50 border-red-200' :
+                                isCeaseAndDesist ? 'bg-stone-50 border-stone-200' :
+                                isServiceAgreement ? 'bg-fuchsia-50 border-fuchsia-200' :
+                                isMaintenance ? 'bg-lime-50 border-lime-200' :
+                                isContractor ? 'bg-sky-50 border-sky-200' :
+                                isSignOff ? 'bg-pink-50 border-pink-200' :
                                 'bg-red-50 border-red-100'
                             }`}>
                                 <h3 className={`text-xs font-bold uppercase tracking-widest mb-2 ${
                                     isWorkOrder ? 'text-orange-800' : 
                                     isNDA ? 'text-zinc-800' :
                                     isSubcontractor ? 'text-teal-800' :
+                                    isDemandLetter ? 'text-red-800' :
+                                    isCeaseAndDesist ? 'text-stone-800' :
+                                    isServiceAgreement ? 'text-fuchsia-800' :
+                                    isMaintenance ? 'text-lime-800' :
+                                    isContractor ? 'text-sky-800' :
+                                    isSignOff ? 'text-pink-800' :
                                     'text-red-800'
                                 }`}>
                                   {isWorkOrder ? 'Job Execution Details' : 
                                    isNDA ? 'Protected Confidential Information' : 
                                    isSubcontractor ? 'Subcontractor Restrictions' : 
+                                   isDemandLetter ? 'Consequences of Non-Payment' :
+                                   isCeaseAndDesist ? 'Demanded Actions' :
+                                   isServiceAgreement ? 'Service Limitations' :
+                                   isMaintenance ? 'Maintenance Exclusions' :
+                                   isContractor ? 'Contractor Classifications' :
+                                   isSignOff ? 'Acceptance Terms' :
                                    'Exclusions (Out of Scope)'}
                                 </h3>
                                 <ul className="space-y-2">
@@ -481,10 +533,16 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                                             isWorkOrder ? 'text-orange-900' : 
                                             isNDA ? 'text-zinc-900' :
                                             isSubcontractor ? 'text-teal-900' :
+                                            isDemandLetter ? 'text-red-900' :
+                                            isCeaseAndDesist ? 'text-stone-900' :
+                                            isServiceAgreement ? 'text-fuchsia-900' :
+                                            isMaintenance ? 'text-lime-900' :
+                                            isContractor ? 'text-sky-900' :
+                                            isSignOff ? 'text-pink-900' :
                                             'text-red-900'
                                         }`}>
                                           <span className="font-bold">
-                                            {isWorkOrder ? '•' : isNDA ? '🔒' : isSubcontractor ? '🚫' : '×'}
+                                            {isWorkOrder ? '•' : isNDA ? '🔒' : isSubcontractor ? '🚫' : isDemandLetter || isCeaseAndDesist ? '⚠️' : isContractor ? '👤' : isSignOff ? '✅' : '×'}
                                           </span> {item}
                                         </li>
                                     ))}
