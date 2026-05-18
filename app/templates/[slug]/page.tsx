@@ -113,8 +113,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
   const isCeaseAndDesist = !isEmail && docType === 'Cease and Desist Letter';
   const isServiceAgreement = !isEmail && docType === 'Service Agreement';
   const isMaintenance = !isEmail && docType === 'Maintenance Agreement';
-  const isContractor = !isEmail && docType === 'Independent Contractor Agreement'; // NEW
-  const isSignOff = !isEmail && docType === 'Project Sign-Off Form'; // NEW
+  const isContractor = !isEmail && docType === 'Independent Contractor Agreement';
+  const isSignOff = !isEmail && docType === 'Project Sign-Off Form';
   const isProposal = isEstimate || isQuote;
 
   const badgeText = isEmail ? 'Email Templates' : `${docType} Template`;
@@ -593,8 +593,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
       </div>
 
       <div className="max-w-7xl mx-auto px-4 pb-20">
-          <h3 className="text-2xl font-bold text-slate-900 mb-8 text-center">Explore Related Templates</h3>
-          <RelatedRoles currentSlug={params.slug} batchLabel={doc.batch_label} />
+          {/* 🎯 THE UPGRADE: Passing the exact job title to the RelatedRoles component */}
+          <RelatedRoles currentSlug={params.slug} jobTitle={doc.job_title} />
       </div>
 
     </div>
