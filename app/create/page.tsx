@@ -51,7 +51,7 @@ function CreateProjectContent() {
   // 🆕 Line Items State (The Invoice Builder)
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
   const [newItem, setNewItem] = useState({ description: '', quantity: 1, amount: '' });
-  const [manualPriceOverride, setManualPriceOverride] = useState(''); // For when list is empty
+  const [manualPriceOverride, setManualPriceOverride] = useState(''); 
 
   // Financial Settings
   const [includeFee, setIncludeFee] = useState(true);
@@ -64,7 +64,7 @@ function CreateProjectContent() {
   // Split Payment State
   const [isSplit, setIsSplit] = useState(false);
   const [splitCount, setSplitCount] = useState('2');
-  const [splitFrequency, setSplitFrequency] = useState('30'); // Days
+  const [splitFrequency, setSplitFrequency] = useState('30'); 
 
   // UI States
   const [undoText, setUndoText] = useState('');
@@ -75,7 +75,7 @@ function CreateProjectContent() {
   const [questions, setQuestions] = useState<string[]>([]);
   const [answers, setAnswers] = useState<string[]>(['', '', '']);
   
-  // 🆕 PAYMENT TYPE (Now includes 'none')
+  // 🆕 PAYMENT TYPE 
   const [paymentType, setPaymentType] = useState<'one_time' | 'monthly' | 'none'>('one_time');
 
   // AI Refiner State
@@ -97,7 +97,6 @@ function CreateProjectContent() {
 
   // --- 🧮 CALCULATORS ---
   const calculateFinancials = () => {
-    // 1. Line Items Subtotal
     let subtotal = 0;
     
     if (lineItems.length > 0) {
@@ -106,13 +105,11 @@ function CreateProjectContent() {
         subtotal = parseFloat(manualPriceOverride) || 0;
     }
 
-    // 2. Tax & Fee
     const taxRate = parseFloat(formData.taxRate) || 0;
     const feeAmount = includeFee ? subtotal * 0.039 : 0;
     const taxAmount = subtotal * (taxRate / 100);
     const grandTotal = subtotal + taxAmount + feeAmount;
 
-    // 3. Deposit Calculation
     let depositAmount = 0;
     if (depositType === '50') {
         depositAmount = grandTotal / 2;
@@ -123,7 +120,6 @@ function CreateProjectContent() {
         depositAmount = grandTotal; 
     }
 
-    // 4. Split Calculation
     const splits = parseInt(splitCount) || 1;
     const splitAmount = grandTotal / splits;
 
@@ -134,7 +130,6 @@ function CreateProjectContent() {
 
   // --- DYNAMIC CONTENT GENERATORS ---
   const getPaymentTermsText = () => {
-    // 🆕 Agreement Only Clause
     if (paymentType === 'none') {
         return `1. PAYMENT TERMS\nThis agreement outlines the scope of work and legal terms. Payment handling is separate from this document and shall be arranged directly between Client and Contractor.`;
     }
@@ -162,34 +157,18 @@ function CreateProjectContent() {
     return `1. PAYMENT TERMS\nFull payment of $${formattedTotal} is required. Terms: ${termsLabel}.`;
   };
 
-  // Helper to clean up lists
   const formatDeliverablesList = (raw: any) => {
       if (!raw) return "• Scope details...";
-      
-      // 1. If it's already a clean array
-      if (Array.isArray(raw)) {
-          return raw.map(item => `• ${item}`).join('\n');
-      }
-
-      // 2. If it's a string, check if it's "Ugly JSON" (starts with { or [)
+      if (Array.isArray(raw)) return raw.map(item => `• ${item}`).join('\n');
       if (typeof raw === 'string') {
           const trimmed = raw.trim();
           if ((trimmed.startsWith('{') || trimmed.startsWith('[')) && trimmed.endsWith('}')) {
               try {
-                  // Remove curly braces and quotes to make it readable
-                  const clean = trimmed
-                      .replace(/^\{|^\[|^\}|\]$/g, '') // Remove brackets
-                      .split(',') // Split by comma
-                      .map((s: string) => `• ${s.trim().replace(/^"|"$/g, '')}`) // Remove quotes
-                      .join('\n');
-                  return clean;
-              } catch (e) {
-                  return raw; // Fallback
-              }
+                  return trimmed.replace(/^\{|^\[|^\}|\]$/g, '').split(',').map((s: string) => `• ${s.trim().replace(/^"|"$/g, '')}`).join('\n');
+              } catch (e) { return raw; }
           }
-          return raw; // It's just a normal string
+          return raw; 
       }
-      
       return "• Scope details...";
   };
 
@@ -198,13 +177,8 @@ function CreateProjectContent() {
     return `1. PROJECT BACKGROUND
 This Agreement is entered into by and between the Client and the Contractor. The Client wishes to engage the Contractor for professional ${title} services.
 
-2. SCOPE OF SERVICES
-The Contractor shall provide the following specific deliverables:
-
+2. SPECIFIC PROVISIONS
 ${scopeBullets}
-
-3. TIMELINE
-Work will commence upon receipt of the initial payment/deposit.
 
 --------------------------------------------------
 TERMS & CONDITIONS
@@ -241,33 +215,88 @@ If the Client cancels the project after work has begun, the Freelancer retains t
       if (slug) {
         setLoading(true);
         setLoadingMessage('Loading Template...');
-        const manualOverrides: Record<string, string> = {
-            'hire-graphic-designer': 'freelance-logo-designer',
-            'hire-video-editor': 'freelance-videographer',
-            'hire-photographer': 'hire-event-photographer',
-            'hire-web-developer': 'hire-wordpress-developer',
-        };
-        const searchSlug = manualOverrides[slug] || slug;
-        let { data: sowDoc } = await supabase.from('sow_documents').select('*').eq('slug', searchSlug).single();
-        let foundData = null;
+        
+        let seoDoc = null;
+        let isSow = false;
 
-        if (sowDoc) foundData = { title: sowDoc.title, price: sowDoc.price, deliverables: sowDoc.deliverables };
-        else {
-            let { data: seoDoc } = await supabase.from('seo_pages').select('*').eq('slug', searchSlug).single();
-            if (seoDoc) foundData = { title: seoDoc.job_title || seoDoc.keyword, price: 0, deliverables: seoDoc.deliverables };
+        // Same robust lookup as the UI resolver
+        const { data: sowData } = await supabase.from('sow_documents').select('*').eq('slug', slug).single();
+        if (sowData) {
+            seoDoc = sowData;
+            isSow = true;
+        } else {
+            const { data: exactDoc } = await supabase.from('seo_pages').select('*').eq('slug', slug).single();
+            if (exactDoc) seoDoc = exactDoc;
+            else {
+                let baseSlug = slug.replace(/-invoice-template$/, '').replace(/-contract-template$/, '');
+                const { data: baseDoc } = await supabase.from('seo_pages').select('*').eq('slug', baseSlug).single();
+                if (baseDoc) seoDoc = baseDoc;
+                else {
+                    const { data: hireDoc } = await supabase.from('seo_pages').select('*').eq('slug', `hire-${baseSlug}`).single();
+                    if (hireDoc) seoDoc = hireDoc;
+                }
+            }
         }
 
-        if (foundData) {
-              // ✅ FIX: Use formatter here to prevent JSON string
-              const bullets = formatDeliverablesList(foundData.deliverables);
-              const fullContent = generateFullContract(foundData.title, bullets);
-              setFormData(prev => ({ ...prev, projectTitle: foundData.title, deliverables: fullContent, description: `Contract for ${foundData.title}` }));
-              
-              if(foundData.price) setManualPriceOverride(foundData.price.toString());
-              
-              setIsTemplateLoaded(true);
-              setStep('final'); 
+        // Manual overrides fallback
+        if (!seoDoc && !isSow) {
+             const manualOverrides: Record<string, string> = {
+                'graphic-design-contract': 'freelance-logo-designer',
+                'video-editor-contract': 'freelance-videographer',
+                'event-photographer-contract': 'hire-event-photographer',
+                'web-development-contract': 'hire-wordpress-developer',
+                'social-media-manager-contract': 'hire-twitter-manager',
+                'seo-specialist-contract': 'hire-local-seo-expert',
+                'copywriting-contract': 'case-study-copywriter',
+             };
+             if (manualOverrides[slug]) {
+                 const { data: overDoc } = await supabase.from('seo_pages').select('*').eq('slug', manualOverrides[slug]).single();
+                 seoDoc = overDoc;
+             }
         }
+
+        if (seoDoc) {
+             if (isSow) {
+                 setFormData(prev => ({ ...prev, projectTitle: seoDoc.title, deliverables: seoDoc.deliverables, description: `Contract for ${seoDoc.title}` }));
+                 if (seoDoc.price) setManualPriceOverride(seoDoc.price.toString());
+             } else {
+                 // 🎯 THE FIX: Strip the HTML payload into clean text!
+                 let cleanContent = "";
+                 if (seoDoc.content) {
+                     cleanContent = seoDoc.content
+                        .replace(/<h3>/gi, '\n\n')
+                        .replace(/<\/h3>/gi, ':\n')
+                        .replace(/<p>/gi, '\n')
+                        .replace(/<\/p>/gi, '\n')
+                        .replace(/<ul>/gi, '\n')
+                        .replace(/<\/ul>/gi, '\n')
+                        .replace(/<li>/gi, '• ')
+                        .replace(/<\/li>/gi, '\n')
+                        .replace(/<[^>]*>?/gm, '') // Strip remaining HTML
+                        .replace(/\n{3,}/g, '\n\n') // Clean up excessive newlines
+                        .trim();
+                 }
+
+                 const title = seoDoc.job_title || seoDoc.keyword || 'Project';
+                 let fullContent = "";
+
+                 if (cleanContent) {
+                     // We have rich AI text! Append standard payment terms so triggers still work.
+                     const terms = getPaymentTermsText();
+                     fullContent = `1. PROJECT OVERVIEW\nThis document outlines the professional services for the agreed upon project.\n\n2. SPECIFIC PROVISIONS\n${cleanContent}\n\n--------------------------------------------------\nTERMS & CONDITIONS\n\n${terms}\n\n2. OWNERSHIP & RIGHTS\nUpon full payment, the Client is granted exclusive rights to the final deliverables. The Freelancer retains the right to use the work for portfolio and self-promotional purposes.\n\n3. CANCELLATION & LIABILITY\nIf the Client cancels the project after work has begun, the Freelancer retains the deposit. The Freelancer's liability is limited to the total value of this contract.\n--------------------------------------------------`;
+                 } else {
+                     // Fallback to basic list generator if content column is missing
+                     const bullets = formatDeliverablesList(seoDoc.deliverables);
+                     fullContent = generateFullContract(title, bullets);
+                 }
+
+                 setFormData(prev => ({ ...prev, projectTitle: title, deliverables: fullContent, description: `Contract for ${title}` }));
+             }
+
+             setIsTemplateLoaded(true);
+             setStep('final'); 
+        }
+
         if (localSlug) localStorage.removeItem('pending_template');
         setLoading(false);
       }
@@ -325,8 +354,8 @@ If the Client cancels the project after work has begun, the Freelancer retains t
     setIsRefining(true);
     setUndoText(formData.deliverables);
     const fullText = formData.deliverables;
-    const scopeStartMarker = "2. SCOPE OF SERVICES";
-    const nextSectionMarker = "3. "; 
+    const scopeStartMarker = "2. SPECIFIC PROVISIONS";
+    const nextSectionMarker = "TERMS & CONDITIONS"; 
     const startIndex = fullText.indexOf(scopeStartMarker);
     const endIndex = fullText.indexOf(nextSectionMarker, startIndex + scopeStartMarker.length);
 
@@ -337,7 +366,7 @@ If the Client cancels the project after work has begun, the Freelancer retains t
         const headerPart = fullText.substring(0, startIndex);
         const scopePart = fullText.substring(startIndex, endIndex);
         const footerPart = fullText.substring(endIndex);
-        const safeInstruction = `${refineText} (INSTRUCTION: Rewrite this scope section professionally. Keep the header '2. SCOPE OF SERVICES'.)`;
+        const safeInstruction = `${refineText} (INSTRUCTION: Rewrite this scope section professionally.)`;
         const result = await refineSOW(scopePart, financials.subtotal, safeInstruction);
         if (result) {
             setFormData(prev => ({ ...prev, deliverables: headerPart + result.deliverables + "\n\n" + footerPart }));
@@ -375,7 +404,6 @@ If the Client cancels the project after work has begun, the Freelancer retains t
     setLoading(false);
   };
 
-  // 🆕 Invoice Builder Handlers
   const handleAddItem = () => {
     if (!newItem.description || !newItem.amount) return;
     setLineItems([...lineItems, { 
@@ -398,7 +426,6 @@ If the Client cancels the project after work has begun, the Freelancer retains t
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
 
-    // Prepare Line Items (If empty, create a dummy item for the total)
     let finalLineItems = [...lineItems];
     if (finalLineItems.length === 0 && financials.subtotal > 0 && paymentType !== 'none') {
         finalLineItems.push({
@@ -445,7 +472,7 @@ If the Client cancels the project after work has begun, the Freelancer retains t
         email: formData.clientEmail
       },
       title: formData.projectTitle,
-      price: paymentType === 'none' ? 0 : financials.grandTotal, // Zero price if agreement only
+      price: paymentType === 'none' ? 0 : financials.grandTotal, 
       line_items: finalLineItems,
       deliverables: formData.deliverables,
       due_date: formData.dueDate || null,
@@ -623,15 +650,14 @@ If the Client cancels the project after work has begun, the Freelancer retains t
                              <CalendarDays className="w-4 h-4" /> <span className="hidden sm:inline">Monthly</span>
                           </button>
                           
-                          {/* 🆕 AGREEMENT ONLY (PRO FEATURE) - FIXED ALIGNMENT */}
                           <button 
                              onClick={() => {
                                  if (!isPro) {
                                      setShowPricingModal(true);
                                  } else {
                                      setPaymentType('none');
-                                     setLineItems([]); // Clear money items
-                                     setManualPriceOverride('0'); // Free
+                                     setLineItems([]); 
+                                     setManualPriceOverride('0'); 
                                  }
                              }}
                              className={`flex-1 py-2 px-2 rounded-lg text-xs font-bold border transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 ${paymentType === 'none' ? 'bg-black text-white border-black' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}
@@ -645,11 +671,9 @@ If the Client cancels the project after work has begun, the Freelancer retains t
                     {/* 🆕 HIDE MONEY SECTIONS IF AGREEMENT ONLY */}
                     {paymentType !== 'none' && (
                         <>
-                            {/* 🆕 INVOICE BUILDER (Trades Upgrade) */}
                             <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm animate-in fade-in slide-in-from-top-2">
                                <label className="block text-xs font-bold text-gray-500 uppercase mb-3">Itemized Invoice</label>
                                
-                               {/* Add Item Row */}
                                <div className="flex gap-2 items-end mb-4">
                                   <div className="flex-1">
                                      <input className="w-full p-2 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:bg-white transition-colors" placeholder="Item (e.g. Labor)" value={newItem.description} onChange={(e) => setNewItem({ ...newItem, description: e.target.value })} />
@@ -663,16 +687,15 @@ If the Client cancels the project after work has begun, the Freelancer retains t
                                   <button onClick={handleAddItem} className="p-2 bg-black text-white rounded-lg hover:bg-gray-800"><Plus className="w-4 h-4" /></button>
                                </div>
 
-                               {/* Items List */}
                                {lineItems.length > 0 ? (
                                    <div className="space-y-2 mb-4">
                                        {lineItems.map((item) => (
                                            <div key={item.id} className="flex justify-between items-center text-sm bg-gray-50 p-2 rounded-lg border border-gray-100 group">
-                                                   <div className="flex-1"><span className="font-medium text-gray-900">{item.description}</span> <span className="text-gray-400 text-xs">x{item.quantity}</span></div>
-                                                   <div className="flex items-center gap-3">
-                                                       <span className="font-mono font-bold">${(item.amount * item.quantity).toFixed(2)}</span>
-                                                       <button onClick={() => handleRemoveItem(item.id)} className="text-gray-300 hover:text-red-500"><X className="w-3 h-3" /></button>
-                                                   </div>
+                                               <div className="flex-1"><span className="font-medium text-gray-900">{item.description}</span> <span className="text-gray-400 text-xs">x{item.quantity}</span></div>
+                                               <div className="flex items-center gap-3">
+                                                   <span className="font-mono font-bold">${(item.amount * item.quantity).toFixed(2)}</span>
+                                                   <button onClick={() => handleRemoveItem(item.id)} className="text-gray-300 hover:text-red-500"><X className="w-3 h-3" /></button>
+                                               </div>
                                            </div>
                                        ))}
                                    </div>
@@ -697,10 +720,8 @@ If the Client cancels the project after work has begun, the Freelancer retains t
                                 </div>
                             </div>
 
-                            {/* Deposit & Terms Section */}
                             {paymentType === 'one_time' && (
                                 <div className="pt-6 border-t border-gray-200 space-y-4 animate-in fade-in slide-in-from-top-4">
-                                    {/* Split Payment Toggle */}
                                     <div className="flex justify-between items-center mb-1">
                                         <label className="block text-sm font-bold text-gray-700">Split into Installments?</label>
                                         <button 
@@ -782,7 +803,6 @@ If the Client cancels the project after work has begun, the Freelancer retains t
 
                             <div className="flex justify-between items-end mb-4"><span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Contract Value</span><div className="text-right leading-none"><span className="text-3xl font-bold">${financials.grandTotal.toFixed(2)}</span></div></div>
                             
-                            {/* DEPOSIT DISPLAY */}
                             {!isSplit && depositType !== 'none' && paymentType === 'one_time' && (
                                 <div className="bg-emerald-900/50 border border-emerald-800 rounded-lg p-3 flex justify-between items-center animate-in fade-in slide-in-from-bottom-2">
                                     <span className="text-emerald-400 text-sm font-bold uppercase tracking-wider">Due Now (Deposit)</span>
@@ -790,7 +810,6 @@ If the Client cancels the project after work has begun, the Freelancer retains t
                                 </div>
                             )}
 
-                            {/* SPLIT DISPLAY */}
                             {isSplit && (
                                 <div className="bg-indigo-900/50 border border-indigo-800 rounded-lg p-3 flex justify-between items-center animate-in fade-in slide-in-from-bottom-2">
                                     <span className="text-indigo-300 text-sm font-bold uppercase tracking-wider">Per Payment</span>
@@ -798,7 +817,6 @@ If the Client cancels the project after work has begun, the Freelancer retains t
                                 </div>
                             )}
 
-                             {/* MONTHLY RETAINER DISPLAY */}
                              {paymentType === 'monthly' && (
                                 <div className="bg-blue-900/50 border border-blue-800 rounded-lg p-3 flex justify-between items-center animate-in fade-in slide-in-from-bottom-2">
                                     <span className="text-blue-300 text-sm font-bold uppercase tracking-wider">Billed Monthly</span>
@@ -823,9 +841,9 @@ If the Client cancels the project after work has begun, the Freelancer retains t
 }
 
 export default function CreateProject() {
-  return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-500 font-medium">Loading editor...</div>}>
-      <CreateProjectContent />
-    </Suspense>
-  );
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-500 font-medium">Loading editor...</div>}>
+      <CreateProjectContent />
+    </Suspense>
+  );
 }
