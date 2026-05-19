@@ -46,8 +46,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   while (keepFetching) {
     const { data, error: seoError } = await supabase
       .from('seo_pages')
-      .select('slug, document_type')
-      .order('slug', { ascending: true }) // THE FIX
+      .select('slug, document_type, job_title')
+      .order('slug', { ascending: true })
       .range(start, start + limit - 1);
 
     if (seoError) {
@@ -65,11 +65,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
+  // 🚀 NEW: Generate Semantic Hub URLs based on unique job_titles
+  const uniqueProfessions = Array.from(new Set(allSeoPages.map(p => p.job_title).filter(Boolean)));
+  const hubUrls = uniqueProfessions.map((prof: any) => {
+    const slug = prof.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    return {
+      url: `${baseUrl}/profession/${slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.95, // 🔥 Hubs get highest priority
+    };
+  });
+
   const systemUrls = (systemTemplates || []).map((doc) => ({
     url: `${baseUrl}/templates/${doc.slug}`,
     lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
   }));
 
   const seoUrls = allSeoPages.map((page) => {
@@ -79,8 +91,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return {
       url: `${baseUrl}/${folder}/${page.slug}`,
       lastModified: new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.9,
+      changeFrequency: 'monthly' as const,
+      priority: 0.7, // Lowered slightly so Hub pages take precedence
     };
   });
 
@@ -89,7 +101,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/create`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
   ];
 
-  let finalSitemap = [...staticRoutes, ...systemUrls, ...seoUrls];
+  let finalSitemap = [...staticRoutes, ...hubUrls, ...systemUrls, ...seoUrls];
   
   const uniqueUrls = new Set();
   finalSitemap = finalSitemap.filter((item) => {
