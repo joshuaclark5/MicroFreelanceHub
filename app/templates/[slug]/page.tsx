@@ -9,8 +9,8 @@ import {
 } from 'lucide-react';
 import RelatedRoles from '../../components/seo/RelatedRoles';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// 🚀 CRITICAL FIX #6: 24-hour cache instead of revalidate 0
+export const revalidate = 86400;
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -95,10 +95,28 @@ export default async function TemplatePage({ params }: { params: { slug: string 
       redirect(`/alternatives/${params.slug}`);
   }
   
-  const title = toTitleCase(doc.job_title || doc.keyword);
+  const title = doc.job_title || toTitleCase(doc.keyword);
   const isEmail = params.slug.startsWith('late-payment-email');
   const docType = doc.document_type || (isEmail ? 'Email' : 'Contract');
   
+  // 🚀 CRITICAL FIX #5: Extract Profession Slug for Bidirectional Link
+  let professionSlug = params.slug;
+  const suffixes = [
+    '-invoice-template', '-invoice', '-contract-template', '-contract', '-estimate-template', '-estimate', 
+    '-quote-template', '-quote', '-retainer-agreement', '-retainer', '-change-order-template', '-change-order',
+    '-scope-of-work-template', '-scope-of-work', '-work-order-template', '-work-order', '-subcontractor-agreement', 
+    '-subcontractor', '-non-disclosure-agreement', '-nda', '-late-payment-demand-letter', '-cease-and-desist-letter',
+    '-service-agreement-template', '-service-agreement', '-maintenance-agreement-template', '-maintenance-agreement',
+    '-independent-contractor-agreement', '-project-sign-off-form', '-template'
+  ];
+  for (const suffix of suffixes) {
+    if (professionSlug.endsWith(suffix)) {
+      professionSlug = professionSlug.slice(0, -suffix.length);
+      break; 
+    }
+  }
+  professionSlug = professionSlug.replace(/^late-payment-email-/, '').replace(/^hire-/, '');
+
   // 👉 Expanded Chameleon Logic
   const isInvoice = !isEmail && docType === 'Invoice';
   const isEstimate = !isEmail && docType === 'Estimate';
@@ -121,55 +139,27 @@ export default async function TemplatePage({ params }: { params: { slug: string 
   
   // 👉 Dynamic Colors
   const themeColors = isEmail ? 'bg-indigo-600' 
-    : isInvoice ? 'bg-emerald-600' 
-    : isProposal ? 'bg-amber-600' 
-    : isRetainer ? 'bg-violet-600'
-    : isChangeOrder ? 'bg-rose-600'
-    : isScopeOfWork ? 'bg-cyan-600'
-    : isWorkOrder ? 'bg-orange-600'
-    : isSubcontractor ? 'bg-teal-600'
-    : isNDA ? 'bg-zinc-800'
-    : isDemandLetter ? 'bg-red-600'
-    : isCeaseAndDesist ? 'bg-stone-800'
-    : isServiceAgreement ? 'bg-fuchsia-600'
-    : isMaintenance ? 'bg-lime-600'
-    : isContractor ? 'bg-sky-600'
-    : isSignOff ? 'bg-pink-600'
-    : 'bg-blue-600';
+    : isInvoice ? 'bg-emerald-600' : isProposal ? 'bg-amber-600' : isRetainer ? 'bg-violet-600'
+    : isChangeOrder ? 'bg-rose-600' : isScopeOfWork ? 'bg-cyan-600' : isWorkOrder ? 'bg-orange-600'
+    : isSubcontractor ? 'bg-teal-600' : isNDA ? 'bg-zinc-800' : isDemandLetter ? 'bg-red-600'
+    : isCeaseAndDesist ? 'bg-stone-800' : isServiceAgreement ? 'bg-fuchsia-600' : isMaintenance ? 'bg-lime-600'
+    : isContractor ? 'bg-sky-600' : isSignOff ? 'bg-pink-600' : 'bg-blue-600';
 
   const textColors = isEmail ? 'text-indigo-400' 
-    : isInvoice ? 'text-emerald-400' 
-    : isProposal ? 'text-amber-400' 
-    : isRetainer ? 'text-violet-400'
-    : isChangeOrder ? 'text-rose-400'
-    : isScopeOfWork ? 'text-cyan-600'
-    : isWorkOrder ? 'text-orange-600'
-    : isSubcontractor ? 'text-teal-600'
-    : isNDA ? 'text-zinc-600'
-    : isDemandLetter ? 'text-red-500'
-    : isCeaseAndDesist ? 'text-stone-400'
-    : isServiceAgreement ? 'text-fuchsia-500'
-    : isMaintenance ? 'text-lime-600'
-    : isContractor ? 'text-sky-500'
-    : isSignOff ? 'text-pink-500'
-    : 'text-blue-400';
+    : isInvoice ? 'text-emerald-400' : isProposal ? 'text-amber-400' : isRetainer ? 'text-violet-400'
+    : isChangeOrder ? 'text-rose-400' : isScopeOfWork ? 'text-cyan-600' : isWorkOrder ? 'text-orange-600'
+    : isSubcontractor ? 'text-teal-600' : isNDA ? 'text-zinc-600' : isDemandLetter ? 'text-red-500'
+    : isCeaseAndDesist ? 'text-stone-400' : isServiceAgreement ? 'text-fuchsia-500' : isMaintenance ? 'text-lime-600'
+    : isContractor ? 'text-sky-500' : isSignOff ? 'text-pink-500' : 'text-blue-400';
 
-  // 👉 Dynamic Hero Button Copy
   const ctaText = isEmail ? '🚀 Automate These Emails'
-    : isInvoice ? 'Secure Your Payment →'
-    : isRetainer ? 'Start Recurring Work Safely →'
-    : isChangeOrder ? 'Approve Extra Work Safely →'
-    : isScopeOfWork ? 'Define Your Scope Safely →'
-    : isWorkOrder ? 'Create This Work Order →'
-    : isSubcontractor ? 'Hire Subcontractor Safely →'
-    : isNDA ? 'Protect Your IP Now →'
-    : isDemandLetter ? 'Generate Demand Letter →'
-    : isCeaseAndDesist ? 'Send Cease & Desist →'
-    : isServiceAgreement ? 'Define Your Services →'
-    : isMaintenance ? 'Start Ongoing Support →'
-    : isContractor ? 'Create Contractor Agreement →'
-    : isSignOff ? 'Get Final Sign-Off →'
-    : 'Protect This Project →';
+    : isInvoice ? 'Secure Your Payment →' : isRetainer ? 'Start Recurring Work Safely →'
+    : isChangeOrder ? 'Approve Extra Work Safely →' : isScopeOfWork ? 'Define Your Scope Safely →'
+    : isWorkOrder ? 'Create This Work Order →' : isSubcontractor ? 'Hire Subcontractor Safely →'
+    : isNDA ? 'Protect Your IP Now →' : isDemandLetter ? 'Generate Demand Letter →'
+    : isCeaseAndDesist ? 'Send Cease & Desist →' : isServiceAgreement ? 'Define Your Services →'
+    : isMaintenance ? 'Start Ongoing Support →' : isContractor ? 'Create Contractor Agreement →'
+    : isSignOff ? 'Get Final Sign-Off →' : 'Protect This Project →';
 
   const safeParse = (data: any, fallback: any) => {
     if (!data) return fallback;
@@ -228,9 +218,10 @@ export default async function TemplatePage({ params }: { params: { slug: string 
 
       <div className="bg-slate-900 text-white py-16 md:py-24 px-4 relative overflow-hidden">
         
+        {/* 🚀 CRITICAL FIX #5: Bidirectional Hub Link! */}
         <div className="absolute top-4 left-4 md:top-8 md:left-8 z-50">
-           <Link href="/" className="text-slate-400 hover:text-white text-sm font-bold transition-all flex items-center gap-2">
-              ← MicroFreelanceHub
+           <Link href={`/profession/${professionSlug}`} className="text-slate-400 hover:text-white text-sm font-bold transition-all flex items-center gap-2">
+              ← {title} Templates
            </Link>
         </div>
 
@@ -593,7 +584,6 @@ export default async function TemplatePage({ params }: { params: { slug: string 
       </div>
 
       <div className="max-w-7xl mx-auto px-4 pb-20">
-          {/* 🎯 THE UPGRADE: Passing the exact job title to the RelatedRoles component */}
           <RelatedRoles currentSlug={params.slug} jobTitle={doc.job_title} />
       </div>
 
