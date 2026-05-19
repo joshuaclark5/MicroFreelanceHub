@@ -65,9 +65,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  // 🚀 NEW: Generate Semantic Hub URLs based on unique job_titles
-  const uniqueProfessions = Array.from(new Set(allSeoPages.map(p => p.job_title).filter(Boolean)));
-  const hubUrls = uniqueProfessions.map((prof: any) => {
+  // 🚀 NEW: Count templates per profession to find the "Deep Hubs"
+  const professionCounts = allSeoPages.reduce((acc: any, page) => {
+    if (page.job_title) {
+      acc[page.job_title] = (acc[page.job_title] || 0) + 1;
+    }
+    return acc;
+  }, {});
+
+  // ONLY create Hub URLs for professions that have a robust cluster (5+ templates)
+  const coreProfessions = Object.keys(professionCounts).filter(prof => professionCounts[prof] >= 5);
+
+  const hubUrls = coreProfessions.map((prof: string) => {
     const slug = prof.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     return {
       url: `${baseUrl}/profession/${slug}`,
