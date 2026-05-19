@@ -1,29 +1,36 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { User, Zap, Users, LogOut, ChevronLeft, Mail, X, ArrowRight, Loader2 } from 'lucide-react';
+import { User, Zap, Users, ChevronLeft, Mail, X, ArrowRight, Loader2, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { deleteUserAccount } from '../actions/delete-account';
 
 type SettingsTab = 'profile' | 'billing' | 'team';
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
-  const [fullName, setFullName] = useState('Joshua Reid');
-  const [companyName, setCompanyName] = useState('Freelance Studio');
+  const [fullName, setFullName] = useState('');
+  const [companyName, setCompanyName] = useState('');
   const [showTeamForm, setShowTeamForm] = useState(false);
   const [teamEmail, setTeamEmail] = useState('');
   const [teamEmailSubmitted, setTeamEmailSubmitted] = useState(false);
 
   const [userId, setUserId] = useState<string | null>(null);
+  
+  // Loading states
   const [loadingPortal, setLoadingPortal] = useState(false);
+  const [isCanceling, setIsCanceling] = useState(false);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   const supabase = createClientComponentClient();
   const router = useRouter();
 
   // Get initials for avatar
   const getInitials = (name: string) => {
+    if (!name) return 'U';
     return name
       .split(' ')
       .map(word => word[0])
@@ -32,12 +39,25 @@ export default function SettingsPage() {
       .slice(0, 2);
   };
 
-  // Get current user on mount
+  // Fetch actual profile data on mount
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setUserId(user.id);
+        
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name, company_name')
+          .eq('id', user.id)
+          .single();
+          
+        if (profile) {
+          if (profile.full_name) setFullName(profile.full_name);
+          if (profile.company_name) setCompanyName(profile.company_name);
+        } else if (user.user_metadata?.full_name) {
+          setFullName(user.user_metadata.full_name);
+        }
       } else {
         router.push('/login');
       }
@@ -45,6 +65,58 @@ export default function SettingsPage() {
     getUser();
   }, [supabase, router]);
 
+  // Save Profile Logic
+  const handleSaveProfile = async () => {
+    if (!userId) return;
+    setIsSavingProfile(true);
+    
+    try {
+      const { error: dbError } = await supabase
+        .from('profiles')
+        .update({ 
+          full_name: fullName, 
+          company_name: companyName 
+        })
+        .eq('id', userId);
+
+      if (dbError) throw dbError;
+
+      const { error: authError } = await supabase.auth.updateUser({
+        data: { full_name: fullName }
+      });
+
+      if (authError) throw authError;
+
+      alert('Profile saved successfully!');
+    } catch (error: any) {
+      console.error('Error saving profile:', error.message);
+      alert('Failed to save profile. Make sure you ran the SQL policy update!');
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
+
+  // Delete Account Logic
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm(
+      "Are you absolutely sure? This will permanently delete your account, contracts, and data. This action cannot be undone."
+    );
+    if (!confirmed) return;
+
+    setIsDeletingAccount(true);
+    
+    const result = await deleteUserAccount();
+
+    if (result.success) {
+      await supabase.auth.signOut();
+      router.push('/');
+    } else {
+      alert("Failed to delete account. Please contact support.");
+      setIsDeletingAccount(false);
+    }
+  };
+
+  // Manage Billing (Stripe Portal)
   const handleManageBilling = async () => {
     if (!userId) {
       alert('User ID not found. Please refresh and try again.');
@@ -67,12 +139,42 @@ export default function SettingsPage() {
         return;
       }
 
-      // Redirect to Stripe portal
       window.location.href = data.url;
     } catch (err) {
       console.error('Error opening billing portal:', err);
       alert('An error occurred. Please try again.');
       setLoadingPortal(false);
+    }
+  };
+
+  // Cancel Subscription (Uses same portal, different loading state for UX)
+  const handleCancelSubscription = async () => {
+    if (!userId) {
+      alert('User ID not found. Please refresh and try again.');
+      return;
+    }
+
+    setIsCanceling(true);
+    try {
+      const response = await fetch('/api/stripe/create-portal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.error || 'Failed to open billing portal');
+        setIsCanceling(false);
+        return;
+      }
+
+      window.location.href = data.url;
+    } catch (err) {
+      console.error('Error opening billing portal:', err);
+      alert('An error occurred. Please try again.');
+      setIsCanceling(false);
     }
   };
 
@@ -191,12 +293,12 @@ export default function SettingsPage() {
                 {/* Avatar Section */}
                 <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
                   <div className="flex items-center gap-6">
-                    <div className={`w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center font-bold text-2xl shadow-lg`}>
+                    <div className={`w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center font-bold text-2xl shadow-lg shrink-0`}>
                       {getInitials(fullName)}
                     </div>
                     <div>
                       <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Profile Avatar</p>
-                      <p className="text-slate-900 font-bold text-lg">{fullName}</p>
+                      <p className="text-slate-900 font-bold text-lg">{fullName || 'User'}</p>
                       <p className="text-slate-500 text-sm">Based on your first and last name</p>
                     </div>
                   </div>
@@ -228,8 +330,16 @@ export default function SettingsPage() {
                     <p className="text-xs text-slate-500 mt-2">Displayed as your business identity to clients.</p>
                   </div>
 
-                  <button className="w-full bg-slate-900 text-white hover:bg-slate-800 px-6 py-3 rounded-lg font-bold text-sm transition-all shadow-lg hover:shadow-slate-900/20 active:scale-95">
-                    Save Changes
+                  <button 
+                    onClick={handleSaveProfile}
+                    disabled={isSavingProfile}
+                    className="w-full bg-slate-900 text-white hover:bg-slate-800 disabled:bg-slate-700 disabled:cursor-wait px-6 py-3 rounded-lg font-bold text-sm transition-all shadow-lg hover:shadow-slate-900/20 active:scale-95 flex items-center justify-center gap-2"
+                  >
+                    {isSavingProfile ? (
+                      <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</>
+                    ) : (
+                      'Save Changes'
+                    )}
                   </button>
                 </div>
 
@@ -242,8 +352,16 @@ export default function SettingsPage() {
                     </h3>
                     <p className="text-red-700 text-sm mt-2">Permanently delete your account and all associated data. This action cannot be undone.</p>
                   </div>
-                  <button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold text-sm py-3 rounded-lg transition-all shadow-lg hover:shadow-red-600/20 active:scale-95">
-                    Delete Account
+                  <button 
+                    onClick={handleDeleteAccount}
+                    disabled={isDeletingAccount}
+                    className="w-full bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-bold text-sm py-3 rounded-lg transition-all shadow-lg hover:shadow-red-600/20 active:scale-95 flex items-center justify-center gap-2"
+                  >
+                    {isDeletingAccount ? (
+                      <><Loader2 className="w-4 h-4 animate-spin" /> Deleting Account...</>
+                    ) : (
+                      <><Trash2 className="w-4 h-4" /> Delete Account</>
+                    )}
                   </button>
                 </div>
               </div>
@@ -319,7 +437,7 @@ export default function SettingsPage() {
                   <div className="space-y-4">
                     <div>
                       <p className="text-sm font-bold text-slate-900 mb-1">Subscription Management</p>
-                      <p className="text-slate-600 text-sm">View transaction history, receipts, or cancel your plan.</p>
+                      <p className="text-slate-600 text-sm">Update your payment method or download past invoices.</p>
                     </div>
                     <button
                       onClick={handleManageBilling}
@@ -333,7 +451,7 @@ export default function SettingsPage() {
                         </>
                       ) : (
                         <>
-                          Manage Subscription & Billing
+                          Manage Billing Info
                           <ArrowRight className="w-4 h-4" />
                         </>
                       )}
@@ -341,11 +459,30 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                {/* Upgrade Notice */}
-                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6">
-                  <p className="text-xs font-bold text-amber-900 uppercase tracking-widest mb-2">💡 Upgrade Available</p>
-                  <p className="text-amber-900 text-sm font-medium">Want advanced analytics, team collaboration, and priority support? <span className="font-bold text-amber-700 cursor-pointer hover:underline">Upgrade to Pro</span>.</p>
+                {/* NEW: Cancel Subscription Area */}
+                <div className="bg-red-50 rounded-2xl p-8 border-2 border-red-200 space-y-4">
+                  <div>
+                    <h3 className="font-bold text-lg text-red-900 flex items-center gap-2">
+                      <span className="w-2 h-2 bg-red-600 rounded-full"></span>
+                      Cancel Subscription
+                    </h3>
+                    <p className="text-red-700 text-sm mt-2">
+                      Because Stripe securely manages your subscription, you can unsubscribe and cancel your plan directly through your Stripe Billing Portal.
+                    </p>
+                  </div>
+                  <button 
+                    onClick={handleCancelSubscription}
+                    disabled={isCanceling}
+                    className="w-full bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-bold text-sm py-3 rounded-lg transition-all shadow-lg hover:shadow-red-600/20 active:scale-95 flex items-center justify-center gap-2"
+                  >
+                    {isCanceling ? (
+                      <><Loader2 className="w-4 h-4 animate-spin" /> Redirecting to Stripe...</>
+                    ) : (
+                      'Unsubscribe in Stripe'
+                    )}
+                  </button>
                 </div>
+
               </div>
             )}
 
