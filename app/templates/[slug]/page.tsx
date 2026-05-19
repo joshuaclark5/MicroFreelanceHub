@@ -64,6 +64,19 @@ function toTitleCase(str: string | null) {
   });
 }
 
+// 🚀 UI FIX: Smart Pluralization logic to fix "Landscaper s"
+function pluralize(word: string | null) {
+  if (!word) return '';
+  const trimmed = word.trim();
+  if (trimmed.endsWith('y') && !/[aeiou]y$/i.test(trimmed)) {
+    return trimmed.slice(0, -1) + 'ies';
+  }
+  if (trimmed.endsWith('s') || trimmed.endsWith('x') || trimmed.endsWith('z') || trimmed.endsWith('ch') || trimmed.endsWith('sh')) {
+    return trimmed + 'es';
+  }
+  return trimmed + 's';
+}
+
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const result = await findDoc(params.slug);
   if (!result) return { title: 'Template Not Found' };
@@ -349,7 +362,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
           {doc.why_it_matters && (
             <section className="mb-10">
               <h2 className="text-2xl font-bold text-slate-900 mb-4">
-                Why {title}s need a clear {docType.toLowerCase()}
+                {/* 🚀 UI FIX: Using the pluralize function here */}
+                Why {pluralize(title)} need a clear {docType.toLowerCase()}
               </h2>
               <p className="text-slate-600 leading-relaxed">
                 {doc.why_it_matters}
@@ -408,7 +422,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
           {Array.isArray(bestPractices) && (
             <section className="mb-10">
               <h2 className="text-xl font-bold text-slate-900 mb-5">
-                Best practices for {title}s
+                Best practices for {pluralize(title)}
               </h2>
               <div className="space-y-4">
                 {bestPractices.map((item: any, i: number) => (
