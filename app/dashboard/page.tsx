@@ -107,21 +107,18 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Check if user has completed the welcome wizard
-        const hasCompletedWizard = localStorage.getItem('hasCompletedWizard');
-        if (!hasCompletedWizard) {
-          setShowWelcomeWizard(true);
-        }
-
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) { router.push('/login'); return; }
         setUserEmail(user.email || '');
-        setUserId(user.id); 
+        setUserId(user.id);
 
-        const { data: profile } = await supabase.from('profiles').select('is_pro, stripe_account_id').eq('id', user.id).single();
+        const { data: profile } = await supabase.from('profiles').select('is_pro, stripe_account_id, has_completed_onboarding').eq('id', user.id).single();
         if (profile) {
             setIsPro(profile.is_pro || false);
             setStripeId(profile.stripe_account_id || null);
+            if (!profile.has_completed_onboarding) {
+              setShowWelcomeWizard(true);
+            }
         }
 
         // 🧠 RECOVERY LOGIC: Check for "Lost Luggage" (Pending SOW)
@@ -129,7 +126,7 @@ export default function Dashboard() {
         if (pendingSOW) {
             console.log("📦 Found pending SOW, saving...");
             const sowData = JSON.parse(pendingSOW);
-            
+
             // Calculate totals for recovery
             let grandTotal = 0;
             if (sowData.line_items && sowData.line_items.length > 0) {
@@ -144,7 +141,7 @@ export default function Dashboard() {
                 user_id: user.id,
                 client_name: sowData.client_name,
                 title: sowData.title,
-                price: grandTotal > 0 ? grandTotal : 0, 
+                price: grandTotal > 0 ? grandTotal : 0,
                 line_items: sowData.line_items,
                 deliverables: sowData.deliverables,
                 status: 'Draft',
@@ -163,7 +160,7 @@ export default function Dashboard() {
             }
         }
 
-        await refreshData(); 
+        await refreshData();
 
       } catch (err) { console.error(err); } finally { setLoading(false); }
     };

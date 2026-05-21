@@ -44,6 +44,7 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
       const { error } = await supabase.from('profiles').update({
         full_name: name,
         business_name: businessName,
+        has_completed_onboarding: true,
       }).eq('id', user.id);
 
       if (error) throw error;
@@ -57,7 +58,7 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
         console.warn('Error invoking welcome-email function:', emailErr);
       }
 
-      localStorage.setItem('hasCompletedWizard', 'true');
+      localStorage.removeItem('hasCompletedWizard');
       setIsProcessing(false);
       if (onComplete) onComplete();
     } catch (err) {
@@ -68,11 +69,16 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
   };
 
   const handleSkip = () => {
-    localStorage.setItem('hasCompletedWizard', 'true');
     (async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        if (user?.email) {
+        if (!user) return;
+
+        await supabase.from('profiles').update({
+          has_completed_onboarding: true,
+        }).eq('id', user.id);
+
+        if (user.email) {
           await supabase.functions.invoke('welcome-email', {
             body: {
               email: user.email,
@@ -81,9 +87,10 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
           });
         }
       } catch (err) {
-        console.warn('Welcome email failed to send on skip:', err);
+        console.warn('Welcome email or profile update failed on skip:', err);
       }
     })();
+    localStorage.removeItem('hasCompletedWizard');
     if (onComplete) onComplete();
   };
 

@@ -25,26 +25,28 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL(`/templates/${template}`, request.url));
   }
 
-  // Rule 3: Check if user is brand new or returning, route accordingly
+  // Rule 3: Check database state for onboarding completion
   const cookieStore = cookies();
   const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (user?.created_at) {
-    const userCreatedAt = new Date(user.created_at);
-    const now = new Date();
-    const secondsSinceCreation = (now.getTime() - userCreatedAt.getTime()) / 1000;
-
-    // Brand new user (created within last 60 seconds) -> go to onboarding
-    if (secondsSinceCreation < 60) {
-      return NextResponse.redirect(new URL('/create', request.url));
-    }
-
-    // Existing user (created more than 60 seconds ago) -> go to dashboard
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+  if (!user) {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // Fallback: default to dashboard
+  // Check if user has completed onboarding from DATABASE
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('has_completed_onboarding')
+    .eq('id', user.id)
+    .single();
+
+  // User hasn't completed onboarding → show onboarding flow
+  if (profile && !profile.has_completed_onboarding) {
+    return NextResponse.redirect(new URL('/create', request.url));
+  }
+
+  // User has completed onboarding → go to dashboard
   return NextResponse.redirect(new URL('/dashboard', request.url));
 }
