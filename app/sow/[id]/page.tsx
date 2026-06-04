@@ -5,10 +5,10 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signContract } from '../../actions/signSOW';
-import { 
-  ArrowLeft, CheckCircle, Lock, X, Share2, Download, Edit3, 
-  MoreHorizontal, PenTool, AlertTriangle, Info, PieChart, 
-  CreditCard, ChevronDown, ChevronUp, Receipt, UserCheck, Smartphone, FileSignature
+import {
+  ArrowLeft, CheckCircle, Lock, X, Share2, Download, Edit3,
+  MoreHorizontal, PenTool, AlertTriangle, Info, PieChart,
+  CreditCard, ChevronDown, ChevronUp, Receipt, UserCheck, Smartphone, FileSignature, Bell, Loader2
 } from 'lucide-react'; 
 import PayContractButton from '../../components/PayContractButton';
 
@@ -29,7 +29,9 @@ export default function ViewContract({ params }: { params: { id: string } }) {
   const [doc, setDoc] = useState<any>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [showInvoice, setShowInvoice] = useState(false); 
+  const [showInvoice, setShowInvoice] = useState(false);
+  const [dunningActive, setDunningActive] = useState(false);
+  const [pausingDunning, setPausingDunning] = useState(false); 
 
   // Signing
   const [showSignModal, setShowSignModal] = useState(false);
@@ -48,7 +50,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
   useEffect(() => {
     const load = async () => {
       const { data: docData, error } = await supabase.from('sow_documents').select('*').eq('id', params.id).single();
-      
+
       if (error || !docData) { setLoading(false); return; }
 
       if (paymentStatus === 'success' && docData.status !== 'Paid') {
@@ -57,21 +59,32 @@ export default function ViewContract({ params }: { params: { id: string } }) {
            headers: { 'Content-Type': 'application/json' },
            body: JSON.stringify({ sowId: params.id }),
          });
-         setDoc({ ...docData, status: 'Paid' }); 
+         setDoc({ ...docData, status: 'Paid' });
       } else {
          setDoc(docData);
       }
 
       const { data: { user } } = await supabase.auth.getUser();
       setCurrentUser(user);
-      
+
       // Smart Default: If owner, default sign role to Provider. Else Client.
       if (user && user.id === docData.user_id) {
           setSigningRole('provider');
       } else {
           setSigningRole('client');
       }
-      
+
+      // Load dunning status from invoices table
+      const { data: invoiceData } = await supabase
+        .from('invoices')
+        .select('dunning_enabled, status')
+        .eq('id', params.id)
+        .single();
+
+      if (invoiceData && invoiceData.dunning_enabled && invoiceData.status === 'unpaid') {
+        setDunningActive(true);
+      }
+
       setLoading(false);
     };
     load();
@@ -81,6 +94,28 @@ export default function ViewContract({ params }: { params: { id: string } }) {
     navigator.clipboard.writeText(window.location.href);
     setShareText('Copied!');
     setTimeout(() => { setShareText('Share'); }, 1500);
+  };
+
+  const handlePauseDunning = async () => {
+    setPausingDunning(true);
+    try {
+      const response = await fetch('/api/dunning/pause', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ invoice_id: params.id }),
+      });
+
+      if (response.ok) {
+        setDunningActive(false);
+      } else {
+        alert('Failed to pause dunning emails. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error pausing dunning:', error);
+      alert('Error pausing dunning emails.');
+    } finally {
+      setPausingDunning(false);
+    }
   };
 
   const isOwner = currentUser?.id === doc?.user_id;
@@ -132,7 +167,35 @@ export default function ViewContract({ params }: { params: { id: string } }) {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 print:bg-white print:p-0 print:m-0">
-      
+
+      {dunningActive && (
+        <div className="max-w-3xl mx-auto mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-sm print:hidden">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <Bell className="w-5 h-5 text-red-600 mt-0.5 shrink-0" />
+              <div>
+                <h3 className="font-bold text-red-900 mb-1">Automated dunning reminders active</h3>
+                <p className="text-sm text-red-700">This invoice has automatic payment reminder emails scheduled at 3, 5, 10, 15, and 30 days overdue.</p>
+              </div>
+            </div>
+            <button
+              onClick={handlePauseDunning}
+              disabled={pausingDunning}
+              className="shrink-0 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-semibold rounded-lg transition-colors flex items-center gap-2 text-sm"
+            >
+              {pausingDunning ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Pausing...
+                </>
+              ) : (
+                'Pause Dunning Emails'
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 🖨️ HEADER */}
       <div className="max-w-3xl mx-auto mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 print:hidden relative">
         <div className="w-full sm:w-auto flex justify-between sm:justify-start items-center gap-4">

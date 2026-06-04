@@ -5,13 +5,10 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { CheckCircle2, Star, ShieldCheck, ArrowRight } from 'lucide-react';
-
-import stumpGrinderImg from '../stump-grinder.jpg';
+import { CheckCircle2, ArrowRight } from 'lucide-react';
+import { getTrackedData } from '../lib/trackingClient';
 
 function LoginForm() {
-  const [email, setEmail] = useState('');
-  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const supabase = createClientComponentClient();
@@ -44,6 +41,15 @@ function LoginForm() {
       redirectUrl.searchParams.set('plan', plan);
     }
 
+    // Add tracked landing page and marketing source
+    const { landing_page, lead_source } = getTrackedData();
+    if (landing_page) {
+      redirectUrl.searchParams.set('landing_page', landing_page);
+    }
+    if (lead_source) {
+      redirectUrl.searchParams.set('lead_source', lead_source);
+    }
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -62,42 +68,13 @@ function LoginForm() {
     }
   };
 
-  const handleMagicLinkLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage('');
-    setIsSuccess(false);
-
-    const currentDomain = typeof window !== 'undefined' ? window.location.origin : '';
-
-    const redirectUrl = new URL(`${currentDomain}/auth/callback`);
-    if (templateSlug) {
-      redirectUrl.searchParams.set('template', templateSlug);
-    }
-    if (plan) {
-      redirectUrl.searchParams.set('plan', plan);
-    }
-
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: redirectUrl.toString(),
-      },
-    });
-
-    if (error) {
-      setMessage(error.message);
-      setIsSuccess(false);
-    } else {
-      setMessage('Check your email! We sent you a secure magic link.');
-      setIsSuccess(true);
-      setEmail('');
-    }
-    setLoading(false);
-  };
-
   return (
     <div className="w-full max-w-md mx-auto space-y-8">
+
+        {/* Logo at top of card */}
+        <div className="flex justify-center">
+          <Image src="/icon.svg" alt="MicroFreelanceHub" width={64} height={64} />
+        </div>
 
         <div className="text-center">
             {plan ? (
@@ -152,7 +129,6 @@ function LoginForm() {
         )}
 
         <div className="space-y-4">
-            
             <button
                 onClick={handleGoogleLogin}
                 className="group relative w-full flex items-center justify-center gap-3 bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold py-3.5 px-4 rounded-xl transition-all shadow-sm hover:shadow-md"
@@ -165,41 +141,6 @@ function LoginForm() {
                 </svg>
                 <span>Continue with Google</span>
             </button>
-
-            <div className="relative flex items-center py-2">
-                <div className="flex-grow border-t border-slate-200"></div>
-                <span className="flex-shrink-0 mx-4 text-slate-400 text-xs uppercase font-bold tracking-wider">Or</span>
-                <div className="flex-grow border-t border-slate-200"></div>
-            </div>
-
-            <form onSubmit={handleMagicLinkLogin} className="space-y-4">
-                <div>
-                    <label htmlFor="email" className="sr-only">Email address</label>
-                    <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        autoComplete="email"
-                        placeholder="name@company.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="block w-full rounded-xl border-slate-200 bg-slate-50 p-3.5 text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all outline-none text-sm font-medium"
-                        required
-                    />
-                </div>
-                <button
-                    disabled={loading}
-                    className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0 flex items-center justify-center gap-2"
-                >
-                    {loading ? (
-                        <span>Sending Link...</span>
-                    ) : (
-                        <>
-                            Send Magic Link <ArrowRight className="w-4 h-4" />
-                        </>
-                    )}
-                </button>
-            </form>
         </div>
         
         <p className="text-center text-xs text-slate-400">
@@ -211,64 +152,32 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-white flex">
-      
-      <div className="hidden lg:flex lg:w-1/2 relative bg-slate-900 text-white flex-col justify-between p-16 overflow-hidden">
-         <div className="absolute inset-0 opacity-10" 
-              style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}>
-         </div>
-         
-         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/30 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
-         
-         <div className="relative z-10">
-            <Link href="/" className="text-2xl font-bold tracking-tight flex items-center gap-2">
-               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <ShieldCheck className="w-5 h-5 text-white" />
-               </div>
-               MicroFreelanceHub
-            </Link>
-         </div>
-
-         <div className="relative z-10 max-w-lg">
-            <div className="flex gap-1 mb-6">
-                {[1,2,3,4,5].map(i => <Star key={i} className="w-5 h-5 text-amber-400 fill-amber-400" />)}
-            </div>
-            <h2 className="text-3xl lg:text-4xl font-bold leading-tight mb-8">
-                "Absolutely love this tool. I do quick stump grinding jobs, and it helps me protect the work, set expectations, and get paid upfront before doing extra work. I'd definitely recommend it."
-            </h2>
-            <div className="flex items-center gap-4">
-               <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-slate-700 shadow-md">
-                   <Image src={stumpGrinderImg} alt="User Review" className="w-full h-full object-cover" unoptimized />
-               </div>
-               <div>
-                  <div className="font-bold text-lg">Drake Fawson</div>
-                  <div className="text-slate-400 text-sm">Stump Grinding & Tree Service</div>
-               </div>
-            </div>
-         </div>
-
-         <div className="relative z-10 flex gap-8 text-sm text-slate-400">
-            <div className="flex items-center gap-2">
-               <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Free 3-Contract Plan
-            </div>
-            <div className="flex items-center gap-2">
-               <CheckCircle2 className="w-4 h-4 text-emerald-400" /> No Credit Card Required
-            </div>
-         </div>
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4 sm:p-6">
+      {/* Back to Home Link */}
+      <div className="absolute top-6 right-6 sm:top-8 sm:right-8">
+         <Link href="/" className="text-sm font-semibold text-slate-500 hover:text-slate-900 transition-colors">
+            Back to Home
+         </Link>
       </div>
 
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 relative">
-         <div className="absolute top-6 right-6 lg:top-12 lg:right-12">
-            <Link href="/" className="text-sm font-semibold text-slate-500 hover:text-slate-900 transition-colors">
-               Back to Home
-            </Link>
-         </div>
-
+      {/* Login Form Card */}
+      <div className="w-full max-w-md">
          <Suspense fallback={<div className="text-center p-4 text-slate-500 animate-pulse">Loading secure login...</div>}>
             <LoginForm />
          </Suspense>
       </div>
 
+      {/* Benefits Footer */}
+      <div className="mt-12 sm:mt-16 flex flex-col sm:flex-row gap-6 sm:gap-8 text-sm text-slate-600">
+         <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" /> 
+            <span>Free 3-Contract Plan</span>
+         </div>
+         <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" /> 
+            <span>No Credit Card Required</span>
+         </div>
+      </div>
     </div>
   );
 }

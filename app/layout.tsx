@@ -2,8 +2,9 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import FeedbackWidget from './components/FeedbackWidget';
+import { TrackingInitializer } from './components/TrackingInitializer';
 import Link from 'next/link';
-import { GoogleAnalytics } from '@next/third-parties/google'; // 👈 NEW IMPORT
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -48,7 +49,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} min-h-screen flex flex-col`}>
-        
+        <TrackingInitializer />
+
         {/* MAIN CONTENT */}
         <main className="flex-grow">
             {children}

@@ -7,6 +7,8 @@ export async function GET(request: Request) {
   const code = requestUrl.searchParams.get('code');
   const plan = requestUrl.searchParams.get('plan');
   const template = requestUrl.searchParams.get('template');
+  const landing_page = requestUrl.searchParams.get('landing_page');
+  const lead_source = requestUrl.searchParams.get('lead_source');
 
   // Exchange auth code for session
   if (code) {
@@ -25,7 +27,7 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL(`/templates/${template}`, request.url));
   }
 
-  // Rule 3: Check database state for onboarding completion
+  // Save lead tracking data to profiles table if provided
   const cookieStore = cookies();
   const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 
@@ -35,18 +37,17 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // Check if user has completed onboarding from DATABASE
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('has_completed_onboarding')
-    .eq('id', user.id)
-    .single();
-
-  // User hasn't completed onboarding → show onboarding flow
-  if (profile && !profile.has_completed_onboarding) {
-    return NextResponse.redirect(new URL('/create', request.url));
+  // Save lead source tracking to user profile
+  if (landing_page || lead_source) {
+    await supabase
+      .from('profiles')
+      .update({
+        signup_landing_page: landing_page,
+        lead_source: lead_source,
+      })
+      .eq('id', user.id);
   }
 
-  // User has completed onboarding → go to dashboard
+  // New users bypass onboarding and go directly to dashboard
   return NextResponse.redirect(new URL('/dashboard', request.url));
 }
