@@ -10,62 +10,81 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Generate dynamic HTML based on days overdue
+const DUNNING_MILESTONES = [3, 5, 10, 15, 30];
+
+function getDunningMilestone(daysOverdue: number): number {
+  return DUNNING_MILESTONES.reduce((selected, milestone) => {
+    return daysOverdue >= milestone ? milestone : selected;
+  }, DUNNING_MILESTONES[0]);
+}
+
+function getDunningSubject(projectName: string, daysOverdue: number): string {
+  const milestone = getDunningMilestone(daysOverdue);
+
+  if (milestone === 3) return `Reminder: Invoice for "${projectName}" is now due`;
+  if (milestone === 5) return `Follow-up: Payment for "${projectName}" - 5 Days Overdue`;
+  if (milestone === 10) return `URGENT: Invoice for "${projectName}" - 10 Days Overdue`;
+  if (milestone === 15) return `FINAL NOTICE: Invoice for "${projectName}" - 15 Days Overdue`;
+  return `LEGAL ACTION PENDING: Invoice for "${projectName}" - 30 Days Overdue`;
+}
+
+// Generate dynamic HTML based on the closest dunning milestone reached.
 function generateDunningEmail(
   clientName: string,
   projectName: string,
   amountDue: number,
   daysOverdue: number
 ): string {
+  const formattedAmount = Number(amountDue).toFixed(2);
+  const milestone = getDunningMilestone(daysOverdue);
   let subject = "";
   let greeting = "";
   let mainMessage = "";
-  let footerWarning = "";
   let bodyColor = "#4f46e5"; // Default indigo
 
-  if (daysOverdue === 3) {
+  if (milestone === 3) {
     subject = `Reminder: Invoice for "${projectName}" is now due`;
     greeting = `Hi ${clientName},`;
     mainMessage = `
       <p>Just floating this to the top of your inbox—we haven't received payment for the invoice on your <strong>${projectName}</strong> project yet.</p>
-      <p>The invoice for <strong>$${amountDue.toFixed(2)}</strong> was due on the original date, and we'd love to get this wrapped up!</p>
+      <p>The invoice for <strong>$${formattedAmount}</strong> was due on the original date, and we'd love to get this wrapped up!</p>
       <p>No rush if payment is already on the way, but if you need any clarification or have questions about the invoice, just let us know.</p>
     `;
     bodyColor = "#10b981"; // Green for friendly
-  } else if (daysOverdue === 5) {
+  } else if (milestone === 5) {
     subject = `Follow-up: Payment for "${projectName}" - 5 Days Overdue`;
     greeting = `Hi ${clientName},`;
     mainMessage = `
       <p>We wanted to follow up on the outstanding invoice for your <strong>${projectName}</strong> project.</p>
-      <p>As of today, the invoice for <strong>$${amountDue.toFixed(2)}</strong> is <strong>5 days overdue</strong>. We understand things get busy, but we'd appreciate prompt payment to keep things moving smoothly.</p>
+      <p>As of today, the invoice for <strong>$${formattedAmount}</strong> is <strong>5 days overdue</strong>. We understand things get busy, but we'd appreciate prompt payment to keep things moving smoothly.</p>
       <p>If there's anything preventing you from paying or if you have questions about the charges, please reach out—we're here to help.</p>
     `;
     bodyColor = "#3b82f6"; // Blue for professional
-  } else if (daysOverdue === 10) {
+  } else if (milestone === 10) {
     subject = `URGENT: Invoice for "${projectName}" - 10 Days Overdue`;
     greeting = `${clientName},`;
     mainMessage = `
       <p><strong>This invoice is now significantly overdue.</strong></p>
-      <p>Your invoice for <strong>$${amountDue.toFixed(2)}</strong> on the <strong>${projectName}</strong> project is <strong>10 days past due</strong>. Prompt payment is essential for us to continue supporting your projects.</p>
+      <p>Your invoice for <strong>$${formattedAmount}</strong> on the <strong>${projectName}</strong> project is <strong>10 days past due</strong>. Prompt payment is essential for us to continue supporting your projects.</p>
       <p>We need to receive payment within the next <strong>5 business days</strong> to keep your account in good standing. If you have questions or are facing a hardship, please contact us immediately.</p>
     `;
     bodyColor = "#f59e0b"; // Amber for firm
-  } else if (daysOverdue === 15) {
+  } else if (milestone === 15) {
     subject = `FINAL NOTICE: Invoice for "${projectName}" - 15 Days Overdue`;
     greeting = `${clientName},`;
     mainMessage = `
       <p><strong>Final Notice Before Account Suspension</strong></p>
-      <p>Your invoice for <strong>$${amountDue.toFixed(2)}</strong> is now <strong>15 days overdue</strong>. This is a serious matter that requires immediate resolution.</p>
+      <p>Your invoice for <strong>$${formattedAmount}</strong> is now <strong>15 days overdue</strong>. This is a serious matter that requires immediate resolution.</p>
       <p>If we do not receive full payment <strong>within 5 business days</strong>, we will have no choice but to suspend your account and may pursue legal collection action to recover the outstanding balance.</p>
       <p><strong>Contact us immediately</strong> to arrange payment or discuss your situation. We prefer to resolve this amicably.</p>
     `;
     bodyColor = "#ef4444"; // Red for final warning
-  } else if (daysOverdue === 30) {
+  } else if (milestone === 30) {
     subject = `LEGAL ACTION PENDING: Invoice for "${projectName}" - 30 Days Overdue`;
     greeting = `${clientName},`;
     mainMessage = `
       <p><strong>Legal Action Notice</strong></p>
-      <p>Your account is now <strong>30 days overdue</strong> on an invoice of <strong>$${amountDue.toFixed(2)}</strong>. You have failed to respond to previous payment demands.</p>
+      <p>Your account is now <strong>30 days overdue</strong> on an invoice of <strong>$${formattedAmount}</strong>. You have failed to respond to previous payment demands.</p>
       <p>Effective immediately, your account is <strong>SUSPENDED</strong> and all project services have been halted.</p>
       <p><strong>You have 48 hours to remit full payment</strong> before we escalate this matter to our legal team for debt collection proceedings. This may result in:</p>
       <ul style="color: #dc2626;">
@@ -198,7 +217,7 @@ Deno.serve(async (req) => {
       !client_email ||
       !client_name ||
       days_overdue === undefined ||
-      !amount_due ||
+      amount_due === undefined ||
       !project_name
     ) {
       return new Response(
@@ -210,7 +229,7 @@ Deno.serve(async (req) => {
     }
 
     // Generate the email subject and HTML
-    const mailSubject = `Invoice for "${project_name}" - ${days_overdue} Days Overdue`;
+    const mailSubject = getDunningSubject(project_name, days_overdue);
     const htmlContent = generateDunningEmail(
       client_name,
       project_name,
