@@ -24,6 +24,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
   const isMaintenance = !isEmail && slug.includes('-maintenance-agreement');
   const isContractor = !isEmail && slug.includes('-independent-contractor-agreement');
   const isSignOff = !isEmail && slug.includes('-project-sign-off-form');
+  const isDepositAgreement = !isEmail && slug.includes('-deposit-agreement');
   const isProposal = isEstimate || isQuote;
   
   let cleanSlug = slug;
@@ -47,6 +48,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
     '-maintenance-agreement-template', '-maintenance-agreement',
     '-independent-contractor-agreement',
     '-project-sign-off-form',
+    '-deposit-agreement',
     '-template'
   ];
   
@@ -78,6 +80,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
     : isMaintenance ? 'linear-gradient(to bottom right, #0f172a, #3f6212)'
     : isContractor ? 'linear-gradient(to bottom right, #0f172a, #075985)'
     : isSignOff ? 'linear-gradient(to bottom right, #0f172a, #9d174d)'
+    : isDepositAgreement ? 'linear-gradient(to bottom right, #0f172a, #065f46)'
     : 'linear-gradient(to bottom right, #0f172a, #1e3a8a)'; 
 
   // 👉 Dynamic Badge Colors
@@ -96,6 +99,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
     : isMaintenance ? '#65a30d'
     : isContractor ? '#0ea5e9'
     : isSignOff ? '#ec4899'
+    : isDepositAgreement ? '#047857'
     : '#2563eb'; 
   
   // 👉 Dynamic Labels
@@ -115,6 +119,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
     : isMaintenance ? 'Maintenance Agreement'
     : isContractor ? 'Contractor Agreement'
     : isSignOff ? 'Project Sign-Off Form'
+    : isDepositAgreement ? 'Deposit Agreement'
     : 'Contract Template';
   
   // 👉 High-Conversion Title Copy
@@ -133,6 +138,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
     : isMaintenance ? 'For Ongoing Support'
     : isContractor ? 'To Ensure 1099 Status'
     : isSignOff ? 'To Prevent Free Revisions'
+    : isDepositAgreement ? 'To Secure Upfront Payment'
     : 'That Protects Your Time';
 
   // 👉 Subtitle Copy
@@ -151,10 +157,11 @@ export default async function Image({ params }: { params: { slug: string } }) {
     : isMaintenance ? 'Secure long-term revenue with a structured upkeep plan'
     : isContractor ? 'Legally define autonomy, tax liability, and scope'
     : isSignOff ? 'Force formal acceptance of the final deliverables'
+    : isDepositAgreement ? 'Collect deposits before reserving labor or materials'
     : 'Prevent scope creep & secure your upfront deposit';
     
   // 👉 Subtitle Colors
-  const subtitleColor = isEmail ? '#a5b4fc' : isInvoice ? '#6ee7b7' : isProposal ? '#fcd34d' : isRetainer ? '#c4b5fd' : isChangeOrder ? '#fda4af' : isScopeOfWork ? '#67e8f9' : isWorkOrder ? '#fdba74' : isSubcontractor ? '#5eead4' : isNDA ? '#a1a1aa' : isDemandLetter ? '#fca5a5' : isCeaseAndDesist ? '#d6d3d1' : isServiceAgreement ? '#e879f9' : isMaintenance ? '#a3e635' : isContractor ? '#7dd3fc' : isSignOff ? '#f472b6' : '#93c5fd'; 
+  const subtitleColor = isEmail ? '#a5b4fc' : isInvoice ? '#6ee7b7' : isProposal ? '#fcd34d' : isRetainer ? '#c4b5fd' : isChangeOrder ? '#fda4af' : isScopeOfWork ? '#67e8f9' : isWorkOrder ? '#fdba74' : isSubcontractor ? '#5eead4' : isNDA ? '#a1a1aa' : isDemandLetter ? '#fca5a5' : isCeaseAndDesist ? '#d6d3d1' : isServiceAgreement ? '#e879f9' : isMaintenance ? '#a3e635' : isContractor ? '#7dd3fc' : isSignOff ? '#f472b6' : isDepositAgreement ? '#6ee7b7' : '#93c5fd';
 
   return new ImageResponse(
     (

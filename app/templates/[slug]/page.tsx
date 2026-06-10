@@ -84,15 +84,16 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const isEmail = params.slug.startsWith('late-payment-email');
   const documentType = doc.document_type || 'Contract';
   const label = isEmail ? 'Late Payment Emails' : documentType;
+  const pageTitle = doc.seo_title || `Free ${title} ${label} (2026)`;
   
-  const metaDescription = doc.ai_summary || `Download a free, professional ${title} ${label.toLowerCase()} template. Protect your business from scope creep and get paid faster.`;
+  const metaDescription = doc.seo_desc || doc.ai_summary || `Download a free, professional ${title} ${label.toLowerCase()} template. Protect your business from scope creep and get paid faster.`;
 
   return {
-    title: `Free ${title} ${label} (2026)`,
+    title: pageTitle,
     description: metaDescription,
     keywords: [`${title} ${label}`, `Free ${title} template`, 'MicroFreelanceHub'],
     alternates: { canonical: `https://www.microfreelancehub.com/templates/${params.slug}` },
-    openGraph: { title: `Free ${title} ${label}`, description: metaDescription, type: 'website' }
+    openGraph: { title: pageTitle, description: metaDescription, type: 'website' }
   };
 }
 
@@ -117,7 +118,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
     '-scope-of-work-template', '-scope-of-work', '-work-order-template', '-work-order', '-subcontractor-agreement', 
     '-subcontractor', '-non-disclosure-agreement', '-nda', '-late-payment-demand-letter', '-cease-and-desist-letter',
     '-service-agreement-template', '-service-agreement', '-maintenance-agreement-template', '-maintenance-agreement',
-    '-independent-contractor-agreement', '-project-sign-off-form', '-template'
+    '-independent-contractor-agreement', '-project-sign-off-form', '-deposit-agreement', '-template'
   ];
   for (const suffix of suffixes) {
     if (professionSlug.endsWith(suffix)) {
@@ -142,6 +143,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
   const isMaintenance = !isEmail && docType === 'Maintenance Agreement';
   const isContractor = !isEmail && docType === 'Independent Contractor Agreement';
   const isSignOff = !isEmail && docType === 'Project Sign-Off Form';
+  const isDepositAgreement = !isEmail && docType === 'Deposit Agreement';
   const isProposal = isEstimate || isQuote;
 
   const badgeText = isEmail ? 'Email Templates' : `${docType} Template`;
@@ -151,14 +153,14 @@ export default async function TemplatePage({ params }: { params: { slug: string 
     : isChangeOrder ? 'bg-rose-600' : isScopeOfWork ? 'bg-cyan-600' : isWorkOrder ? 'bg-orange-600'
     : isSubcontractor ? 'bg-teal-600' : isNDA ? 'bg-zinc-800' : isDemandLetter ? 'bg-red-600'
     : isCeaseAndDesist ? 'bg-stone-800' : isServiceAgreement ? 'bg-fuchsia-600' : isMaintenance ? 'bg-lime-600'
-    : isContractor ? 'bg-sky-600' : isSignOff ? 'bg-pink-600' : 'bg-blue-600';
+    : isContractor ? 'bg-sky-600' : isSignOff ? 'bg-pink-600' : isDepositAgreement ? 'bg-emerald-700' : 'bg-blue-600';
 
   const textColors = isEmail ? 'text-indigo-400' 
     : isInvoice ? 'text-emerald-400' : isProposal ? 'text-amber-400' : isRetainer ? 'text-violet-400'
     : isChangeOrder ? 'text-rose-400' : isScopeOfWork ? 'text-cyan-600' : isWorkOrder ? 'text-orange-600'
     : isSubcontractor ? 'text-teal-600' : isNDA ? 'text-zinc-600' : isDemandLetter ? 'text-red-500'
     : isCeaseAndDesist ? 'text-stone-400' : isServiceAgreement ? 'text-fuchsia-500' : isMaintenance ? 'text-lime-600'
-    : isContractor ? 'text-sky-500' : isSignOff ? 'text-pink-500' : 'text-blue-400';
+    : isContractor ? 'text-sky-500' : isSignOff ? 'text-pink-500' : isDepositAgreement ? 'text-emerald-500' : 'text-blue-400';
 
   const safeParse = (data: any, fallback: any) => {
     if (!data) return fallback;
@@ -230,7 +232,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
           <div>
             <div className="flex items-center gap-3 mb-6">
               <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-white ${themeColors}`}>
-                {isEmail ? <Mail className="w-3.5 h-3.5" /> : isInvoice ? <Receipt className="w-3.5 h-3.5" /> : isDemandLetter || isCeaseAndDesist ? <Scale className="w-3.5 h-3.5" /> : isServiceAgreement ? <Briefcase className="w-3.5 h-3.5" /> : isMaintenance ? <Wrench className="w-3.5 h-3.5" /> : isContractor ? <UserCheck className="w-3.5 h-3.5" /> : isSignOff ? <ClipboardCheck className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />} 
+                {isEmail ? <Mail className="w-3.5 h-3.5" /> : isInvoice || isDepositAgreement ? <Receipt className="w-3.5 h-3.5" /> : isDemandLetter || isCeaseAndDesist ? <Scale className="w-3.5 h-3.5" /> : isServiceAgreement ? <Briefcase className="w-3.5 h-3.5" /> : isMaintenance ? <Wrench className="w-3.5 h-3.5" /> : isContractor ? <UserCheck className="w-3.5 h-3.5" /> : isSignOff ? <ClipboardCheck className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />}
                 {badgeText}
               </div>
             </div>
@@ -277,7 +279,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                  {/* 🚀 FIXED: Professional Header without liability */}
                  <div className="text-center mb-8 border-b-2 border-slate-800 pb-6">
                     <h2 className="text-2xl md:text-3xl font-serif font-bold uppercase tracking-widest text-slate-900 mb-2">
-                        {isInvoice ? 'Invoice' : isEstimate ? 'Estimate' : isQuote ? 'Quote' : isRetainer ? 'Retainer Agreement' : isChangeOrder ? 'Change Order' : isScopeOfWork ? 'Scope of Work' : isWorkOrder ? 'Work Order' : isSubcontractor ? 'Subcontractor Agreement' : isNDA ? 'Non-Disclosure Agreement' : isDemandLetter ? 'Demand Letter' : isCeaseAndDesist ? 'Cease & Desist' : isServiceAgreement ? 'Service Agreement' : isMaintenance ? 'Maintenance Agreement' : isContractor ? 'Contractor Agreement' : isSignOff ? 'Project Sign-Off' : 'Statement of Work'}
+                        {isInvoice ? 'Invoice' : isEstimate ? 'Estimate' : isQuote ? 'Quote' : isRetainer ? 'Retainer Agreement' : isChangeOrder ? 'Change Order' : isScopeOfWork ? 'Scope of Work' : isWorkOrder ? 'Work Order' : isSubcontractor ? 'Subcontractor Agreement' : isNDA ? 'Non-Disclosure Agreement' : isDemandLetter ? 'Demand Letter' : isCeaseAndDesist ? 'Cease & Desist' : isServiceAgreement ? 'Service Agreement' : isMaintenance ? 'Maintenance Agreement' : isContractor ? 'Contractor Agreement' : isSignOff ? 'Project Sign-Off' : isDepositAgreement ? 'Deposit Agreement' : 'Statement of Work'}
                     </h2>
                     <p className="text-[10px] uppercase tracking-widest text-slate-400">Ref: {new Date().getFullYear()}-001 • Standard Business Template</p>
                  </div>
