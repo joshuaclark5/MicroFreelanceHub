@@ -331,6 +331,15 @@ If the Client cancels the project after work has begun, the Freelancer retains t
       setStep('final');
   };
 
+  const handleStartAi = () => {
+    if (!isPro) {
+      setShowPricingModal(true);
+      return;
+    }
+
+    setStep('ai_input');
+  };
+
   const handleClearContent = () => {
     if (confirmClear) {
         setFormData(prev => ({ ...prev, deliverables: '' }));
@@ -529,9 +538,12 @@ If the Client cancels the project after work has begun, the Freelancer retains t
              <div className="p-8 md:p-12 animate-in fade-in slide-in-from-bottom-4">
                 <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">Create a new agreement</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                    <button onClick={() => setStep('ai_input')} className="group relative p-8 rounded-2xl border-2 border-gray-100 hover:border-indigo-600 hover:bg-indigo-50/50 transition-all text-left flex flex-col h-full">
+                    <button onClick={handleStartAi} className="group relative p-8 rounded-2xl border-2 border-gray-100 hover:border-indigo-600 hover:bg-indigo-50/50 transition-all text-left flex flex-col h-full">
                         <div className="mb-6 bg-indigo-100 w-14 h-14 rounded-2xl flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform shadow-sm"><Sparkles className="w-7 h-7" /></div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-3">Use AI Assistant</h3>
+                        <div className="flex items-center justify-between gap-3 mb-3">
+                          <h3 className="text-xl font-bold text-gray-900">Use AI Assistant</h3>
+                          {!isPro && <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-amber-700 border border-amber-200"><Lock className="w-3 h-3" /> Pro</span>}
+                        </div>
                         <p className="text-gray-500 leading-relaxed">Describe your project in plain English. Our AI will interview you and draft a professional SOW automatically.</p>
                     </button>
                     <button onClick={handleStartManual} className="group relative p-8 rounded-2xl border-2 border-gray-100 hover:border-gray-900 hover:bg-gray-50/50 transition-all text-left flex flex-col h-full">
