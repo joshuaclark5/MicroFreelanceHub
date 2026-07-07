@@ -15,7 +15,8 @@ function LoginForm() {
   const searchParams = useSearchParams();
 
   const templateSlug = searchParams.get('template');
-  const plan = searchParams.get('plan') as 'pro' | 'agency' | null;
+  const plan = searchParams.get('plan') as 'starter' | 'pro' | 'agency' | null;
+  const planName = plan === 'starter' ? 'Starter' : plan === 'pro' ? 'Professional' : 'Agency';
 
   const templateName = templateSlug
     ? templateSlug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
@@ -87,10 +88,10 @@ function LoginForm() {
                         {templateSlug ? 'Step 3 of 3: Upgrade' : 'Step 2 of 2: Upgrade'}
                     </div>
                     <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-                        Upgrade to <span className="text-blue-600">{plan === 'pro' ? 'Professional' : 'Agency'}</span>
+                        Upgrade to <span className="text-blue-600">{planName}</span>
                     </h1>
                     <p className="mt-3 text-slate-500 text-sm leading-relaxed">
-                        Create an account or sign in to continue with your {plan === 'pro' ? 'Professional' : 'Agency'} plan purchase.
+                        Create an account or sign in to continue with your {planName} plan purchase.
                     </p>
                 </>
             ) : templateName ? (

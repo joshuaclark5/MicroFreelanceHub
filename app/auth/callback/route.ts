@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   }
 
   // Rule 1: Paywall Flow - Plan selection takes priority
-  if (plan === 'pro' || plan === 'agency') {
+  if (plan === 'starter' || plan === 'pro' || plan === 'agency') {
     return NextResponse.redirect(new URL(`/checkout-plan?plan=${plan}`, request.url));
   }
 

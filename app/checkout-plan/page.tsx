@@ -11,7 +11,7 @@ function CheckoutLogic() {
   const [error, setError] = useState('');
   const searchParams = useSearchParams();
   const supabase = createClientComponentClient();
-  const plan = searchParams.get('plan') as 'pro' | 'agency' | null;
+  const plan = searchParams.get('plan') as 'starter' | 'pro' | 'agency' | null;
 
   useEffect(() => {
     const initiateCheckout = async () => {

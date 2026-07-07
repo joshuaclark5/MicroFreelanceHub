@@ -11,29 +11,17 @@ export default function PricingPage() {
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const supabase = createClientComponentClient();
 
-  // --- WAITLIST STATES ---
-  const [showWaitlistForm, setShowWaitlistForm] = useState(false);
-  const [agencyEmail, setAgencyEmail] = useState('');
-  const [agencyLoading, setAgencyLoading] = useState(false);
-  const [agencySuccess, setAgencySuccess] = useState(false);
-
   useEffect(() => {
     const checkAuth = async () => {
       const { data } = await supabase.auth.getSession();
       setUser(data?.session?.user || null);
-      
-      // Auto-fill email if they are already logged in
-      if (data?.session?.user?.email) {
-        setAgencyEmail(data.session.user.email);
-      }
-      
       setLoading(false);
     };
     checkAuth();
   }, [supabase]);
 
   // --- STRIPE CHECKOUT HANDLER ---
-  const handlePricingClick = async (plan: 'pro') => {
+  const handlePricingClick = async (plan: 'starter' | 'pro') => {
     if (!user) {
       window.location.href = `/login?plan=${plan}`;
       return;
@@ -58,25 +46,6 @@ export default function PricingPage() {
       alert('Failed to start checkout');
     } finally {
       setCheckoutLoading(null);
-    }
-  };
-
-  // --- AGENCY WAITLIST HANDLER ---
-  const handleAgencySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAgencyLoading(true);
-
-    const { error } = await supabase
-      .from('agency_waitlist')
-      .insert([{ email: agencyEmail }]);
-
-    setAgencyLoading(false);
-
-    if (error) {
-      console.error('Error saving to waitlist:', error);
-      alert('Something went wrong. Please try again.');
-    } else {
-      setAgencySuccess(true);
     }
   };
 
@@ -127,86 +96,60 @@ export default function PricingPage() {
           
           {/* TIER 1: Free */}
           <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col h-full">
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">Starter</h3>
-            <p className="text-slate-500 text-sm mb-6 h-10">Perfect for trying out the platform on your next few gigs.</p>
+            <h3 className="text-2xl font-bold text-slate-900 mb-2">Free</h3>
+            <p className="text-slate-500 text-sm mb-6 h-10">Try the platform and create your first client-ready agreements.</p>
             <div className="text-5xl font-extrabold text-slate-900 mb-6">$0<span className="text-lg text-slate-500 font-medium">/mo</span></div>
             <Link href="/login" className="w-full block text-center py-4 rounded-xl border-2 border-slate-200 font-bold text-slate-700 hover:border-slate-300 hover:bg-slate-50 transition-all mb-8">
               Start Free
             </Link>
             <ul className="space-y-4 flex-1">
-              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-400 shrink-0" /> <span>First 3 Contracts Free</span></li>
-              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-400 shrink-0" /> <span>ESIGN Act Compliant Signatures</span></li>
-              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-400 shrink-0" /> <span>Stripe Payment Integration</span></li>
+              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-400 shrink-0" /> <span>First 3 contracts free</span></li>
+              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-400 shrink-0" /> <span>ESIGN Act compliant signatures</span></li>
+              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-400 shrink-0" /> <span>Preview contract and payment flow</span></li>
             </ul>
           </div>
 
-          {/* TIER 2: Pro (Highlighted) */}
+          {/* TIER 2: Starter (Highlighted) */}
           <div className="bg-slate-900 rounded-3xl p-8 border border-slate-800 shadow-2xl relative overflow-hidden flex flex-col h-full transform md:-translate-y-4">
             <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-4 py-1.5 rounded-bl-lg uppercase tracking-wider">Most Popular</div>
-            <h3 className="text-2xl font-bold text-white mb-2">Professional</h3>
-            <p className="text-slate-400 text-sm mb-6 h-10">For active freelancers who want to automate their collections.</p>
-            <div className="text-5xl font-extrabold text-white mb-6">$29<span className="text-lg text-slate-400 font-medium">/mo</span></div>
+            <h3 className="text-2xl font-bold text-white mb-2">Starter</h3>
+            <p className="text-slate-400 text-sm mb-6 h-10">For solo operators who need one live client link to collect deposits.</p>
+            <div className="text-5xl font-extrabold text-white mb-6">$9<span className="text-lg text-slate-400 font-medium">/mo</span></div>
+            <button
+              onClick={() => handlePricingClick('starter')}
+              disabled={checkoutLoading === 'starter'}
+              className="w-full block text-center py-4 rounded-xl bg-blue-600 font-bold text-white hover:bg-blue-500 transition-all shadow-lg shadow-blue-900/50 mb-8 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {checkoutLoading === 'starter' ? 'Loading...' : 'Start Starter'}
+            </button>
+            <ul className="space-y-4 flex-1">
+              <li className="flex items-start gap-3 text-slate-200"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> <strong>1 active client project</strong></li>
+              <li className="flex items-start gap-3 text-slate-200"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> <strong>Live contract + deposit link</strong></li>
+              <li className="flex items-start gap-3 text-slate-200"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> <span>AI agreement generation</span></li>
+              <li className="flex items-start gap-3 text-slate-200"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> <span>Stripe payment collection</span></li>
+              <li className="flex items-start gap-3 text-slate-200"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> <span>Client signing portal</span></li>
+            </ul>
+          </div>
+
+          {/* TIER 3: Pro */}
+          <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col h-full">
+            <h3 className="text-2xl font-bold text-slate-900 mb-2">Professional</h3>
+            <p className="text-slate-500 text-sm mb-6 h-10">For active freelancers managing multiple jobs and payment links.</p>
+            <div className="text-5xl font-extrabold text-slate-900 mb-6">$29<span className="text-lg text-slate-500 font-medium">/mo</span></div>
             <button
               onClick={() => handlePricingClick('pro')}
               disabled={checkoutLoading === 'pro'}
-              className="w-full block text-center py-4 rounded-xl bg-blue-600 font-bold text-white hover:bg-blue-500 transition-all shadow-lg shadow-blue-900/50 mb-8 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full block text-center py-4 rounded-xl border-2 border-slate-200 font-bold text-slate-700 hover:border-slate-300 hover:bg-slate-50 transition-all mb-8 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {checkoutLoading === 'pro' ? 'Loading...' : 'Get Started Now'}
+              {checkoutLoading === 'pro' ? 'Loading...' : 'Go Professional'}
             </button>
-            <ul className="space-y-4 flex-1">
-              <li className="flex items-start gap-3 text-slate-200"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> <strong>Unlimited Contracts</strong></li>
-              <li className="flex items-start gap-3 text-slate-200"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> <strong>Automated Dunning Emails</strong></li>
-              <li className="flex items-start gap-3 text-slate-200"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> <span>Mid-Project Change Orders</span></li>
-              <li className="flex items-start gap-3 text-slate-200"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> <span>Remove Watermarks</span></li>
-              <li className="flex items-start gap-3 text-slate-200"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> <span>Profit & Expense Tracking</span></li>
-            </ul>
-          </div>
-
-          {/* TIER 3: Agency (The Waitlist Trap) */}
-          <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col h-full">
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">Agency</h3>
-            <p className="text-slate-500 text-sm mb-6 h-10">For growing teams and high-volume contracting businesses.</p>
-            <div className="text-5xl font-extrabold text-slate-900 mb-6">$79<span className="text-lg text-slate-500 font-medium">/mo</span></div>
-            
-            {/* INLINE WAITLIST LOGIC */}
-            <div className="mb-8">
-              {!showWaitlistForm && !agencySuccess ? (
-                <button
-                  onClick={() => setShowWaitlistForm(true)}
-                  className="w-full block text-center py-4 rounded-xl border-2 border-slate-200 font-bold text-slate-700 hover:border-slate-300 hover:bg-slate-50 transition-all"
-                >
-                  Join the Waitlist
-                </button>
-              ) : agencySuccess ? (
-                <div className="w-full py-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold text-center flex items-center justify-center gap-2">
-                  <CheckCircle2 className="w-5 h-5" /> You're on the list!
-                </div>
-              ) : (
-                <form onSubmit={handleAgencySubmit} className="space-y-3">
-                  <input 
-                    type="email" 
-                    required 
-                    placeholder="name@company.com"
-                    value={agencyEmail}
-                    onChange={(e) => setAgencyEmail(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all text-sm font-medium"
-                  />
-                  <button 
-                    type="submit"
-                    disabled={agencyLoading}
-                    className="w-full py-3 rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition-all disabled:opacity-50"
-                  >
-                    {agencyLoading ? 'Joining...' : 'Submit Email'}
-                  </button>
-                </form>
-              )}
-            </div>
 
             <ul className="space-y-4 flex-1">
-              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-400 shrink-0" /> <span>Everything in Pro</span></li>
-              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-400 shrink-0" /> <span>Add up to 5 Team Members</span></li>
-              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-400 shrink-0" /> <span>Custom Branding / Logos</span></li>
-              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-400 shrink-0" /> <span>Priority Email Support</span></li>
+              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-400 shrink-0" /> <span>Unlimited active projects</span></li>
+              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-400 shrink-0" /> <span>Automated dunning emails</span></li>
+              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-400 shrink-0" /> <span>Mid-project change orders</span></li>
+              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-400 shrink-0" /> <span>Remove watermarks</span></li>
+              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-400 shrink-0" /> <span>Profit and expense tracking</span></li>
             </ul>
           </div>
 
@@ -263,7 +206,7 @@ export default function PricingPage() {
                 </tr>
                 <tr className="bg-slate-50">
                   <td className="p-6 text-slate-900 font-bold">Average Monthly Cost</td>
-                  <td className="p-6 border-x border-slate-200 bg-blue-100/50 text-center font-extrabold text-blue-700">$29/mo</td>
+                  <td className="p-6 border-x border-slate-200 bg-blue-100/50 text-center font-extrabold text-blue-700">$9-$29/mo</td>
                   <td className="p-6 text-center font-medium text-slate-500">$40/mo</td>
                   <td className="p-6 text-center font-medium text-slate-500">$39/mo</td>
                   <td className="p-6 text-center font-medium text-slate-500">$30/mo</td>

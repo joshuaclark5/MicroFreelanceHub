@@ -566,7 +566,7 @@ If the Client cancels the project after work has begun, the Freelancer retains t
                         <div><label className="block text-sm font-bold text-gray-700 mb-2">Client Name</label><input type="text" className="w-full px-4 py-3 rounded-xl border border-gray-300" value={formData.clientName} onChange={(e) => setFormData({...formData, clientName: e.target.value})} /></div>
                         <div><label className="block text-sm font-bold text-gray-700 mb-2">Project Description</label><textarea className="w-full px-4 py-3 rounded-xl border border-gray-300" rows={6} value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} /></div>
                         <button onClick={handleAnalyze} disabled={loading} className={`w-full py-4 rounded-xl font-bold text-white transition-all text-lg flex items-center justify-center gap-2 ${isPro ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-900 hover:bg-black'}`}>
-                            {loading ? <><Loader2 className="w-5 h-5 animate-spin" /> Analyzing Project...</> : isPro ? <><Sparkles className="w-5 h-5"/> Start AI Interview</> : 'Unlock AI Assistant ($29/mo)'}
+                            {loading ? <><Loader2 className="w-5 h-5 animate-spin" /> Analyzing Project...</> : isPro ? <><Sparkles className="w-5 h-5"/> Start AI Interview</> : 'Unlock AI Assistant ($9/mo)'}
                         </button>
                     </div>
                   </>

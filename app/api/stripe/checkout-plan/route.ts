@@ -12,6 +12,11 @@ const supabase = createClient(
 );
 
 const PLAN_PRICES = {
+  starter: {
+    name: 'Starter',
+    amount: 900, // $9.00 in cents
+    interval: 'month' as const,
+  },
   pro: {
     name: 'Professional',
     amount: 2900, // $29.00 in cents
@@ -81,6 +86,15 @@ export async function POST(request: Request) {
       mode: 'subscription',
       customer: stripeCustomerId,
       client_reference_id: userId, // Pass userId so webhook can identify the user
+      metadata: {
+        plan,
+      },
+      subscription_data: {
+        metadata: {
+          plan,
+          userId,
+        },
+      },
       line_items: [
         {
           price_data: {

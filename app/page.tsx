@@ -61,7 +61,7 @@ export default function Home() {
                   Log in
                 </Link>
                 <Link
-                  href="/login?plan=pro"
+                  href="/login?plan=starter"
                   className="bg-blue-600 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg"
                 >
                   Get Started
@@ -345,33 +345,47 @@ export default function Home() {
             <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">Simple. Secure. Legit.</h2>
             <p className="text-lg text-slate-600 mb-16">Only pay when you are actually using it.</p>
 
-            <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto text-left">
+            <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto text-left">
                {/* Free Tier */}
                <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
-                  <h3 className="text-2xl font-bold text-slate-900 mb-2">Starter</h3>
+                  <h3 className="text-2xl font-bold text-slate-900 mb-2">Free</h3>
                   <div className="text-4xl font-extrabold text-slate-900 mb-6">$0<span className="text-lg text-slate-500 font-medium">/mo</span></div>
                   <ul className="space-y-4 mb-8 flex-1">
                      <li className="flex items-center gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0" /> First 3 Contracts Free</li>
                      <li className="flex items-center gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0" /> Legally Binding e-Signatures</li>
-                     <li className="flex items-center gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0" /> Stripe Payment Integration</li>
+                     <li className="flex items-center gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0" /> Preview Client Portal</li>
                   </ul>
                   <Link href="/login">
                      <button className="w-full py-4 rounded-xl border-2 border-slate-200 font-bold text-slate-700 hover:border-slate-300 hover:bg-slate-50 transition-all">Start Free</button>
                   </Link>
                </div>
 
-               {/* Pro Tier */}
+               {/* Starter Tier */}
                <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-xl relative overflow-hidden flex flex-col">
                   <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">Most Popular</div>
-                  <h3 className="text-2xl font-bold text-white mb-2">Professional</h3>
-                  <div className="text-4xl font-extrabold text-white mb-6">$29<span className="text-lg text-slate-400 font-medium">/mo</span></div>
+                  <h3 className="text-2xl font-bold text-white mb-2">Starter</h3>
+                  <div className="text-4xl font-extrabold text-white mb-6">$9<span className="text-lg text-slate-400 font-medium">/mo</span></div>
                   <ul className="space-y-4 mb-8 flex-1">
-                     <li className="flex items-center gap-3 text-slate-300"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> Unlimited Contracts</li>
-                     <li className="flex items-center gap-3 text-slate-300"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> Automated Dunning Emails</li>
-                     <li className="flex items-center gap-3 text-slate-300"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> Remove Watermarks</li>
+                     <li className="flex items-center gap-3 text-slate-300"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> 1 Active Client Project</li>
+                     <li className="flex items-center gap-3 text-slate-300"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> Live Contract + Deposit Link</li>
+                     <li className="flex items-center gap-3 text-slate-300"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> Stripe Payment Collection</li>
+                  </ul>
+                  <Link href="/login?plan=starter">
+                     <button className="w-full py-4 rounded-xl bg-blue-600 font-bold text-white hover:bg-blue-500 transition-all shadow-lg shadow-blue-900/50">Get Started</button>
+                  </Link>
+               </div>
+
+               {/* Pro Tier */}
+               <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
+                  <h3 className="text-2xl font-bold text-slate-900 mb-2">Professional</h3>
+                  <div className="text-4xl font-extrabold text-slate-900 mb-6">$29<span className="text-lg text-slate-500 font-medium">/mo</span></div>
+                  <ul className="space-y-4 mb-8 flex-1">
+                     <li className="flex items-center gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0" /> Unlimited Active Projects</li>
+                     <li className="flex items-center gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0" /> Automated Dunning Emails</li>
+                     <li className="flex items-center gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0" /> Remove Watermarks</li>
                   </ul>
                   <Link href="/login?plan=pro">
-                     <button className="w-full py-4 rounded-xl bg-blue-600 font-bold text-white hover:bg-blue-500 transition-all shadow-lg shadow-blue-900/50">Get Started</button>
+                     <button className="w-full py-4 rounded-xl border-2 border-slate-200 font-bold text-slate-700 hover:border-slate-300 hover:bg-slate-50 transition-all">Go Pro</button>
                   </Link>
                </div>
             </div>
