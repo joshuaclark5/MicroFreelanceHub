@@ -119,7 +119,7 @@ export default function Home() {
           {/* Right Side: The Money Shot */}
           <div className="relative mx-auto w-full max-w-md lg:max-w-none mt-8 lg:mt-0 lg:pl-12">
              <div className="absolute -top-5 -left-5 bg-slate-900 text-white text-sm font-bold px-5 py-2 rounded-full z-20 shadow-xl border-2 border-white transform -rotate-2">
-                👉 This is what your client sees
+                Your client gets one secure link
              </div>
              <div className="relative rounded-[2rem] overflow-hidden shadow-2xl border border-slate-200 bg-slate-950 p-3">
                <div className="bg-white rounded-[1.5rem] overflow-hidden border border-slate-100">

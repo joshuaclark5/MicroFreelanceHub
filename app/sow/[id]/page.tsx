@@ -144,6 +144,15 @@ export default function ViewContract({ params }: { params: { id: string } }) {
   };
 
   const { amount: dueNow, label: dueLabel } = getPaymentDetails();
+  const isClientSigned = Boolean(doc?.signed_by);
+  const isProviderSigned = Boolean(doc?.provider_sign);
+  const portalActionLabel = isAgreementOnly
+    ? (isFullySigned ? 'Agreement active' : 'Review and sign agreement')
+    : isPaid
+      ? 'Payment complete'
+      : isFullySigned
+        ? (dueLabel === 'Total Due' ? 'Pay full amount' : `Pay ${dueLabel}`)
+        : 'Review and sign to unlock payment';
 
   const handleSign = async () => {
     if (!signerName) return alert("Please type your name.");
@@ -166,7 +175,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
   if (!doc) return <div className="min-h-screen flex items-center justify-center text-red-500">Contract not found.</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 print:bg-white print:p-0 print:m-0">
+    <div className="min-h-screen bg-slate-50 py-6 sm:py-8 px-4 print:bg-white print:p-0 print:m-0">
 
       {dunningActive && (
         <div className="max-w-3xl mx-auto mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-sm print:hidden">
@@ -253,6 +262,90 @@ export default function ViewContract({ params }: { params: { id: string } }) {
           <div><p className="font-bold">Contract Paid & Active</p></div>
         </div>
       )}
+
+      <div className="max-w-5xl mx-auto mb-6 print:hidden">
+        <div className="overflow-hidden rounded-3xl bg-slate-950 text-white shadow-2xl border border-slate-800">
+          <div className="p-5 sm:p-7 lg:p-8">
+            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+              <div className="max-w-2xl">
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-blue-100">
+                  <Lock className="w-3.5 h-3.5" />
+                  Secure client portal
+                </div>
+                <h1 className="mt-4 text-2xl sm:text-3xl font-black tracking-tight leading-tight">
+                  {cleanTitle(doc.title)}
+                </h1>
+                <p className="mt-2 text-sm sm:text-base text-slate-300 leading-relaxed">
+                  Review the agreement, sign electronically, and complete the required payment through Stripe. No client account needed.
+                </p>
+              </div>
+
+              <div className="w-full lg:w-80 rounded-2xl bg-white text-slate-950 p-5 shadow-xl">
+                <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
+                  {isAgreementOnly ? 'Document status' : dueLabel}
+                </p>
+                <p className="mt-1 text-3xl font-black tracking-tight">
+                  {isAgreementOnly ? (isFullySigned ? 'Signed' : 'Pending') : formatMoney(dueNow)}
+                </p>
+                {!isAgreementOnly && dueNow !== doc.price && !isPaid && (
+                  <p className="mt-1 text-xs font-semibold text-slate-500">Total contract: {formatMoney(doc.price)}</p>
+                )}
+
+                <div className="mt-4">
+                  {isPaid ? (
+                    <button disabled className="w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white flex items-center justify-center gap-2">
+                      <CheckCircle className="w-4 h-4" /> Paid and active
+                    </button>
+                  ) : isAgreementOnly ? (
+                    <button
+                      onClick={() => !isFullySigned && setShowSignModal(true)}
+                      disabled={isFullySigned}
+                      className="w-full rounded-xl bg-slate-950 px-4 py-3 text-sm font-bold text-white disabled:bg-slate-200 disabled:text-slate-500 flex items-center justify-center gap-2"
+                    >
+                      <FileSignature className="w-4 h-4" /> {portalActionLabel}
+                    </button>
+                  ) : isFullySigned ? (
+                    <PayContractButton sowId={doc.id} price={dueNow} paymentType={doc.payment_type} label={dueLabel === 'Total Due' ? 'Pay Full Amount' : `Pay ${dueLabel}`} />
+                  ) : (
+                    <button
+                      onClick={() => setShowSignModal(true)}
+                      className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white hover:bg-blue-700 flex items-center justify-center gap-2"
+                    >
+                      <PenTool className="w-4 h-4" /> Sign to unlock payment
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-bold">Client signature</p>
+                  {isClientSigned ? <CheckCircle className="w-5 h-5 text-emerald-300" /> : <PenTool className="w-5 h-5 text-blue-200" />}
+                </div>
+                <p className="mt-1 text-xs text-slate-300">{isClientSigned ? `Signed by ${doc.signed_by}` : `${doc.client_name} still needs to sign.`}</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-bold">Provider signature</p>
+                  {isProviderSigned ? <CheckCircle className="w-5 h-5 text-emerald-300" /> : <PenTool className="w-5 h-5 text-blue-200" />}
+                </div>
+                <p className="mt-1 text-xs text-slate-300">{isProviderSigned ? `Signed by ${doc.provider_sign}` : 'Waiting on the service provider.'}</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-bold">Secure payment</p>
+                  <CreditCard className="w-5 h-5 text-emerald-300" />
+                </div>
+                <p className="mt-1 text-xs text-slate-300">
+                  {isAgreementOnly ? 'No payment is attached to this agreement.' : isFullySigned ? 'Stripe payment is ready.' : 'Payment unlocks after signatures.'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* 📄 CONTRACT PAPER */}
       <div className="max-w-3xl mx-auto bg-white p-12 shadow-xl min-h-[1000px] print:min-h-0 print:shadow-none print:p-0 print:m-0 print:w-full print:max-w-none relative font-sans print:font-serif">
