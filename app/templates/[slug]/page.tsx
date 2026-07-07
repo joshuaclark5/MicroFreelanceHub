@@ -145,6 +145,17 @@ export default async function TemplatePage({ params }: { params: { slug: string 
   const isSignOff = !isEmail && docType === 'Project Sign-Off Form';
   const isDepositAgreement = !isEmail && docType === 'Deposit Agreement';
   const isProposal = isEstimate || isQuote;
+  const ctaHref = isEmail ? "/login" : `/create?template=${params.slug}`;
+  const primaryCta = isEmail
+    ? 'Create My Free Account'
+    : isInvoice
+      ? 'Generate Invoice & Accept Payment'
+      : 'Generate Contract & Collect Deposit';
+  const secondaryCta = isEmail
+    ? 'Save and send this template'
+    : isInvoice
+      ? 'Turn this into a secure payment link'
+      : 'Turn this into a client-ready agreement and deposit link';
 
   const badgeText = isEmail ? 'Email Templates' : `${docType} Template`;
   
@@ -246,14 +257,19 @@ export default async function TemplatePage({ params }: { params: { slug: string 
               Send your first 3 {isEmail ? 'emails' : `${docType.toLowerCase()}s`} for free. {doc.pain_point_hook || `Define your scope, secure signatures, and get paid faster.`}
             </p>
 
-            <Link href={isEmail ? "/login" : `/create?template=${params.slug}`}>
+            <Link href={ctaHref}>
                <button className={`w-full sm:w-auto font-bold px-8 py-4 rounded-xl text-lg shadow-xl hover:-translate-y-1 transition-transform text-white flex items-center justify-center gap-2 ${themeColors} hover:opacity-90`}>
-                 Create My Free Account →
+                 {primaryCta} -&gt;
                </button>
             </Link>
             <p className="text-xs text-slate-400 mt-4 flex items-center gap-2">
               <Shield className="w-3 h-3" /> No credit card required. Setup takes 30 seconds.
             </p>
+            {!isEmail && (
+              <p className="text-sm text-slate-300 mt-3 max-w-xl">
+                Build the agreement, add your deposit amount, and send one secure client link for signature and payment.
+              </p>
+            )}
           </div>
 
           {/* RIGHT SIDE: The Visual Preview Document (PRO TIER UPDATE) */}
@@ -309,11 +325,11 @@ export default async function TemplatePage({ params }: { params: { slug: string 
               <div className="absolute bottom-0 left-0 right-0 h-56 bg-gradient-to-t from-white via-white/95 to-transparent flex flex-col items-center justify-end pb-6 md:pb-8 z-10 backdrop-blur-[1px]">
                 <div className="bg-white/95 p-5 md:p-6 rounded-2xl border border-slate-100 shadow-xl flex flex-col items-center transform transition-transform hover:-translate-y-1 text-center w-[90%] md:w-[85%] mx-auto">
                    <Lock className={`w-6 h-6 md:w-8 md:h-8 mb-2 md:mb-3 ${textColors}`} />
-                   <h3 className="font-bold text-slate-900 text-sm md:text-base mb-1">Premium Template</h3>
-                   <p className="text-[10px] md:text-xs text-slate-500 mb-3 md:mb-4 px-2">Unlock the full document, edit details, and send for e-signature.</p>
-                   <Link href={`/create?template=${params.slug}`} className="w-full">
+                   <h3 className="font-bold text-slate-900 text-sm md:text-base mb-1">Client-ready workflow</h3>
+                   <p className="text-[10px] md:text-xs text-slate-500 mb-3 md:mb-4 px-2">{secondaryCta}.</p>
+                   <Link href={ctaHref} className="w-full">
                      <button className={`w-full py-2.5 md:py-3 rounded-xl font-bold text-white text-xs md:text-sm shadow-md transition-colors ${themeColors}`}>
-                       Customize & Send Document
+                       {primaryCta}
                      </button>
                    </Link>
                 </div>
@@ -344,6 +360,58 @@ export default async function TemplatePage({ params }: { params: { slug: string 
       </div>
 
       {/* 🚀 SEO CONTENT WALL (Below the fold, centered layout) */}
+      {!isEmail && (
+        <div className="max-w-5xl mx-auto px-4 mb-16">
+          <div className="bg-slate-950 text-white rounded-2xl p-6 md:p-8 shadow-xl border border-slate-800 grid md:grid-cols-[1fr_360px] gap-8 items-center">
+            <div>
+              <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${themeColors} text-white mb-4`}>
+                <Zap className="w-3.5 h-3.5" />
+                Client link builder
+              </div>
+              <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight mb-3">
+                Turn this {docType.toLowerCase()} into a signed, paid client link.
+              </h2>
+              <p className="text-slate-300 leading-relaxed mb-6">
+                Start with this template, add the project scope and deposit amount, then send one link your client can review, sign, and pay through Stripe.
+              </p>
+              <Link href={ctaHref}>
+                <button className={`w-full sm:w-auto font-bold px-6 py-3 rounded-xl text-white shadow-lg ${themeColors}`}>
+                  {primaryCta}
+                </button>
+              </Link>
+            </div>
+
+            <div className="bg-white text-slate-900 rounded-2xl p-5 shadow-lg border border-white/10">
+              <div className="space-y-3">
+                <label className="block">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Scope of work</span>
+                  <div className="mt-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700">
+                    {title} project details
+                  </div>
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="block">
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Project total</span>
+                    <div className="mt-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700">
+                      $5,000
+                    </div>
+                  </label>
+                  <label className="block">
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Deposit</span>
+                    <div className="mt-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-emerald-700">
+                      $2,500
+                    </div>
+                  </label>
+                </div>
+                <div className="rounded-xl bg-emerald-50 border border-emerald-100 p-3 text-sm font-semibold text-emerald-800">
+                  Ready to send for e-signature and upfront payment.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-3xl mx-auto px-4 py-8">
         
         {doc.snippet_answer && (
@@ -444,6 +512,22 @@ export default async function TemplatePage({ params }: { params: { slug: string 
       <div className="max-w-7xl mx-auto px-4 pb-20">
           <RelatedRoles currentSlug={params.slug} jobTitle={doc.job_title} />
       </div>
+
+      {!isEmail && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur-md shadow-[0_-12px_30px_rgba(15,23,42,0.12)] px-4 py-3 print:hidden">
+          <div className="max-w-5xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <p className="text-sm font-extrabold text-slate-900">Ready to turn this into a paid client link?</p>
+              <p className="text-xs text-slate-500">Add scope, deposit, e-signature, and Stripe payment in one flow.</p>
+            </div>
+            <Link href={ctaHref}>
+              <button className={`w-full sm:w-auto px-5 py-3 rounded-xl text-sm font-bold text-white shadow-lg ${themeColors}`}>
+                {primaryCta}
+              </button>
+            </Link>
+          </div>
+        </div>
+      )}
 
     </div>
   );

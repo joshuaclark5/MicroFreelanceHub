@@ -6,7 +6,6 @@ import { useEffect, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 // 👉 WE ARE STATICALLY IMPORTING ALL IMAGES HERE
-import paymentImg from './payment.png';
 import builderImg from './builder.png';
 import dashboardImg from './dashboard.png';
 
@@ -122,15 +121,62 @@ export default function Home() {
              <div className="absolute -top-5 -left-5 bg-slate-900 text-white text-sm font-bold px-5 py-2 rounded-full z-20 shadow-xl border-2 border-white transform -rotate-2">
                 👉 This is what your client sees
              </div>
-             <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200 bg-white">
-               <Image 
-                 src={paymentImg} 
-                 alt="Client Payment Screen" 
-                 className="w-full h-auto object-contain"
-                 quality={100}
-                 unoptimized
-                 priority
-               />
+             <div className="relative rounded-[2rem] overflow-hidden shadow-2xl border border-slate-200 bg-slate-950 p-3">
+               <div className="bg-white rounded-[1.5rem] overflow-hidden border border-slate-100">
+                 <div className="bg-slate-50 border-b border-slate-200 px-5 py-4 flex items-center justify-between">
+                   <div>
+                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Secure client link</p>
+                     <p className="text-sm font-bold text-slate-900">Kitchen remodel agreement</p>
+                   </div>
+                   <div className="h-9 w-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                     <ShieldCheck className="w-5 h-5" />
+                   </div>
+                 </div>
+
+                 <div className="p-6 space-y-5">
+                   <div className="rounded-2xl bg-slate-900 text-white p-5">
+                     <p className="text-xs font-bold text-blue-200 uppercase tracking-wider mb-2">Amount due today</p>
+                     <div className="flex items-end justify-between gap-4">
+                       <div>
+                         <p className="text-4xl font-extrabold tracking-tight">$2,500</p>
+                         <p className="text-sm text-slate-300 mt-1">50% upfront deposit</p>
+                       </div>
+                       <CreditCard className="w-8 h-8 text-emerald-300" />
+                     </div>
+                   </div>
+
+                   <div className="grid grid-cols-2 gap-3">
+                     <div className="rounded-xl border border-slate-200 p-4">
+                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Project total</p>
+                       <p className="text-lg font-extrabold text-slate-900 mt-1">$5,000</p>
+                     </div>
+                     <div className="rounded-xl border border-slate-200 p-4">
+                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</p>
+                       <p className="text-lg font-extrabold text-emerald-600 mt-1">Ready</p>
+                     </div>
+                   </div>
+
+                   <div className="rounded-2xl border border-slate-200 p-5">
+                     <div className="flex items-center justify-between mb-4 gap-3">
+                       <p className="font-bold text-slate-900">Agreement checklist</p>
+                       <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full whitespace-nowrap">Client ready</span>
+                     </div>
+                     <div className="space-y-3">
+                       {['Scope locked', 'E-signature required', 'Stripe deposit link attached'].map((item) => (
+                         <div key={item} className="flex items-center gap-3 text-sm font-semibold text-slate-700">
+                           <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                           <span>{item}</span>
+                         </div>
+                       ))}
+                     </div>
+                   </div>
+
+                   <button className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-100">
+                     Sign & Pay Deposit
+                   </button>
+                   <p className="text-center text-xs text-slate-400 font-medium">Powered by Stripe. Client does not need an account.</p>
+                 </div>
+               </div>
              </div>
           </div>
 
