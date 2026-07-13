@@ -2,6 +2,7 @@
 
 import { Check, Star, X, Zap } from 'lucide-react';
 import { useState } from 'react';
+import { getTrackedData } from '../lib/trackingClient';
 
 interface PricingModalProps {
   isOpen: boolean;
@@ -17,10 +18,16 @@ export default function PricingModal({ isOpen, onClose, userId }: PricingModalPr
   const handleUpgrade = async (plan: 'starter' | 'pro') => {
     try {
       setLoadingPlan(plan);
+      const { landing_page, lead_source } = getTrackedData();
       const response = await fetch('/api/stripe/checkout-plan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan, userId }),
+        body: JSON.stringify({
+          plan,
+          userId,
+          landingPage: landing_page,
+          leadSource: lead_source,
+        }),
       });
 
       const data = await response.json();

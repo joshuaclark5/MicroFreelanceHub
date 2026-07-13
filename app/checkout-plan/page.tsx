@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
+import { getTrackedData } from '../lib/trackingClient';
 
 // 1. We move all the actual logic into this child component
 function CheckoutLogic() {
@@ -12,6 +13,8 @@ function CheckoutLogic() {
   const searchParams = useSearchParams();
   const supabase = createClientComponentClient();
   const plan = searchParams.get('plan') as 'starter' | 'pro' | 'agency' | null;
+  const landingPage = searchParams.get('landing_page');
+  const leadSource = searchParams.get('lead_source');
 
   useEffect(() => {
     const initiateCheckout = async () => {
@@ -29,11 +32,18 @@ function CheckoutLogic() {
           return;
         }
 
+        const trackedData = getTrackedData();
+
         // Call checkout API
         const response = await fetch('/api/stripe/checkout-plan', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ plan, userId: user.id }),
+          body: JSON.stringify({
+            plan,
+            userId: user.id,
+            landingPage: landingPage || trackedData.landing_page,
+            leadSource: leadSource || trackedData.lead_source,
+          }),
         });
 
         const data = await response.json();
@@ -53,7 +63,7 @@ function CheckoutLogic() {
     };
 
     initiateCheckout();
-  }, [plan, supabase]);
+  }, [landingPage, leadSource, plan, supabase]);
 
   if (loading) {
     return (

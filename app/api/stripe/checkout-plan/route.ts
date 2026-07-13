@@ -31,7 +31,7 @@ const PLAN_PRICES = {
 
 export async function POST(request: Request) {
   try {
-    const { plan, userId } = await request.json();
+    const { plan, userId, landingPage, leadSource } = await request.json();
 
     // Validate plan
     if (!plan || !PLAN_PRICES[plan as keyof typeof PLAN_PRICES]) {
@@ -88,11 +88,15 @@ export async function POST(request: Request) {
       client_reference_id: userId, // Pass userId so webhook can identify the user
       metadata: {
         plan,
+        landing_page: landingPage || '',
+        lead_source: leadSource || '',
       },
       subscription_data: {
         metadata: {
           plan,
           userId,
+          landing_page: landingPage || '',
+          lead_source: leadSource || '',
         },
       },
       line_items: [
@@ -111,7 +115,7 @@ export async function POST(request: Request) {
           quantity: 1,
         },
       ],
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?upgrade=success`,
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment-success?plan=${plan}&session_id={CHECKOUT_SESSION_ID}&landing_page=${encodeURIComponent(landingPage || '')}&lead_source=${encodeURIComponent(leadSource || '')}`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/pricing?upgrade=cancelled`,
     });
 
