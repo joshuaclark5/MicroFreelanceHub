@@ -11,6 +11,7 @@ import dashboardImg from './dashboard.png';
 
 import { 
   ArrowRight, 
+  BookOpen,
   CheckCircle2, 
   ShieldCheck, 
   Wrench,
@@ -22,11 +23,14 @@ import {
   CreditCard,
   FileSignature,
   AlertTriangle,
+  Menu,
+  X,
   Zap
 } from 'lucide-react';
 
 export default function Home() {
   const [user, setUser] = useState<any>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const supabase = createClientComponentClient();
 
   useEffect(() => {
@@ -47,7 +51,13 @@ export default function Home() {
             <div className="bg-slate-900 text-white w-8 h-8 flex items-center justify-center rounded-lg font-bold text-lg shadow-md">M</div>
             <span className="font-bold text-xl tracking-tight text-slate-900">MicroFreelance</span>
           </div>
-          <div className="flex gap-4 items-center">
+          <div className="hidden md:flex gap-4 items-center">
+            <Link href="/articles" className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">
+              Articles
+            </Link>
+            <Link href="/templates/freelance-video-editor-deposit-agreement-template" className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">
+              Templates
+            </Link>
             {user ? (
               <Link 
                 href="/dashboard" 
@@ -69,7 +79,30 @@ export default function Home() {
               </>
             )}
           </div>
+          <button
+            type="button"
+            aria-label="Open navigation menu"
+            onClick={() => setIsMenuOpen((open) => !open)}
+            className="md:hidden rounded-lg border border-slate-200 p-2 text-slate-700"
+          >
+            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
+        {isMenuOpen && (
+          <div className="border-t border-slate-100 bg-white px-4 py-4 md:hidden">
+            <div className="mx-auto flex max-w-7xl flex-col gap-3">
+              <Link href="/articles" className="rounded-lg px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
+                Articles
+              </Link>
+              <Link href="/templates/freelance-video-editor-deposit-agreement-template" className="rounded-lg px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
+                Templates
+              </Link>
+              <Link href="/create" className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-bold text-white">
+                Create contract
+              </Link>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* 2. HERO SECTION */}
@@ -416,6 +449,56 @@ export default function Home() {
                 <p className="text-slate-500">Founder & Tradesman</p>
               </div>
             </div>
+        </div>
+      </section>
+
+      {/* ARTICLES / GUIDES */}
+      <section className="bg-slate-50 py-20 border-y border-slate-200 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-10">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white px-3 py-1 text-sm font-bold text-blue-700 mb-4">
+                <BookOpen className="h-4 w-4" />
+                Freelance business articles
+              </div>
+              <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
+                Learn how to protect the work before you start it.
+              </h2>
+              <p className="mt-4 text-lg text-slate-600">
+                Daily guides on deposits, payment terms, scope creep, approvals, and client-ready contract workflows.
+              </p>
+            </div>
+            <Link href="/articles" className="inline-flex items-center gap-2 font-bold text-blue-600 hover:text-blue-700">
+              Browse articles
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            <Link href="/articles/how-to-ask-for-a-freelance-deposit-before-starting-work" className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
+              <p className="text-xs font-bold uppercase tracking-wider text-blue-600 mb-3">Freelance Payments</p>
+              <h3 className="text-xl font-extrabold text-slate-900 group-hover:text-blue-600">
+                How to Ask for a Freelance Deposit Before Starting Work
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                A practical guide to setting upfront payment expectations and sending one contract plus deposit link.
+              </p>
+            </Link>
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Internal linking</p>
+              <h3 className="text-xl font-extrabold text-slate-900">Every guide points readers to a useful tool.</h3>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                Articles link into templates, profession pages, and the contract builder so search traffic has a clear next step.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">AI search ready</p>
+              <h3 className="text-xl font-extrabold text-slate-900">Built for quick answers and topical authority.</h3>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                Each article includes focused metadata, a clear answer summary, structured data, and relevant supporting links.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 

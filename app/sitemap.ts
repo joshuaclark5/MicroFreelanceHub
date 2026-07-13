@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { createClient } from '@supabase/supabase-js';
+import { articles } from './data/articles';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0; 
@@ -105,12 +106,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     };
   });
 
+  const articleUrls = articles.map((article) => ({
+    url: `${baseUrl}/articles/${article.slug}`,
+    lastModified: new Date(article.updatedAt || article.publishedAt),
+    changeFrequency: 'weekly' as const,
+    priority: 0.8,
+  }));
+
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: baseUrl, lastModified: new Date(), changeFrequency: 'daily', priority: 1.0 },
     { url: `${baseUrl}/create`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${baseUrl}/articles`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.85 },
   ];
 
-  let finalSitemap = [...staticRoutes, ...hubUrls, ...systemUrls, ...seoUrls];
+  let finalSitemap = [...staticRoutes, ...hubUrls, ...systemUrls, ...seoUrls, ...articleUrls];
   
   const uniqueUrls = new Set();
   finalSitemap = finalSitemap.filter((item) => {
