@@ -51,8 +51,8 @@ export default function PricingModal({ isOpen, onClose, userId }: PricingModalPr
         onClick={onClose}
       />
 
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden animate-in zoom-in-95 duration-200">
-        <div className="bg-slate-900 p-8 text-center relative overflow-hidden">
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[92vh] overflow-y-auto animate-in zoom-in-95 duration-200">
+        <div className="bg-slate-900 p-6 sm:p-8 text-center relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-emerald-500 to-indigo-500" />
           <div className="absolute -top-10 -right-10 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl" />
           <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-emerald-500/20 rounded-full blur-3xl" />
@@ -70,7 +70,7 @@ export default function PricingModal({ isOpen, onClose, userId }: PricingModalPr
           </button>
         </div>
 
-        <div className="grid gap-4 p-6 sm:grid-cols-2">
+        <div className="grid gap-4 p-4 sm:grid-cols-2 sm:p-6">
           <div className="rounded-2xl border-2 border-blue-200 bg-blue-50 p-5">
             <div className="mb-4">
               <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Best first step</p>
