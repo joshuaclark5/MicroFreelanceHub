@@ -99,6 +99,13 @@ function ensureArray(value: unknown) {
   return [String(value)];
 }
 
+function normalizeFaqs(value: any) {
+  return ensureArray(value).map((faq: any) => ({
+    q: faq.q || faq.question || '',
+    a: faq.a || faq.answer || '',
+  }));
+}
+
 async function processBatch22() {
   console.log('Starting targeted 10/10 AI generation for Batch 22 weekly pages...');
 
@@ -150,6 +157,7 @@ async function processBatch22() {
 
       json.deliverables = ensureArray(json.deliverables);
       json.scope_creep_examples = ensureArray(json.scope_creep_examples);
+      json.faqs = normalizeFaqs(json.faqs);
 
       const { error: updateError } = await supabase.from('seo_pages').update(json).eq('id', row.id);
       if (updateError) throw updateError;
