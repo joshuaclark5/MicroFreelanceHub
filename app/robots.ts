@@ -11,8 +11,22 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/login', '/dashboard/', '/create/', '/api/'],
       },
       {
-        // Explicit VIP pass for all major AI crawlers
-        userAgent: ['GPTBot', 'ChatGPT-User', 'OAI-SearchBot', 'ClaudeBot', 'Google-Extended', 'PerplexityBot', 'anthropic-ai'],
+        // Explicit pass for major AI crawlers and AI search fetchers.
+        userAgent: [
+          'GPTBot',
+          'ChatGPT-User',
+          'OAI-SearchBot',
+          'ClaudeBot',
+          'Claude-User',
+          'anthropic-ai',
+          'Google-Extended',
+          'GoogleOther',
+          'Gemini',
+          'PerplexityBot',
+          'Perplexity-User',
+          'Grok',
+          'xAI',
+        ],
         // 👉 Added trailing slashes here as well for consistency
         allow: ['/', '/templates/', '/alternatives/'],
         disallow: ['/login', '/dashboard/', '/create/', '/api/'],

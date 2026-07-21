@@ -2,3 +2,5 @@ node_modules/
 .next/
 .env.local
 service_account.json
+.vercel
+.env*
