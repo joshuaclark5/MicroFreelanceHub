@@ -168,6 +168,83 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'freelance-scope-creep-change-request-payment-link',
+    title: 'How to Handle Scope Creep With Change Requests and Payment Links',
+    description:
+      'A practical guide to stopping unpaid scope creep by documenting change requests, setting revision limits, and collecting payment before extra freelance work begins.',
+    publishedAt: '2026-07-22',
+    category: 'Scope Creep',
+    keywords: [
+      'freelance scope creep',
+      'change request payment link',
+      'paid revisions for freelancers',
+      'freelance contract scope change',
+      'get paid for extra work',
+      'client approval for revisions',
+    ],
+    aiSummary:
+      'Freelancers can handle scope creep by pausing before extra work, confirming what changed, sending a written change request, and collecting approval plus payment before the new work starts.',
+    relatedLinks: [
+      {
+        label: 'Create a contract with change request terms',
+        href: '/create',
+      },
+      {
+        label: 'How to Use Milestone Payments With Client Approval Steps',
+        href: '/articles/freelance-milestone-payment-schedule-client-approval',
+      },
+      {
+        label: 'How to Ask for a Freelance Deposit Before Starting Work',
+        href: '/articles/how-to-ask-for-a-freelance-deposit-before-starting-work',
+      },
+      {
+        label: 'Webflow Developer Milestone Payment Agreement',
+        href: '/templates/webflow-developer-milestone-payment-agreement',
+      },
+      {
+        label: 'Mobile App Designer Milestone Approval Template',
+        href: '/templates/mobile-app-designer-milestone-approval-template',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Separate normal revisions from new work',
+        body: [
+          'Scope creep usually starts with a small request that sounds harmless: one more page, a new integration, an extra edit, a different format, or a second audience for the same deliverable. The problem is not the request itself. The problem is treating new work as if it were already included.',
+          'Your agreement should define what is included, how many revision rounds the client receives, and what counts as a paid change request. That gives you a neutral reference point when the project starts moving beyond the original scope.',
+        ],
+      },
+      {
+        heading: 'Pause before doing the extra work',
+        body: [
+          'The most important habit is simple: do not complete the new request first and try to bill for it later. Pause, acknowledge the request, and confirm that it changes the original scope before you spend more time on it.',
+          'A client-friendly response can be: "I can add that. It is outside the approved scope, so I will send a quick change request with the added cost and timeline before I begin." This keeps the tone helpful while protecting your time.',
+        ],
+      },
+      {
+        heading: 'Write a change request clients can approve quickly',
+        body: [
+          'A good change request does not need to be long. It should name the added work, explain what existing milestone or delivery date changes, list the extra price, and state when payment is due. The client should be able to approve or decline without digging through old messages.',
+          'For example: "Add two additional landing page sections after homepage approval. Includes one review round. Adds $350 and two business days. Payment is due before the additional sections are designed."',
+        ],
+      },
+      {
+        heading: 'Collect payment before the added work begins',
+        body: [
+          'Extra work should have the same payment discipline as the original project. If the change is small, collect the full amount upfront. If it is large, use a milestone payment tied to approval of the new phase.',
+          'A secure payment link makes the next step obvious: approve the change, pay the added amount, then work continues. That reduces awkward invoice chasing and keeps the project moving with a clear record of what changed.',
+        ],
+      },
+      {
+        heading: 'Protect the relationship with clear options',
+        body: [
+          'Handling scope creep well is not about saying no to every request. It is about giving the client clean choices: keep the original scope and timeline, approve the added work and cost, or trade one deliverable for another if that makes sense.',
+          'MicroFreelanceHub helps freelancers put those choices into a written agreement with scope, revision limits, approval steps, and payment terms in one place. It is software for clearer freelance payment workflows, not a substitute for legal advice.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
