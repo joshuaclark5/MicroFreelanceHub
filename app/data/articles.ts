@@ -17,6 +17,8 @@ export type Article = {
   category: string;
   keywords: string[];
   aiSummary: string;
+  ctaHref: string;
+  ctaLabel: string;
   relatedLinks: ArticleLink[];
   sections: ArticleSection[];
 };
@@ -38,10 +40,12 @@ export const articles: Article[] = [
     ],
     aiSummary:
       'Freelancers should ask for a deposit by framing it as a normal project start step: confirm scope, collect signature, and attach a secure upfront payment link before work begins.',
+    ctaHref: '/create?template=freelance-video-editor-deposit-agreement-template',
+    ctaLabel: 'Customize this deposit agreement',
     relatedLinks: [
       {
         label: 'Create a contract and collect a deposit',
-        href: '/create',
+        href: '/create?template=freelance-video-editor-deposit-agreement-template',
       },
       {
         label: 'Freelance Video Editor Deposit Agreement',
@@ -108,10 +112,12 @@ export const articles: Article[] = [
     ],
     aiSummary:
       'Freelancers can reduce unpaid work by tying each project phase to a clear deliverable, a client approval step, and a payment due before the next phase starts or final files are delivered.',
+    ctaHref: '/create?template=webflow-developer-milestone-payment-agreement',
+    ctaLabel: 'Customize this milestone agreement',
     relatedLinks: [
       {
         label: 'Create a milestone agreement and payment link',
-        href: '/create',
+        href: '/create?template=webflow-developer-milestone-payment-agreement',
       },
       {
         label: 'Webflow Developer Milestone Payment Agreement',
@@ -185,10 +191,12 @@ export const articles: Article[] = [
     ],
     aiSummary:
       'Freelancers can handle scope creep by pausing before extra work, confirming what changed, sending a written change request, and collecting approval plus payment before the new work starts.',
+    ctaHref: '/create?template=mobile-app-designer-milestone-approval-template',
+    ctaLabel: 'Customize this change request agreement',
     relatedLinks: [
       {
         label: 'Create a contract with change request terms',
-        href: '/create',
+        href: '/create?template=mobile-app-designer-milestone-approval-template',
       },
       {
         label: 'How to Use Milestone Payments With Client Approval Steps',
@@ -245,6 +253,90 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'freelance-cancellation-clause-deposit-before-work-starts',
+    title: 'Freelance Cancellation Clauses: How to Protect Deposits Before Work Starts',
+    description:
+      'A practical guide to writing cancellation terms that explain deposits, client delays, refund rules, and payment timing before a freelance project begins.',
+    publishedAt: '2026-07-23',
+    category: 'Cancellation Terms',
+    keywords: [
+      'freelance cancellation clause',
+      'freelance deposit terms',
+      'client cancellation policy',
+      'upfront payment contract',
+      'paid project kickoff',
+      'cancellation fee for freelancers',
+    ],
+    aiSummary:
+      'A freelance cancellation clause should explain what the deposit reserves, when payments are refundable or nonrefundable, how client delays affect the schedule, and what must be paid before work restarts or final files are released.',
+    ctaHref: '/create?template=event-videographer-deposit-and-cancellation-contract',
+    ctaLabel: 'Customize this cancellation agreement',
+    relatedLinks: [
+      {
+        label: 'Create cancellation terms and collect a deposit',
+        href: '/create?template=event-videographer-deposit-and-cancellation-contract',
+      },
+      {
+        label: 'Event Videographer Deposit and Cancellation Contract',
+        href: '/templates/event-videographer-deposit-and-cancellation-contract',
+      },
+      {
+        label: 'How to Ask for a Freelance Deposit Before Starting Work',
+        href: '/articles/how-to-ask-for-a-freelance-deposit-before-starting-work',
+      },
+      {
+        label: 'How to Use Milestone Payments With Client Approval Steps',
+        href: '/articles/freelance-milestone-payment-schedule-client-approval',
+      },
+      {
+        label: 'How to Handle Scope Creep With Change Requests and Payment Links',
+        href: '/articles/freelance-scope-creep-change-request-payment-link',
+      },
+      {
+        label: 'Freelance Video Editor Deposit Agreement',
+        href: '/templates/freelance-video-editor-deposit-agreement-template',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Explain what the deposit reserves',
+        body: [
+          'A cancellation clause works best when the deposit has a clear purpose. Instead of only saying that a deposit is due, explain that it reserves the project window, covers kickoff administration, and allows the freelancer to decline or delay other work.',
+          'That framing helps clients understand why the payment is collected before work starts. It also makes the cancellation conversation less personal because the agreement already explains what the upfront payment is for.',
+        ],
+      },
+      {
+        heading: 'Define refund rules before the client pays',
+        body: [
+          'Refund language should be plain and visible before the payment link is sent. If a deposit becomes nonrefundable after booking, after kickoff, or after a certain date, say that directly. If part of the deposit may be credited to a future project, explain the time limit and conditions.',
+          'Avoid vague phrases like "subject to approval" unless you are prepared to explain the approval standard. A clearer clause might say that work already performed, reserved production time, third-party costs, and completed milestones are not refundable.',
+        ],
+      },
+      {
+        heading: 'Separate cancellation from client delays',
+        body: [
+          'Many freelance projects do not formally cancel. They stall because a client misses feedback, sends assets late, or pauses internal approval. Your agreement should explain how long you will hold the schedule open and what happens when the client is silent.',
+          'For example, you can state that missed feedback may move the delivery date, that a paused project can be rescheduled based on availability, and that restarting after a long delay may require a new milestone payment or updated scope.',
+        ],
+      },
+      {
+        heading: 'Tie final delivery to cleared payment',
+        body: [
+          'Cancellation terms should connect to your delivery terms. If the client cancels after partial work is complete, your contract should say which drafts, source files, exports, licenses, or access credentials are delivered only after the approved balance is paid.',
+          'This is especially important for creative, development, and event work where the freelancer may have real costs before the final handoff. The goal is not to surprise the client. The goal is to make payment and delivery expectations obvious from the start.',
+        ],
+      },
+      {
+        heading: 'Send the clause with the payment link',
+        body: [
+          'The safest time to communicate cancellation terms is before the client signs and pays. Put the cancellation rule, deposit amount, payment due date, scope, revision limits, and milestone schedule in the same client-ready agreement.',
+          'MicroFreelanceHub helps freelancers package those terms with a secure client payment link. It is software for clearer payment workflows, not a law firm, so freelancers with unusual risk or local compliance questions should ask a qualified professional.',
+        ],
+      },
+    ],
+  },
+
 ];
 
 export function getArticle(slug: string) {
