@@ -336,6 +336,89 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'freelance-final-payment-before-delivery',
+    title: 'How to Collect Final Payment Before Sending Freelance Deliverables',
+    description:
+      'A practical guide to setting final payment terms, client approval checkpoints, and delivery rules so freelancers get paid before releasing final files or access.',
+    publishedAt: '2026-07-24',
+    category: 'Final Delivery Payments',
+    keywords: [
+      'freelance final payment before delivery',
+      'get paid before sending final files',
+      'freelance delivery payment terms',
+      'client approval before final payment',
+      'secure client payment link',
+      'freelance source file payment',
+    ],
+    aiSummary:
+      'Freelancers should define final payment terms before work starts, use a client approval checkpoint, and release final files, source assets, launch access, or credentials only after the approved balance is paid.',
+    ctaHref: '/create?template=webflow-developer-milestone-payment-agreement',
+    ctaLabel: 'Customize a final payment agreement',
+    relatedLinks: [
+      {
+        label: 'Create final payment and delivery terms',
+        href: '/create?template=webflow-developer-milestone-payment-agreement',
+      },
+      {
+        label: 'How to Use Milestone Payments With Client Approval Steps',
+        href: '/articles/freelance-milestone-payment-schedule-client-approval',
+      },
+      {
+        label: 'How to Handle Scope Creep With Change Requests and Payment Links',
+        href: '/articles/freelance-scope-creep-change-request-payment-link',
+      },
+      {
+        label: 'Freelance Cancellation Clauses: How to Protect Deposits Before Work Starts',
+        href: '/articles/freelance-cancellation-clause-deposit-before-work-starts',
+      },
+      {
+        label: 'Webflow Developer Milestone Payment Agreement',
+        href: '/templates/webflow-developer-milestone-payment-agreement',
+      },
+      {
+        label: 'Freelance Video Editor Deposit Agreement',
+        href: '/templates/freelance-video-editor-deposit-agreement-template',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Make final payment a delivery rule, not a surprise',
+        body: [
+          'The best time to protect final payment is before the project starts. Your agreement should say when the final balance is due, what counts as client approval, and which deliverables are released only after payment clears.',
+          'This matters for designers, developers, editors, writers, consultants, and any freelancer who hands over usable assets at the end. If the client learns about the payment rule only after the work is finished, the conversation can feel tense even when the rule is reasonable.',
+        ],
+      },
+      {
+        heading: 'Define what the client can review before paying',
+        body: [
+          'Clients need enough visibility to approve the work without receiving everything that lets them use, publish, or transfer the final product. That might mean a watermarked preview, staging link, screen recording, read-only document, low-resolution export, or guided review call.',
+          'The agreement should explain the review format and the response window. For example, the client may have five business days to approve the final draft or request included revisions. After approval, the final payment is due before clean exports, source files, production access, or launch support are released.',
+        ],
+      },
+      {
+        heading: 'Be specific about final deliverables',
+        body: [
+          'Final delivery terms should name the assets instead of relying on a vague phrase like "all files." List the actual handoff items: source files, edited exports, design files, website credentials, published pages, ad account access, documentation, licenses, or archive files.',
+          'Specific deliverables prevent arguments about whether something was included. They also help the client understand what the final payment unlocks and why the balance is tied to delivery.',
+        ],
+      },
+      {
+        heading: 'Connect late payment to the project timeline',
+        body: [
+          'Your contract should explain what happens if the final payment is late. A simple version can say that delivery, launch, source file release, or post-launch support is paused until the approved balance is paid.',
+          'Keep the tone operational. You are following the workflow both sides agreed to. If the project has a launch date, event date, ad campaign, or publishing deadline, make it clear that payment delays may move the delivery schedule.',
+        ],
+      },
+      {
+        heading: 'Use a single approval and payment link',
+        body: [
+          'Final payment gets messy when approval notes, invoice links, and delivery promises are scattered across separate messages. A cleaner process is one agreement that shows the scope, included revisions, approval checkpoint, final balance, and secure payment link.',
+          'MicroFreelanceHub helps freelancers package that workflow into a client-ready link. It is software for clearer payment and delivery expectations, not a law firm, so freelancers with unusual risk or local compliance questions should get qualified advice.',
+        ],
+      },
+    ],
+  },
 
 ];
 
