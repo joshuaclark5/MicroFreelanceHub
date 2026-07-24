@@ -69,7 +69,7 @@ function CreateProjectContent() {
   // UI States
   const [undoText, setUndoText] = useState('');
   const [confirmClear, setConfirmClear] = useState(false);
-  const [step, setStep] = useState<'select_mode' | 'ai_input' | 'questions' | 'final'>('select_mode');
+  const [step, setStep] = useState<'select_mode' | 'ai_input' | 'questions' | 'final'>('final');
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [questions, setQuestions] = useState<string[]>([]);
@@ -83,6 +83,7 @@ function CreateProjectContent() {
   const [refineText, setRefineText] = useState('');
   const [isRefining, setIsRefining] = useState(false);
   const [isTemplateLoaded, setIsTemplateLoaded] = useState(false);
+  const [templateName, setTemplateName] = useState('');
   
   // 🔒 LIMIT LOGIC
   const [isPro, setIsPro] = useState(false);
@@ -259,6 +260,7 @@ If the Client cancels the project after work has begun, the Freelancer retains t
              if (isSow) {
                  setFormData(prev => ({ ...prev, projectTitle: seoDoc.title, deliverables: seoDoc.deliverables, description: `Contract for ${seoDoc.title}` }));
                  if (seoDoc.price) setManualPriceOverride(seoDoc.price.toString());
+                 setTemplateName(seoDoc.title);
              } else {
                  // 🎯 THE FIX: Strip the HTML payload into clean text!
                  let cleanContent = "";
@@ -291,6 +293,7 @@ If the Client cancels the project after work has begun, the Freelancer retains t
                  }
 
                  setFormData(prev => ({ ...prev, projectTitle: title, deliverables: fullContent, description: `Contract for ${title}` }));
+                 setTemplateName(title);
              }
 
              setIsTemplateLoaded(true);
@@ -299,6 +302,10 @@ If the Client cancels the project after work has begun, the Freelancer retains t
 
         if (localSlug) localStorage.removeItem('pending_template');
         setLoading(false);
+      } else {
+        const content = generateFullContract("Project", "â€¢ Deliverable 1\nâ€¢ Deliverable 2");
+        setFormData(prev => ({ ...prev, deliverables: content }));
+        setStep('final');
       }
     };
     init();
@@ -330,6 +337,10 @@ If the Client cancels the project after work has begun, the Freelancer retains t
       setFormData(prev => ({ ...prev, deliverables: content }));
       setStep('final');
   };
+
+  useEffect(() => {
+    if (step === 'select_mode') handleStartManual();
+  }, [step]);
 
   const handleStartAi = () => {
     if (!isPro) {
@@ -509,7 +520,7 @@ If the Client cancels the project after work has begun, the Freelancer retains t
         <div className="flex items-center gap-3">
           <Link href="/dashboard" className="text-gray-400 hover:text-gray-900 transition-colors"><ArrowLeft className="w-5 h-5" /></Link>
           <h1 className="text-lg font-bold text-gray-900">
-            {step === 'select_mode' && 'New Agreement'}
+            {step === 'select_mode' && 'Contract Editor'}
             {step === 'ai_input' && 'AI Assistant'}
             {step === 'questions' && 'AI Interview'}
             {step === 'final' && 'Contract Editor'}
@@ -534,7 +545,7 @@ If the Client cancels the project after work has begun, the Freelancer retains t
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
 
           {/* STEP 0: MODE SELECTION */}
-          {step === 'select_mode' && (
+          {false && step === 'select_mode' && (
              <div className="p-8 md:p-12 animate-in fade-in slide-in-from-bottom-4">
                 <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">Create a new agreement</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
@@ -599,7 +610,7 @@ If the Client cancels the project after work has begun, the Freelancer retains t
 
                   <div className="flex items-center justify-between border-b border-gray-200 pb-4">
                     <div className="flex items-center gap-4">
-                      {isTemplateLoaded && <span className="bg-green-100 text-green-800 text-xs font-bold px-2.5 py-1 rounded-full border border-green-200 inline-flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green-600 animate-pulse"></span>Template Loaded</span>}
+                      {isTemplateLoaded && <span className="bg-green-100 text-green-800 text-xs font-bold px-2.5 py-1 rounded-full border border-green-200 inline-flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green-600 animate-pulse"></span>{templateName ? `${templateName} loaded` : 'Template loaded'}</span>}
                     </div>
                     <div className="flex items-center gap-2">
                         <button type="button" onClick={() => isPro ? setShowAiRefiner(!showAiRefiner) : setShowPricingModal(true)} className={`text-sm font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${isPro ? 'text-indigo-600 hover:bg-indigo-50' : 'text-gray-500 hover:text-gray-900'}`}><Wand2 className="w-4 h-4" /> {isPro ? (showAiRefiner ? 'Close AI' : 'Use AI Assistant') : 'Unlock AI'}</button>
@@ -838,7 +849,7 @@ If the Client cancels the project after work has begun, the Freelancer retains t
                           </div>
                       )}
                       
-                      <button onClick={handleSubmit} disabled={loading} className={`w-full font-bold py-4 rounded-xl transition-all shadow-md hover:shadow-lg text-lg bg-black text-white hover:bg-gray-900 transform hover:-translate-y-0.5`}>{loading ? 'Saving...' : 'Save to Dashboard'}</button>
+                      <button onClick={handleSubmit} disabled={loading} className={`w-full font-bold py-4 rounded-xl transition-all shadow-md hover:shadow-lg text-lg bg-black text-white hover:bg-gray-900 transform hover:-translate-y-0.5`}>{loading ? 'Creating...' : 'Create Client Link'}</button>
                       <p className="text-center text-xs text-gray-400 mt-4 leading-snug">By clicking Save, you agree to the <Link href="/terms-of-service" className="underline hover:text-gray-600">Terms</Link> and acknowledge that you are responsible for the legal validity of this contract.</p>
                   </div>
               </div>

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { CheckCircle2, X, ShieldCheck, ArrowRight } from 'lucide-react';
+import { getTrackedData } from '../lib/trackingClient';
 
 export default function PricingPage() {
   const [user, setUser] = useState<any>(null);
@@ -22,8 +23,14 @@ export default function PricingPage() {
 
   // --- STRIPE CHECKOUT HANDLER ---
   const handlePricingClick = async (plan: 'starter' | 'pro') => {
+    const { landing_page, lead_source } = getTrackedData();
+
     if (!user) {
-      window.location.href = `/login?plan=${plan}`;
+      const loginUrl = new URL('/login', window.location.origin);
+      loginUrl.searchParams.set('plan', plan);
+      if (landing_page) loginUrl.searchParams.set('landing_page', landing_page);
+      if (lead_source) loginUrl.searchParams.set('lead_source', lead_source);
+      window.location.href = loginUrl.toString();
       return;
     }
 
@@ -32,7 +39,12 @@ export default function PricingPage() {
       const response = await fetch('/api/stripe/checkout-plan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan, userId: user.id }),
+        body: JSON.stringify({
+          plan,
+          userId: user.id,
+          landingPage: landing_page,
+          leadSource: lead_source,
+        }),
       });
 
       const data = await response.json();

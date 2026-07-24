@@ -5,17 +5,23 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { CheckCircle2, ArrowRight } from 'lucide-react';
+import { CheckCircle2, ArrowRight, LockKeyhole, Mail } from 'lucide-react';
 import { getTrackedData } from '../lib/trackingClient';
 
 function LoginForm() {
   const [message, setMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
+  const [authMode, setAuthMode] = useState<'signup' | 'signin'>('signup');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
   const supabase = createClientComponentClient();
   const searchParams = useSearchParams();
 
   const templateSlug = searchParams.get('template');
   const plan = searchParams.get('plan') as 'starter' | 'pro' | 'agency' | null;
+  const landingPageParam = searchParams.get('landing_page');
+  const leadSourceParam = searchParams.get('lead_source');
   const planName = plan === 'starter' ? 'Starter' : plan === 'pro' ? 'Professional' : 'Agency';
 
   const templateName = templateSlug
@@ -44,11 +50,13 @@ function LoginForm() {
 
     // Add tracked landing page and marketing source
     const { landing_page, lead_source } = getTrackedData();
-    if (landing_page) {
-      redirectUrl.searchParams.set('landing_page', landing_page);
+    const landingPage = landingPageParam || landing_page;
+    const leadSource = leadSourceParam || lead_source;
+    if (landingPage) {
+      redirectUrl.searchParams.set('landing_page', landingPage);
     }
-    if (lead_source) {
-      redirectUrl.searchParams.set('lead_source', lead_source);
+    if (leadSource) {
+      redirectUrl.searchParams.set('lead_source', leadSource);
     }
 
     const { error } = await supabase.auth.signInWithOAuth({
@@ -67,6 +75,91 @@ function LoginForm() {
       setMessage('Error: ' + error.message);
       setIsSuccess(false);
     }
+  };
+
+  const getPostAuthPath = () => {
+    const params = new URLSearchParams();
+    if (templateSlug) params.set('template', templateSlug);
+    if (landingPageParam) params.set('landing_page', landingPageParam);
+    if (leadSourceParam) params.set('lead_source', leadSourceParam);
+
+    if (plan) {
+      params.set('plan', plan);
+      return `/checkout-plan?${params.toString()}`;
+    }
+
+    return params.toString() ? `/signup-success?${params.toString()}` : '/dashboard';
+  };
+
+  const handleEmailAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMessage('');
+    setAuthLoading(true);
+
+    try {
+      const callbackUrl = new URL('/auth/callback', window.location.origin);
+      if (plan) callbackUrl.searchParams.set('plan', plan);
+      if (templateSlug) callbackUrl.searchParams.set('template', templateSlug);
+      if (landingPageParam) callbackUrl.searchParams.set('landing_page', landingPageParam);
+      if (leadSourceParam) callbackUrl.searchParams.set('lead_source', leadSourceParam);
+      const redirectTo = callbackUrl.toString();
+
+      if (authMode === 'signup') {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: redirectTo,
+          },
+        });
+
+        if (error) throw error;
+
+        if (data.session) {
+          window.location.href = getPostAuthPath();
+          return;
+        }
+
+        setIsSuccess(true);
+        setMessage('Check your email to confirm your account, then we will continue your checkout.');
+        return;
+      }
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      window.location.href = getPostAuthPath();
+    } catch (error: any) {
+      setIsSuccess(false);
+      setMessage(error.message || 'Authentication failed. Please try again.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    if (!email) {
+      setIsSuccess(false);
+      setMessage('Enter your email first, then request a password reset.');
+      return;
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/login`,
+    });
+
+    if (error) {
+      setIsSuccess(false);
+      setMessage(error.message);
+      return;
+    }
+
+    setIsSuccess(true);
+    setMessage('Password reset email sent.');
   };
 
   return (
@@ -142,6 +235,68 @@ function LoginForm() {
                 </svg>
                 <span>Continue with Google</span>
             </button>
+
+            <div className="relative py-2">
+                <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-slate-200" />
+                </div>
+                <div className="relative flex justify-center">
+                    <span className="bg-white px-3 text-xs font-bold uppercase tracking-wider text-slate-400">or use email</span>
+                </div>
+            </div>
+
+            <form onSubmit={handleEmailAuth} className="space-y-3">
+                <div className="relative">
+                    <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Email address"
+                        className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm font-medium text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    />
+                </div>
+
+                <div className="relative">
+                    <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <input
+                        type="password"
+                        required
+                        minLength={8}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Password"
+                        className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm font-medium text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    />
+                </div>
+
+                <button
+                    type="submit"
+                    disabled={authLoading}
+                    className="w-full rounded-xl bg-slate-900 py-3.5 font-bold text-white shadow-sm transition hover:bg-black disabled:cursor-wait disabled:bg-slate-500"
+                >
+                    {authLoading ? 'Working...' : authMode === 'signup' ? 'Create account' : 'Sign in'}
+                </button>
+            </form>
+
+            <div className="flex items-center justify-between gap-3 text-xs font-semibold">
+                <button
+                    type="button"
+                    onClick={() => {
+                      setAuthMode(authMode === 'signup' ? 'signin' : 'signup');
+                      setMessage('');
+                    }}
+                    className="text-blue-600 hover:text-blue-700"
+                >
+                    {authMode === 'signup' ? 'Already have an account?' : 'Need an account?'}
+                </button>
+                {authMode === 'signin' && (
+                    <button type="button" onClick={handlePasswordReset} className="text-slate-500 hover:text-slate-700">
+                        Forgot password?
+                    </button>
+                )}
+            </div>
         </div>
         
         <p className="text-center text-xs text-slate-400">

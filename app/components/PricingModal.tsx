@@ -2,6 +2,7 @@
 
 import { Check, Star, X, Zap } from 'lucide-react';
 import { useState } from 'react';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { getTrackedData } from '../lib/trackingClient';
 
 interface PricingModalProps {
@@ -12,6 +13,7 @@ interface PricingModalProps {
 
 export default function PricingModal({ isOpen, onClose, userId }: PricingModalProps) {
   const [loadingPlan, setLoadingPlan] = useState<'starter' | 'pro' | null>(null);
+  const supabase = createClientComponentClient();
 
   if (!isOpen) return null;
 
@@ -19,12 +21,24 @@ export default function PricingModal({ isOpen, onClose, userId }: PricingModalPr
     try {
       setLoadingPlan(plan);
       const { landing_page, lead_source } = getTrackedData();
+      const { data: { user } } = await supabase.auth.getUser();
+      const resolvedUserId = userId || user?.id || '';
+
+      if (!resolvedUserId) {
+        const loginUrl = new URL('/login', window.location.origin);
+        loginUrl.searchParams.set('plan', plan);
+        if (landing_page) loginUrl.searchParams.set('landing_page', landing_page);
+        if (lead_source) loginUrl.searchParams.set('lead_source', lead_source);
+        window.location.href = loginUrl.toString();
+        return;
+      }
+
       const response = await fetch('/api/stripe/checkout-plan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           plan,
-          userId,
+          userId: resolvedUserId,
           landingPage: landing_page,
           leadSource: lead_source,
         }),
@@ -33,6 +47,12 @@ export default function PricingModal({ isOpen, onClose, userId }: PricingModalPr
       const data = await response.json();
       if (data.url) {
         window.location.href = data.url;
+      } else if (response.status === 401 || data.error === 'User ID required') {
+        const loginUrl = new URL('/login', window.location.origin);
+        loginUrl.searchParams.set('plan', plan);
+        if (landing_page) loginUrl.searchParams.set('landing_page', landing_page);
+        if (lead_source) loginUrl.searchParams.set('lead_source', lead_source);
+        window.location.href = loginUrl.toString();
       } else {
         alert(data.error || 'Failed to start checkout');
       }

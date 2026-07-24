@@ -55,7 +55,7 @@ export default function Home() {
             <Link href="/articles" className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">
               Articles
             </Link>
-            <Link href="/templates/freelance-video-editor-deposit-agreement-template" className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">
+            <Link href="/templates" className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">
               Templates
             </Link>
             {user ? (
@@ -94,7 +94,7 @@ export default function Home() {
               <Link href="/articles" className="rounded-lg px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
                 Articles
               </Link>
-              <Link href="/templates/freelance-video-editor-deposit-agreement-template" className="rounded-lg px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
+              <Link href="/templates" className="rounded-lg px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
                 Templates
               </Link>
               <Link href="/create" className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-bold text-white">
@@ -509,6 +509,10 @@ export default function Home() {
             Works for any freelance job.
           </h2>
           <p className="text-slate-500">Find a specific agreement template for your exact trade.</p>
+          <Link href="/templates" className="mt-5 inline-flex items-center gap-2 font-bold text-blue-600 hover:text-blue-700">
+            Search all templates
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

@@ -43,11 +43,11 @@ export function AuthRequiredModal({ open, onOpenChange }: AuthRequiredModalProps
                 </div>
                 
                 <h2 className="text-2xl font-bold text-slate-900 mb-3">
-                  Save Your Agreement
+                  Create Your Client Link
                 </h2>
                 
                 <p className="text-slate-500 leading-relaxed">
-                  You need a free account to save your progress, get digital signatures, and accept payments.
+                  Create a free account to save this agreement, collect signatures, and accept the deposit from one secure client link.
                 </p>
             </div>
         </div>
@@ -63,7 +63,7 @@ export function AuthRequiredModal({ open, onOpenChange }: AuthRequiredModalProps
           
           <Link href="/login" className="w-full sm:flex-1 order-1 sm:order-2">
             <button className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200 rounded-xl font-bold flex items-center justify-center gap-2 py-3 transition-all transform hover:-translate-y-0.5">
-                 Create Free Account <ArrowRight className="w-5 h-5" />
+                 Continue Free <ArrowRight className="w-5 h-5" />
             </button>
           </Link>
         </div>

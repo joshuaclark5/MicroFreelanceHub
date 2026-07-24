@@ -23,7 +23,11 @@ function CheckoutLogic() {
         const { data: { user } } = await supabase.auth.getUser();
 
         if (!user) {
-          setError('Not logged in');
+          const loginUrl = new URL('/login', window.location.origin);
+          if (plan) loginUrl.searchParams.set('plan', plan);
+          if (landingPage) loginUrl.searchParams.set('landing_page', landingPage);
+          if (leadSource) loginUrl.searchParams.set('lead_source', leadSource);
+          window.location.href = loginUrl.toString();
           return;
         }
 

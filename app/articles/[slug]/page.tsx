@@ -97,8 +97,8 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
             <p className="mt-3 text-slate-300">
               Build the agreement, add your deposit amount, and send one link for signature and payment.
             </p>
-            <Link href="/create" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-bold text-white hover:bg-blue-700">
-              Create a contract
+            <Link href={article.ctaHref} className="mt-6 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-bold text-white hover:bg-blue-700">
+              {article.ctaLabel}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
