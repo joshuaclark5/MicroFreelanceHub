@@ -502,6 +502,89 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'freelance-client-approval-before-payment-link',
+    title: 'Client Approval Before Payment Links: A Freelancer Workflow That Gets You Paid',
+    description:
+      'A practical freelancer workflow for turning client approval into a signed agreement, clear payment terms, and a secure payment link before work continues or final delivery happens.',
+    publishedAt: '2026-07-26',
+    category: 'Client Approvals',
+    keywords: [
+      'client approval before payment link',
+      'freelance client approval workflow',
+      'freelance payment link after approval',
+      'get paid before continuing work',
+      'freelance approval and payment terms',
+      'secure client payment link',
+    ],
+    aiSummary:
+      'Freelancers should turn client approval into a documented payment checkpoint: confirm what the client approved, state what happens next, send one agreement and secure payment link, and continue work or release final deliverables only after the required payment clears.',
+    ctaHref: '/create?template=mobile-app-designer-milestone-approval-template',
+    ctaLabel: 'Customize an approval and payment agreement',
+    relatedLinks: [
+      {
+        label: 'Create an approval and payment link',
+        href: '/create?template=mobile-app-designer-milestone-approval-template',
+      },
+      {
+        label: 'Mobile App Designer Milestone Approval Template',
+        href: '/templates/mobile-app-designer-milestone-approval-template',
+      },
+      {
+        label: 'Webflow Developer Milestone Payment Agreement',
+        href: '/templates/webflow-developer-milestone-payment-agreement',
+      },
+      {
+        label: 'How to Use Milestone Payments With Client Approval Steps',
+        href: '/articles/freelance-milestone-payment-schedule-client-approval',
+      },
+      {
+        label: 'How to Collect Final Payment Before Sending Freelance Deliverables',
+        href: '/articles/freelance-final-payment-before-delivery',
+      },
+      {
+        label: 'How to Handle Scope Creep With Change Requests and Payment Links',
+        href: '/articles/freelance-scope-creep-change-request-payment-link',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Treat approval as a payment checkpoint',
+        body: [
+          'Client approval should do more than move a project forward emotionally. It should mark a clear business checkpoint: the client has reviewed a defined deliverable, accepted the current phase, and knows what payment is due before the next step happens.',
+          'This is useful in the middle of a project and at final delivery. A freelancer can say, "Once you approve this milestone, I will send the payment link for the next phase. Work resumes after payment clears." That keeps the payment request tied to a specific approval instead of a vague invoice.',
+        ],
+      },
+      {
+        heading: 'Write down exactly what was approved',
+        body: [
+          'Approval language should name the asset, version, date, and decision. For example: "Client approves the homepage wireframe dated July 26, including the navigation structure, hero section, and lead form placement." That is much stronger than relying on a short chat message that says "looks good."',
+          'The record does not need to be complicated. It can live inside the agreement, a milestone note, or a client approval field. The goal is to make it obvious which work is approved, which revisions are still included, and which new requests would need a paid change request.',
+        ],
+      },
+      {
+        heading: 'Connect the approval to the next payment',
+        body: [
+          'A good approval workflow tells the client what happens next. After approval, payment might be due before design begins, before development starts, before final files are exported, or before production access is handed over.',
+          'Use plain terms: "Payment 2 is due after prototype approval and before build work begins." Or: "Final payment is due after final preview approval and before clean exports, source files, or launch access are released." Specific timing prevents the payment link from feeling random.',
+        ],
+      },
+      {
+        heading: 'Keep approvals, scope, and payment in one link',
+        body: [
+          'The workflow gets messy when approval sits in email, scope sits in a proposal, and the payment link sits in a separate invoice. Clients miss steps, freelancers lose context, and nobody is sure which version was approved.',
+          'A cleaner process is one client-ready link that includes the scope, milestone, approval wording, revision limit, amount due, and secure payment link. The client can review the exact terms and take the next step without searching through old messages.',
+        ],
+      },
+      {
+        heading: 'Use calm language when payment is required',
+        body: [
+          'You do not need to make the payment checkpoint sound confrontational. Try: "Thanks for approving the prototype. The next project step is the build phase, and the milestone payment is due before that work begins. Here is the agreement and payment link for approval."',
+          'That wording is direct, professional, and easy for a client to act on. MicroFreelanceHub helps freelancers package approval steps and payment terms into one workflow, but it is software for clearer payment operations, not legal advice.',
+        ],
+      },
+    ],
+  },
 
 ];
 
