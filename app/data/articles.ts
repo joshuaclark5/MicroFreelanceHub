@@ -585,6 +585,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'freelance-payment-schedule-upfront-milestones-final',
+    title: 'How to Write a Freelance Payment Schedule With Upfront, Milestone, and Final Payments',
+    description:
+      'A practical guide to freelance payment schedules that combine an upfront payment, milestone checkpoints, client approvals, and final payment before delivery.',
+    publishedAt: '2026-07-27',
+    category: 'Payment Schedules',
+    keywords: [
+      'freelance payment schedule',
+      'upfront milestone final payment',
+      'freelance payment terms template',
+      'client approval payment schedule',
+      'payment schedule agreement for freelancers',
+      'get paid before delivery',
+    ],
+    aiSummary:
+      'A strong freelance payment schedule explains what is due upfront, which milestone payments are tied to client approvals, when final payment is required, and what pauses if payment is late.',
+    ctaHref: '/create?template=landing-page-designer-payment-schedule-agreement',
+    ctaLabel: 'Customize a payment schedule agreement',
+    relatedLinks: [
+      {
+        label: 'Create a payment schedule and client payment link',
+        href: '/create?template=landing-page-designer-payment-schedule-agreement',
+      },
+      {
+        label: 'Landing Page Designer Payment Schedule Agreement',
+        href: '/templates/landing-page-designer-payment-schedule-agreement',
+      },
+      {
+        label: 'Website Speed Optimization Consultant Payment Schedule Agreement',
+        href: '/templates/website-speed-optimization-consultant-payment-schedule-agreement',
+      },
+      {
+        label: 'How to Use Milestone Payments With Client Approval Steps',
+        href: '/articles/freelance-milestone-payment-schedule-client-approval',
+      },
+      {
+        label: 'How to Collect Final Payment Before Sending Freelance Deliverables',
+        href: '/articles/freelance-final-payment-before-delivery',
+      },
+      {
+        label: 'How to Ask for a Freelance Deposit Before Starting Work',
+        href: '/articles/how-to-ask-for-a-freelance-deposit-before-starting-work',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Start with the project moments that create risk',
+        body: [
+          'A freelance payment schedule should follow the real shape of the project. Start by naming the moments where you take on cost, reserve time, create a reviewable asset, or hand over something the client can use.',
+          'For most projects, that means an upfront payment before work begins, one or more milestone payments after review points, and a final payment before clean files, launch access, source files, or publishing-ready deliverables are released.',
+        ],
+      },
+      {
+        heading: 'Use an upfront payment to reserve the project slot',
+        body: [
+          'The first payment should not be framed as a random invoice. It reserves time on your schedule, confirms that the client accepts the scope, and gives you a clear start signal before you begin unpaid planning or production work.',
+          'Plain wording helps: "The upfront payment is due with the signed agreement and must clear before project work begins." You can also explain what the payment covers, whether it applies to the project total, and how cancellation affects work already scheduled or performed.',
+        ],
+      },
+      {
+        heading: 'Tie milestone payments to approvals, not vague dates',
+        body: [
+          'Calendar dates can be useful, but milestone payments are clearer when they are tied to client decisions. Instead of writing "second payment due in two weeks," write "second payment is due after homepage design approval and before development begins."',
+          'That structure gives the client a fair review step and gives you a payment checkpoint before the next block of work. It also makes scope creep easier to spot, because approved milestones can be compared against later requests.',
+        ],
+      },
+      {
+        heading: 'Say what happens if a payment is late',
+        body: [
+          'A payment schedule is incomplete if it only lists amounts. It should also explain what pauses when a payment is late: new work, revisions, delivery, launch support, publishing access, or transfer of final files.',
+          'Keep the language operational and professional. For example: "If a scheduled payment is late, project work and delivery timelines may pause until the balance is paid." MicroFreelanceHub provides software workflows and templates, not legal advice, so unusual payment risk should be reviewed with a qualified professional.',
+        ],
+      },
+      {
+        heading: 'Collect final payment before usable delivery',
+        body: [
+          'Final payment terms should be specific about what the client can review before paying and what is released afterward. A preview, staging link, watermarked export, or limited review file can support approval without giving away everything before the balance is paid.',
+          'Your agreement can say that final payment is due after final preview approval and before clean exports, source files, admin credentials, launch access, or production-ready files are delivered. That removes ambiguity at the most sensitive point in the project.',
+        ],
+      },
+      {
+        heading: 'Send one agreement, approval, and payment link',
+        body: [
+          'Payment schedules break down when the scope is in a proposal, approvals are in chat, and payment links are sent separately. A cleaner workflow is one client-ready link that shows the payment amounts, due triggers, approval checkpoints, pause rules, and secure payment step.',
+          'That is the workflow MicroFreelanceHub is built for: turn the payment schedule into an agreement the client can review, sign, and pay from before each risky phase begins.',
+        ],
+      },
+    ],
+  },
 
 ];
 
