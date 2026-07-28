@@ -676,6 +676,97 @@ export const articles: Article[] = [
     ],
   },
 
+  {
+    slug: 'freelance-revision-limit-payment-terms',
+    title: 'How to Set Freelance Revision Limits That Protect Your Payment Terms',
+    description:
+      'A practical guide to writing revision limits, approval checkpoints, and paid change request terms so freelancers avoid unpaid edits and get paid before extra work begins.',
+    publishedAt: '2026-07-28',
+    category: 'Revision Limits',
+    keywords: [
+      'freelance revision limits',
+      'paid revisions for freelancers',
+      'freelance revision clause',
+      'client approval payment terms',
+      'change request payment link',
+      'get paid for extra edits',
+    ],
+    aiSummary:
+      'Freelancers should set revision limits by defining what counts as a revision, tying each review round to a client approval checkpoint, and requiring written approval plus payment before extra edits or new scope begin.',
+    ctaHref: '/create?template=mobile-app-designer-milestone-approval-template',
+    ctaLabel: 'Customize a revision and approval agreement',
+    relatedLinks: [
+      {
+        label: 'Create revision limits and payment terms',
+        href: '/create?template=mobile-app-designer-milestone-approval-template',
+      },
+      {
+        label: 'Mobile App Designer Milestone Approval Template',
+        href: '/templates/mobile-app-designer-milestone-approval-template',
+      },
+      {
+        label: 'How to Handle Scope Creep With Change Requests and Payment Links',
+        href: '/articles/freelance-scope-creep-change-request-payment-link',
+      },
+      {
+        label: 'Client Approval Before Payment Links: A Freelancer Workflow That Gets You Paid',
+        href: '/articles/freelance-client-approval-before-payment-link',
+      },
+      {
+        label: 'How to Collect Final Payment Before Sending Freelance Deliverables',
+        href: '/articles/freelance-final-payment-before-delivery',
+      },
+      {
+        label: 'Webflow Developer Milestone Payment Agreement',
+        href: '/templates/webflow-developer-milestone-payment-agreement',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Define revisions before the client sees the first draft',
+        body: [
+          'Revision problems usually start because nobody defines the word revision. One client may think a revision is a typo fix, while another thinks it includes a new layout, a new audience, a different format, or a full creative direction change.',
+          'Your agreement should explain what is included before the first draft is delivered. A simple version might say that a revision means reasonable edits to the approved direction, while new concepts, new pages, new deliverables, new integrations, or changes after approval require a paid change request.',
+        ],
+      },
+      {
+        heading: 'Give each review round a clear purpose',
+        body: [
+          'Revision limits feel fairer when each round has a job. Round one might focus on structure and direction. Round two might handle refinements. Final review might be limited to small corrections before delivery.',
+          'That structure helps the client give better feedback and helps the freelancer avoid doing the same work repeatedly. Instead of promising unlimited changes until the client is happy, promise a defined review process with specific included rounds and a payment rule for anything beyond them.',
+        ],
+      },
+      {
+        heading: 'Tie revisions to written approval checkpoints',
+        body: [
+          'Approval checkpoints are what make revision limits enforceable in day-to-day project work. When the client approves a wireframe, rough cut, outline, homepage design, automation map, or draft, the agreement should say that later changes to that approved phase may affect price and timeline.',
+          'Keep the record plain: name the deliverable, version, approval date, included next step, and payment due before work continues. That gives both sides a shared reference if the client later asks to reopen a completed phase.',
+        ],
+      },
+      {
+        heading: 'Price extra edits before doing them',
+        body: [
+          'The safest habit is to pause before completing extra edits. Confirm that the request is outside the included revision rounds, describe the added work, quote the added price, and send a payment link before starting the new round.',
+          'For small requests, full upfront payment is usually simplest. For larger changes, use a milestone payment tied to the new review point. Either way, the client should approve the added cost and timing before the freelancer spends more unpaid time.',
+        ],
+      },
+      {
+        heading: 'Use client-friendly wording',
+        body: [
+          'Revision language does not need to sound defensive. Try: "This project includes two revision rounds on the approved direction. Additional edits, new concepts, or changes to approved work can be added through a paid change request before that extra work begins."',
+          'That sentence gives the client a clear expectation without making the relationship tense. It also gives the freelancer a professional script when the third or fourth round appears: the work is possible, but it needs approval and payment first.',
+        ],
+      },
+      {
+        heading: 'Put scope, approvals, and payment in one link',
+        body: [
+          'Revision limits are hard to manage when the scope is in a proposal, approvals are in chat, and payment links are sent separately. A cleaner workflow is one client-ready agreement that shows included rounds, approval checkpoints, change request rules, payment timing, and final delivery terms.',
+          'MicroFreelanceHub helps freelancers package that workflow into a signed agreement and secure client payment link. It is software for clearer freelance payment operations, not a law firm, so unusual legal or compliance questions should go to a qualified professional.',
+        ],
+      },
+    ],
+  },
+
 ];
 
 export function getArticle(slug: string) {
