@@ -67,14 +67,14 @@ export default function Home() {
               </Link>
             ) : (
               <>
-                <Link href="/login" className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors hidden sm:block">
+                <Link href="/login?mode=signin" className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">
                   Log in
                 </Link>
                 <Link
-                  href="/login?plan=starter"
+                  href="/login"
                   className="bg-blue-600 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg"
                 >
-                  Get Started
+                  Sign up
                 </Link>
               </>
             )}
@@ -97,9 +97,20 @@ export default function Home() {
               <Link href="/templates" className="rounded-lg px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
                 Templates
               </Link>
-              <Link href="/create" className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-bold text-white">
-                Create contract
-              </Link>
+              {user ? (
+                <Link href="/dashboard" className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-bold text-white">
+                  Dashboard
+                </Link>
+              ) : (
+                <div className="grid grid-cols-2 gap-3 pt-1">
+                  <Link href="/login?mode=signin" className="rounded-lg border border-slate-200 px-3 py-2 text-center text-sm font-bold text-slate-700">
+                    Log in
+                  </Link>
+                  <Link href="/login" className="rounded-lg bg-blue-600 px-3 py-2 text-center text-sm font-bold text-white">
+                    Sign up
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         )}

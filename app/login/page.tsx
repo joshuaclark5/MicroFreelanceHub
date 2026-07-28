@@ -20,9 +20,16 @@ function LoginForm() {
 
   const templateSlug = searchParams.get('template');
   const plan = searchParams.get('plan') as 'starter' | 'pro' | 'agency' | null;
+  const mode = searchParams.get('mode');
   const landingPageParam = searchParams.get('landing_page');
   const leadSourceParam = searchParams.get('lead_source');
   const planName = plan === 'starter' ? 'Starter' : plan === 'pro' ? 'Professional' : 'Agency';
+
+  useEffect(() => {
+    if (mode === 'signin') {
+      setAuthMode('signin');
+    }
+  }, [mode]);
 
   const templateName = templateSlug
     ? templateSlug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
