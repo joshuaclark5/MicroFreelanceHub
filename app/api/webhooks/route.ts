@@ -40,6 +40,7 @@ export async function POST(req: Request) {
       const userId = session.client_reference_id;
       const stripeCustomerId = session.customer as string;
       const subscriptionId = session.subscription as string;
+      const customerEmail = session.customer_details?.email || null;
 
       // Validate we have userId
       if (!userId) {
@@ -49,16 +50,20 @@ export async function POST(req: Request) {
 
       console.log(`💰 Processing payment for User: ${userId}, Customer: ${stripeCustomerId}`);
 
-      // Update user's profile with is_pro=true and save Stripe IDs
+      const profileUpdate: Record<string, string | boolean | null> = {
+        id: userId,
+        is_pro: true,
+        stripe_customer_id: stripeCustomerId,
+        subscription_id: subscriptionId,
+        updated_at: new Date().toISOString(),
+      };
+
+      if (customerEmail) profileUpdate.email = customerEmail;
+
+      // Upsert user's profile with is_pro=true and save Stripe IDs.
       const { error } = await supabaseAdmin
         .from('profiles')
-        .update({
-          is_pro: true,
-          stripe_customer_id: stripeCustomerId,
-          subscription_id: subscriptionId,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', userId);
+        .upsert(profileUpdate, { onConflict: 'id' });
 
       if (error) {
         console.error(`❌ Error updating profile for user ${userId}:`, error);

@@ -52,9 +52,13 @@ export async function POST(request: Request) {
     // Get user's Stripe customer ID or create one
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('stripe_customer_id')
+      .select('*')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
+
+    if (profileError) {
+      console.error('Error loading profile for checkout:', profileError);
+    }
 
     let stripeCustomerId = profile?.stripe_customer_id;
 
@@ -71,8 +75,14 @@ export async function POST(request: Request) {
       // Save the Stripe customer ID
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ stripe_customer_id: stripeCustomerId })
-        .eq('id', userId);
+        .upsert({
+          id: userId,
+          email: user.email,
+          stripe_customer_id: stripeCustomerId,
+          signup_landing_page: landingPage || null,
+          lead_source: leadSource || null,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'id' });
 
       if (updateError) {
         console.error('Error saving Stripe customer ID:', updateError);

@@ -1,4 +1,5 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
@@ -11,6 +12,10 @@ export async function GET(request: Request) {
   const lead_source = requestUrl.searchParams.get('lead_source');
   const cookieStore = cookies();
   const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
 
   // Exchange auth code for session
   if (code) {
@@ -24,15 +29,22 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // Save lead source tracking to user profile
-  if (landing_page || lead_source) {
-    await supabase
-      .from('profiles')
-      .update({
-        signup_landing_page: landing_page,
-        lead_source: lead_source,
-      })
-      .eq('id', user.id);
+  // Ensure every auth user has a profile row and preserve signup attribution.
+  const profileUpdate: Record<string, string | null> = {
+    id: user.id,
+    email: user.email || null,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (landing_page) profileUpdate.signup_landing_page = landing_page;
+  if (lead_source) profileUpdate.lead_source = lead_source;
+
+  const { error: profileError } = await supabaseAdmin
+    .from('profiles')
+    .upsert(profileUpdate, { onConflict: 'id' });
+
+  if (profileError) {
+    console.error('Profile upsert failed during auth callback:', profileError);
   }
 
   const successParams = new URLSearchParams({

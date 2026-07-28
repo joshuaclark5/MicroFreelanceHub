@@ -212,9 +212,13 @@ function LoginForm() {
                 </>
             ) : (
                 <>
-                    <h1 className="text-3xl font-bold tracking-tight text-slate-900">Welcome Back</h1>
+                    <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+                        {authMode === 'signup' ? 'Create your free account' : 'Welcome Back'}
+                    </h1>
                     <p className="mt-3 text-slate-500 text-sm">
-                        Sign in to manage your contracts and clients.
+                        {authMode === 'signup'
+                          ? 'Save your agreements, send client links, and manage deposits from one dashboard.'
+                          : 'Sign in to manage your contracts and clients.'}
                     </p>
                 </>
             )}
