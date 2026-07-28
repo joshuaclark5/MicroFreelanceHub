@@ -89,7 +89,7 @@ export default function Dashboard() {
 
   const refreshData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) return [];
 
       const { data: sowData } = await supabase.from('sow_documents').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
       if (sowData) setSows(sowData);
@@ -102,6 +102,8 @@ export default function Dashboard() {
               setTotalExpenses(total);
           }
       }
+
+      return sowData || [];
   };
 
   useEffect(() => {
@@ -116,9 +118,6 @@ export default function Dashboard() {
         if (profile) {
             setIsPro(profile.is_pro || false);
             setStripeId(profile.stripe_account_id || null);
-            if (!profile.has_completed_onboarding) {
-              setShowWelcomeWizard(true);
-            }
         }
 
         // 🧠 RECOVERY LOGIC: Check for "Lost Luggage" (Pending SOW)
@@ -160,7 +159,10 @@ export default function Dashboard() {
             }
         }
 
-        await refreshData();
+        const sowData = await refreshData();
+        if (profile && !profile.has_completed_onboarding && sowData.length === 0) {
+          setShowWelcomeWizard(true);
+        }
 
       } catch (err) { console.error(err); } finally { setLoading(false); }
     };
