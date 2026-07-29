@@ -767,6 +767,97 @@ export const articles: Article[] = [
     ],
   },
 
+  {
+    slug: 'freelance-stripe-payment-link-contract-terms',
+    title: 'What Freelancers Should Put in a Contract Before Sending a Stripe Payment Link',
+    description:
+      'A practical guide to pairing Stripe payment links with freelance contract terms for deposits, approval checkpoints, payment timing, scope changes, and final delivery.',
+    publishedAt: '2026-07-29',
+    category: 'Payment Links',
+    keywords: [
+      'freelance Stripe payment link contract',
+      'Stripe payment link for freelancers',
+      'freelance payment link terms',
+      'deposit payment link before work',
+      'client payment approval workflow',
+      'get paid before delivery',
+    ],
+    aiSummary:
+      'Before sending a Stripe payment link, freelancers should put the payment amount, due trigger, covered scope, approval checkpoint, change request rule, and delivery condition in a written agreement so the payment is tied to clear client expectations.',
+    ctaHref: '/create?template=email-marketing-automation-consultant-upfront-payment-contract',
+    ctaLabel: 'Create a contract with a payment link',
+    relatedLinks: [
+      {
+        label: 'Create a contract and client payment link',
+        href: '/create?template=email-marketing-automation-consultant-upfront-payment-contract',
+      },
+      {
+        label: 'Email Marketing Automation Consultant Upfront Payment Contract',
+        href: '/templates/email-marketing-automation-consultant-upfront-payment-contract',
+      },
+      {
+        label: 'Shopify Store Setup Specialist Deposit and Approval Agreement',
+        href: '/templates/shopify-store-setup-specialist-deposit-and-approval-agreement',
+      },
+      {
+        label: 'How to Write a Freelance Payment Schedule With Upfront, Milestone, and Final Payments',
+        href: '/articles/freelance-payment-schedule-upfront-milestones-final',
+      },
+      {
+        label: 'Client Approval Before Payment Links: A Freelancer Workflow That Gets You Paid',
+        href: '/articles/freelance-client-approval-before-payment-link',
+      },
+      {
+        label: 'How to Collect Final Payment Before Sending Freelance Deliverables',
+        href: '/articles/freelance-final-payment-before-delivery',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Do not let the payment link replace the agreement',
+        body: [
+          'A Stripe payment link is excellent for collecting money quickly, but it is not the full project record by itself. The client still needs to know what they are approving, what the payment covers, when work starts, and what happens if the project changes.',
+          'Treat the payment link as one step inside a client-ready agreement. The agreement should explain the scope, deposit or milestone amount, payment timing, revision limits, cancellation terms, and delivery rules before the client pays.',
+        ],
+      },
+      {
+        heading: 'Name the payment trigger',
+        body: [
+          'Every payment link should answer one simple question: why is this payment due now? For an upfront payment, the trigger might be signing the agreement and reserving the project start date. For a milestone payment, it might be approval of a wireframe, automation map, rough cut, or setup checklist.',
+          'Plain contract language helps the payment feel normal: "The upfront payment is due with the signed agreement and must clear before kickoff work begins." Or: "The next milestone payment is due after client approval of the setup plan and before implementation begins."',
+        ],
+      },
+      {
+        heading: 'State what the payment covers',
+        body: [
+          'Clients are less likely to dispute a payment when the agreement says exactly what is included. List the deliverables, included review rounds, timeline assumptions, client responsibilities, and any third-party costs or platform access the freelancer needs before starting.',
+          'This matters for payment links because the checkout step is fast. If the agreement is vague, a client can pay quickly and still misunderstand the scope. A clear scope turns the payment into a confirmed project step instead of a loose transaction.',
+        ],
+      },
+      {
+        heading: 'Connect approvals to the next payment link',
+        body: [
+          'For longer projects, do not wait until the end to ask for money. Build approval checkpoints into the agreement, then send the next payment link only after the client approves the current phase and before the next phase begins.',
+          'For example, a Shopify setup project might collect a deposit before kickoff, a milestone payment after homepage and product structure approval, and final payment before launch access or handoff documentation is delivered. Each payment is tied to a clear decision point.',
+        ],
+      },
+      {
+        heading: 'Add change request and revision rules',
+        body: [
+          'A payment link cannot protect you from unpaid extra work unless the contract explains what counts as extra. Include a revision limit, a rule for changes after approval, and a requirement that added work must be approved and paid before the freelancer begins it.',
+          'Client-friendly wording works well: "Requests outside the approved scope or included revision rounds can be added through a written change request. Additional work begins after the client approves the change and completes the related payment link."',
+        ],
+      },
+      {
+        heading: 'Tie final delivery to cleared payment',
+        body: [
+          'Final payment terms should say what the client can review before paying and what is released after payment clears. A freelancer might provide a preview, staging link, watermarked export, or review file before final payment, then release clean files, source files, production access, or launch support afterward.',
+          'MicroFreelanceHub helps freelancers package the contract, signature step, and secure client payment link in one workflow. It is software for clearer freelance payment operations, not legal advice, so unusual compliance or contract questions should go to a qualified professional.',
+        ],
+      },
+    ],
+  },
+
 ];
 
 export function getArticle(slug: string) {
