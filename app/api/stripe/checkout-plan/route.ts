@@ -95,6 +95,7 @@ export async function POST(request: Request) {
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       customer: stripeCustomerId,
+      allow_promotion_codes: true,
       client_reference_id: userId, // Pass userId so webhook can identify the user
       metadata: {
         plan,
