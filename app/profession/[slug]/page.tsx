@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { 
-  Briefcase, FileSignature, Receipt, ChevronRight, Wrench 
+  Briefcase, FileSignature, Receipt, ChevronRight, Wrench, Home, Sparkles
 } from 'lucide-react';
 
 // 🚀 CRITICAL FIX #6: 24-hour caching for scale
@@ -75,6 +75,14 @@ export default async function ProfessionHubPage({ params }: { params: { slug: st
   const definingGroup = templates.filter(t => documentGroups.defining.docs.includes(t.document_type));
   const executionGroup = templates.filter(t => documentGroups.execution.docs.includes(t.document_type));
   const paymentGroup = templates.filter(t => documentGroups.payment.docs.includes(t.document_type));
+  const groupedSlugs = new Set([
+    ...definingGroup.map(t => t.slug),
+    ...executionGroup.map(t => t.slug),
+    ...paymentGroup.map(t => t.slug),
+  ]);
+  const ungroupedGroup = templates.filter(t => !groupedSlugs.has(t.slug));
+  const primaryTemplate = templates[0];
+  const createHref = primaryTemplate?.slug ? `/create?template=${primaryTemplate.slug}` : '/create';
 
   const renderTemplateCard = (doc: any, icon: any, colorClass: string, bgClass: string) => {
     const Icon = icon;
@@ -130,6 +138,17 @@ export default async function ProfessionHubPage({ params }: { params: { slug: st
           <p className="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed">
             As a {professionName}, you deal with constant revision risks, material costs, and scope creep. Stop running your business on handshake deals. Use these interconnected legal templates to define your scope, approve production changes, and guarantee your final payments.
           </p>
+
+          <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
+            <Link href={createHref} className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-500 px-6 py-3 text-sm font-extrabold text-white shadow-lg shadow-blue-950/20 transition hover:bg-blue-400">
+              <Sparkles className="h-4 w-4" />
+              Create Agreement
+            </Link>
+            <Link href="/" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/10 px-6 py-3 text-sm font-extrabold text-white transition hover:bg-white/15">
+              <Home className="h-4 w-4" />
+              Home
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -167,6 +186,18 @@ export default async function ProfessionHubPage({ params }: { params: { slug: st
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {paymentGroup.map(doc => renderTemplateCard(doc, documentGroups.payment.icon, 'text-emerald-600', 'bg-emerald-100'))}
+            </div>
+          </div>
+        )}
+
+        {ungroupedGroup.length > 0 && (
+          <div className="mb-16">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-8 pl-2 border-l-4 border-blue-500">
+              <h2 className="text-2xl font-bold text-slate-900">Available templates</h2>
+              <span className="w-fit px-3 py-1 rounded-full bg-slate-200 text-slate-600 text-xs font-bold">{ungroupedGroup.length} Docs</span>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {ungroupedGroup.map(doc => renderTemplateCard(doc, Briefcase, 'text-blue-600', 'bg-blue-100'))}
             </div>
           </div>
         )}
