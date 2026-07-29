@@ -24,8 +24,8 @@ Unless otherwise agreed, a 50% deposit is required to begin work, with the remai
 2. OWNERSHIP & RIGHTS
 Upon full payment, the Client is granted exclusive rights to the final deliverables. The Freelancer retains the right to use the work for portfolio and self-promotional purposes.
 
-3. CANCELLATION & LIABILITY
-If the Client cancels the project after work has begun, the Freelancer retains the deposit. The Freelancer's liability is limited to the total value of this contract.
+3. CANCELLATION & RESPONSIBILITIES
+If the Client cancels the project after work has begun, any deposit, completed work, or unpaid balance should be handled according to the payment terms selected by the parties. Each party should review responsibility limits with a qualified professional when needed.
 --------------------------------------------------`;
 
 // Interface for Line Items
@@ -189,8 +189,8 @@ ${terms}
 2. OWNERSHIP & RIGHTS
 Upon full payment, the Client is granted exclusive rights to the final deliverables. The Freelancer retains the right to use the work for portfolio and self-promotional purposes.
 
-3. CANCELLATION & LIABILITY
-If the Client cancels the project after work has begun, the Freelancer retains the deposit. The Freelancer's liability is limited to the total value of this contract.
+3. CANCELLATION & RESPONSIBILITIES
+If the Client cancels the project after work has begun, any deposit, completed work, or unpaid balance should be handled according to the payment terms selected by the parties. Each party should review responsibility limits with a qualified professional when needed.
 --------------------------------------------------`;
   };
 
@@ -285,7 +285,7 @@ If the Client cancels the project after work has begun, the Freelancer retains t
                  if (cleanContent) {
                      // We have rich AI text! Append standard payment terms so triggers still work.
                      const terms = getPaymentTermsText();
-                     fullContent = `1. PROJECT OVERVIEW\nThis document outlines the professional services for the agreed upon project.\n\n2. SPECIFIC PROVISIONS\n${cleanContent}\n\n--------------------------------------------------\nTERMS & CONDITIONS\n\n${terms}\n\n2. OWNERSHIP & RIGHTS\nUpon full payment, the Client is granted exclusive rights to the final deliverables. The Freelancer retains the right to use the work for portfolio and self-promotional purposes.\n\n3. CANCELLATION & LIABILITY\nIf the Client cancels the project after work has begun, the Freelancer retains the deposit. The Freelancer's liability is limited to the total value of this contract.\n--------------------------------------------------`;
+                     fullContent = `1. PROJECT OVERVIEW\nThis document outlines the professional services for the agreed upon project.\n\n2. SPECIFIC PROVISIONS\n${cleanContent}\n\n--------------------------------------------------\nTERMS & CONDITIONS\n\n${terms}\n\n2. OWNERSHIP & RIGHTS\nUpon full payment, the Client is granted exclusive rights to the final deliverables. The Freelancer retains the right to use the work for portfolio and self-promotional purposes.\n\n3. CANCELLATION & RESPONSIBILITIES\nIf the Client cancels the project after work has begun, any deposit, completed work, or unpaid balance should be handled according to the payment terms selected by the parties. Each party should review responsibility limits with a qualified professional when needed.\n--------------------------------------------------`;
                  } else {
                      // Fallback to basic list generator if content column is missing
                      const bullets = formatDeliverablesList(seoDoc.deliverables);

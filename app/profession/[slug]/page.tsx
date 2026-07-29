@@ -25,8 +25,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const professionName = data?.[0]?.job_title || toTitleCase(params.slug);
 
   return {
-    title: `${professionName} Business Templates & Legal Documents`,
-    description: `Download free, professional legal templates, contracts, and invoices built specifically for ${professionName}s. Protect your scope, time, and payments.`,
+    title: `${professionName} Business Templates & Documents`,
+    description: `Browse free, professional templates, contracts, and invoices built for ${professionName}s. Organize scope, approvals, payment terms, and client communication.`,
     alternates: {
       canonical: `https://www.microfreelancehub.com/profession/${params.slug}`,
     }
@@ -48,7 +48,7 @@ const documentGroups = {
     docs: ['Work Order', 'Change Order', 'Project Sign-Off Form', 'Subcontractor Agreement', 'Maintenance Agreement']
   },
   payment: {
-    title: "Phase 3: Financial Protection",
+    title: "Phase 3: Payments & Follow-Up",
     color: "emerald",
     icon: Receipt,
     docs: ['Invoice', 'Retainer Agreement', 'Late Payment Demand Letter', 'Cease and Desist Letter']
@@ -86,6 +86,7 @@ export default async function ProfessionHubPage({ params }: { params: { slug: st
 
   const renderTemplateCard = (doc: any, icon: any, colorClass: string, bgClass: string) => {
     const Icon = icon;
+    const documentName = (doc.document_type || 'business document').toLowerCase();
     return (
       <Link href={`/templates/${doc.slug}`} key={doc.slug}>
         <div className="bg-white border border-slate-200 rounded-2xl p-6 hover:border-slate-400 hover:shadow-xl transition-all group h-full flex flex-col relative overflow-hidden">
@@ -102,7 +103,7 @@ export default async function ProfessionHubPage({ params }: { params: { slug: st
             </div>
           </div>
           <p className="text-sm text-slate-600 leading-relaxed mb-6 line-clamp-3">
-            {doc.ai_summary || `Protect your business with this standard ${doc.document_type.toLowerCase()} template.`}
+            Use this {documentName} template to outline scope, approvals, pricing, timelines, and payment details for {professionName} work.
           </p>
           <div className="mt-auto flex items-center text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
             View & Customize <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
@@ -136,7 +137,7 @@ export default async function ProfessionHubPage({ params }: { params: { slug: st
           
           {/* 🚀 CRITICAL FIX #4: Dynamic Semantic Intro Copy */}
           <p className="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed">
-            As a {professionName}, you deal with constant revision risks, material costs, and scope creep. Stop running your business on handshake deals. Use these interconnected legal templates to define your scope, approve production changes, and guarantee your final payments.
+            As a {professionName}, you deal with revisions, material costs, schedule changes, and scope creep. Use these business templates to define the work, document approvals, and keep payment expectations clear.
           </p>
 
           <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">

@@ -123,42 +123,42 @@ export default async function Image({ params }: { params: { slug: string } }) {
     : 'Contract Template';
   
   // 👉 High-Conversion Title Copy
-  const mainTitleSuffix = isEmail ? 'That Gets You Paid' 
+  const mainTitleSuffix = isEmail ? 'For Payment Follow-Up' 
     : isInvoice ? 'With Instant Payments'
-    : isProposal ? 'That Secures Deposits'
+    : isProposal ? 'With Clear Deposit Terms'
     : isRetainer ? 'For Recurring Revenue'
-    : isChangeOrder ? 'To Stop Scope Creep'
-    : isScopeOfWork ? 'To Protect Your Time'
+    : isChangeOrder ? 'For Scope Changes'
+    : isScopeOfWork ? 'For Clear Deliverables'
     : isWorkOrder ? 'To Start The Job Fast'
-    : isSubcontractor ? 'To Outsource Safely'
-    : isNDA ? 'To Protect Your IP'
-    : isDemandLetter ? 'To Force Payment Now'
-    : isCeaseAndDesist ? 'To Stop Unauthorized Use'
+    : isSubcontractor ? 'For Subcontractor Work'
+    : isNDA ? 'For Confidential Projects'
+    : isDemandLetter ? 'For Payment Follow-Up'
+    : isCeaseAndDesist ? 'For Formal Notices'
     : isServiceAgreement ? 'To Define Your Services'
     : isMaintenance ? 'For Ongoing Support'
-    : isContractor ? 'To Ensure 1099 Status'
-    : isSignOff ? 'To Prevent Free Revisions'
-    : isDepositAgreement ? 'To Secure Upfront Payment'
-    : 'That Protects Your Time';
+    : isContractor ? 'For Contractor Terms'
+    : isSignOff ? 'For Final Approval'
+    : isDepositAgreement ? 'For Upfront Payment Terms'
+    : 'For Clear Project Terms';
 
   // 👉 Subtitle Copy
-  const subtitleText = isEmail ? 'Automate your collections & stop chasing checks'
+  const subtitleText = isEmail ? 'Organize collection messages and payment reminders'
     : isInvoice ? 'Enable Stripe payments & streamline cash flow' 
-    : isProposal ? 'Set clear boundaries & lock in your project rate'
+    : isProposal ? 'Set clear scope, pricing, and approval expectations'
     : isRetainer ? 'Automate monthly billing & secure your baseline income'
-    : isChangeOrder ? 'Never do unpaid extra work for clients again'
+    : isChangeOrder ? 'Document extra work before the project changes'
     : isScopeOfWork ? 'Define exact deliverables and revision limits'
     : isWorkOrder ? 'Document site details, labor, and authorize the start'
-    : isSubcontractor ? 'Prevent client poaching and limit your liability'
-    : isNDA ? 'Secure trade secrets and unreleased portfolio work'
-    : isDemandLetter ? 'Issue a formal legal threat and set a hard deadline'
-    : isCeaseAndDesist ? 'Demand immediate removal of stolen or unpaid work'
+    : isSubcontractor ? 'Outline client, scope, payment, and responsibility terms'
+    : isNDA ? 'Document confidentiality expectations for sensitive work'
+    : isDemandLetter ? 'Send a formal payment notice with clear next steps'
+    : isCeaseAndDesist ? 'Request removal or correction with a formal notice'
     : isServiceAgreement ? 'Clearly outline your ongoing service terms and SLAs'
-    : isMaintenance ? 'Secure long-term revenue with a structured upkeep plan'
-    : isContractor ? 'Legally define autonomy, tax liability, and scope'
-    : isSignOff ? 'Force formal acceptance of the final deliverables'
+    : isMaintenance ? 'Structure recurring service, upkeep, and billing details'
+    : isContractor ? 'Document autonomy, tax, scope, and payment expectations'
+    : isSignOff ? 'Record client acceptance of final deliverables'
     : isDepositAgreement ? 'Collect deposits before reserving labor or materials'
-    : 'Prevent scope creep & secure your upfront deposit';
+    : 'Clarify scope, approvals, and upfront payment terms';
     
   // 👉 Subtitle Colors
   const subtitleColor = isEmail ? '#a5b4fc' : isInvoice ? '#6ee7b7' : isProposal ? '#fcd34d' : isRetainer ? '#c4b5fd' : isChangeOrder ? '#fda4af' : isScopeOfWork ? '#67e8f9' : isWorkOrder ? '#fdba74' : isSubcontractor ? '#5eead4' : isNDA ? '#a1a1aa' : isDemandLetter ? '#fca5a5' : isCeaseAndDesist ? '#d6d3d1' : isServiceAgreement ? '#e879f9' : isMaintenance ? '#a3e635' : isContractor ? '#7dd3fc' : isSignOff ? '#f472b6' : isDepositAgreement ? '#6ee7b7' : '#93c5fd';

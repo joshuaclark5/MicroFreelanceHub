@@ -75,6 +75,22 @@ function pluralize(word: string | null) {
   return trimmed + 's';
 }
 
+function softenLegalClaims(text: string | null | undefined) {
+  if (!text) return '';
+  return text
+    .replace(/\bprovides essential legal protection\b/gi, 'helps document project expectations')
+    .replace(/\bprotect your business\b/gi, 'clarify your business terms')
+    .replace(/\bprotect your time\b/gi, 'clarify your time and scope')
+    .replace(/\bprotect\b/gi, 'clarify')
+    .replace(/\bguarantee your final payments\b/gi, 'keep payment expectations clear')
+    .replace(/\bguarantee payment\b/gi, 'set payment expectations')
+    .replace(/\blegal templates\b/gi, 'business templates')
+    .replace(/\blegally define\b/gi, 'document')
+    .replace(/\blimit your liability\b/gi, 'outline responsibility boundaries')
+    .replace(/\bforce payment\b/gi, 'request payment')
+    .replace(/\bformal legal threat\b/gi, 'formal payment notice');
+}
+
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const result = await findDoc(params.slug);
   if (!result) return { title: 'Template Not Found' };
@@ -86,7 +102,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const label = isEmail ? 'Late Payment Emails' : documentType;
   const pageTitle = doc.seo_title || `Free ${title} ${label} (2026)`;
   
-  const metaDescription = doc.seo_desc || doc.ai_summary || `Download a free, professional ${title} ${label.toLowerCase()} template. Protect your business from scope creep and get paid faster.`;
+  const metaDescription = `Start with a free, professional ${title} ${label.toLowerCase()} template to outline scope, deliverables, approvals, and payment steps.`;
 
   return {
     title: pageTitle,
@@ -184,8 +200,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
   const parsedDeliverables = safeParse(doc.deliverables, ["Deliverable Phase 1", "Deliverable Phase 2", "Deliverable Phase 3"]);
   const listItems: string[] = Array.isArray(parsedDeliverables) ? parsedDeliverables : ["Deliverable Phase 1", "Deliverable Phase 2", "Deliverable Phase 3"];
 
-  const parsedFaqs = safeParse(doc.faqs, [{ q: `What is a ${title} ${docType}?`, a: `A professional document to protect your business.` }]);
-  const faqs: any[] = Array.isArray(parsedFaqs) ? parsedFaqs : [{ q: `What is a ${title} ${docType}?`, a: `A professional document to protect your business.` }];
+  const parsedFaqs = safeParse(doc.faqs, [{ q: `What is a ${title} ${docType}?`, a: `A business document that helps clarify project expectations, scope, approvals, and payment terms.` }]);
+  const faqs: any[] = Array.isArray(parsedFaqs) ? parsedFaqs : [{ q: `What is a ${title} ${docType}?`, a: `A business document that helps clarify project expectations, scope, approvals, and payment terms.` }];
 
   const parsedRisks = safeParse(doc.unique_risks, null);
   const displayRisks: any[] = Array.isArray(parsedRisks) ? parsedRisks : [
@@ -205,7 +221,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
     mainEntity: faqs.map((faq: any) => ({
-      '@type': 'Question', name: faq.q, acceptedAnswer: { '@type': 'Answer', text: faq.a }
+      '@type': 'Question', name: faq.q, acceptedAnswer: { '@type': 'Answer', text: softenLegalClaims(faq.a) }
     }))
   };
 
@@ -254,7 +270,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
             </h1>
             
             <p className="text-lg md:text-xl text-slate-300 mb-8 leading-relaxed">
-              Send your first 3 {isEmail ? 'emails' : `${docType.toLowerCase()}s`} for free. {doc.pain_point_hook || `Define your scope, secure signatures, and get paid faster.`}
+              Send your first 3 {isEmail ? 'emails' : `${docType.toLowerCase()}s`} for free. {softenLegalClaims(doc.pain_point_hook) || `Define your scope, collect signatures, and make payment steps clear.`}
             </p>
 
             <Link href={ctaHref}>
@@ -351,8 +367,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                      <div className={`w-12 h-12 ${risk.bg || dynamicRiskBgs[i]} rounded-full flex items-center justify-center mb-4`}>
                         <Icon className={`w-6 h-6 ${risk.color || dynamicRiskColors[i]}`} />
                      </div>
-                     <h3 className="font-bold text-slate-900 mb-2">{risk.title}</h3>
-                     <p className="text-sm text-slate-600">{risk.description}</p>
+                     <h3 className="font-bold text-slate-900 mb-2">{softenLegalClaims(risk.title)}</h3>
+                     <p className="text-sm text-slate-600">{softenLegalClaims(risk.description)}</p>
                   </div>
                 )
             })}
@@ -420,7 +436,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
               <Zap className={`w-6 h-6 ${textColors}`} />
               What is a {title} {docType}?
             </h2>
-            <p className="text-slate-600 text-lg leading-relaxed">{doc.snippet_answer}</p>
+            <p className="text-slate-600 text-lg leading-relaxed">{softenLegalClaims(doc.snippet_answer)}</p>
           </div>
         )}
 
@@ -430,7 +446,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
              <Award className={`w-6 h-6 ${textColors}`} /> Built from real freelance projects
            </h3>
            <p className="text-slate-600 leading-relaxed">
-             This template is based on real-world scenarios across freelance projects where unclear scope, missing payment terms, and revision creep led to lost revenue. It is designed to protect your time, define expectations, and ensure you get paid.
+             This template is based on real-world scenarios across freelance projects where unclear scope, missing payment terms, and revision creep led to lost revenue. It helps clarify your time, define expectations, and make payment steps easier to manage.
            </p>
         </section>
 
@@ -440,7 +456,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
               Why {pluralize(title)} need a clear {docType.toLowerCase()}
             </h2>
             <p className="text-slate-600 leading-relaxed text-lg">
-              {doc.why_it_matters}
+              {softenLegalClaims(doc.why_it_matters)}
             </p>
           </section>
         )}
@@ -452,7 +468,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                Real-world scenario
             </h2>
             <p className="text-slate-300 leading-relaxed text-lg">
-              {doc.real_world_scenario}
+              {softenLegalClaims(doc.real_world_scenario)}
             </p>
           </section>
         )}
@@ -479,8 +495,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
             <div className="space-y-4">
               {bestPractices.map((item: any, i: number) => (
                 <div key={i} className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-                  <h3 className="font-bold text-slate-900 mb-2 text-lg">{item.title}</h3>
-                  <p className="text-slate-600 leading-relaxed">{item.description}</p>
+                  <h3 className="font-bold text-slate-900 mb-2 text-lg">{softenLegalClaims(item.title)}</h3>
+                  <p className="text-slate-600 leading-relaxed">{softenLegalClaims(item.description)}</p>
                 </div>
               ))}
             </div>
@@ -503,7 +519,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
           {faqs.map((faq: any, index: number) => (
             <div key={index} className="bg-slate-50 rounded-xl p-6 md:p-8 border border-slate-100">
               <h3 className="font-bold text-slate-900 text-lg md:text-xl mb-3">{faq.q}</h3>
-              <p className="text-slate-600 leading-relaxed text-lg">{faq.a}</p>
+              <p className="text-slate-600 leading-relaxed text-lg">{softenLegalClaims(faq.a)}</p>
             </div>
           ))}
         </div>
