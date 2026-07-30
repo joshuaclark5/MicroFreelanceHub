@@ -28,6 +28,12 @@ const creatorAngles = [
   'Communities where solo operators want a faster way to prepare client-ready project terms',
 ];
 
+const partnerBenefits = [
+  '30% recurring commission on referred paid subscriptions for approved partners',
+  'Creator-specific referral links so signups and paid plans can be reviewed',
+  'A product angle built around a real freelancer problem: late-payment follow-up, unclear scope, and messy approvals',
+];
+
 export default function PartnersPage() {
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
@@ -40,10 +46,10 @@ export default function PartnersPage() {
             </Link>
             <p className="mb-4 text-sm font-semibold uppercase tracking-wide text-blue-700">Partner Program</p>
             <h1 className="mb-5 max-w-3xl text-4xl font-extrabold leading-tight tracking-normal text-slate-950 md:text-5xl">
-              Share a practical freelance workflow tool with your audience.
+              Help freelancers spend less time chasing project details.
             </h1>
             <p className="max-w-2xl text-lg leading-8 text-slate-600">
-              MicroFreelanceHub helps freelancers outline scope, pricing, approvals, timelines, signatures, and payment steps before work begins.
+              MicroFreelanceHub helps freelancers put scope, pricing, approvals, timelines, signatures, Stripe payment steps, and late-payment reminders into one client-ready workflow.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <a
@@ -88,6 +94,25 @@ export default function PartnersPage() {
         </div>
       </section>
 
+      <section className="border-b border-slate-200 bg-white">
+        <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
+          <div>
+            <h2 className="text-2xl font-bold tracking-normal text-slate-950">Partner offer</h2>
+            <p className="mt-3 text-sm leading-6 text-slate-600">
+              We are starting with a manual partner pilot so every code can be reviewed before payouts are handled.
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            {partnerBenefits.map((benefit) => (
+              <div key={benefit} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                <CheckCircle2 className="mb-3 h-5 w-5 text-emerald-600" />
+                <p className="text-sm leading-6 text-slate-700">{benefit}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="mx-auto grid max-w-6xl gap-8 px-4 py-14 sm:px-6 lg:grid-cols-3 lg:px-8">
         <div>
           <h2 className="text-2xl font-bold tracking-normal text-slate-950">Who it fits</h2>
@@ -116,7 +141,7 @@ export default function PartnersPage() {
             </div>
             <div className="rounded-lg border border-slate-200 bg-slate-50 p-5">
               <p className="text-sm leading-7 text-slate-700">
-                Freelancers: before you start a client project, put the basics in one place: scope, timeline, approvals, pricing, signatures, and payment steps. MicroFreelanceHub gives you templates and a simple agreement builder so the project starts with clearer expectations.
+                Freelancers: stop starting client work from scattered messages. Put scope, pricing, approvals, signatures, Stripe payment steps, and late-payment reminders into one client-ready workflow.
               </p>
               <Link
                 href="/create?ref=partner-page"

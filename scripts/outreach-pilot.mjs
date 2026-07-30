@@ -47,13 +47,13 @@ function buildInitialEmail(target) {
 
   const text = `Hi ${target.name},
 
-${note}One of the biggest problems I see for freelancers is that projects start from scattered messages, vague scope, and unclear payment steps. That is when small misunderstandings turn into extra work, awkward approvals, and messy handoffs.
+${note}A lot of freelancers do the work, then end up chasing late payments, extra requests, and approvals that were never clearly written down.
 
-I am reaching out about MicroFreelanceHub, a simple workflow that helps freelancers put scope, pricing, approvals, timelines, signatures, and payment steps in one client-ready link before a project starts.
+MicroFreelanceHub is built for that problem. It gives freelancers one client-ready link for scope, pricing, approvals, timelines, signatures, Stripe payment steps, and automated late-payment reminders that can become firmer over time.
 
 Your audience seems like a fit: ${target.audience || 'people who work directly with clients'}.
 
-Would you be open to taking a quick look and sharing it if it feels useful? I can set up a partner link so signups and paid plans from your audience are tracked.
+Would you be open to taking a quick look and sharing it if it feels useful? We are testing a partner program with 30% recurring commission on referred paid subscriptions while the customer stays subscribed.
 
 Partner page:
 ${link}
@@ -85,9 +85,9 @@ function buildFollowupEmail(target) {
 
 Just wanted to follow up once on MicroFreelanceHub.
 
-It helps freelancers avoid messy project starts by putting scope, pricing, approvals, timelines, signatures, and payment steps in one client-ready link before work begins.
+It helps freelancers reduce late-payment follow-up and messy approvals by putting scope, pricing, timelines, signatures, Stripe payment steps, and automated late-payment reminders in one client-ready workflow.
 
-If it feels useful for your audience, I can keep your partner link active here:
+If it feels useful for your audience, I can keep your partner link active here. We are testing a 30% recurring commission on referred paid subscriptions while the customer stays subscribed:
 ${link}
 
 No worries if it is not a fit. I will not keep following up.

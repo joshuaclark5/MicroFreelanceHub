@@ -80,17 +80,19 @@ Start with 10 small or mid-sized creators, not giant accounts:
 
 ## Short DM Draft
 
-Hi [Name], I'm building MicroFreelanceHub, a simple tool for freelancers to outline scope, pricing, approvals, timelines, signatures, and payment steps before a client project starts.
+Hi [Name], I'm building MicroFreelanceHub for freelancers who finish the work and then get stuck chasing late payments, extra requests, and approvals that were never clearly written down.
 
-Your audience seems like a strong fit because you already help freelancers run smoother client projects. Would you be open to trying it and sharing it if it feels useful? I can set up a partner link for you so signups and paid plans from your audience are tracked.
+It gives them one client-ready link for scope, pricing, approvals, timelines, signatures, Stripe payment steps, and automated late-payment reminders that can become firmer over time.
+
+Your audience seems like a strong fit because you already help freelancers run smoother client projects. Would you be open to trying it and sharing it if it feels useful? We are testing a partner program with 30% recurring commission on referred paid subscriptions while the customer stays subscribed.
 
 Partner page: https://www.microfreelancehub.com/partners
 
 ## Short Post Draft
 
-Freelancers: before you start a client project, put the basics in one place: scope, timeline, approvals, pricing, signatures, and payment steps.
+Freelancers: stop starting client work from scattered messages.
 
-MicroFreelanceHub gives you templates and a simple agreement builder so the project starts with clearer expectations.
+MicroFreelanceHub puts scope, pricing, approvals, signatures, Stripe payment steps, and automated late-payment reminders into one client-ready workflow.
 
 [partner link]
 
