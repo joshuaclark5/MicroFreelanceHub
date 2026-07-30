@@ -3,7 +3,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { 
-  Briefcase, FileSignature, Receipt, ChevronRight, Wrench, Home, Sparkles
+  Briefcase, FileSignature, Receipt, ChevronRight, Wrench, Home, Sparkles,
+  CheckCircle2, CalendarCheck, CircleDollarSign
 } from 'lucide-react';
 
 // 🚀 CRITICAL FIX #6: 24-hour caching for scale
@@ -83,6 +84,49 @@ export default async function ProfessionHubPage({ params }: { params: { slug: st
   const ungroupedGroup = templates.filter(t => !groupedSlugs.has(t.slug));
   const primaryTemplate = templates[0];
   const createHref = primaryTemplate?.slug ? `/create?template=${primaryTemplate.slug}` : '/create';
+  const totalTemplates = templates.length;
+  const planningCards = [
+    {
+      title: 'Scope and deliverables',
+      copy: `List the exact ${professionName} work, included tasks, materials or files, and what counts as a change request.`,
+      icon: FileSignature,
+      colorClass: 'text-cyan-600',
+      bgClass: 'bg-cyan-100',
+    },
+    {
+      title: 'Approvals and timeline',
+      copy: 'Set review steps, response windows, start dates, milestone dates, and final delivery expectations before work begins.',
+      icon: CalendarCheck,
+      colorClass: 'text-amber-600',
+      bgClass: 'bg-amber-100',
+    },
+    {
+      title: 'Pricing and payment steps',
+      copy: 'Spell out deposits, balances, invoices, due dates, and when work pauses or resumes around payment timing.',
+      icon: CircleDollarSign,
+      colorClass: 'text-emerald-600',
+      bgClass: 'bg-emerald-100',
+    },
+  ];
+  const workflowSteps = [
+    'Pick the document that matches the client conversation.',
+    'Add the scope, price, timeline, payment terms, and approval checkpoints.',
+    'Send one client-ready link for review, signature, and payment steps.',
+  ];
+  const faqItems = [
+    {
+      question: `Which ${professionName} template should I start with?`,
+      answer: `If the client is still deciding, start with an estimate or proposal. If both sides are ready to move forward, start with an agreement or scope of work. If work is complete or a payment milestone is due, start with an invoice or payment-focused template.`,
+    },
+    {
+      question: `What should a ${professionName} agreement include?`,
+      answer: 'A useful agreement should cover the work requested, deliverables, timeline, revision or change process, pricing, payment schedule, client approvals, and what happens if either side needs to pause or change the project.',
+    },
+    {
+      question: 'Can I customize these templates for each client?',
+      answer: 'Yes. Use the template as a starting point, then adjust the project details, payment amounts, dates, included work, and client-specific notes before sending it.',
+    },
+  ];
 
   const renderTemplateCard = (doc: any, icon: any, colorClass: string, bgClass: string) => {
     const Icon = icon;
@@ -145,6 +189,10 @@ export default async function ProfessionHubPage({ params }: { params: { slug: st
               <Sparkles className="h-4 w-4" />
               Create Agreement
             </Link>
+            <Link href="#templates" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/10 px-6 py-3 text-sm font-extrabold text-white transition hover:bg-white/15">
+              <Briefcase className="h-4 w-4" />
+              Browse Templates
+            </Link>
             <Link href="/" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/10 px-6 py-3 text-sm font-extrabold text-white transition hover:bg-white/15">
               <Home className="h-4 w-4" />
               Home
@@ -154,6 +202,75 @@ export default async function ProfessionHubPage({ params }: { params: { slug: st
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 relative z-20">
+        <section className="mb-14 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+          <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+            <div>
+              <p className="text-sm font-extrabold uppercase tracking-widest text-blue-600">Start faster</p>
+              <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-slate-950 md:text-3xl">
+                Turn a {professionName} client conversation into a clear next step
+              </h2>
+              <p className="mt-4 max-w-3xl text-base leading-relaxed text-slate-600">
+                Use this library to move from loose project details to a document you can review, customize, and send before work begins.
+              </p>
+              <div className="mt-6 grid gap-4 sm:grid-cols-3">
+                <div className="rounded-xl bg-slate-50 p-4">
+                  <p className="text-2xl font-black text-slate-950">{totalTemplates}</p>
+                  <p className="mt-1 text-xs font-bold uppercase tracking-wider text-slate-500">Templates found</p>
+                </div>
+                <div className="rounded-xl bg-slate-50 p-4">
+                  <p className="text-2xl font-black text-slate-950">3</p>
+                  <p className="mt-1 text-xs font-bold uppercase tracking-wider text-slate-500">Workflow phases</p>
+                </div>
+                <div className="rounded-xl bg-slate-50 p-4">
+                  <p className="text-2xl font-black text-slate-950">1</p>
+                  <p className="mt-1 text-xs font-bold uppercase tracking-wider text-slate-500">Client-ready link</p>
+                </div>
+              </div>
+            </div>
+            <div className="rounded-2xl bg-slate-950 p-6 text-white">
+              <h3 className="text-lg font-extrabold">Simple workflow</h3>
+              <div className="mt-5 space-y-4">
+                {workflowSteps.map((step, index) => (
+                  <div key={step} className="flex gap-3">
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-500 text-xs font-black">
+                      {index + 1}
+                    </div>
+                    <p className="text-sm leading-relaxed text-slate-200">{step}</p>
+                  </div>
+                ))}
+              </div>
+              <Link href={createHref} className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-extrabold text-slate-950 transition hover:bg-blue-50">
+                <Sparkles className="h-4 w-4" />
+                Create Agreement
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <section className="mb-16">
+          <div className="mb-8 max-w-3xl">
+            <p className="text-sm font-extrabold uppercase tracking-widest text-blue-600">Before sending work</p>
+            <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-slate-950 md:text-3xl">
+              Clarify the pieces clients often miss
+            </h2>
+          </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            {planningCards.map((card) => {
+              const Icon = card.icon;
+              return (
+                <div key={card.title} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <div className={`mb-5 flex h-12 w-12 items-center justify-center rounded-xl ${card.bgClass}`}>
+                    <Icon className={`h-6 w-6 ${card.colorClass}`} />
+                  </div>
+                  <h3 className="text-lg font-extrabold text-slate-950">{card.title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-slate-600">{card.copy}</p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        <div id="templates" className="scroll-mt-8"></div>
         
         {definingGroup.length > 0 && (
           <div className="mb-16">
@@ -202,6 +319,33 @@ export default async function ProfessionHubPage({ params }: { params: { slug: st
             </div>
           </div>
         )}
+
+        <section className="mt-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+          <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr]">
+            <div>
+              <p className="text-sm font-extrabold uppercase tracking-widest text-blue-600">Questions</p>
+              <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-slate-950 md:text-3xl">
+                {professionName} template FAQs
+              </h2>
+              <p className="mt-4 text-sm leading-relaxed text-slate-600">
+                Use these answers to choose a template that fits the stage of the client conversation.
+              </p>
+            </div>
+            <div className="space-y-4">
+              {faqItems.map((item) => (
+                <div key={item.question} className="rounded-xl bg-slate-50 p-5">
+                  <div className="flex gap-3">
+                    <CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-blue-600" />
+                    <div>
+                      <h3 className="font-extrabold text-slate-950">{item.question}</h3>
+                      <p className="mt-2 text-sm leading-relaxed text-slate-600">{item.answer}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
 
       </div>
     </div>
