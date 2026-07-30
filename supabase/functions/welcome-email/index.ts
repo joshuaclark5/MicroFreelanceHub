@@ -55,13 +55,13 @@ Deno.serve(async (req) => {
             <p>We're thrilled to have you on board. Here's what MicroFreelanceHub can do for your freelance business:</p>
 
             <div class="value-prop">
-              <strong>Rock-Solid Agreements</strong>
-              <div class="value-prop-text">Send contracts and handle extra work with strict Change Orders that force a re-signature.</div>
+              <strong>Clear Agreements</strong>
+              <div class="value-prop-text">Send agreements and handle extra work with written change orders and updated signatures.</div>
             </div>
 
             <div class="value-prop">
               <strong>Automate Payments</strong>
-              <div class="value-prop-text">Select your terms and we automatically generate a secure pay link once both parties sign.</div>
+              <div class="value-prop-text">Select your terms and generate a Stripe payment link once both parties sign.</div>
             </div>
 
             <div class="value-prop">
@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
             </div>
 
             <div class="pricing-callout">
-              <p><strong>Great News!</strong> Your first 3 projects are completely free. Plus, our smart pass-through option allows you to add the processing fee to the client's bill, so you keep all your profits.</p>
+              <p><strong>Great News!</strong> Your first 3 projects are free. You can also decide how payment processing fees are shown in the client payment flow.</p>
             </div>
 
             <p>Ready to get started?</p>
@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
     const data = await resend.emails.send({
       from: "MicroFreelanceHub <onboarding@microfreelancehub.com>", // Now using your verified domain!
       to: [email],
-      subject: "Welcome to MicroFreelanceHub! Let's get you paid.",
+      subject: "Welcome to MicroFreelanceHub",
       html: htmlContent,
     });
 

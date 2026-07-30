@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "outreach:preview": "node scripts/outreach-pilot.mjs",
+    "outreach:send": "node scripts/outreach-pilot.mjs --send"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.22",

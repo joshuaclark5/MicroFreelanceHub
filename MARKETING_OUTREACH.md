@@ -12,6 +12,26 @@ https://www.microfreelancehub.com/templates?ref=creatorname
 
 The site stores `?ref=` and `?partner=` as `affiliate:creatorname` in existing lead-source tracking. Stripe checkout metadata also receives the captured lead source when a user upgrades.
 
+## Pilot Send Workflow
+
+Outreach emails should be one-to-one and approved before sending.
+
+1. Add target contacts to `scripts/outreach-targets.json`.
+2. Keep `approved` as `false` until Joshua approves the recipient and copy.
+3. Preview with:
+
+```powershell
+npm run outreach:preview
+```
+
+4. Send only after approval:
+
+```powershell
+npm run outreach:send
+```
+
+The send script skips any contact where `approved` is not `true`, where `email` is blank, or where `sentAt` is already filled.
+
 ## Influencer Targets
 
 Prioritize creators who already talk to freelancers, solo operators, contractors, and client-service businesses:
@@ -22,9 +42,24 @@ Prioritize creators who already talk to freelancers, solo operators, contractors
 - Local-service business coaches
 - Bookkeeping, invoicing, and small-business operations creators
 
+## Pilot Candidate Types
+
+Start with 10 small or mid-sized creators, not giant accounts:
+
+- Freelance Webflow or Framer educator
+- Freelance web developer newsletter writer
+- Freelance designer business coach
+- Freelance copywriter coach
+- Solo agency operator with an audience
+- Small-business bookkeeping creator
+- Freelancer YouTube creator focused on client workflow
+- Local-service business coach
+- Independent creative-operations consultant
+- Newsletter writer for consultants or contractors
+
 ## Short DM Draft
 
-Hi [Name], I’m building MicroFreelanceHub, a simple tool for freelancers to outline scope, pricing, approvals, timelines, signatures, and payment steps before a client project starts.
+Hi [Name], I'm building MicroFreelanceHub, a simple tool for freelancers to outline scope, pricing, approvals, timelines, signatures, and payment steps before a client project starts.
 
 Your audience seems like a strong fit because you already help freelancers run smoother client projects. Would you be open to trying it and sharing it if it feels useful? I can set up a partner link for you so signups and paid plans from your audience are tracked.
 

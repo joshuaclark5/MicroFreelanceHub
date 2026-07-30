@@ -173,9 +173,9 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
 
                 <div className="p-4 bg-indigo-500/10 border border-indigo-500/30 rounded-xl">
                   <p className="text-indigo-100 text-sm leading-relaxed">
-                    Your first 3 projects are <span className="font-bold text-white">completely free</span>. Plus, our smart pass-through option allows you to add the processing fee to the client's bill, so you{' '}
+                    Your first 3 projects are <span className="font-bold text-white">free</span>. You can also choose how processing fees are shown in the client payment flow, so your pricing stays{' '}
                     <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
-                      keep all your profits.
+                      easier to explain.
                     </span>
                   </p>
                 </div>
