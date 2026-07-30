@@ -5,3 +5,4 @@ service_account.json
 .vercel
 .env*
 supabase/.temp/
+scripts/outreach-targets.json

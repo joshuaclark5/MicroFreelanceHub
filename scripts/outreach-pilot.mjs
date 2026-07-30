@@ -1,6 +1,9 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
 import fs from 'node:fs';
 import path from 'node:path';
+
+dotenv.config({ path: '.env.local' });
+dotenv.config();
 
 const targetsPath = path.join(process.cwd(), 'scripts', 'outreach-targets.json');
 const isSendMode = process.argv.includes('--send');
@@ -39,7 +42,7 @@ function buildEmail(target) {
 
 ${note}I am reaching out about MicroFreelanceHub, a simple tool for freelancers to outline scope, pricing, approvals, timelines, signatures, and payment steps before a client project starts.
 
-Your audience seems like a fit because ${target.audience || 'they work directly with clients'}.
+Your audience seems like a fit: ${target.audience || 'people who work directly with clients'}.
 
 Would you be open to taking a quick look and sharing it if it feels useful? I can set up a partner link so signups and paid plans from your audience are tracked.
 

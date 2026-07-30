@@ -16,21 +16,22 @@ The site stores `?ref=` and `?partner=` as `affiliate:creatorname` in existing l
 
 Outreach emails should be one-to-one and approved before sending.
 
-1. Add target contacts to `scripts/outreach-targets.json`.
-2. Keep `approved` as `false` until Joshua approves the recipient and copy.
-3. Preview with:
+1. Copy `scripts/outreach-targets.example.json` to the local-only `scripts/outreach-targets.json`.
+2. Add target contacts to `scripts/outreach-targets.json`.
+3. Keep `approved` as `false` until Joshua approves the recipient and copy.
+4. Preview with:
 
 ```powershell
 npm run outreach:preview
 ```
 
-4. Send only after approval:
+5. Send only after approval:
 
 ```powershell
 npm run outreach:send
 ```
 
-The send script skips any contact where `approved` is not `true`, where `email` is blank, or where `sentAt` is already filled.
+The send script skips any contact where `approved` is not `true`, where `email` is blank, or where `sentAt` is already filled. The real target file is ignored by git so recipient emails and send IDs stay local.
 
 ## Influencer Targets
 
