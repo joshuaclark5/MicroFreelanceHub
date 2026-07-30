@@ -858,6 +858,97 @@ export const articles: Article[] = [
     ],
   },
 
+  {
+    slug: 'freelance-late-payment-pause-work-contract-clause',
+    title: 'How to Pause Freelance Work When a Client Misses a Payment',
+    description:
+      'A practical freelancer guide to late payment pause clauses, milestone payment timing, client notices, and protecting final delivery without escalating too fast.',
+    publishedAt: '2026-07-30',
+    category: 'Late Payments',
+    keywords: [
+      'freelance late payment clause',
+      'pause work for late payment',
+      'freelance payment schedule',
+      'milestone payment before next phase',
+      'client payment reminder',
+      'get paid before delivery',
+    ],
+    aiSummary:
+      'Freelancers can pause work for a missed payment by putting the pause rule in the contract, tying each payment to a clear milestone or delivery step, giving the client a written notice, and restarting only after payment clears.',
+    ctaHref: '/create?template=website-speed-optimization-consultant-payment-schedule-agreement',
+    ctaLabel: 'Create a payment schedule agreement',
+    relatedLinks: [
+      {
+        label: 'Create a contract with payment pause terms',
+        href: '/create?template=website-speed-optimization-consultant-payment-schedule-agreement',
+      },
+      {
+        label: 'Website Speed Optimization Consultant Payment Schedule Agreement',
+        href: '/templates/website-speed-optimization-consultant-payment-schedule-agreement',
+      },
+      {
+        label: 'Webflow Designer Payment Schedule Agreement Template',
+        href: '/templates/webflow-designer-payment-schedule-agreement-template',
+      },
+      {
+        label: 'How to Write a Freelance Payment Schedule With Upfront, Milestone, and Final Payments',
+        href: '/articles/freelance-payment-schedule-upfront-milestones-final',
+      },
+      {
+        label: 'How to Collect Final Payment Before Sending Freelance Deliverables',
+        href: '/articles/freelance-final-payment-before-delivery',
+      },
+      {
+        label: 'What Freelancers Should Put in a Contract Before Sending a Stripe Payment Link',
+        href: '/articles/freelance-stripe-payment-link-contract-terms',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Make the pause rule visible before work starts',
+        body: [
+          'A freelancer should not invent a payment pause policy after an invoice is already late. Put the rule in the agreement before kickoff so the client knows that unpaid balances can pause new work, revisions, delivery, launch support, or file handoff.',
+          'The goal is not to threaten the client. The goal is to make payment timing part of the project workflow. When the agreement says what happens next, you can point to the shared process instead of turning a late invoice into a personal argument.',
+        ],
+      },
+      {
+        heading: 'Tie payment deadlines to real project gates',
+        body: [
+          'Late payment language works best when the payment itself is tied to a clear gate. For example, the upfront payment clears before kickoff, the second payment clears after draft approval and before implementation, and the final payment clears before clean files or production access are released.',
+          'That structure gives the client context for why the payment matters. It also gives you a clean operational boundary: you are not stopping randomly, you are waiting at the agreed gate before taking on the next block of work or risk.',
+        ],
+      },
+      {
+        heading: 'Use calm written notice',
+        body: [
+          'When a payment is late, send a short written notice that names the invoice or payment link, the amount due, the missed due date, and the project step that is paused. Avoid long explanations or emotional language.',
+          'A simple version is: "The milestone payment due after design approval has not cleared yet, so implementation work is paused under the payment schedule in our agreement. Once payment is complete, I will restart the next phase and confirm the updated timeline."',
+        ],
+      },
+      {
+        heading: 'Protect timelines without overpromising',
+        body: [
+          'A late payment usually affects the schedule. Your agreement should say that timelines may shift when work is paused for unpaid balances, late approvals, or delayed client materials. That keeps you from having to absorb the delay with rush work later.',
+          'When the client pays, confirm the new start date or delivery estimate in writing. If the delay affects a launch date, booked production slot, subcontractor cost, or third-party deadline, document that impact before restarting.',
+        ],
+      },
+      {
+        heading: 'Separate reminders from change requests',
+        body: [
+          'A missed payment is different from a scope change. Do not bury unpaid balances inside new requests or extra revisions. Clear the scheduled payment first, then price any new work through a separate written change request and payment link.',
+          'This keeps the project record clean. The client can see what was already due under the original agreement, what changed later, and what payment is required before the added work begins.',
+        ],
+      },
+      {
+        heading: 'Keep final delivery tied to cleared payment',
+        body: [
+          'The riskiest late payment moment is often the end of the project. Let the client review an appropriate preview, staging link, watermarked export, checklist, or approval file, but state that clean deliverables, source files, launch credentials, or production handoff happen after final payment clears.',
+          'MicroFreelanceHub helps freelancers turn that policy into a client-ready contract, approval record, and secure payment link. It is software for freelance payment workflows, not legal advice, so unusual disputes or compliance questions should be reviewed with a qualified professional.',
+        ],
+      },
+    ],
+  },
+
 ];
 
 export function getArticle(slug: string) {
