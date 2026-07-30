@@ -31,7 +31,27 @@ npm run outreach:preview
 npm run outreach:send
 ```
 
-The send script skips any contact where `approved` is not `true`, where `email` is blank, or where `sentAt` is already filled. The real target file is ignored by git so recipient emails and send IDs stay local.
+The initial send command is capped at 10 sends per run. The send script skips any contact where `approved` is not `true`, where `email` is blank, or where `sentAt` is already filled. The real target file is ignored by git so recipient emails and send IDs stay local.
+
+Preview follow-ups:
+
+```powershell
+npm run outreach:followups:preview
+```
+
+Send follow-ups:
+
+```powershell
+npm run outreach:followups:send
+```
+
+Follow-ups are capped at 10 sends per run, wait 4 days by default, and skip contacts where `followupSentAt` is already filled.
+
+Send a test email to Joshua:
+
+```powershell
+npm run outreach:test
+```
 
 ## Influencer Targets
 
@@ -79,3 +99,7 @@ MicroFreelanceHub gives you templates and a simple agreement builder so the proj
 - Do not send messages or public posts without Joshua approving the recipient list and wording first.
 - Keep claims factual and modest.
 - Do not promise legal protection, guaranteed payment, enforceability, liability limits, lawsuit prevention, or forced payment.
+- Only use public business/contact emails, not guessed personal inboxes.
+- Limit outreach to 10 new contacts per day until deliverability and reply quality are proven.
+- Send at most one follow-up per contact, usually after 4 days.
+- Stop contacting anyone who replies negatively, asks not to be contacted, or bounces.
