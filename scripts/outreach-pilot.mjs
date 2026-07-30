@@ -47,7 +47,9 @@ function buildInitialEmail(target) {
 
   const text = `Hi ${target.name},
 
-${note}I am reaching out about MicroFreelanceHub, a simple tool for freelancers to outline scope, pricing, approvals, timelines, signatures, and payment steps before a client project starts.
+${note}One of the biggest problems I see for freelancers is that projects start from scattered messages, vague scope, and unclear payment steps. That is when small misunderstandings turn into extra work, awkward approvals, and messy handoffs.
+
+I am reaching out about MicroFreelanceHub, a simple workflow that helps freelancers put scope, pricing, approvals, timelines, signatures, and payment steps in one client-ready link before a project starts.
 
 Your audience seems like a fit: ${target.audience || 'people who work directly with clients'}.
 
@@ -83,7 +85,7 @@ function buildFollowupEmail(target) {
 
 Just wanted to follow up once on MicroFreelanceHub.
 
-It is a simple tool for freelancers to outline scope, pricing, approvals, timelines, signatures, and payment steps before a client project starts.
+It helps freelancers avoid messy project starts by putting scope, pricing, approvals, timelines, signatures, and payment steps in one client-ready link before work begins.
 
 If it feels useful for your audience, I can keep your partner link active here:
 ${link}
