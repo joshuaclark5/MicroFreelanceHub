@@ -95,10 +95,10 @@ export default function PricingPage() {
       {/* HEADER */}
       <div className="max-w-3xl mx-auto text-center pt-20 pb-12 px-6">
         <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-900 mb-6">
-          An investment that <span className="text-blue-600">pays for itself.</span>
+          A clearer way to start <span className="text-blue-600">client work.</span>
         </h1>
         <p className="text-lg md:text-xl text-slate-600 leading-relaxed">
-          Stop losing thousands of dollars to scope creep and unpaid invoices. Choose the plan that fits your hustle.
+          Choose the plan that helps you outline scope, pricing, approvals, timelines, signatures, and payment steps.
         </p>
       </div>
 
@@ -172,7 +172,7 @@ export default function PricingPage() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-slate-900 mb-4">Why switch to MicroFreelanceHub?</h2>
-          <p className="text-slate-600">You are currently paying for 3 different tools to do the job of one.</p>
+          <p className="text-slate-600">Keep agreement details, signatures, and payment workflows in one place.</p>
         </div>
 
         <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
@@ -189,7 +189,7 @@ export default function PricingPage() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 <tr className="hover:bg-slate-50/50">
-                  <td className="p-6 text-slate-700 font-medium">Legally Binding e-Signatures</td>
+                  <td className="p-6 text-slate-700 font-medium">Digital signature workflow</td>
                   <td className="p-6 border-x border-slate-200 bg-blue-50/10 text-center"><CheckCircle2 className="w-6 h-6 text-emerald-500 mx-auto" /></td>
                   <td className="p-6 text-center"><CheckCircle2 className="w-5 h-5 text-slate-400 mx-auto" /></td>
                   <td className="p-6 text-center"><CheckCircle2 className="w-5 h-5 text-slate-400 mx-auto" /></td>
@@ -210,7 +210,7 @@ export default function PricingPage() {
                   <td className="p-6 text-center"><X className="w-5 h-5 text-red-300 mx-auto" /></td>
                 </tr>
                 <tr className="hover:bg-slate-50/50">
-                  <td className="p-6 text-slate-700 font-medium">Forces Deposit Before Starting</td>
+                  <td className="p-6 text-slate-700 font-medium">Deposit step before work begins</td>
                   <td className="p-6 border-x border-slate-200 bg-blue-50/10 text-center"><CheckCircle2 className="w-6 h-6 text-emerald-500 mx-auto" /></td>
                   <td className="p-6 text-center"><X className="w-5 h-5 text-red-300 mx-auto" /></td>
                   <td className="p-6 text-center"><X className="w-5 h-5 text-red-300 mx-auto" /></td>
@@ -234,7 +234,7 @@ export default function PricingPage() {
          <div className="inline-flex items-center justify-center p-4 bg-emerald-50 text-emerald-700 rounded-full mb-6">
             <ShieldCheck className="w-8 h-8" />
          </div>
-         <h2 className="text-3xl font-bold text-slate-900 mb-6">Recoup the cost on your very first invoice.</h2>
+         <h2 className="text-3xl font-bold text-slate-900 mb-6">Start with clearer project terms.</h2>
          <Link href="/login" className="inline-flex items-center gap-2 bg-slate-900 text-white font-bold px-8 py-4 rounded-full shadow-xl hover:bg-black transition-all hover:-translate-y-1">
             Start Your Free Trial <ArrowRight className="w-5 h-5" />
          </Link>

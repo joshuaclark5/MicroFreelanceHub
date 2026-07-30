@@ -447,7 +447,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
             {isAgreementOnly ? (
                 <div className="w-full bg-gray-50 text-gray-600 font-bold py-4 rounded-xl flex items-center justify-center gap-2 border border-gray-200">
                     <FileSignature className="w-5 h-5" /> 
-                    {isFullySigned ? 'Legally Binding & Active' : 'Waiting for Signatures'}
+                    {isFullySigned ? 'Signed and Active' : 'Waiting for Signatures'}
                 </div>
             ) : (
                 <>

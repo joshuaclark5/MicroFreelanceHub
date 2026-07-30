@@ -358,11 +358,11 @@ export default function Home() {
                  <ShieldCheck className="w-12 h-12 text-emerald-400 mb-6" />
                  <h3 className="text-3xl font-bold text-white mb-4">"If it's not signed, you don't start."</h3>
                  <p className="text-slate-300 text-lg leading-relaxed mb-6">
-                   Client wants to add "just one more quick thing" mid-project? Edit the live agreement. The system locks the project and forces a re-signature and payment before you do any extra work.
+                   Client wants to add "just one more quick thing" mid-project? Edit the live agreement, update the scope, and request signature and payment steps before extra work begins.
                  </p>
                  <div className="flex gap-4">
                     <div className="flex items-center gap-2 bg-emerald-500/20 text-emerald-300 px-4 py-2 rounded-lg text-sm font-bold border border-emerald-500/30">
-                       <CheckCircle2 className="w-4 h-4" /> Deposit Secured
+                       <CheckCircle2 className="w-4 h-4" /> Deposit Step
                     </div>
                     <div className="flex items-center gap-2 bg-blue-500/20 text-blue-300 px-4 py-2 rounded-lg text-sm font-bold border border-blue-500/30">
                        <BellRing className="w-4 h-4" /> Automated Reminders
@@ -386,7 +386,7 @@ export default function Home() {
       {/* 5. PRICING SECTION */}
       <section className="bg-slate-50 py-24 border-y border-slate-200">
          <div className="max-w-4xl mx-auto px-6 text-center">
-            <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">Simple. Secure. Legit.</h2>
+            <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">Simple client project setup.</h2>
             <p className="text-lg text-slate-600 mb-16">Only pay when you are actually using it.</p>
 
             <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto text-left">
@@ -395,8 +395,8 @@ export default function Home() {
                   <h3 className="text-2xl font-bold text-slate-900 mb-2">Free</h3>
                   <div className="text-4xl font-extrabold text-slate-900 mb-6">$0<span className="text-lg text-slate-500 font-medium">/mo</span></div>
                   <ul className="space-y-4 mb-8 flex-1">
-                     <li className="flex items-center gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0" /> First 3 Contracts Free</li>
-                     <li className="flex items-center gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0" /> Legally Binding e-Signatures</li>
+                     <li className="flex items-center gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0" /> First 3 agreements free</li>
+                     <li className="flex items-center gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0" /> Digital signature workflow</li>
                      <li className="flex items-center gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0" /> Preview Client Portal</li>
                   </ul>
                   <Link href="/login">

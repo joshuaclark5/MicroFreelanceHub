@@ -144,8 +144,8 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
                   <div className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-semibold text-white">Rock-Solid Agreements</p>
-                      <p className="text-sm text-indigo-200">Send contracts and handle extra work with strict Change Orders that force a re-signature.</p>
+                      <p className="font-semibold text-white">Clear Agreements</p>
+                      <p className="text-sm text-indigo-200">Send agreements and handle extra work with written change orders and updated signatures.</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">

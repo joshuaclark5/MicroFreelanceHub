@@ -739,7 +739,7 @@ export const articles: Article[] = [
       {
         heading: 'Tie revisions to written approval checkpoints',
         body: [
-          'Approval checkpoints are what make revision limits enforceable in day-to-day project work. When the client approves a wireframe, rough cut, outline, homepage design, automation map, or draft, the agreement should say that later changes to that approved phase may affect price and timeline.',
+          'Approval checkpoints are what make revision limits easier to manage in day-to-day project work. When the client approves a wireframe, rough cut, outline, homepage design, automation map, or draft, the agreement should say that later changes to that approved phase may affect price and timeline.',
           'Keep the record plain: name the deliverable, version, approval date, included next step, and payment due before work continues. That gives both sides a shared reference if the client later asks to reopen a completed phase.',
         ],
       },

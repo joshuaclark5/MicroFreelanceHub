@@ -11,10 +11,10 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.microfreelancehub.com'),
   title: {
-    default: 'MicroFreelance | Professional Contracts & Payments',
+    default: 'MicroFreelance | Agreements & Payments',
     template: '%s | MicroFreelance',
   },
-  description: 'The all-in-one workspace for freelancers. Create professional agreements, collect digital signatures, and automate recurring payments with Stripe.',
+  description: 'The all-in-one workspace for freelancers. Create professional agreements, collect digital signatures, and organize recurring payments with Stripe.',
   keywords: [
     'freelance contract generator', 
     'retainer agreement template', 
@@ -23,8 +23,8 @@ export const metadata: Metadata = {
     'client invoicing'
   ],
   openGraph: {
-    title: 'MicroFreelance | Contracts that get you paid',
-    description: 'Create, sign, and bill monthly retainers in seconds.',
+    title: 'MicroFreelance | Agreements and payment workflows',
+    description: 'Create agreements, collect signatures, and organize client payment steps in one workspace.',
     url: 'https://www.microfreelancehub.com',
     siteName: 'MicroFreelance',
     locale: 'en_US',
@@ -32,8 +32,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'MicroFreelance | Professional Contracts',
-    description: 'The fastest way to sign clients and automate monthly billing.',
+    title: 'MicroFreelance | Agreements and Payments',
+    description: 'A practical workspace for client agreements, signatures, and payment steps.',
   },
   // 👇 TRUSTPILOT VERIFICATION META TAG 👇
   other: {
@@ -76,6 +76,7 @@ export default function RootLayout({
                     <Link href="/terms-of-service" className="hover:text-black transition-colors">Terms of Service</Link>
                     <Link href="/privacy-policy" className="hover:text-black transition-colors">Privacy Policy</Link>
                     <Link href="/disclaimer" className="hover:text-black transition-colors">Full Disclaimer</Link>
+                    <Link href="/partners" className="hover:text-black transition-colors">Partners</Link>
                 </div>
 
                 <p className="text-[10px] text-gray-300 mt-8">

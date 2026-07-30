@@ -4,34 +4,32 @@ export const MARKETING_SOURCE_KEY = 'marketing_source';
 export function initializeTracking() {
   if (typeof window === 'undefined') return;
 
-  // Check if tracking is already initialized
-  if (localStorage.getItem(LANDING_PAGE_KEY)) {
-    return;
-  }
-
-  // Capture landing page (pathname)
-  const landingPage = window.location.pathname;
-
-  // Extract marketing source from query parameters
   const urlParams = new URLSearchParams(window.location.search);
-  let marketingSource = null;
+  const existingLandingPage = localStorage.getItem(LANDING_PAGE_KEY);
+  const existingMarketingSource = localStorage.getItem(MARKETING_SOURCE_KEY);
 
-  // Check for ?source= parameter
+  let marketingSource = null;
   if (urlParams.has('source')) {
     marketingSource = urlParams.get('source');
-  }
-  // Check for ?utm_source= parameter
-  else if (urlParams.has('utm_source')) {
+  } else if (urlParams.has('ref')) {
+    const ref = urlParams.get('ref');
+    marketingSource = ref ? `affiliate:${ref}` : null;
+  } else if (urlParams.has('partner')) {
+    const partner = urlParams.get('partner');
+    marketingSource = partner ? `affiliate:${partner}` : null;
+  } else if (urlParams.has('utm_source')) {
     marketingSource = urlParams.get('utm_source');
-  }
-  // Check for ?utm_medium= parameter as fallback
-  else if (urlParams.has('utm_medium')) {
+  } else if (urlParams.has('utm_campaign')) {
+    marketingSource = urlParams.get('utm_campaign');
+  } else if (urlParams.has('utm_medium')) {
     marketingSource = urlParams.get('utm_medium');
   }
 
-  // Store in localStorage
-  localStorage.setItem(LANDING_PAGE_KEY, landingPage);
-  if (marketingSource) {
+  if (!existingLandingPage) {
+    localStorage.setItem(LANDING_PAGE_KEY, window.location.pathname);
+  }
+
+  if (marketingSource && !existingMarketingSource) {
     localStorage.setItem(MARKETING_SOURCE_KEY, marketingSource);
   }
 }
