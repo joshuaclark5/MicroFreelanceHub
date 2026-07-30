@@ -1,5 +1,30 @@
 # MicroFreelanceHub Partner Outreach
 
+## Permanent Outreach Positioning
+
+Lead with the painful freelancer problem in plain language, not tool buzzwords.
+
+Preferred framing:
+
+- A lot of freelancers do the work, then end up chasing late payments, extra requests, and approvals that were never clearly written down.
+- MicroFreelanceHub is built for that problem.
+- It gives freelancers one client-ready link for scope, pricing, approvals, timelines, signatures, Stripe payment steps, and automated late-payment reminders that can become firmer over time.
+- Approved partners can earn 30% recurring commission on referred paid subscriptions while the customer stays subscribed.
+
+Avoid:
+
+- buzzwords like "all-in-one solution," "revolutionary workflow," "seamless platform," or "business operating system"
+- claims that the tool guarantees payment, guarantees legal results, or leads to "way more payments"
+- saying "lifetime commission"; use "while the customer stays subscribed"
+- saying reminders "get aggressive"; use "become firmer over time"
+
+Tone:
+
+- simple, direct, and human
+- focused on the real pain of unpaid or unclear client work
+- clear that this is an affiliate/partner opportunity, not a vague collaboration
+- modest about outcomes and factual about features
+
 ## Current Partner Link Format
 
 Use a creator-specific code in links:
@@ -80,7 +105,7 @@ Start with 10 small or mid-sized creators, not giant accounts:
 
 ## Short DM Draft
 
-Hi [Name], I'm building MicroFreelanceHub for freelancers who finish the work and then get stuck chasing late payments, extra requests, and approvals that were never clearly written down.
+Hi [Name], I'm building MicroFreelanceHub for freelancers who do the work and then get stuck chasing late payments, extra requests, and approvals that were never clearly written down.
 
 It gives them one client-ready link for scope, pricing, approvals, timelines, signatures, Stripe payment steps, and automated late-payment reminders that can become firmer over time.
 

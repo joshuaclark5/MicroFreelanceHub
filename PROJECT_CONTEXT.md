@@ -44,6 +44,13 @@ Build a useful, trustworthy freelance agreement and payment workflow platform th
   - Template pages use safer meta descriptions and sanitize risky database-driven text before display.
   - Open Graph/link-preview slogans were toned down.
   - The agreement builder's default cancellation/liability clause was softened.
+- `2fa8fb6` through `9cadd90` - Added partner outreach pilot.
+  - `/partners` explains the approved partner program and referral link format.
+  - Referral links using `?ref=` or `?partner=` are captured into existing lead-source tracking.
+  - `scripts/outreach-pilot.mjs` sends guarded Resend outreach from public business/contact emails only.
+  - `scripts/outreach-targets.json` is intentionally local/ignored so recipient emails and send IDs are not pushed.
+  - A daily isolated cron job runs at 9:00 AM America/Denver to find up to 10 new verified contacts and check one-time follow-ups.
+  - Outreach copy should lead with the plain-language pain: freelancers do the work, then chase late payments, extra requests, and approvals that were never clearly written down.
 
 ## Permanent Copy Rule
 
