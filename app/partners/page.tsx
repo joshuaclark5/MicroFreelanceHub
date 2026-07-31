@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, CheckCircle2, Copy, Mail, Share2 } from 'lucide-react';
+import PartnerApplicationForm from './PartnerApplicationForm';
 
 export const metadata: Metadata = {
   title: 'Partner Program',
@@ -53,7 +54,7 @@ export default function PartnersPage() {
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <a
-                href="mailto:partners@microfreelancehub.com?subject=MicroFreelanceHub%20partner%20request"
+                href="#partner-request"
                 className="inline-flex items-center justify-center gap-2 rounded-md bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-blue-700"
               >
                 <Mail className="h-4 w-4" />
@@ -152,6 +153,18 @@ export default function PartnersPage() {
               </Link>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section id="partner-request" className="border-t border-slate-200 bg-slate-50">
+        <div className="mx-auto grid max-w-6xl gap-8 px-4 py-14 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8">
+          <div>
+            <h2 className="text-2xl font-bold tracking-normal text-slate-950">Partner request</h2>
+            <p className="mt-3 text-sm leading-6 text-slate-600">
+              Share your channel and get a provisional referral link immediately.
+            </p>
+          </div>
+          <PartnerApplicationForm />
         </div>
       </section>
     </main>
