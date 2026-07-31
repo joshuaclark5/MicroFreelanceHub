@@ -20,6 +20,7 @@ import {
   TrendingUp,
   BellRing,
   FileEdit,
+  MonitorPlay,
   CreditCard,
   FileSignature,
   AlertTriangle,
@@ -224,6 +225,51 @@ export default function Home() {
              </div>
           </div>
 
+        </div>
+
+        {/* PRODUCT DEMO VIDEO */}
+        <div className="mt-20 md:mt-24 max-w-6xl mx-auto relative z-20">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5 mb-6">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-bold text-slate-700 mb-4 shadow-sm">
+                <MonitorPlay className="h-4 w-4 text-blue-600" />
+                Product walkthrough
+              </div>
+              <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900">
+                Watch the client-payment workflow.
+              </h2>
+            </div>
+            <p className="text-base md:text-lg text-slate-600 font-medium md:max-w-sm">
+              From dashboard to agreement builder, MicroFreelanceHub keeps scope, signature, and deposit steps in one place.
+            </p>
+          </div>
+
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-950 shadow-2xl shadow-slate-200/80">
+            <div className="flex h-11 items-center justify-between border-b border-white/10 bg-slate-900 px-4">
+              <div className="flex items-center gap-2">
+                <span className="h-3 w-3 rounded-full bg-red-400"></span>
+                <span className="h-3 w-3 rounded-full bg-amber-400"></span>
+                <span className="h-3 w-3 rounded-full bg-emerald-400"></span>
+              </div>
+              <div className="hidden sm:block rounded-md bg-white/10 px-4 py-1 text-xs font-semibold text-slate-300">
+                microfreelancehub.com
+              </div>
+              <div className="w-[60px]"></div>
+            </div>
+            <video
+              className="block aspect-video w-full bg-slate-950 object-cover"
+              src="/videos/homepage-demo.webm"
+              poster="/videos/homepage-demo-poster.png"
+              autoPlay
+              muted
+              loop
+              playsInline
+              controls
+              preload="metadata"
+            >
+              Your browser does not support embedded video.
+            </video>
+          </div>
         </div>
 
         {/* VISUAL FLOW GRAPHIC */}
