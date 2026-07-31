@@ -80,7 +80,7 @@ export async function POST(request: Request) {
 
     const refCode = makeRefCode(name, email);
     const origin = process.env.NEXT_PUBLIC_BASE_URL || new URL(request.url).origin;
-    const referralLink = `${origin.replace(/\/$/, '')}/partners?ref=${encodeURIComponent(refCode)}`;
+    const referralLink = `${origin.replace(/\/$/, '')}/?ref=${encodeURIComponent(refCode)}`;
 
     const summary = [
       `Name: ${name}`,

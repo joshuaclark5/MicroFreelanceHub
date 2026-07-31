@@ -33,7 +33,7 @@ function saveTargets(targets) {
 
 function partnerLink(refCode) {
   const cleanCode = encodeURIComponent(refCode.trim().toLowerCase());
-  return `https://www.microfreelancehub.com/partners?ref=${cleanCode}`;
+  return `https://www.microfreelancehub.com/?ref=${cleanCode}`;
 }
 
 function escapeHtml(value) {
@@ -103,7 +103,7 @@ Your audience seems like a fit: ${target.audience || 'people who work directly w
 
 Would you be open to taking a quick look and sharing it if it feels useful? We are testing a partner program with 30% recurring commission on referred paid subscriptions while the customer stays subscribed.
 
-Partner page:
+Referral link:
 ${link}
 
 No pressure if it is not a fit.
