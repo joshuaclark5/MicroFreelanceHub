@@ -7,3 +7,4 @@ service_account.json
 supabase/.temp/
 scripts/outreach-targets.json
 scripts/customer-outreach-targets.json
+QA_LOGIN.local.md
