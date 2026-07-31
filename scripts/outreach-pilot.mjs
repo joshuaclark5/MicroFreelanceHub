@@ -10,8 +10,12 @@ const isSendMode = process.argv.includes('--send');
 const isFollowupMode = process.argv.includes('--followups');
 const limitArg = process.argv.find((arg) => arg.startsWith('--limit='));
 const testToArg = process.argv.find((arg) => arg.startsWith('--test-to='));
+const staggerMinArg = process.argv.find((arg) => arg.startsWith('--stagger-min='));
+const staggerMaxArg = process.argv.find((arg) => arg.startsWith('--stagger-max='));
 const sendLimit = limitArg ? Number.parseInt(limitArg.split('=')[1], 10) : Number.POSITIVE_INFINITY;
 const testTo = testToArg ? testToArg.split('=')[1]?.trim() : '';
+const staggerMinMinutes = staggerMinArg ? Number.parseFloat(staggerMinArg.split('=')[1]) : 0;
+const staggerMaxMinutes = staggerMaxArg ? Number.parseFloat(staggerMaxArg.split('=')[1]) : staggerMinMinutes;
 const resendApiKey = process.env.RESEND_API_KEY;
 const followupDelayDays = Number.parseInt(process.env.OUTREACH_FOLLOWUP_DELAY_DAYS || '4', 10);
 let shouldRunTargetList = true;
@@ -37,6 +41,22 @@ function escapeHtml(value) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function randomStaggerMs() {
+  if (!Number.isFinite(staggerMinMinutes) || !Number.isFinite(staggerMaxMinutes)) {
+    return 0;
+  }
+  const min = Math.max(0, Math.min(staggerMinMinutes, staggerMaxMinutes));
+  const max = Math.max(min, Math.max(staggerMinMinutes, staggerMaxMinutes));
+  if (max <= 0) {
+    return 0;
+  }
+  return Math.round((min + Math.random() * (max - min)) * 60 * 1000);
 }
 
 function buildInitialEmail(target) {
@@ -196,6 +216,15 @@ for (const target of targets) {
     console.log(payload.text);
     processed += 1;
     continue;
+  }
+
+  if (processed > 0) {
+    const waitMs = randomStaggerMs();
+    if (waitMs > 0) {
+      const waitMinutes = Math.round((waitMs / 60_000) * 10) / 10;
+      console.log(`WAIT ${waitMinutes} minutes before next send`);
+      await sleep(waitMs);
+    }
   }
 
   const result = await sendEmail(payload);

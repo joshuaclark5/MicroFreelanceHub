@@ -56,7 +56,7 @@ npm run outreach:preview
 npm run outreach:send
 ```
 
-The initial send command is capped at 10 sends per run. The send script skips any contact where `approved` is not `true`, where `email` is blank, or where `sentAt` is already filled. The real target file is ignored by git so recipient emails and send IDs stay local.
+The initial send command is capped at 10 sends per run and waits a random 3-7 minutes between recipients. The send script skips any contact where `approved` is not `true`, where `email` is blank, or where `sentAt` is already filled. The real target file is ignored by git so recipient emails and send IDs stay local.
 
 Preview follow-ups:
 
@@ -70,7 +70,7 @@ Send follow-ups:
 npm run outreach:followups:send
 ```
 
-Follow-ups are capped at 10 sends per run, wait 4 days by default, and skip contacts where `followupSentAt` is already filled.
+Follow-ups are capped at 10 sends per run, wait 4 days by default, wait a random 3-7 minutes between recipients, and skip contacts where `followupSentAt` is already filled.
 
 Send a test email to Joshua:
 
@@ -128,5 +128,6 @@ MicroFreelanceHub puts scope, pricing, approvals, signatures, Stripe payment ste
 - Do not promise legal protection, guaranteed payment, enforceability, liability limits, lawsuit prevention, or forced payment.
 - Only use public business/contact emails, not guessed personal inboxes.
 - Limit outreach to 10 new contacts per day until deliverability and reply quality are proven.
+- Send batch emails 3-7 minutes apart instead of all at once.
 - Send at most one follow-up per contact, usually after 4 days.
 - Stop contacting anyone who replies negatively, asks not to be contacted, or bounces.
