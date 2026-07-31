@@ -949,6 +949,97 @@ export const articles: Article[] = [
     ],
   },
 
+  {
+    slug: 'freelance-paid-discovery-first-milestone-payment',
+    title: 'How to Use Paid Discovery as the First Freelance Milestone',
+    description:
+      'A practical guide to charging for freelance discovery, turning strategy work into a paid first milestone, and collecting approval plus payment before implementation begins.',
+    publishedAt: '2026-07-31',
+    category: 'Paid Discovery',
+    keywords: [
+      'paid discovery for freelancers',
+      'freelance discovery payment',
+      'first milestone payment',
+      'upfront payment before implementation',
+      'freelance project scoping fee',
+      'client approval before build phase',
+    ],
+    aiSummary:
+      'Freelancers can make discovery a paid first milestone by defining the discovery deliverable, collecting an upfront payment before strategy work starts, getting client approval on the plan, and requiring the next payment before implementation begins.',
+    ctaHref: '/create?template=api-integration-developer-deposit-and-approval-agreement',
+    ctaLabel: 'Create a paid discovery agreement',
+    relatedLinks: [
+      {
+        label: 'Create a paid discovery agreement and payment link',
+        href: '/create?template=api-integration-developer-deposit-and-approval-agreement',
+      },
+      {
+        label: 'API Integration Developer Deposit and Approval Agreement',
+        href: '/templates/api-integration-developer-deposit-and-approval-agreement',
+      },
+      {
+        label: 'AI Agent Builder Milestone Payment Agreement',
+        href: '/templates/ai-agent-builder-milestone-payment-agreement',
+      },
+      {
+        label: 'CRM Implementation Consultant Milestone Payment Agreement',
+        href: '/templates/crm-implementation-consultant-milestone-payment-agreement',
+      },
+      {
+        label: 'How to Use Milestone Payments With Client Approval Steps',
+        href: '/articles/freelance-milestone-payment-schedule-client-approval',
+      },
+      {
+        label: 'How to Handle Scope Creep With Change Requests and Payment Links',
+        href: '/articles/freelance-scope-creep-change-request-payment-link',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Treat discovery as real work',
+        body: [
+          'Discovery is often where the hardest freelance thinking happens: understanding goals, auditing the current setup, mapping constraints, estimating effort, and turning vague requests into a project plan. If that work is unpaid, the freelancer carries risk before the client has committed to a clear scope.',
+          'A paid discovery milestone turns that early strategy into a defined service. The client pays for a useful output, such as an implementation plan, technical audit, automation map, creative brief, content outline, or prioritized scope. The freelancer gets paid before spending hours diagnosing the project.',
+        ],
+      },
+      {
+        heading: 'Define the discovery deliverable',
+        body: [
+          'Paid discovery should not sound like a vague consultation fee. Name the exact output the client receives and the questions it will answer. For an API integration, that might be a systems map, required endpoints, risk notes, and a build estimate. For an AI agent project, it might be a workflow map, data access checklist, and milestone plan.',
+          'The agreement should also say what discovery does not include. For example, discovery may include planning and recommendations but not production build work, final designs, launch support, or third-party configuration unless those items are listed separately.',
+        ],
+      },
+      {
+        heading: 'Collect the first payment before discovery starts',
+        body: [
+          'The first milestone payment should be due with the signed agreement and should clear before discovery work begins. That makes the client commitment clear and avoids the common pattern where a freelancer gives away the plan, then watches the client delay or take the plan elsewhere.',
+          'Client-friendly wording can be simple: "Discovery begins after the agreement is signed and the discovery payment clears. The discovery deliverable will be used to confirm scope, timeline, and pricing before implementation begins."',
+        ],
+      },
+      {
+        heading: 'Use approval to separate planning from implementation',
+        body: [
+          'The end of discovery should create a clean decision point. The client reviews the discovery deliverable, asks included clarification questions, and approves the implementation plan or decides not to continue. Either way, the discovery work remains paid because it was a separate milestone.',
+          'If the client wants to move forward, the next payment should be tied to the next phase. For example, implementation begins after the client approves the discovery plan and completes the kickoff or build-phase payment link.',
+        ],
+      },
+      {
+        heading: 'Prevent scope creep before the build phase',
+        body: [
+          'Paid discovery is especially useful when the original request is broad: "set up our CRM," "build an automation," "fix our funnel," or "connect these tools." The discovery milestone gives both sides a chance to learn what the work really requires before promising a fixed implementation scope.',
+          'Your agreement should say that new requirements found during discovery may change price, timeline, or deliverables for later phases. That protects the freelancer from absorbing hidden complexity and gives the client a clearer basis for approving the next step.',
+        ],
+      },
+      {
+        heading: 'Send one agreement and payment link',
+        body: [
+          'A strong paid discovery workflow has one client-ready link: the discovery scope, payment amount, approval process, next-phase terms, and secure client payment step. The client should not have to piece together the commitment from a proposal, chat thread, and separate invoice.',
+          'MicroFreelanceHub helps freelancers package paid discovery, milestone approvals, and payment links into a clearer kickoff process. It is software for freelance payment workflows, not legal advice, so unusual contract or compliance questions should go to a qualified professional.',
+        ],
+      },
+    ],
+  },
+
 ];
 
 export function getArticle(slug: string) {
