@@ -70,7 +70,7 @@ Send follow-ups:
 npm run outreach:followups:send
 ```
 
-Follow-ups are capped at 10 sends per run, wait 4 days by default, wait a random 3-7 minutes between recipients, and skip contacts where `followupSentAt` is already filled.
+Follow-ups are capped at 5 sends per run, wait a random 2-3 days between attempts, wait a random 3-7 minutes between recipients, and stop after 2 follow-up attempts per contact by default.
 
 Send a test email to Joshua:
 
@@ -129,5 +129,5 @@ MicroFreelanceHub puts scope, pricing, approvals, signatures, Stripe payment ste
 - Only use public business/contact emails, not guessed personal inboxes.
 - Limit outreach to 10 new contacts per day until deliverability and reply quality are proven.
 - Send batch emails 3-7 minutes apart instead of all at once.
-- Send at most one follow-up per contact, usually after 4 days.
+- Send at most 2 follow-up attempts per contact, spaced 2-3 days apart, with a cap of 5 follow-up emails per day.
 - Stop contacting anyone who replies negatively, asks not to be contacted, or bounces.

@@ -17,7 +17,9 @@ const testTo = testToArg ? testToArg.split('=')[1]?.trim() : '';
 const staggerMinMinutes = staggerMinArg ? Number.parseFloat(staggerMinArg.split('=')[1]) : 0;
 const staggerMaxMinutes = staggerMaxArg ? Number.parseFloat(staggerMaxArg.split('=')[1]) : staggerMinMinutes;
 const resendApiKey = process.env.RESEND_API_KEY;
-const followupDelayDays = Number.parseInt(process.env.OUTREACH_FOLLOWUP_DELAY_DAYS || '4', 10);
+const followupMinDays = Number.parseFloat(process.env.OUTREACH_FOLLOWUP_MIN_DAYS || '2');
+const followupMaxDays = Number.parseFloat(process.env.OUTREACH_FOLLOWUP_MAX_DAYS || '3');
+const maxFollowupAttempts = Number.parseInt(process.env.OUTREACH_MAX_FOLLOWUP_ATTEMPTS || '2', 10);
 let shouldRunTargetList = true;
 
 function loadTargets() {
@@ -57,6 +59,32 @@ function randomStaggerMs() {
     return 0;
   }
   return Math.round((min + Math.random() * (max - min)) * 60 * 1000);
+}
+
+function randomFollowupDelayMs() {
+  const min = Math.max(0, Math.min(followupMinDays, followupMaxDays));
+  const max = Math.max(min, Math.max(followupMinDays, followupMaxDays));
+  return Math.round((min + Math.random() * (max - min)) * 24 * 60 * 60 * 1000);
+}
+
+function getFollowups(target) {
+  if (Array.isArray(target.followups)) {
+    return target.followups;
+  }
+  if (target.followupSentAt) {
+    return [{ sentAt: target.followupSentAt, resendId: target.followupResendId || null }];
+  }
+  return [];
+}
+
+function scheduleNextFollowup(target, baseDate) {
+  const followups = getFollowups(target);
+  if (followups.length >= maxFollowupAttempts) {
+    delete target.nextFollowupAfter;
+    return;
+  }
+
+  target.nextFollowupAfter = new Date(baseDate.getTime() + randomFollowupDelayMs()).toISOString();
 }
 
 function buildInitialEmail(target) {
@@ -176,7 +204,6 @@ const targets = shouldRunTargetList ? loadTargets() : [];
 let changed = false;
 let processed = 0;
 const now = Date.now();
-const followupDelayMs = followupDelayDays * 24 * 60 * 60 * 1000;
 
 for (const target of targets) {
   if (processed >= sendLimit) {
@@ -196,12 +223,24 @@ for (const target of targets) {
       console.log(`SKIP ${target.name}: no initial email sent`);
       continue;
     }
-    if (target.followupSentAt) {
-      console.log(`SKIP ${target.name}: follow-up already sent at ${target.followupSentAt}`);
+    const followups = getFollowups(target);
+    if (followups.length >= maxFollowupAttempts) {
+      console.log(`SKIP ${target.name}: max follow-up attempts reached`);
       continue;
     }
-    if (now - Date.parse(target.sentAt) < followupDelayMs) {
-      console.log(`SKIP ${target.name}: follow-up delay has not passed`);
+
+    if (!target.nextFollowupAfter) {
+      if (isSendMode) {
+        const baseDate = followups.length ? new Date(followups[followups.length - 1].sentAt) : new Date(target.sentAt);
+        scheduleNextFollowup(target, baseDate);
+        changed = true;
+      }
+      console.log(`SKIP ${target.name}: next follow-up date is not set yet`);
+      continue;
+    }
+
+    if (now < Date.parse(target.nextFollowupAfter)) {
+      console.log(`SKIP ${target.name}: next follow-up is scheduled for ${target.nextFollowupAfter}`);
       continue;
     }
   } else if (target.sentAt) {
@@ -229,12 +268,18 @@ for (const target of targets) {
 
   const result = await sendEmail(payload);
   if (isFollowupMode) {
-    target.followupSentAt = new Date().toISOString();
-    target.followupResendId = result.id;
+    const sentAt = new Date();
+    target.followups = getFollowups(target);
+    target.followups.push({ sentAt: sentAt.toISOString(), resendId: result.id });
+    delete target.followupSentAt;
+    delete target.followupResendId;
+    scheduleNextFollowup(target, sentAt);
     console.log(`FOLLOW-UP SENT ${target.name}: ${result.id}`);
   } else {
-    target.sentAt = new Date().toISOString();
+    const sentAt = new Date();
+    target.sentAt = sentAt.toISOString();
     target.resendId = result.id;
+    scheduleNextFollowup(target, sentAt);
     console.log(`SENT ${target.name}: ${result.id}`);
   }
   changed = true;
