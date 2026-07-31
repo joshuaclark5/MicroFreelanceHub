@@ -1,0 +1,11 @@
+[
+  {
+    "name": "Example Freelancer",
+    "email": "",
+    "businessType": "freelance designer",
+    "sourceUrl": "https://example.com",
+    "personalNote": "I saw your portfolio and noticed you work directly with clients.",
+    "approved": false,
+    "sentAt": null
+  }
+]

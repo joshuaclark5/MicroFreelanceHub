@@ -11,7 +11,12 @@
     "outreach:send": "node scripts/outreach-pilot.mjs --send --limit=10 --stagger-min=3 --stagger-max=7",
     "outreach:followups:preview": "node scripts/outreach-pilot.mjs --followups --limit=5",
     "outreach:followups:send": "node scripts/outreach-pilot.mjs --send --followups --limit=5 --stagger-min=3 --stagger-max=7",
-    "outreach:test": "node scripts/outreach-pilot.mjs --send --test-to=joshuastevenclark@gmail.com"
+    "outreach:test": "node scripts/outreach-pilot.mjs --send --test-to=joshuastevenclark@gmail.com",
+    "customer-outreach:preview": "node scripts/customer-outreach.mjs --limit=5",
+    "customer-outreach:send": "node scripts/customer-outreach.mjs --send --limit=5 --stagger-min=3 --stagger-max=7",
+    "customer-outreach:followups:preview": "node scripts/customer-outreach.mjs --followups --limit=5",
+    "customer-outreach:followups:send": "node scripts/customer-outreach.mjs --send --followups --limit=5 --stagger-min=3 --stagger-max=7",
+    "customer-outreach:test": "node scripts/customer-outreach.mjs --send --test-to=joshuastevenclark@gmail.com"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.22",

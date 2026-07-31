@@ -6,3 +6,4 @@ service_account.json
 .env*
 supabase/.temp/
 scripts/outreach-targets.json
+scripts/customer-outreach-targets.json

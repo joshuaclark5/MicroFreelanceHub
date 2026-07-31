@@ -51,6 +51,12 @@ Build a useful, trustworthy freelance agreement and payment workflow platform th
   - `scripts/outreach-targets.json` is intentionally local/ignored so recipient emails and send IDs are not pushed.
   - A daily isolated cron job runs at 9:00 AM America/Denver to find up to 10 new verified contacts and check one-time follow-ups.
   - Outreach copy should lead with the plain-language pain: freelancers do the work, then chase late payments, extra requests, and approvals that were never clearly written down.
+- `CUSTOMER_OUTREACH.md` and `scripts/customer-outreach.mjs` - Added separate direct customer validation outreach.
+  - This is not partner outreach and must not mention affiliate commission.
+  - A daily isolated cron job runs at 11:00 AM America/Denver to find up to 5 real freelancer/customer contacts.
+  - Use only public business/contact emails from freelancer websites, portfolios, studios, or small agency pages.
+  - Direct customer outreach asks whether late payments, unclear scope, or approval back-and-forth are still painful, and points to `/create?source=customer-outreach`.
+  - `scripts/customer-outreach-targets.json` is intentionally local/ignored so recipient emails and send IDs are not pushed.
 
 ## Permanent Copy Rule
 
