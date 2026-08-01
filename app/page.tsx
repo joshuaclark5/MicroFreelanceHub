@@ -257,7 +257,7 @@ export default function Home() {
               <div className="w-[60px]"></div>
             </div>
             <video
-              className="block aspect-video w-full bg-slate-950 object-cover"
+              className="block aspect-[16/10] w-full bg-white object-contain sm:aspect-video"
               src="/videos/homepage-demo.webm"
               poster="/videos/homepage-demo-poster.png"
               autoPlay
