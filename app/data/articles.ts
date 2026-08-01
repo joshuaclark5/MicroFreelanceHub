@@ -1040,6 +1040,97 @@ export const articles: Article[] = [
     ],
   },
 
+  {
+    slug: 'freelance-rush-fee-payment-before-expedited-work',
+    title: 'How to Charge a Freelance Rush Fee Before Expedited Work Starts',
+    description:
+      'A practical guide to pricing rush work, getting client approval, and collecting a rush fee or milestone payment before expedited freelance work begins.',
+    publishedAt: '2026-08-01',
+    category: 'Rush Fees',
+    keywords: [
+      'freelance rush fee',
+      'rush work payment terms',
+      'charge extra for expedited freelance work',
+      'client approval for rush fee',
+      'payment link before rush work',
+      'freelance deadline surcharge',
+    ],
+    aiSummary:
+      'Freelancers should charge a rush fee by confirming the compressed deadline, naming what normal work is being displaced, getting written approval, and collecting the extra payment before expedited work begins.',
+    ctaHref: '/create?template=website-speed-optimization-consultant-payment-schedule-agreement',
+    ctaLabel: 'Create rush work payment terms',
+    relatedLinks: [
+      {
+        label: 'Create rush work terms and collect payment',
+        href: '/create?template=website-speed-optimization-consultant-payment-schedule-agreement',
+      },
+      {
+        label: 'Website Speed Optimization Consultant Payment Schedule Agreement',
+        href: '/templates/website-speed-optimization-consultant-payment-schedule-agreement',
+      },
+      {
+        label: 'How to Handle Scope Creep With Change Requests and Payment Links',
+        href: '/articles/freelance-scope-creep-change-request-payment-link',
+      },
+      {
+        label: 'How to Write a Freelance Payment Schedule With Upfront, Milestone, and Final Payments',
+        href: '/articles/freelance-payment-schedule-upfront-milestones-final',
+      },
+      {
+        label: 'How to Pause Freelance Work When a Client Misses a Payment',
+        href: '/articles/freelance-late-payment-pause-work-contract-clause',
+      },
+      {
+        label: 'What Freelancers Should Put in a Contract Before Sending a Stripe Payment Link',
+        href: '/articles/freelance-stripe-payment-link-contract-terms',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Treat rush work as a scope change',
+        body: [
+          'A rush fee is not a penalty for being difficult. It is the price of changing the work conditions after the original schedule was set. Expedited work can require evening hours, rescheduled client work, extra testing pressure, faster vendor coordination, or a tighter review window.',
+          'That is why rush terms should be written like a change request. Name the original timeline, the requested deadline, the added fee, and what the client must approve before the faster schedule begins.',
+        ],
+      },
+      {
+        heading: 'Explain what the rush fee covers',
+        body: [
+          'Clients are more likely to approve a rush fee when it is attached to a real operational tradeoff. Instead of saying "rush work costs extra," explain what changes: priority scheduling, compressed production time, same-day review, weekend availability, faster QA, or reordering existing milestones.',
+          'Keep the language practical. For example: "The requested Friday delivery requires priority scheduling outside the original timeline. The rush fee covers the compressed production window and must be approved and paid before expedited work begins."',
+        ],
+      },
+      {
+        heading: 'Collect payment before the expedited window starts',
+        body: [
+          'The riskiest rush work happens when the freelancer starts immediately and plans to sort out payment later. By the time the deadline passes, the urgency belongs to the client but the payment risk belongs to the freelancer.',
+          'A cleaner workflow is written approval plus a payment link before the rush window opens. If the rush fee is separate from the project balance, make that clear. If it moves the next milestone forward, say which amount must clear before work resumes on the accelerated timeline.',
+        ],
+      },
+      {
+        heading: 'Protect quality and review limits',
+        body: [
+          'A shorter deadline should not silently create unlimited revisions or lower acceptance standards. Rush terms should say which deliverables are included, how many review rounds fit inside the expedited schedule, and what happens if the client misses a required approval deadline.',
+          'For launch, design, development, automation, and marketing work, it is also worth naming what cannot be compressed. Third-party approvals, ad platform reviews, app store review, domain propagation, client content delivery, or external vendor response times may sit outside the freelancer\'s control.',
+        ],
+      },
+      {
+        heading: 'Separate rush fees from late payment problems',
+        body: [
+          'A client should not be able to create urgency by delaying payment or approvals, then expect the freelancer to absorb the recovery time for free. If a milestone was paused because payment, feedback, or materials were late, the agreement should allow the schedule to shift.',
+          'If the client still wants the original launch date after a delay, treat that as a new rush request. Confirm the revised deadline, the fee, and the payment requirement before moving the project back into priority mode.',
+        ],
+      },
+      {
+        heading: 'Send one clear rush approval link',
+        body: [
+          'The best rush workflow gives the client one place to review the revised deadline, added fee, included deliverables, approval timing, and secure payment step. That avoids scattered approvals across chat, invoices, and calendar notes.',
+          'MicroFreelanceHub helps freelancers turn rush requests into written payment terms with a client-ready link. It is software for freelance agreements and payment workflows, not a law firm, so unusual legal or compliance questions should be reviewed by a qualified professional.',
+        ],
+      },
+    ],
+  },
+
 ];
 
 export function getArticle(slug: string) {
