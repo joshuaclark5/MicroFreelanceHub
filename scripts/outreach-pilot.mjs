@@ -283,6 +283,8 @@ for (const target of targets) {
     console.log(`SENT ${target.name}: ${result.id}`);
   }
   changed = true;
+  saveTargets(targets);
+  changed = false;
   processed += 1;
 }
 
