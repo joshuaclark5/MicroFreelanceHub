@@ -1131,6 +1131,97 @@ export const articles: Article[] = [
     ],
   },
 
+  {
+    slug: 'freelance-client-delay-payment-schedule-pause-resume',
+    title: 'How to Handle Client Delays Without Losing Your Freelance Payment Schedule',
+    description:
+      'A practical guide to writing client delay terms, pausing work when approvals or materials are late, and collecting the next payment before freelance work resumes.',
+    publishedAt: '2026-08-02',
+    category: 'Client Delays',
+    keywords: [
+      'freelance client delay clause',
+      'client materials late payment schedule',
+      'pause freelance work for late approval',
+      'freelance project restart fee',
+      'payment before work resumes',
+      'client approval deadline contract',
+    ],
+    aiSummary:
+      'Freelancers can protect their payment schedule from client delays by setting approval and materials deadlines, allowing the timeline to pause, documenting restart terms, and requiring any overdue or next milestone payment before work resumes.',
+    ctaHref: '/create?template=saas-onboarding-consultant-client-approval-agreement',
+    ctaLabel: 'Create client delay payment terms',
+    relatedLinks: [
+      {
+        label: 'Create client approval terms and a payment link',
+        href: '/create?template=saas-onboarding-consultant-client-approval-agreement',
+      },
+      {
+        label: 'SaaS Onboarding Consultant Client Approval Agreement',
+        href: '/templates/saas-onboarding-consultant-client-approval-agreement',
+      },
+      {
+        label: 'GA4 Analytics Consultant Client Approval Agreement',
+        href: '/templates/ga4-analytics-consultant-client-approval-agreement',
+      },
+      {
+        label: 'How to Pause Freelance Work When a Client Misses a Payment',
+        href: '/articles/freelance-late-payment-pause-work-contract-clause',
+      },
+      {
+        label: 'How to Write a Freelance Payment Schedule With Upfront, Milestone, and Final Payments',
+        href: '/articles/freelance-payment-schedule-upfront-milestones-final',
+      },
+      {
+        label: 'Client Approval Before Payment Links: A Freelancer Workflow That Gets You Paid',
+        href: '/articles/freelance-client-approval-before-payment-link',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Name the client responsibilities',
+        body: [
+          'Client delays often start before anyone calls them delays. The freelancer is waiting on copy, logins, brand files, approvals, product details, stakeholder feedback, or access to a tool, but the contract only talks about the delivery date.',
+          'A better agreement names the client inputs required for each phase. For example, discovery cannot start until access is provided, design cannot start until content is approved, and implementation cannot start until the milestone plan and payment are complete.',
+        ],
+      },
+      {
+        heading: 'Tie deadlines to received materials, not hope',
+        body: [
+          'A delivery promise should depend on the client providing what the freelancer needs on time. If a client sends content five business days late, the freelancer should not automatically lose five business days from the production window.',
+          'Use plain timing language: "Project dates depend on timely client materials, feedback, approvals, and payments. If required items are late, the project timeline may shift by the delay period and any reasonable rescheduling time." That gives both sides a practical rule before the calendar gets tense.',
+        ],
+      },
+      {
+        heading: 'Pause work when approval or payment is missing',
+        body: [
+          'Pausing work is different from abandoning the project. It is a written status change that says the freelancer cannot keep spending production time until the client completes the required next step.',
+          'The pause notice should say what is missing, what work is paused, what payment or approval is required, and how the schedule may change. Keeping this in writing reduces arguments later because the client can see exactly when the project stopped moving and why.',
+        ],
+      },
+      {
+        heading: 'Require payment before work resumes',
+        body: [
+          'If a milestone payment, retainer payment, or restart payment is due, collect it before reopening the work window. Otherwise the freelancer takes on the cost of catching up while the payment issue remains unresolved.',
+          'For a simple delay, the next scheduled payment may be enough. For a long pause that forces re-planning, tool reactivation, team rescheduling, or repeated context review, the agreement can include a restart fee or updated milestone payment before work resumes.',
+        ],
+      },
+      {
+        heading: 'Protect final delivery from last-minute delays',
+        body: [
+          'Client delays near the end of a project can create pressure to hand over final files before payment is settled. The agreement should separate review access from final delivery. A client can review an appropriate preview, staging link, report, or approval file while final exports, credentials, source files, or launch handoff remain tied to cleared payment.',
+          'This is especially important when the client delay created the rush. If late feedback creates a compressed launch window, confirm whether the timeline shifts or whether the client is approving rush terms and payment before expedited work starts.',
+        ],
+      },
+      {
+        heading: 'Send one pause-and-resume workflow',
+        body: [
+          'Client delay terms work best when they are not scattered across proposal notes, chat messages, and separate invoices. The client should have one agreement that explains responsibilities, approval deadlines, payment timing, pause rules, and the secure payment link needed to restart work.',
+          'MicroFreelanceHub helps freelancers turn those rules into a client-ready agreement and payment workflow. It is software for freelance payment operations, not a law firm, so unusual cancellation, refund, or compliance questions should be reviewed with a qualified professional.',
+        ],
+      },
+    ],
+  },
+
 ];
 
 export function getArticle(slug: string) {
