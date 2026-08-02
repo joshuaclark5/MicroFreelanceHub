@@ -262,6 +262,7 @@ function LoginForm() {
                     <input
                         type="email"
                         required
+                        autoComplete="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Email address"
@@ -275,6 +276,7 @@ function LoginForm() {
                         type="password"
                         required
                         minLength={8}
+                        autoComplete={authMode === 'signin' ? 'current-password' : 'new-password'}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Password"
