@@ -56,17 +56,6 @@ const BLOCKED_BOT_TOKENS = [
   'zgrab',
 ];
 
-const HUMAN_BROWSER_TOKENS = [
-  'chrome',
-  'crios',
-  'edg',
-  'firefox',
-  'fxios',
-  'mobile safari',
-  'safari',
-  'samsungbrowser',
-];
-
 const HIGH_RISK_COUNTRIES = ['SG', 'CN', 'RU'];
 
 function includesAny(value: string, tokens: string[]) {
@@ -77,14 +66,13 @@ export function middleware(request: NextRequest) {
   const userAgent = request.headers.get('user-agent')?.toLowerCase() ?? '';
   const country = request.geo?.country ?? request.headers.get('x-vercel-ip-country') ?? undefined;
   const isAllowedCrawler = includesAny(userAgent, ALLOWED_CRAWLER_TOKENS);
-  const isHumanBrowser = includesAny(userAgent, HUMAN_BROWSER_TOKENS);
 
   if (!isAllowedCrawler && (!userAgent || includesAny(userAgent, BLOCKED_BOT_TOKENS))) {
     return new NextResponse('Forbidden', { status: 403 });
   }
 
   if (country && HIGH_RISK_COUNTRIES.includes(country)) {
-    if (request.method === 'GET' && (isAllowedCrawler || isHumanBrowser)) {
+    if (request.method === 'GET' && isAllowedCrawler) {
       return NextResponse.next();
     }
 
