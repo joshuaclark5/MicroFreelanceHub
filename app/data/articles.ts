@@ -1222,6 +1222,97 @@ export const articles: Article[] = [
     ],
   },
 
+
+  {
+    slug: 'freelance-acceptance-criteria-final-payment-before-handoff',
+    title: 'How to Use Acceptance Criteria Before Final Freelance Payment',
+    description:
+      'A practical guide to defining acceptance criteria, getting client approval, and collecting final payment before freelancers hand over final files, credentials, or launch assets.',
+    publishedAt: '2026-08-03',
+    category: 'Final Delivery Payments',
+    keywords: [
+      'freelance acceptance criteria',
+      'final payment before handoff',
+      'client approval before final delivery',
+      'freelance deliverable acceptance terms',
+      'payment before source files',
+      'freelance handoff payment link',
+    ],
+    aiSummary:
+      'Freelancers should define acceptance criteria before work starts, use them during client review, and require written approval plus final payment before releasing final files, credentials, source assets, or launch handoff materials.',
+    ctaHref: '/create?template=webflow-developer-milestone-payment-agreement',
+    ctaLabel: 'Create final approval payment terms',
+    relatedLinks: [
+      {
+        label: 'Create approval terms and a final payment link',
+        href: '/create?template=webflow-developer-milestone-payment-agreement',
+      },
+      {
+        label: 'Webflow Developer Milestone Payment Agreement',
+        href: '/templates/webflow-developer-milestone-payment-agreement',
+      },
+      {
+        label: 'Mobile App Designer Milestone Approval Template',
+        href: '/templates/mobile-app-designer-milestone-approval-template',
+      },
+      {
+        label: 'How to Collect Final Payment Before Sending Freelance Deliverables',
+        href: '/articles/freelance-final-payment-before-delivery',
+      },
+      {
+        label: 'Client Approval Before Payment Links: A Freelancer Workflow That Gets You Paid',
+        href: '/articles/freelance-client-approval-before-payment-link',
+      },
+      {
+        label: 'How to Set Freelance Revision Limits That Protect Your Payment Terms',
+        href: '/articles/freelance-revision-limit-payment-terms',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Define what done means before work starts',
+        body: [
+          'Final-payment disputes often happen because the freelancer and client are using different definitions of done. The freelancer may have delivered the agreed website, edit, automation, report, or design file, while the client keeps adding preferences that were never part of the original scope.',
+          'Acceptance criteria solve that problem by turning done into a checklist. They should describe the deliverable, required formats, included pages or assets, performance targets when relevant, supported platforms, revision rounds, and the review method the client will use before final approval.',
+        ],
+      },
+      {
+        heading: 'Keep criteria observable and client-friendly',
+        body: [
+          'Strong acceptance criteria are specific enough to verify without sounding like dense legal language. For example: "The landing page is accepted when the approved copy and design are implemented, the contact form submits successfully, mobile layout is reviewed, and one included revision round is complete."',
+          'Avoid vague promises like "client is fully satisfied" or "project is perfect." Those phrases create unlimited review risk. Use terms the client can inspect: pages, files, integrations, exports, test results, approval dates, and included fixes.',
+        ],
+      },
+      {
+        heading: 'Separate previews from final handoff',
+        body: [
+          'A client needs a fair way to review the work before paying the final balance, but that does not mean the freelancer has to release every final asset first. The agreement can allow previews, staging links, watermarked exports, screenshots, walkthrough videos, reports, or limited review access before final payment.',
+          'Final handoff can then be tied to cleared payment. Depending on the project, that might mean source files, editable design files, production credentials, final exports, launch access, transfer documents, or publishing support are released after approval and final payment are complete.',
+        ],
+      },
+      {
+        heading: 'Use approval to close included revisions',
+        body: [
+          'Acceptance criteria should work together with revision limits. If the client has two included revision rounds, the contract should say what counts as a revision, how feedback is submitted, and when later requests become a paid change request instead of part of final approval.',
+          'This keeps final review from becoming a new discovery phase. When the work meets the written criteria and included revisions are complete, the client can approve the deliverable and complete the final payment link before handoff.',
+        ],
+      },
+      {
+        heading: 'Set a review deadline and response rule',
+        body: [
+          'Final review also needs timing. Without a response deadline, a project can sit unpaid while the client waits for a stakeholder, changes priorities, or disappears after receiving a preview. A clear agreement says how long the client has to review and what happens if feedback is late.',
+          'A practical clause can say that the client has a set number of business days to approve the deliverable or submit consolidated feedback tied to the acceptance criteria. If the client misses the deadline, the schedule may shift, work may pause, and any next payment or restart payment may be required before more work continues.',
+        ],
+      },
+      {
+        heading: 'Send one final approval workflow',
+        body: [
+          'The cleanest final-payment process gives the client one place to see the acceptance criteria, included revisions, preview method, final balance, and secure payment step. That is much easier to enforce than scattered notes across proposals, chats, invoices, and file links.',
+          'MicroFreelanceHub helps freelancers package approval terms and payment links into a client-ready workflow. It is software for freelance contracts and payments, not a law firm, so unusual legal, refund, or compliance questions should be reviewed with a qualified professional.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
