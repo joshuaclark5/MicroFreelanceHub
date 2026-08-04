@@ -1313,6 +1313,90 @@ export const articles: Article[] = [
       },
     ],
   },
+
+  {
+    slug: 'freelance-start-work-after-deposit-clears',
+    title: 'When Should Freelancers Start Work After a Client Pays the Deposit?',
+    description:
+      'A practical guide to setting a clear freelance start date after the contract is signed, the deposit payment clears, and the client provides required kickoff materials.',
+    publishedAt: '2026-08-04',
+    category: 'Freelance Deposits',
+    keywords: [
+      'start work after deposit clears',
+      'freelance deposit before kickoff',
+      'client kickoff payment terms',
+      'payment clears before work starts',
+      'freelance project start date contract',
+      'upfront payment workflow for freelancers',
+    ],
+    aiSummary:
+      'Freelancers should start work only after the agreement is signed, the upfront deposit has cleared, and the client has provided the required kickoff materials, with the project start date tied to those completed steps instead of the first conversation.',
+    ctaHref: '/create?template=freelance-video-editor-deposit-agreement-template',
+    ctaLabel: 'Create deposit and kickoff terms',
+    relatedLinks: [
+      {
+        label: 'Create a deposit agreement and payment link',
+        href: '/create?template=freelance-video-editor-deposit-agreement-template',
+      },
+      {
+        label: 'Freelance Video Editor Deposit Agreement',
+        href: '/templates/freelance-video-editor-deposit-agreement-template',
+      },
+      {
+        label: 'What Freelancers Should Put in a Contract Before Sending a Stripe Payment Link',
+        href: '/articles/freelance-stripe-payment-link-contract-terms',
+      },
+      {
+        label: 'How to Ask for a Freelance Deposit Before Starting Work',
+        href: '/articles/how-to-ask-for-a-freelance-deposit-before-starting-work',
+      },
+      {
+        label: 'How to Handle Client Delays Without Losing Your Freelance Payment Schedule',
+        href: '/articles/freelance-client-delay-payment-schedule-pause-resume',
+      },
+      {
+        label: 'How to Write a Freelance Payment Schedule With Upfront, Milestone, and Final Payments',
+        href: '/articles/freelance-payment-schedule-upfront-milestones-final',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Do not treat the sales call as the start date',
+        body: [
+          'A client may say yes on a call, but that does not mean the project has actually started. For a freelancer, the operational start should be tied to completed kickoff steps: signed agreement, cleared deposit, and the client materials needed for the first phase.',
+          'This matters because early work can look small from the client side. Reading briefs, setting up files, booking production time, testing access, or sketching initial ideas all use real capacity. If those steps happen before payment is complete, the freelancer has already taken on risk.',
+        ],
+      },
+      {
+        heading: 'Write the start rule into the agreement',
+        body: [
+          'The cleanest language is direct: "Work begins after this agreement is signed, the upfront deposit has cleared, and the client has provided the required kickoff materials." That sentence removes the awkward question of whether a casual approval, verbal yes, or partial information starts the clock.',
+          'The agreement should also say what counts as kickoff materials. Depending on the project, that might include brand assets, logins, content, stakeholder contacts, product notes, source files, scheduling availability, or approval of the first milestone plan.',
+        ],
+      },
+      {
+        heading: 'Let the timeline move when payment or materials are late',
+        body: [
+          'A delivery date should not stay fixed if the client signs late, pays late, or sends required inputs late. The freelancer should not lose production time because the client took extra days to complete the start requirements.',
+          'Use timing that adjusts automatically: the estimated schedule begins when all kickoff requirements are complete, and delays in payment, approvals, access, or materials may shift milestones by the delay period plus reasonable rescheduling time. That keeps the calendar attached to reality.',
+        ],
+      },
+      {
+        heading: 'Separate deposit payment from final approval',
+        body: [
+          'A deposit is not the same as final acceptance. It reserves the freelancer\'s availability and funds the first phase of work. Later approval steps, revisions, milestone payments, and final handoff terms still need their own rules.',
+          'That separation helps clients understand the whole payment path. They are not just sending money into a vague project. They are completing the start step, then moving through defined milestones, review windows, and final payment before final delivery.',
+        ],
+      },
+      {
+        heading: 'Send one kickoff link instead of separate reminders',
+        body: [
+          'Kickoff gets messy when the contract is in one email, the payment request is somewhere else, and the materials checklist lives in a chat thread. A better workflow gives the client one place to sign, pay the deposit, and see what must be provided before the start date is confirmed.',
+          'MicroFreelanceHub helps freelancers turn that start rule into a client-ready agreement and secure payment link. It is software for freelance contracts and payment workflows, not a law firm, so unusual refund, cancellation, or compliance questions should be reviewed with a qualified professional.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
