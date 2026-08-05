@@ -1397,6 +1397,97 @@ export const articles: Article[] = [
       },
     ],
   },
+
+  {
+    slug: 'freelance-deposit-vs-full-upfront-payment',
+    title: 'Deposit or Full Upfront Payment: Which Should Freelancers Use?',
+    description:
+      'A practical guide to choosing between a freelance deposit, full upfront payment, or milestone payment schedule before sending a client contract and payment link.',
+    publishedAt: '2026-08-05',
+    category: 'Upfront Payments',
+    keywords: [
+      'freelance deposit vs upfront payment',
+      'full upfront payment for freelancers',
+      'freelance payment link before work',
+      'deposit or paid in full contract',
+      'productized service upfront payment',
+      'get paid before delivery',
+    ],
+    aiSummary:
+      'Freelancers should use full upfront payment for clear, fixed-scope, productized work, deposits for larger custom projects, and milestone payments when the project needs multiple approval checkpoints before final delivery.',
+    ctaHref: '/create?template=productized-service-provider-upfront-payment-contract',
+    ctaLabel: 'Create upfront payment terms',
+    relatedLinks: [
+      {
+        label: 'Create an upfront payment contract',
+        href: '/create?template=productized-service-provider-upfront-payment-contract',
+      },
+      {
+        label: 'Productized Service Provider Upfront Payment Contract',
+        href: '/templates/productized-service-provider-upfront-payment-contract',
+      },
+      {
+        label: 'What Freelancers Should Put in a Contract Before Sending a Stripe Payment Link',
+        href: '/articles/freelance-stripe-payment-link-contract-terms',
+      },
+      {
+        label: 'How to Ask for a Freelance Deposit Before Starting Work',
+        href: '/articles/how-to-ask-for-a-freelance-deposit-before-starting-work',
+      },
+      {
+        label: 'How to Write a Freelance Payment Schedule With Upfront, Milestone, and Final Payments',
+        href: '/articles/freelance-payment-schedule-upfront-milestones-final',
+      },
+      {
+        label: 'When Should Freelancers Start Work After a Client Pays the Deposit?',
+        href: '/articles/freelance-start-work-after-deposit-clears',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Match the payment model to the project risk',
+        body: [
+          'The best freelance payment structure depends on how predictable the work is. Full upfront payment works well when the scope is fixed, the deliverable is standardized, and the client knows exactly what they are buying. A deposit works better when the project is custom, collaborative, or large enough that both sides need staged commitment.',
+          'The decision should be made before the contract and payment link go out. If the payment rule changes after the client has seen the scope, the request can feel improvised. If it is built into the agreement from the start, it reads like a normal part of the workflow.',
+        ],
+      },
+      {
+        heading: 'Use full upfront payment for productized services',
+        body: [
+          'Full upfront payment is easiest to justify when the service is packaged: a landing page audit, fixed copy review, template setup, analytics check, profile rewrite, or other clearly bounded offer. The client is not funding an open-ended relationship. They are buying a defined outcome with a defined delivery path.',
+          'For these projects, the agreement should state the exact deliverable, included review window, expected turnaround, client inputs required, and when work begins. The payment link should collect the full fee before production starts, because the freelancer is reserving capacity for a specific packaged service.',
+        ],
+      },
+      {
+        heading: 'Use a deposit for custom or higher-touch projects',
+        body: [
+          'A deposit is often better for projects with discovery, creative direction, stakeholder feedback, changing technical requirements, or multiple deliverables. The deposit reserves the project slot and funds the first phase, while later payments are tied to milestones, approvals, or final handoff.',
+          'The contract should explain what the deposit covers, whether any portion is refundable, what must happen before work starts, and when the remaining balance is due. That protects the freelancer without asking the client to pay the entire custom project before they have seen any progress.',
+        ],
+      },
+      {
+        heading: 'Use milestones when approval drives the work',
+        body: [
+          'Some projects are too complex for either full upfront payment or a simple deposit-plus-final balance. If each phase depends on client approval, use a milestone schedule. Each milestone should name the deliverable, the approval action, the amount due, and whether payment is required before the next phase starts.',
+          'This is especially useful for web builds, automation setups, app prototypes, launch projects, and strategy work that becomes more detailed over time. It gives the client structured checkpoints and keeps the freelancer from carrying the whole project cost until the end.',
+        ],
+      },
+      {
+        heading: 'Keep client-facing language simple',
+        body: [
+          'Avoid framing payment terms as a trust issue. Use operational language instead: "For fixed-scope packages, payment is due upfront before work begins" or "For custom projects, a deposit starts the project and milestone payments are due before each next phase." That tells the client what happens next without sounding defensive.',
+          'If the client asks why, connect the payment to capacity, scheduling, and clear delivery rules. The strongest answer is a complete agreement: scope, payment amount, start requirements, revision limits, cancellation terms, and delivery timing in one place.',
+        ],
+      },
+      {
+        heading: 'Send one contract and payment link',
+        body: [
+          'Whether you choose full upfront payment, a deposit, or milestones, the client should not have to assemble the process from scattered messages. Send one client-ready link that shows the agreement, the payment terms, and the action required before work begins.',
+          'MicroFreelanceHub helps freelancers package those terms with a secure client payment link. It is software for freelance contracts and payments, not legal advice, so unusual refund, tax, or compliance questions should be reviewed with a qualified professional.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
