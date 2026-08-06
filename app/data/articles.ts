@@ -1488,6 +1488,97 @@ export const articles: Article[] = [
       },
     ],
   },
+
+  {
+    slug: 'freelance-restart-fee-client-goes-quiet',
+    title: 'How to Charge a Restart Fee When a Freelance Client Goes Quiet',
+    description:
+      'A practical guide to adding pause, restart, and payment terms when a freelance client misses approvals, materials, or milestone payment deadlines.',
+    publishedAt: '2026-08-06',
+    category: 'Client Delays',
+    keywords: [
+      'freelance restart fee',
+      'client goes quiet freelance contract',
+      'pause work clause for freelancers',
+      'client delay payment terms',
+      'milestone payment before restart',
+      'freelance approval deadline',
+    ],
+    aiSummary:
+      'Freelancers can charge a restart fee when a client goes quiet by defining response deadlines, pause triggers, payment requirements, and restart scheduling rules in the contract before work begins.',
+    ctaHref: '/create?template=saas-onboarding-consultant-client-approval-agreement',
+    ctaLabel: 'Create pause and approval terms',
+    relatedLinks: [
+      {
+        label: 'Create an agreement with approval deadlines',
+        href: '/create?template=saas-onboarding-consultant-client-approval-agreement',
+      },
+      {
+        label: 'SaaS Onboarding Consultant Client Approval Agreement',
+        href: '/templates/saas-onboarding-consultant-client-approval-agreement',
+      },
+      {
+        label: 'How to Handle Client Delays in a Freelance Payment Schedule',
+        href: '/articles/freelance-client-delay-payment-schedule-pause-resume',
+      },
+      {
+        label: 'When Freelancers Can Pause Work for Late Payment',
+        href: '/articles/freelance-late-payment-pause-work-contract-clause',
+      },
+      {
+        label: 'How to Use Milestone Payments With Client Approval Steps',
+        href: '/articles/freelance-milestone-payment-schedule-client-approval',
+      },
+      {
+        label: 'When Should Freelancers Start Work After a Client Pays the Deposit?',
+        href: '/articles/freelance-start-work-after-deposit-clears',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Define what counts as going quiet',
+        body: [
+          'A restart fee is easier to explain when the contract defines the problem in operational terms. The client has not simply been slow; they missed a specific approval window, materials deadline, access request, feedback date, or milestone payment deadline that the project depends on.',
+          'Use plain timing. For example, the agreement might say that if the client does not provide required feedback, files, access, or payment within seven calendar days after a written request, the project may be paused. That gives both sides a clear checkpoint instead of a vague complaint about responsiveness.',
+        ],
+      },
+      {
+        heading: 'Connect the pause to scheduling capacity',
+        body: [
+          'The most client-friendly reason for a restart fee is scheduling. Freelancers reserve production time around expected approvals and payments. When the client disappears, that reserved time is lost, and restarting later may require new planning, context review, and a new slot on the calendar.',
+          'The contract should say that timelines shift when client-side requirements are late. It can also say that paused work restarts only after outstanding items are complete, overdue payments are current, and the freelancer confirms the next available production window.',
+        ],
+      },
+      {
+        heading: 'Make the restart fee specific',
+        body: [
+          'Avoid surprising the client with a fee that was never named. State the restart fee in the agreement as a flat amount, a percentage of the project fee, or an hourly admin rate for re-planning and remobilizing the work. Pick a structure that fits the size of the project and the amount of context that must be rebuilt.',
+          'For smaller fixed-scope work, a modest flat restart fee is usually easier to understand. For larger builds, onboarding projects, or consulting engagements, the agreement may use a written estimate for restart work after the pause period has passed.',
+        ],
+      },
+      {
+        heading: 'Require payment before work resumes',
+        body: [
+          'A project should not restart while old payment problems are still open. If the pause was caused by a missed milestone payment, final balance, or required upfront payment, the contract should require the overdue amount to be paid before any new work begins.',
+          'If the pause was caused by missing feedback or materials, the restart step can still include payment rules: all current invoices must be paid, the restart fee must be paid if it applies, and any next milestone payment must be completed before the next phase starts.',
+        ],
+      },
+      {
+        heading: 'Use reminders before enforcing the clause',
+        body: [
+          'A good pause clause does not need to feel hostile. Send a written reminder that names the missing item, the date needed, the effect on the timeline, and the date the project will pause if nothing changes. This gives the client a fair chance to fix the delay and gives you a record of the process.',
+          'The reminder can be short: "I need the homepage copy and platform access by Friday to keep the current schedule. If those items are not received, the project will pause and restart after the materials are complete, payment is current, and I confirm the next available production slot."',
+        ],
+      },
+      {
+        heading: 'Put the rule in the contract and payment workflow',
+        body: [
+          'Restart terms work best when they are part of the original contract, not a reaction after the client has already disappeared. Include response deadlines, approval rules, pause triggers, restart fees, payment-before-resume language, and revised timeline rules before the client signs.',
+          'MicroFreelanceHub helps freelancers turn those terms into a client-ready agreement and secure payment link. It is software for freelance contracts and payment workflows, not legal advice, so unusual cancellation, refund, or compliance questions should be reviewed with a qualified professional.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
