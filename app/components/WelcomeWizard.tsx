@@ -77,17 +77,8 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
         await supabase.from('profiles').update({
           has_completed_onboarding: true,
         }).eq('id', user.id);
-
-        if (user.email) {
-          await supabase.functions.invoke('welcome-email', {
-            body: {
-              email: user.email,
-              name: name.trim() || 'Freelancer'
-            },
-          });
-        }
       } catch (err) {
-        console.warn('Welcome email or profile update failed on skip:', err);
+        console.warn('Profile update failed on skip:', err);
       }
     })();
     localStorage.removeItem('hasCompletedWizard');
@@ -275,6 +266,12 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
                 className="w-full px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-lg rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30"
               >
                 <CreditCard className="w-5 h-5" /> Connect Bank/Stripe
+              </button>
+              <button
+                onClick={handleNext}
+                className="w-full px-6 py-3 border border-indigo-400/40 text-indigo-100 hover:text-white hover:border-indigo-300 font-bold rounded-xl transition-all"
+              >
+                Continue without Stripe
               </button>
               <p className="text-center text-xs text-indigo-300 italic">
                 Connecting Stripe allows us to automatically attach secure payment links and terms to your agreements once both parties sign.
