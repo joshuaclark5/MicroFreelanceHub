@@ -1579,6 +1579,97 @@ export const articles: Article[] = [
       },
     ],
   },
+
+  {
+    slug: 'freelance-cancellation-terms-deposit-agreement',
+    title: 'How to Write Cancellation Terms for a Freelance Deposit Agreement',
+    description:
+      'A practical freelancer guide to deposit cancellation terms, refund rules, booking windows, client notice periods, and payment links before work or event dates are reserved.',
+    publishedAt: '2026-08-07',
+    category: 'Cancellation Terms',
+    keywords: [
+      'freelance cancellation terms',
+      'deposit cancellation clause for freelancers',
+      'client cancellation policy',
+      'upfront payment cancellation agreement',
+      'freelance booking fee terms',
+      'payment link before reserving dates',
+    ],
+    aiSummary:
+      'Freelancers should write cancellation terms that explain what the deposit reserves, how much notice the client must give, when any refund may apply, and what must be paid before work or reserved dates are confirmed.',
+    ctaHref: '/create?template=event-videographer-deposit-and-cancellation-contract',
+    ctaLabel: 'Create deposit and cancellation terms',
+    relatedLinks: [
+      {
+        label: 'Create a deposit and cancellation agreement',
+        href: '/create?template=event-videographer-deposit-and-cancellation-contract',
+      },
+      {
+        label: 'Event Videographer Deposit and Cancellation Contract',
+        href: '/templates/event-videographer-deposit-and-cancellation-contract',
+      },
+      {
+        label: 'Product Photographer Deposit and Usage Rights Agreement',
+        href: '/templates/product-photographer-deposit-and-usage-rights-agreement',
+      },
+      {
+        label: 'How to Ask for a Freelance Deposit Before Starting Work',
+        href: '/articles/how-to-ask-for-a-freelance-deposit-before-starting-work',
+      },
+      {
+        label: 'Deposit or Full Upfront Payment: Which Should Freelancers Use?',
+        href: '/articles/freelance-deposit-vs-full-upfront-payment',
+      },
+      {
+        label: 'How to Charge a Restart Fee When a Freelance Client Goes Quiet',
+        href: '/articles/freelance-restart-fee-client-goes-quiet',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Start by saying what the deposit reserves',
+        body: [
+          'Cancellation terms work best when the client understands what the upfront payment is doing. For many freelancers, the deposit reserves production time, event availability, preparation work, materials, planning, or the first project milestone. Say that directly before the client signs.',
+          'If the deposit only sounds like a generic prepayment, a later cancellation can turn into an argument about fairness. If the agreement explains that the deposit holds a calendar slot and funds project preparation, the rule feels connected to real business capacity rather than a penalty.',
+        ],
+      },
+      {
+        heading: 'Separate client cancellation from freelancer cancellation',
+        body: [
+          'A clear agreement should explain what happens if the client cancels, postpones, or materially changes the project. It should also say what happens if the freelancer cannot perform the work and must cancel or reschedule. Those are different situations and should not share vague language.',
+          'For client cancellations, name the notice window, the deposit treatment, any work already completed, and any remaining balance that may be due. For freelancer cancellations, explain the refund or replacement process you are comfortable promising, while avoiding guarantees you cannot actually meet.',
+        ],
+      },
+      {
+        heading: 'Use notice windows instead of improvised decisions',
+        body: [
+          'Cancellation terms are easier to enforce when they use dates or notice periods. An event videographer might use one rule for cancellations more than 30 days before the event and another rule for cancellations inside the final week. A designer or consultant might tie cancellation to kickoff, discovery, or milestone approval.',
+          'The exact window depends on the service, but the structure should be visible before payment: how to give notice, when notice is effective, what portion of the deposit may be refundable if any, and whether work already performed is billed separately.',
+        ],
+      },
+      {
+        heading: 'Explain postponements and rescheduling',
+        body: [
+          'Many clients do not think of postponement as cancellation, but it can create the same problem for a freelancer. A delayed event, late launch, or paused campaign can block the original calendar slot and require new planning later.',
+          'Your agreement can allow one reschedule if the client gives enough notice and you have availability. It can also say that new dates are not confirmed until both sides approve the revised schedule and any required payment, restart fee, or additional deposit is complete.',
+        ],
+      },
+      {
+        heading: 'Tie final files and reserved dates to payment status',
+        body: [
+          'Cancellation language should work with the rest of the payment workflow. If the client owes a milestone payment, cancellation fee, restart fee, or final balance, the agreement should say whether final files, source files, publishing access, or reserved future dates are held until payment is current.',
+          'Keep the wording practical. For example: "Reserved dates are confirmed only after the signed agreement and required deposit are complete. If the client cancels or reschedules, any refund or credit is handled under the cancellation schedule in this agreement."',
+        ],
+      },
+      {
+        heading: 'Send the cancellation terms with the payment link',
+        body: [
+          'The best time to explain cancellation terms is before the client pays, not after a problem appears. Put the deposit amount, refund rules, notice windows, rescheduling policy, and payment link in one client-ready agreement so the client can review everything before committing.',
+          'MicroFreelanceHub helps freelancers create that workflow with contract terms, signatures, and secure client payment links. It is software for freelance contracts and payments, not a law firm, so unusual refund, consumer protection, tax, or local compliance questions should be reviewed with a qualified professional.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
