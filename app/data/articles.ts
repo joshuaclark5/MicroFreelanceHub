@@ -1670,6 +1670,97 @@ export const articles: Article[] = [
       },
     ],
   },
+
+  {
+    slug: 'freelance-client-assets-access-deposit-before-work-starts',
+    title: 'How to Collect Client Assets, Access, and Deposit Before Freelance Work Starts',
+    description:
+      'A practical freelancer guide to getting client materials, platform access, approvals, and upfront payment completed before production work begins.',
+    publishedAt: '2026-08-08',
+    category: 'Project Kickoff',
+    keywords: [
+      'client assets before freelance work starts',
+      'freelance deposit before kickoff',
+      'client access checklist for freelancers',
+      'upfront payment and project materials',
+      'freelance kickoff payment link',
+      'approval before starting freelance work',
+    ],
+    aiSummary:
+      'Freelancers should collect the signed agreement, upfront payment, required client assets, platform access, and kickoff approvals before production work starts so the project does not begin underfunded or blocked by missing materials.',
+    ctaHref: '/create?template=api-integration-developer-deposit-and-approval-agreement',
+    ctaLabel: 'Create deposit and access terms',
+    relatedLinks: [
+      {
+        label: 'Create an agreement with deposit and access terms',
+        href: '/create?template=api-integration-developer-deposit-and-approval-agreement',
+      },
+      {
+        label: 'API Integration Developer Deposit and Approval Agreement',
+        href: '/templates/api-integration-developer-deposit-and-approval-agreement',
+      },
+      {
+        label: 'Zapier Consultant Deposit and Approval Agreement',
+        href: '/templates/zapier-consultant-deposit-and-approval-agreement',
+      },
+      {
+        label: 'SaaS Onboarding Consultant Client Approval Agreement',
+        href: '/templates/saas-onboarding-consultant-client-approval-agreement',
+      },
+      {
+        label: 'When Should Freelancers Start Work After a Client Pays the Deposit?',
+        href: '/articles/freelance-start-work-after-deposit-clears',
+      },
+      {
+        label: 'How to Handle Client Delays Without Losing Your Freelance Payment Schedule',
+        href: '/articles/freelance-client-delay-payment-schedule-pause-resume',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Make kickoff conditional on more than enthusiasm',
+        body: [
+          'A client can be excited, responsive, and still not ready for production work. Freelancers often start too early because the client said yes, even though the signed agreement, deposit, brand files, platform access, decision maker approval, or source material is still missing.',
+          'Treat kickoff as a checklist, not a feeling. The project starts when the required business and operational items are complete. That gives the client a clear path to begin and keeps you from absorbing unpaid setup time while waiting for access or files.',
+        ],
+      },
+      {
+        heading: 'List the exact materials the client must provide',
+        body: [
+          'The contract should name the client-side inputs that matter for the job: login access, API keys, product photos, brand guidelines, copy, ad account access, analytics permissions, stakeholder feedback, sample files, calendar availability, or any other dependency that blocks the work.',
+          'Avoid vague phrases like "client will provide materials as needed." Instead, define a kickoff requirements list and say that timelines begin only after those required items are received in usable form. That wording is practical, easy to understand, and easier to apply later.',
+        ],
+      },
+      {
+        heading: 'Collect the deposit before opening production time',
+        body: [
+          'Missing materials are frustrating, but missing payment is worse. If you reserve a production slot before the client pays, you are carrying the scheduling risk while the client still has no financial commitment to the start date.',
+          'A stronger workflow is signed agreement first, upfront payment second, then access and materials before the first milestone begins. For small projects, the deposit may reserve the start window. For larger projects, the deposit can fund discovery or setup while later milestones remain tied to approval and payment steps.',
+        ],
+      },
+      {
+        heading: 'Explain what happens when access is late or incomplete',
+        body: [
+          'Client-side delays should have a written operational consequence. The agreement can say that timelines extend when required assets, access, approvals, or payments are late, and that the freelancer is not responsible for delays caused by missing client inputs.',
+          'The point is not to punish the client. It is to keep the schedule honest. If a Shopify specialist cannot enter the store, a Zapier consultant cannot access the account, or an API developer does not have credentials, the timeline should move instead of forcing unpaid overtime later.',
+        ],
+      },
+      {
+        heading: 'Use approval checkpoints before building on client inputs',
+        body: [
+          'Some materials need approval before they become the basis for paid work. A freelancer might ask the client to confirm the final copy deck, product list, user permissions, campaign brief, data source, or integration requirements before production begins.',
+          'That approval matters because later changes can become new work. If the client approves the kickoff materials and then changes them after work has started, the agreement can route the change through a paid change request or next milestone instead of silently expanding the original scope.',
+        ],
+      },
+      {
+        heading: 'Send one client-ready link for signature, payment, and next steps',
+        body: [
+          'The cleaner the process, the fewer reminders you need. Put the kickoff requirements, deposit amount, payment link, access rules, approval steps, delay terms, and milestone schedule in one agreement so the client sees exactly what must happen before work begins.',
+          'MicroFreelanceHub helps freelancers create that kind of contract and secure client payment workflow. It is software for freelance agreements and payment links, not legal advice, so unusual access, compliance, privacy, refund, or platform account questions should be reviewed with a qualified professional.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
