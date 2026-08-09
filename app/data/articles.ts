@@ -1761,6 +1761,97 @@ export const articles: Article[] = [
       },
     ],
   },
+
+  {
+    slug: 'freelance-source-file-release-final-payment',
+    title: 'How to Release Freelance Source Files Only After Final Payment',
+    description:
+      'A practical guide to source file release clauses, final payment timing, client approvals, and handoff rules for freelancers who deliver usable assets.',
+    publishedAt: '2026-08-09',
+    category: 'Final Delivery',
+    keywords: [
+      'freelance source file release clause',
+      'final payment before source files',
+      'freelance handoff payment terms',
+      'client approval before final delivery',
+      'freelance final files payment link',
+      'get paid before delivery',
+    ],
+    aiSummary:
+      'Freelancers should define which source files, clean exports, credentials, licenses, and production-ready assets are released after final approval and final payment, while previews or watermarked drafts can be used for review before handoff.',
+    ctaHref: '/create?template=webflow-developer-milestone-payment-agreement',
+    ctaLabel: 'Create final payment handoff terms',
+    relatedLinks: [
+      {
+        label: 'Create an agreement with source file release terms',
+        href: '/create?template=webflow-developer-milestone-payment-agreement',
+      },
+      {
+        label: 'Webflow Developer Milestone Payment Agreement',
+        href: '/templates/webflow-developer-milestone-payment-agreement',
+      },
+      {
+        label: 'How to Collect Final Payment Before Sending Freelance Deliverables',
+        href: '/articles/freelance-final-payment-before-delivery',
+      },
+      {
+        label: 'Client Approval Before Payment Links',
+        href: '/articles/freelance-client-approval-before-payment-link',
+      },
+      {
+        label: 'How to Write a Freelance Payment Schedule',
+        href: '/articles/freelance-payment-schedule-upfront-milestones-final',
+      },
+      {
+        label: 'How to Handle Scope Creep With Change Requests',
+        href: '/articles/freelance-scope-creep-change-request-payment-link',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Separate review files from final source files',
+        body: [
+          'Freelance handoff problems often start because everyone uses the phrase "final files" differently. A client may think it includes editable source files, admin access, raw footage, working design files, plugin settings, licensed assets, documentation, and published pages. The freelancer may have priced only finished exports or a launched result.',
+          'Write the distinction before work starts. Review files are drafts, previews, staging links, low-resolution exports, watermarked cuts, screenshots, or read-only links used for feedback. Final source files are the editable or production-ready assets the client can use, modify, publish, transfer, or hand to another provider after payment is complete.',
+        ],
+      },
+      {
+        heading: 'Name exactly what the final payment unlocks',
+        body: [
+          'A useful source file release clause lists the actual handoff items: Figma files, PSD files, vector logos, code repositories, website credentials, clean video exports, project files, automation documentation, ad account setup notes, or launch access. The list should match the project, not a generic promise to send everything.',
+          'Then connect that list to the payment trigger. For example: "After final preview approval and payment of the remaining balance, freelancer will release the production-ready files listed in the deliverables section." That wording keeps the payment request tied to a concrete handoff instead of a last-minute argument.',
+        ],
+      },
+      {
+        heading: 'Use approval before requesting the final balance',
+        body: [
+          'Clients need a fair way to review the work before paying the last invoice. Give them a clear approval checkpoint: a staging link, preview export, draft file, test environment, screen recording, or review document that shows the agreed deliverable without transferring all usable assets yet.',
+          'The agreement should explain the review window and what happens next. A practical version says the client has a set number of business days to approve, request included revisions, or identify issues that do not match the agreed scope. After approval, the final payment link is due before the source files or launch access are released.',
+        ],
+      },
+      {
+        heading: 'Handle extra source file requests as scope changes',
+        body: [
+          'Source file disputes can also be scope disputes. A client might approve the final website but then ask for custom documentation, a second file format, raw footage, editable templates, training calls, extra repository cleanup, or transfer support that was never priced.',
+          'If those items are not included, do not bury the issue in a tense email thread. Send a change request that names the added handoff item, the extra price, the payment due date, and any timeline impact. The client can approve the added item or continue with the original deliverables.',
+        ],
+      },
+      {
+        heading: 'Avoid holding back items the client already paid for',
+        body: [
+          'Payment protection should be clear and proportionate. If a milestone has been paid and approved, the agreement should say what the client receives for that milestone and what remains conditional on later payment. That helps avoid confusion if a project pauses, changes direction, or ends before the final phase.',
+          'For larger projects, consider separate handoff rules by milestone: discovery notes after the discovery payment, approved design assets after the design payment, and launch credentials after final payment. This makes the workflow easier for clients to understand and keeps each payment connected to visible value.',
+        ],
+      },
+      {
+        heading: 'Put the payment link and handoff terms in one agreement',
+        body: [
+          'Final handoff should not depend on scattered chat messages. Put the deliverables, source file list, review window, included revisions, final payment amount, payment link, late-payment pause, and release timing in one client-ready agreement before the project begins.',
+          'MicroFreelanceHub helps freelancers create that contract and secure client payment workflow. It is software for freelance agreements and payment links, not a law firm, so unusual intellectual property, licensing, refund, consumer protection, or local compliance questions should be reviewed with a qualified professional.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
