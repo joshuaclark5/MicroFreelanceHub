@@ -1852,6 +1852,97 @@ export const articles: Article[] = [
       },
     ],
   },
+
+  {
+    slug: 'freelance-client-review-window-payment-deadline',
+    title: 'How to Set Client Review Windows Without Delaying Freelance Payment',
+    description:
+      'A practical guide to client review windows, approval deadlines, revision limits, and payment timing so freelance projects do not stall after delivery.',
+    publishedAt: '2026-08-10',
+    category: 'Client Approvals',
+    keywords: [
+      'freelance client review window',
+      'client approval deadline',
+      'freelance payment deadline after approval',
+      'revision limit payment terms',
+      'final payment before delivery',
+      'freelance approval workflow',
+    ],
+    aiSummary:
+      'Freelancers should define a client review window before work starts: what the client can review, how many business days they have to respond, how included revisions work, and when the next payment or final payment becomes due after approval.',
+    ctaHref: '/create?template=mobile-app-designer-milestone-approval-template',
+    ctaLabel: 'Create approval and payment terms',
+    relatedLinks: [
+      {
+        label: 'Create an agreement with review deadlines',
+        href: '/create?template=mobile-app-designer-milestone-approval-template',
+      },
+      {
+        label: 'Mobile App Designer Milestone Approval Template',
+        href: '/templates/mobile-app-designer-milestone-approval-template',
+      },
+      {
+        label: 'How to Handle Client Delays Without Losing Your Freelance Payment Schedule',
+        href: '/articles/freelance-client-delay-payment-schedule-pause-resume',
+      },
+      {
+        label: 'How to Set Freelance Revision Limits',
+        href: '/articles/freelance-revision-limit-payment-terms',
+      },
+      {
+        label: 'How to Use Acceptance Criteria Before Final Freelance Payment',
+        href: '/articles/freelance-acceptance-criteria-final-payment-before-handoff',
+      },
+      {
+        label: 'How to Collect Final Payment Before Sending Freelance Deliverables',
+        href: '/articles/freelance-final-payment-before-delivery',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Give every review step a deadline',
+        body: [
+          'Freelance projects often stall after the freelancer sends work for review. The deliverable is ready, but the client is busy, feedback arrives in pieces, and the next invoice or milestone payment waits behind an unclear approval step.',
+          'A review window solves that by making feedback part of the payment workflow. Instead of writing "client will review the work," say the client has a specific number of business days to approve the deliverable, request included revisions, or identify items that do not match the agreed scope.',
+        ],
+      },
+      {
+        heading: 'Define what the client is reviewing',
+        body: [
+          'A review deadline only works when the deliverable is clear. Name the item the client is reviewing: homepage design, rough cut, automation map, analytics setup, onboarding checklist, staging link, draft copy, source-file preview, or another milestone output.',
+          'The review should be tied to the agreed scope and acceptance criteria. If the client is reviewing a landing page design, the feedback should focus on that approved design milestone, not a new funnel strategy, extra page, different platform, or new audience that was never priced.',
+        ],
+      },
+      {
+        heading: 'Connect included revisions to the review window',
+        body: [
+          'Revision limits become easier to apply when they are connected to a review period. For example, the agreement can include one revision round within five business days after the draft is delivered. Feedback sent after that window can move to a paid change request or later milestone.',
+          'This keeps revision rounds from turning into unlimited open feedback. The client still has a fair chance to respond, and the freelancer has a practical way to keep the project moving instead of reopening completed work weeks later.',
+        ],
+      },
+      {
+        heading: 'Make payment due after approval, not after endless discussion',
+        body: [
+          'Payment language should explain what happens after the review step. A simple rule is that the next milestone payment or final balance becomes due after written approval, completion of included revisions, or the end of the review window if no scope-based issues are raised.',
+          'Keep the wording factual and operational. The goal is to organize expectations before work begins: what the freelancer will send, how the client can respond, what counts as an included revision, and when the payment link is the next step.',
+        ],
+      },
+      {
+        heading: 'Use a pause rule for late feedback or late payment',
+        body: [
+          'Late feedback affects the schedule just like late payment. If the client misses the review window, the agreement can say future milestones, delivery dates, launch dates, or handoff timing may shift until feedback and payment steps are complete.',
+          'This is especially useful for projects with calendar pressure: launches, ad campaigns, events, seasonal creative, or contractor availability. A pause rule helps both sides see that review delays have timeline consequences instead of quietly creating unpaid rush work later.',
+        ],
+      },
+      {
+        heading: 'Put the review deadline and payment link in the same workflow',
+        body: [
+          'Do not leave approval rules in one message, payment terms in another, and revision limits in a separate proposal. Put the review window, included revisions, approval method, milestone payment amount, final payment trigger, and secure client payment link in one agreement before the project starts.',
+          'MicroFreelanceHub helps freelancers create that kind of client-ready agreement and payment workflow. It is software for freelance contracts, approvals, signatures, and payment links, not a law firm, so unusual refund, licensing, consumer, or local compliance questions should be reviewed with a qualified professional.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
