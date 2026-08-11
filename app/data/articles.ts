@@ -1943,6 +1943,97 @@ export const articles: Article[] = [
       },
     ],
   },
+
+  {
+    slug: 'freelance-launch-access-after-final-payment',
+    title: 'How to Give Freelance Clients Launch Access After Final Payment',
+    description:
+      'A practical guide to final payment terms, client approval, launch access, admin credentials, and handoff timing for freelancers who need to get paid before delivery.',
+    publishedAt: '2026-08-11',
+    category: 'Final Delivery',
+    keywords: [
+      'freelance launch access after payment',
+      'final payment before website launch',
+      'client admin access payment terms',
+      'freelance handoff checklist',
+      'payment link before delivery',
+      'client approval before launch',
+    ],
+    aiSummary:
+      'Freelancers should separate review access from launch access, get written client approval, collect the final payment through a secure payment link, and then hand over admin credentials, publishing access, repositories, or production files listed in the agreement.',
+    ctaHref: '/create?template=webflow-developer-milestone-payment-agreement',
+    ctaLabel: 'Create launch handoff payment terms',
+    relatedLinks: [
+      {
+        label: 'Create an agreement with launch handoff terms',
+        href: '/create?template=webflow-developer-milestone-payment-agreement',
+      },
+      {
+        label: 'Webflow Developer Milestone Payment Agreement',
+        href: '/templates/webflow-developer-milestone-payment-agreement',
+      },
+      {
+        label: 'How to Release Freelance Source Files Only After Final Payment',
+        href: '/articles/freelance-source-file-release-final-payment',
+      },
+      {
+        label: 'How to Use Acceptance Criteria Before Final Freelance Payment',
+        href: '/articles/freelance-acceptance-criteria-final-payment-before-handoff',
+      },
+      {
+        label: 'How to Collect Final Payment Before Sending Freelance Deliverables',
+        href: '/articles/freelance-final-payment-before-delivery',
+      },
+      {
+        label: 'How to Set Client Review Windows Without Delaying Freelance Payment',
+        href: '/articles/freelance-client-review-window-payment-deadline',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Separate review access from launch access',
+        body: [
+          'Clients often need to inspect a nearly finished website, funnel, automation, store setup, dashboard, or campaign before paying the final balance. That review step should not require you to hand over full admin control, publish permissions, source files, or production credentials before the payment terms are complete.',
+          'Use review access for feedback: staging links, preview exports, read-only dashboards, screen recordings, test accounts, or limited collaborator seats. Reserve launch access for the point after written approval and final payment, when the client receives the items that let them publish, transfer, edit, or operate the finished work without you.',
+        ],
+      },
+      {
+        heading: 'Define what final payment unlocks',
+        body: [
+          'A strong handoff clause names the exact items released after final payment. For a website, that might include admin ownership, CMS access, domain or DNS coordination, repository access, component documentation, analytics configuration, and clean exported assets. For an automation project, it might include production workflow ownership, API credential handoff steps, SOP notes, and a final testing log.',
+          'Avoid vague wording like "everything will be delivered at the end." Instead, write a list that matches the project. The client can see what they are paying for, and you avoid arguing later about whether launch support, extra training, account cleanup, or additional file formats were included.',
+        ],
+      },
+      {
+        heading: 'Use approval as the trigger for the final payment link',
+        body: [
+          'The cleanest workflow is review, included revisions, approval, payment, then launch handoff. The agreement should say how approval is recorded and when the payment link is due. For example: "After client approves the staging site or included revisions are completed, the remaining balance is due before admin ownership and launch access are transferred."',
+          'That sequence is fair to both sides. The client sees the work before paying the final balance, and the freelancer does not transfer the most valuable access before the payment step is finished.',
+        ],
+      },
+      {
+        heading: 'Make the handoff checklist operational',
+        body: [
+          'A handoff checklist should be practical enough to follow under deadline pressure. Include the final payment amount, payment link, approval method, launch date assumptions, credentials or access to be transferred, assets to be delivered, included support window, and what happens if the client requests changes after approval.',
+          'For sensitive access, keep the wording process-focused. You can say that production credentials, owner permissions, or admin transfer steps will be completed after final payment clears, using the secure transfer method agreed by both parties. That protects the workflow without turning the agreement into a technical manual.',
+        ],
+      },
+      {
+        heading: 'Treat extra launch requests as change requests',
+        body: [
+          'Launch week can create sudden requests: one more page, a new checkout setting, additional browser testing, extra training, a second handoff call, migration help, new analytics events, or edits after final approval. Some of those may be reasonable, but they should not silently expand the unpaid project scope.',
+          'If a launch request is outside the agreement, pause and send a change request before doing the work. State the added task, price, timeline impact, and whether payment is due upfront or before the updated launch step. This keeps the client in control of the decision and keeps your final payment terms intact.',
+        ],
+      },
+      {
+        heading: 'Put launch access and payment in one agreement',
+        body: [
+          'Do not leave final payment, launch access, admin transfer, and post-launch support scattered across chat messages. Put the payment schedule, approval window, revision limits, handoff checklist, final payment link, and launch access timing in one client-ready agreement before work starts.',
+          'MicroFreelanceHub helps freelancers create contracts, collect signatures, and attach secure client payment links for that workflow. It is software for freelance agreements and payments, not a law firm, so unusual intellectual property, account ownership, licensing, platform, refund, or local compliance questions should be reviewed with a qualified professional.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
