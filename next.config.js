@@ -30,7 +30,6 @@ const nextConfig = {
       { source: '/posts/consulting-in-your-expertise-freelance-consultant-coach', destination: '/templates/consulting-agreement-contract-template', permanent: true },
       { source: '/posts/consulting-in-your-expertise-freelance-consultant-coach.html', destination: '/templates/consulting-agreement-contract-template', permanent: true },
       { source: '/posts/voice-acting-and-audio-services', destination: '/create', permanent: true },
-      { source: '/tools/:slug*', destination: '/create', permanent: true },
       { source: '/posts/how-to-turn-freelance-clients-into-long-term-contracts.html', destination: '/dashboard', permanent: true },
       { source: '/privacy', destination: '/privacy-policy', permanent: true },
       { source: '/cookies', destination: '/privacy-policy', permanent: true },

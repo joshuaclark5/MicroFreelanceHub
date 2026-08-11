@@ -40,6 +40,9 @@ useEffect(() => {
           <Link href="/articles" className="text-gray-600 hover:text-black mt-2">
             Articles
           </Link>
+          <Link href="/tools/client-message-generator" className="text-gray-600 hover:text-black mt-2">
+            Client Reply Tool
+          </Link>
           <Link href="/create" className="text-gray-600 hover:text-black mt-2">
             New SOW
           </Link>
@@ -76,6 +79,9 @@ useEffect(() => {
         <div className="container mx-auto flex flex-col gap-3 px-4 pt-4 md:hidden">
           <Link href="/articles" className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
             Articles
+          </Link>
+          <Link href="/tools/client-message-generator" className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+            Client Reply Tool
           </Link>
           <Link href="/create" className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
             New SOW

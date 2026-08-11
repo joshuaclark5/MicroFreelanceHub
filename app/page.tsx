@@ -56,6 +56,9 @@ export default function Home() {
             <Link href="/articles" className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">
               Articles
             </Link>
+            <Link href="/tools/client-message-generator" className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">
+              Client Reply Tool
+            </Link>
             <Link href="/templates" className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">
               Templates
             </Link>
@@ -95,6 +98,9 @@ export default function Home() {
               <Link href="/articles" className="rounded-lg px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
                 Articles
               </Link>
+              <Link href="/tools/client-message-generator" className="rounded-lg px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
+                Client Reply Tool
+              </Link>
               <Link href="/templates" className="rounded-lg px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
                 Templates
               </Link>
@@ -130,21 +136,25 @@ export default function Home() {
             </div>
             
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
-              Never do <span className="text-blue-600">unpaid work</span> again.
+              Handle awkward <span className="text-blue-600">client moments</span> faster.
             </h1>
             
             <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-medium">
-              Create a contract, get it signed, and collect the deposit—all in one simple link. <span className="font-bold text-slate-800">No PDFs. No chasing emails. No waiting 30 days.</span>
+              Draft calm client replies, outline scope, collect signatures, and organize payment steps in one simple workspace. <span className="font-bold text-slate-800">No messy threads. No scattered project details.</span>
             </p>
 
             <div className="flex flex-col items-center lg:items-start gap-4 pt-4">
-              <Link href="/create" className="w-full sm:w-auto">
+              <Link href="/tools/client-message-generator" className="w-full sm:w-auto">
                 <div className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-200 rounded-xl px-8 py-4 font-bold text-lg flex items-center justify-center transition-all hover:-translate-y-1 hover:shadow-blue-300">
-                  Lock in your first deposit today
+                  Try the free client reply tool
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </div>
               </Link>
               
+              <Link href="/create" className="text-sm font-bold text-blue-600 hover:text-blue-700">
+                Or create a project link
+              </Link>
+
               {/* Objection Handling & Risk Reversal */}
               <div className="flex flex-col sm:flex-row flex-wrap justify-center lg:justify-start gap-3 sm:gap-5 text-sm font-medium text-slate-500 mt-2">
                  <div className="flex items-center justify-center gap-1.5">
@@ -281,7 +291,7 @@ export default function Home() {
                  <FileEdit className="w-8 h-8" />
               </div>
               <h3 className="font-bold text-slate-900 text-lg">1. Send one link</h3>
-              <p className="text-sm text-slate-500 mt-2">Create and send your first contract in under 2 minutes.</p>
+              <p className="text-sm text-slate-500 mt-2">Create and send your first project agreement in under 2 minutes.</p>
            </div>
 
            <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-lg flex flex-col items-center text-center hover:-translate-y-1 transition-transform">
@@ -308,7 +318,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto px-6 text-center">
           <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-6" />
           <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-10 tracking-tight">
-            Still doing work without getting paid?
+            Still stuck in messy client threads?
           </h2>
           
           <div className="grid sm:grid-cols-2 gap-6 text-left max-w-3xl mx-auto mb-12">
@@ -323,27 +333,27 @@ export default function Home() {
                <div className="text-red-500 font-bold text-xl mt-1">✕</div>
                <div>
                   <h4 className="font-bold text-slate-900">Awkward follow-ups</h4>
-                  <p className="text-slate-600 text-sm mt-1">You are stuck sending desperate texts trying to collect the final check.</p>
+                  <p className="text-slate-600 text-sm mt-1">You need a calm way to ask for updates without sounding tense.</p>
                </div>
             </div>
             <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex gap-4 items-start">
                <div className="text-red-500 font-bold text-xl mt-1">✕</div>
                <div>
                   <h4 className="font-bold text-slate-900">Delayed payments</h4>
-                  <p className="text-slate-600 text-sm mt-1">Invoices get lost in their inbox for weeks while your bills pile up.</p>
+                  <p className="text-slate-600 text-sm mt-1">Invoices, approvals, and next steps get buried in long email threads.</p>
                </div>
             </div>
             <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex gap-4 items-start">
                <div className="text-red-500 font-bold text-xl mt-1">✕</div>
                <div>
-                  <h4 className="font-bold text-slate-900">No leverage</h4>
-                  <p className="text-slate-600 text-sm mt-1">Without a signed agreement, you have no legal leg to stand on.</p>
+                  <h4 className="font-bold text-slate-900">No clear next step</h4>
+                  <p className="text-slate-600 text-sm mt-1">Without written project details, every follow-up takes longer than it should.</p>
                </div>
             </div>
           </div>
 
           <h3 className="text-2xl md:text-3xl font-extrabold text-blue-600">
-            One bad client can wipe out weeks of work.
+            One unclear conversation can slow down the whole project.
           </h3>
         </div>
       </section>
@@ -365,7 +375,7 @@ export default function Home() {
               <div className="mb-8">
                  <h3 className="text-2xl font-bold text-slate-900 mb-3">1. Build it in seconds</h3>
                  <p className="text-slate-600 leading-relaxed">
-                   Itemize your scope, set your tax rates, and clearly define the deliverables. Our builder organizes everything into a clean, professional legal document.
+                   Itemize your scope, set your tax rates, and clearly define the deliverables. The builder organizes project details into a clean, client-ready agreement.
                  </p>
               </div>
               <div className="mt-auto relative rounded-xl overflow-hidden border border-slate-200 shadow-lg h-[350px] bg-white">
@@ -402,7 +412,7 @@ export default function Home() {
             <div className="md:col-span-2 bg-slate-900 text-white rounded-3xl p-8 md:p-12 shadow-xl flex flex-col md:flex-row items-center justify-between gap-8 mt-4">
               <div className="max-w-xl">
                  <ShieldCheck className="w-12 h-12 text-emerald-400 mb-6" />
-                 <h3 className="text-3xl font-bold text-white mb-4">"If it's not signed, you don't start."</h3>
+                 <h3 className="text-3xl font-bold text-white mb-4">Keep changes clear before extra work begins.</h3>
                  <p className="text-slate-300 text-lg leading-relaxed mb-6">
                    Client wants to add "just one more quick thing" mid-project? Edit the live agreement, update the scope, and request signature and payment steps before extra work begins.
                  </p>
@@ -486,17 +496,17 @@ export default function Home() {
       <section className="bg-white py-20 relative z-10">
         <div className="max-w-4xl mx-auto px-6 text-center">
             <h2 className="text-3xl md:text-4xl font-bold leading-tight mb-8 text-slate-900">
-              "I lost $15k on a refund because of a bad contract."
+              Built after one messy project taught a hard lesson.
             </h2>
             <div className="space-y-6 text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">
               <p>
                 I was a metal worker. I did the work, bought the materials, and installed the project. 
-                But because my "contract" was just a text message, when the client changed their mind, 
-                I had no legal leg to stand on.
+                But because the project details were scattered across text messages, when the client changed their mind,
+                the scope, approvals, and payment steps were not clear enough.
               </p>
               <p>
-                MicroFreelanceHub was created so that never happens to you. 
-                Whether you are fixing a sink or designing a logo, you need a safety net.
+                MicroFreelanceHub was created to make those details easier to organize.
+                Whether you are fixing a sink or designing a logo, clearer communication makes the work easier to manage.
               </p>
             </div>
             <div className="pt-10 flex flex-col items-center gap-4">
@@ -519,7 +529,7 @@ export default function Home() {
                 Freelance business articles
               </div>
               <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
-                Learn how to protect the work before you start it.
+                Learn how to clarify the work before you start it.
               </h2>
               <p className="mt-4 text-lg text-slate-600">
                 Daily guides on deposits, payment terms, scope creep, approvals, and client-ready contract workflows.
@@ -632,16 +642,16 @@ export default function Home() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-white opacity-10 blur-[120px] rounded-full pointer-events-none"></div>
         
         <div className="max-w-4xl mx-auto text-center px-4 relative z-10">
-          <h2 className="text-4xl md:text-6xl font-extrabold text-white mb-6 tracking-tight">Don't start your next project without this.</h2>
+          <h2 className="text-4xl md:text-6xl font-extrabold text-white mb-6 tracking-tight">Start your next client conversation clearly.</h2>
           <p className="text-blue-100 mb-12 text-xl max-w-2xl mx-auto font-medium">
-             Create your first contract and collect a deposit in under 5 minutes.
+             Draft a client reply or create a project link in under 5 minutes.
           </p>
           <div className="flex justify-center">
              <Link 
-               href="/create" 
+               href="/tools/client-message-generator"
                className="inline-block bg-slate-900 text-white font-bold px-10 py-5 rounded-full shadow-xl hover:bg-black transition-all text-lg hover:-translate-y-1 hover:shadow-2xl"
              >
-               Get Started Free
+               Try the Free Reply Tool
              </Link>
           </div>
           <p className="mt-8 text-sm text-blue-200">No credit card required · Free for 3 projects</p>

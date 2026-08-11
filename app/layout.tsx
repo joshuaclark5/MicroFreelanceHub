@@ -11,11 +11,14 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.microfreelancehub.com'),
   title: {
-    default: 'MicroFreelance | Agreements & Payments',
+    default: 'MicroFreelance | Client Replies, Agreements & Payments',
     template: '%s | MicroFreelance',
   },
-  description: 'The all-in-one workspace for freelancers. Create professional agreements, collect digital signatures, and organize recurring payments with Stripe.',
+  description: 'The all-in-one workspace for freelancers. Draft client replies, create professional agreements, collect digital signatures, and organize payment steps with Stripe.',
   keywords: [
+    'freelance client reply generator',
+    'scope creep email template',
+    'late payment follow up email',
     'freelance contract generator', 
     'retainer agreement template', 
     'stripe for freelancers', 
@@ -23,8 +26,8 @@ export const metadata: Metadata = {
     'client invoicing'
   ],
   openGraph: {
-    title: 'MicroFreelance | Agreements and payment workflows',
-    description: 'Create agreements, collect signatures, and organize client payment steps in one workspace.',
+    title: 'MicroFreelance | Client replies, agreements, and payment workflows',
+    description: 'Draft client replies, create agreements, collect signatures, and organize payment steps in one workspace.',
     url: 'https://www.microfreelancehub.com',
     siteName: 'MicroFreelance',
     locale: 'en_US',
@@ -32,8 +35,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'MicroFreelance | Agreements and Payments',
-    description: 'A practical workspace for client agreements, signatures, and payment steps.',
+    title: 'MicroFreelance | Client Replies, Agreements and Payments',
+    description: 'A practical workspace for client communication, agreements, signatures, and payment steps.',
   },
   // 👇 TRUSTPILOT VERIFICATION META TAG 👇
   other: {

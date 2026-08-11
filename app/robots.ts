@@ -28,7 +28,7 @@ export default function robots(): MetadataRoute.Robots {
           'xAI',
         ],
         // 👉 Added trailing slashes here as well for consistency
-        allow: ['/', '/templates/', '/alternatives/'],
+        allow: ['/', '/templates/', '/alternatives/', '/tools/'],
         disallow: ['/login', '/dashboard/', '/create/', '/api/'],
       }
     ],
