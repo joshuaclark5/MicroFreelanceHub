@@ -77,19 +77,21 @@ Rules:
 - Use placeholders like [Client Name], [Invoice Number], or [Date] only when useful.
 `;
 
-    const { text } = await generateText({
-      model: google('gemini-flash-latest'),
-      prompt,
-    });
+    try {
+      const { text } = await generateText({
+        model: google('gemini-flash-latest'),
+        prompt,
+      });
 
-    const message = sanitizeMessage(text || fallbackMessages[safeScenario]);
+      const message = sanitizeMessage(text || fallbackMessages[safeScenario]);
 
-    return Response.json({ message: message || fallbackMessages[safeScenario] });
+      return Response.json({ message: message || fallbackMessages[safeScenario] });
+    } catch (error) {
+      console.error('Client message generator model error:', error);
+      return Response.json({ message: fallbackMessages[safeScenario] });
+    }
   } catch (error) {
-    console.error('Client message generator error:', error);
-    return Response.json({
-      message:
-        'Hi [Client Name], thanks for the update. To keep the project moving clearly, could you confirm the next step and timing on your side? Once I have that, I can respond with the best way to proceed.',
-    });
+    console.error('Client message generator request error:', error);
+    return Response.json({ message: fallbackMessages['late-payment'] });
   }
 }
