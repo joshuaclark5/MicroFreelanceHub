@@ -303,7 +303,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
         if (localSlug) localStorage.removeItem('pending_template');
         setLoading(false);
       } else {
-        const content = generateFullContract("Project", "â€¢ Deliverable 1\nâ€¢ Deliverable 2");
+        const content = generateFullContract("Project", "- Deliverable 1\n- Deliverable 2");
         setFormData(prev => ({ ...prev, deliverables: content }));
         setStep('final');
       }
