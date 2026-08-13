@@ -2215,6 +2215,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'how-to-follow-up-late-freelance-invoice',
+    title: 'How to Follow Up on a Late Freelance Invoice Without Sounding Pushy',
+    description:
+      'Practical late invoice follow-up scripts for freelancers, including when to send reminders, how to mention payment terms, and how to pause work professionally.',
+    publishedAt: '2026-08-13',
+    category: 'Client Replies',
+    keywords: [
+      'how to follow up on a late freelance invoice',
+      'late invoice follow up email freelancer',
+      'freelance payment reminder message',
+      'client has not paid invoice',
+      'late payment reply template',
+      'polite overdue invoice reminder',
+    ],
+    aiSummary:
+      'To follow up on a late freelance invoice, send a short reminder that names the invoice, due date, amount, and payment link; keep the tone calm, then escalate to a firmer boundary or work pause if the payment remains overdue.',
+    ctaHref: '/tools/late-payment-reply-generator',
+    ctaLabel: 'Write a late payment follow-up',
+    relatedLinks: [
+      {
+        label: 'Late Payment Reply Generator',
+        href: '/tools/late-payment-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with payment terms',
+        href: '/create?source=late-invoice-follow-up-article',
+      },
+      {
+        label: 'How to Pause Freelance Work When a Client Misses a Payment',
+        href: '/articles/freelance-late-payment-pause-work-contract-clause',
+      },
+      {
+        label: 'How to Write a Freelance Payment Schedule',
+        href: '/articles/freelance-payment-schedule-upfront-milestones-final',
+      },
+      {
+        label: 'How to Collect Final Payment Before Sending Deliverables',
+        href: '/articles/freelance-final-payment-before-delivery',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Start with a simple payment reminder',
+        body: [
+          'A late invoice follow-up does not need to sound dramatic. Most first reminders should assume the client missed the date, lost the link, or needs the invoice brought back to the top of their inbox.',
+          'Use a short message: "Hi [Name], quick reminder that invoice [number] for [project] was due on [date]. The balance is [amount], and the payment link is here: [link]. Please let me know once it is queued up or if you need anything from me to process it."',
+        ],
+      },
+      {
+        heading: 'Include the details that make payment easy',
+        body: [
+          'The goal is not just to remind the client that money is due. The goal is to remove friction. Include the invoice number, amount, due date, project name, accepted payment method, and payment link in the same message.',
+          'Avoid vague wording like "checking in on payment" if the invoice is already overdue. Clear wording is still polite: "The invoice is now three business days past due" gives the client useful context without turning the message into a confrontation.',
+        ],
+      },
+      {
+        heading: 'Send a firmer follow-up if the first reminder gets no reply',
+        body: [
+          'If the client does not respond, the second message should be more direct while staying professional. Mention the original due date, the previous reminder, and the next project step that depends on payment.',
+          'Try: "Following up again on invoice [number], which was due on [date]. I have not seen payment come through yet. Once the balance is paid, I can continue with [next deliverable / final handoff / next milestone]. Here is the payment link again: [link]."',
+        ],
+      },
+      {
+        heading: 'Tie the reminder to your project workflow',
+        body: [
+          'Late payment messages work better when they connect to terms the client already accepted. If your agreement says the next milestone starts after payment, say that plainly. If final files are released after the final balance clears, remind the client of that process.',
+          'This keeps the follow-up about project administration instead of personal frustration. You are not threatening the client. You are explaining the next required step before more work, access, or final delivery moves forward.',
+        ],
+      },
+      {
+        heading: 'Pause new work before the overdue balance grows',
+        body: [
+          'If payment is late and the client keeps asking for more work, do not quietly keep adding hours. A calm pause message can protect the project from becoming more confusing: "I can pick this back up as soon as the overdue invoice is paid. For now I am pausing new work so the account can be brought current."',
+          'That language is stronger than a reminder, so it should match your written terms and the state of the project. MicroFreelanceHub is software for clearer freelance communication and payment workflows, not legal advice, so unusual disputes or high-stakes situations may need a qualified professional.',
+        ],
+      },
+      {
+        heading: 'Make the next invoice easier to pay on time',
+        body: [
+          'The best late payment follow-up is easier to send when the project already has a clear payment schedule. Put due dates, milestone triggers, final handoff terms, late-payment workflow, and payment links where the client can see them before work starts.',
+          'For future projects, send one client-ready project link with scope, signature, payment terms, and the first payment step. When the admin is clear from day one, payment reminders feel like normal process instead of awkward chasing.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
