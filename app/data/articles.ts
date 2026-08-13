@@ -2125,6 +2125,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'what-to-say-client-asks-extra-revisions',
+    title: 'What to Say When a Client Asks for Extra Revisions',
+    description:
+      'Freelancer-friendly scripts and payment workflow tips for replying when a client asks for more revisions than the project includes.',
+    publishedAt: '2026-08-12',
+    category: 'Client Replies',
+    keywords: [
+      'what to say when client asks for extra revisions',
+      'extra revision reply template',
+      'freelance revision request email',
+      'client wants more revisions',
+      'paid revision request freelancer',
+      'revision boundary message',
+    ],
+    aiSummary:
+      'When a client asks for extra revisions, acknowledge the request, confirm whether included revision rounds are used, name the added work, and offer a paid revision option or tradeoff before doing more unpaid work.',
+    ctaHref: '/tools/revision-request-reply-generator',
+    ctaLabel: 'Write an extra revision reply',
+    relatedLinks: [
+      {
+        label: 'Extra Revision Reply Generator',
+        href: '/tools/revision-request-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with revision terms',
+        href: '/create?source=extra-revision-article',
+      },
+      {
+        label: 'How to Set Freelance Revision Limits',
+        href: '/articles/freelance-revision-limit-payment-terms',
+      },
+      {
+        label: 'How to Set Client Review Windows Without Delaying Payment',
+        href: '/articles/freelance-client-review-window-payment-deadline',
+      },
+      {
+        label: 'Scope Creep Reply Generator',
+        href: '/tools/scope-creep-reply-generator',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Answer the request without agreeing to free work',
+        body: [
+          'A client asking for another revision is not automatically a problem. The risk is replying too quickly with "sure" and turning a limited review process into unlimited unpaid work. Your first message should be helpful, calm, and clear about the boundary.',
+          'A simple reply is: "Thanks for sending this over. We have used the included revision round for this milestone, so I can handle these additional changes as a paid revision. I will outline the added work, price, and timing before I begin."',
+        ],
+      },
+      {
+        heading: 'Check the revision limit before naming a price',
+        body: [
+          'Before you quote the extra revision, look back at the project agreement or written scope. Confirm how many revision rounds were included, what each round covered, whether feedback had to arrive inside a review window, and whether the new request changes an already approved item.',
+          'This keeps the conversation factual. Instead of saying the client is being difficult, you can point to the workflow: included revision rounds, approved milestone, review deadline, and next paid step.',
+        ],
+      },
+      {
+        heading: 'Use a clear extra revision message',
+        body: [
+          'A strong message has four parts: acknowledge the feedback, explain what is already included, describe the extra work, and give the client a next step. Keep it short enough that the client can approve it without reading a long defense of your boundary.',
+          'Try: "I can make those updates. They go beyond the included revision round because they add a new section and change the approved layout. The added revision is $250 and adds two business days. If you want to proceed, I can send the payment link and start after approval."',
+        ],
+      },
+      {
+        heading: 'Offer options when the client has a budget limit',
+        body: [
+          'Some clients push back because they did not realize the request was extra. Give them choices instead of turning the conversation into a hard no. They can approve the paid revision, keep the current approved version, or trade one included item for another if the project still has room for that tradeoff.',
+          'For example: "If you want to stay inside the current budget, we can keep the approved homepage as-is and use the remaining revision time on the pricing section. If you want both sets of changes, I will price the added revision separately."',
+        ],
+      },
+      {
+        heading: 'Collect approval and payment before starting',
+        body: [
+          'Do not complete the extra revision first and hope the client accepts the invoice later. Send the revised scope, added cost, timeline impact, and payment link before starting the new work. That gives the client control over the decision and gives you a written record of what changed.',
+          'For small revision add-ons, collecting the full amount upfront is often the cleanest workflow. For larger changes, use a milestone payment tied to the new deliverable or approval step.',
+        ],
+      },
+      {
+        heading: 'Pair the reply with better project admin next time',
+        body: [
+          'The best extra revision reply is easier to send when the original project already defined revision rounds, review windows, acceptance criteria, payment timing, and change request rules. Then the message sounds like normal project administration instead of a personal refusal.',
+          'MicroFreelanceHub can help draft the client reply and create a client-ready project link with scope, approvals, signatures, and payment steps. It is software for clearer freelance communication and project admin, not legal advice.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
