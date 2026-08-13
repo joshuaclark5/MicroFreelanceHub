@@ -2034,6 +2034,97 @@ export const articles: Article[] = [
       },
     ],
   },
+
+  {
+    slug: 'freelance-extra-revisions-after-approval-reply',
+    title: 'What to Say When a Client Asks for Extra Revisions After Approval',
+    description:
+      'A practical guide to replying when a freelance client asks for extra revisions after approval, including scope boundaries, payment links, and change request wording.',
+    publishedAt: '2026-08-12',
+    category: 'Client Communication',
+    keywords: [
+      'client asks for extra revisions after approval',
+      'freelance revision request reply',
+      'extra revisions payment link',
+      'scope boundary email template',
+      'paid change request freelancer',
+      'revision limits after approval',
+    ],
+    aiSummary:
+      'When a client asks for extra revisions after approval, freelancers should acknowledge the request, point back to the approved scope or included revision limit, explain that the new work can be handled as a paid change request, and send the next step with a clear price, timeline, and payment link.',
+    ctaHref: '/tools/revision-request-reply-generator',
+    ctaLabel: 'Generate a revision boundary reply',
+    relatedLinks: [
+      {
+        label: 'Generate a revision request reply',
+        href: '/tools/revision-request-reply-generator',
+      },
+      {
+        label: 'Use the Client Reply Tool',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'How to Set Freelance Revision Limits That Protect Your Payment Terms',
+        href: '/articles/freelance-revision-limit-payment-terms',
+      },
+      {
+        label: 'How to Handle Scope Creep With Change Requests and Payment Links',
+        href: '/articles/freelance-scope-creep-change-request-payment-link',
+      },
+      {
+        label: 'How to Use Acceptance Criteria Before Final Freelance Payment',
+        href: '/articles/freelance-acceptance-criteria-final-payment-before-handoff',
+      },
+      {
+        label: 'Create an agreement with revision terms',
+        href: '/create?template=mobile-app-designer-milestone-approval-template',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Do not answer from frustration',
+        body: [
+          'Extra revision requests often arrive after the client already approved a milestone, final files, launch access, or a finished draft. The request may be small, but the pattern matters: if approved work can reopen for free at any time, your revision limits stop meaning anything.',
+          'Start with a calm reply. Acknowledge the request, confirm you understand what they want changed, and then move the conversation back to the agreement. The goal is not to punish the client. The goal is to keep the project organized and paid for.',
+        ],
+      },
+      {
+        heading: 'Point to the approved milestone',
+        body: [
+          'Your reply should name the specific point where the work was approved. For example: "The homepage design was approved on Tuesday after the included revision round," or "The final video was approved before the export package was delivered."',
+          'That sentence matters because it separates a true correction from a new request. If the client is reporting a mistake against the agreed scope, handle it professionally. If they are asking for a new direction, extra version, changed preference, additional page, or new file format after approval, it can move into a paid change request.',
+        ],
+      },
+      {
+        heading: 'Use a short boundary reply',
+        body: [
+          'A useful reply can be simple: "Thanks, I can help with that. Since the milestone was already approved and the included revision round is complete, this would be a separate change request. I can send over the price and updated timing before starting."',
+          'This kind of wording keeps the tone helpful while making the payment boundary clear. It does not accuse the client of scope creep. It gives them a normal business path: approve the added work, pay for it, and get the revision scheduled.',
+        ],
+      },
+      {
+        heading: 'Send the price, timeline, and payment step together',
+        body: [
+          'Do not agree to "quickly take a look" if the request is outside scope and you know it will take real time. Send the change request details in one message: what will change, what it costs, how it affects the schedule, and when payment is due.',
+          'For small revisions, payment might be due before the change starts. For larger additions, you might use a milestone payment or deposit. Either way, attach the payment step to the approval step so the client has one clear path forward.',
+        ],
+      },
+      {
+        heading: 'Make late revisions different from included revisions',
+        body: [
+          'Included revisions should have limits: number of rounds, feedback deadline, and the kind of changes covered. A late revision after approval is different because it reopens work that was already accepted. Your agreement should say how those late requests are handled.',
+          'For example, the agreement can say that revisions requested after the review window, after written approval, or after final delivery may be treated as paid change requests. That makes the boundary easier to explain when the moment arrives.',
+        ],
+      },
+      {
+        heading: 'Use a reply tool when the wording feels awkward',
+        body: [
+          'The hardest part is often tone. Freelancers want to protect payment terms without sounding cold, defensive, or legalistic. A client reply generator can help draft a message that acknowledges the request, names the boundary, and gives the client a clean next step.',
+          'MicroFreelanceHub helps freelancers create client-ready agreements, revision terms, approval workflows, and payment links. It is software for freelance contracts and communication workflows, not a law firm, so unusual refund, intellectual property, platform, or local compliance questions should be reviewed with a qualified professional.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
