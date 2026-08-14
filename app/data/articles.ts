@@ -2305,6 +2305,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'what-to-say-client-wants-final-files-before-payment',
+    title: 'What to Say When a Client Wants Final Files Before Payment',
+    description:
+      'Client-ready scripts for freelancers when a client asks for final files, source files, exports, or launch access before the final payment is complete.',
+    publishedAt: '2026-08-14',
+    category: 'Client Replies',
+    keywords: [
+      'client wants final files before payment',
+      'what to say when client asks for final files before paying',
+      'final file handoff email freelancer',
+      'freelance final payment before files',
+      'source files after final payment',
+      'client handoff reply template',
+    ],
+    aiSummary:
+      'When a client asks for final files before payment, acknowledge the request, restate the agreed handoff step, send the payment link, and explain that final files, source files, or launch access will be released after the final balance is paid.',
+    ctaHref: '/tools/final-file-handoff-reply-generator',
+    ctaLabel: 'Write a final file handoff reply',
+    relatedLinks: [
+      {
+        label: 'Final File Handoff Reply Generator',
+        href: '/tools/final-file-handoff-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with final payment terms',
+        href: '/create?source=final-file-before-payment-article',
+      },
+      {
+        label: 'How to Collect Final Payment Before Sending Deliverables',
+        href: '/articles/freelance-final-payment-before-delivery',
+      },
+      {
+        label: 'How to Release Freelance Source Files Only After Final Payment',
+        href: '/articles/freelance-source-file-release-final-payment',
+      },
+      {
+        label: 'How to Follow Up on a Late Freelance Invoice',
+        href: '/articles/how-to-follow-up-late-freelance-invoice',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Keep the reply calm and procedural',
+        body: [
+          'A client asking for final files before payment does not always mean they are trying to avoid paying. They may be under deadline, trying to review internally, or assuming the handoff works like a draft delivery. Your reply should stay calm while making the next step clear.',
+          'A useful structure is: acknowledge the request, name what is ready, restate the handoff process, include the payment link, and tell the client exactly when the final files will be released.',
+        ],
+      },
+      {
+        heading: 'Use a short final file handoff script',
+        body: [
+          'Try: "Hi [Name], the final files are ready for handoff. Per our project terms, I release the final exports/source files after the final balance is paid. Here is the payment link: [link]. Once payment is complete, I will send the final download folder and any handoff notes."',
+          'That wording avoids overexplaining. It does not accuse the client of anything, but it also does not blur the boundary. The client gets one clear action: pay the final balance so the handoff can happen.',
+        ],
+      },
+      {
+        heading: 'If they need review access, send a preview instead',
+        body: [
+          'Sometimes the client needs to confirm the work before paying. In that case, separate review access from final usable files. You might send watermarked previews, staging links, compressed proofs, screenshots, screen recordings, or read-only access that lets them review without receiving the full production package.',
+          'Make the distinction explicit: "I can send a review preview today so your team can confirm the final version. The editable files and production exports will be released after the final payment clears."',
+        ],
+      },
+      {
+        heading: 'Point back to the original payment terms',
+        body: [
+          'The cleanest final-file reply references the agreement or message thread the client already accepted. If your terms say final delivery happens after final payment, use that language rather than inventing a new rule at the end of the project.',
+          'For example: "As outlined in the project agreement, final handoff happens after the remaining balance is paid. I have everything packaged and can release it as soon as the payment step is complete."',
+        ],
+      },
+      {
+        heading: 'Do not trade final files for a vague promise',
+        body: [
+          'A client may say they will pay after checking the files, after sending them to a stakeholder, or after uploading them. That can create a messy gap where the client has the finished assets and the invoice is still open.',
+          'A safer response is to offer a review preview and keep the final handoff tied to payment. If the project has unusual risk, a large balance, or a dispute, get advice from a qualified professional. MicroFreelanceHub helps with project communication and payment workflow, but it is not a law firm.',
+        ],
+      },
+      {
+        heading: 'Make future handoffs easier from day one',
+        body: [
+          'Final payment conversations are easier when the handoff terms are visible before work starts. Your project link should say what counts as final files, when source files are included, what review access looks like, when the final payment is due, and what the client receives after payment.',
+          'For the current conversation, use a reply generator to draft a professional message. For the next project, put the handoff step, approval process, and payment link into the project admin flow before the client ever asks for the files.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
