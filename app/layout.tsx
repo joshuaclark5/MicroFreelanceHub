@@ -4,7 +4,7 @@ import './globals.css';
 import FeedbackWidget from './components/FeedbackWidget';
 import { TrackingInitializer } from './components/TrackingInitializer';
 import Link from 'next/link';
-import { GoogleAnalytics } from '@next/third-parties/google';
+import GoogleAnalytics from './components/GoogleAnalytics';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -91,7 +91,7 @@ export default function RootLayout({
         <FeedbackWidget />
         
         {/* 📊 ANALYTICS COMPONENT */}
-        <GoogleAnalytics gaId="G-3PZE2XQMH0" />
+        <GoogleAnalytics />
       </body>
     </html>
   );
