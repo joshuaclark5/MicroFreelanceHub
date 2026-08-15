@@ -2395,6 +2395,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'scope-creep-email-template-client-extra-work',
+    title: 'Scope Creep Email Template: What to Say When a Client Adds Extra Work',
+    description:
+      'A practical scope creep email template for freelancers when a client asks for extra work, new deliverables, or bigger changes outside the original scope.',
+    publishedAt: '2026-08-15',
+    category: 'Client Replies',
+    keywords: [
+      'scope creep email template',
+      'what to say when client adds extra work',
+      'freelance scope creep reply',
+      'client asking for more work than agreed',
+      'paid change request email',
+      'scope creep message freelancer',
+    ],
+    aiSummary:
+      'When a client adds extra work, acknowledge the request, separate it from the approved scope, explain the cost or timeline impact, and ask for written approval and payment before starting the change.',
+    ctaHref: '/tools/scope-creep-reply-generator',
+    ctaLabel: 'Write a scope creep reply',
+    relatedLinks: [
+      {
+        label: 'Scope Creep Reply Generator',
+        href: '/tools/scope-creep-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with change request terms',
+        href: '/create?source=scope-creep-email-template-article',
+      },
+      {
+        label: 'How to Handle Scope Creep With Change Requests',
+        href: '/articles/freelance-scope-creep-change-request-payment-link',
+      },
+      {
+        label: 'What to Say When a Client Asks for Extra Revisions',
+        href: '/articles/what-to-say-client-asks-extra-revisions',
+      },
+      {
+        label: 'How to Use Milestone Payments With Client Approval Steps',
+        href: '/articles/freelance-milestone-payment-schedule-client-approval',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Reply before the extra work becomes assumed',
+        body: [
+          'Scope creep usually starts with a small client message: "Can we also add this?" or "While you are in there, could you include one more thing?" The safest moment to reply is before the extra work becomes part of the project by accident.',
+          'Your goal is not to make the client feel wrong for asking. Your goal is to keep the project clean: acknowledge the request, identify what changed, explain the next step, and avoid beginning the added work until the client approves the change.',
+        ],
+      },
+      {
+        heading: 'Use this scope creep email template',
+        body: [
+          'Try: "Hi [Name], I can help with that. It is outside the original scope because [reason], so I will treat it as a change request rather than adding it to the current milestone. The added work would be [price] and would move the timeline by [timeline impact]. If you want to proceed, I can send the updated scope and payment link before I start."',
+          'This message is firm without sounding defensive. It tells the client you are willing to help, but it also makes clear that extra deliverables, new pages, additional assets, expanded features, or bigger rounds of edits need a separate approval step.',
+        ],
+      },
+      {
+        heading: 'Name the boundary in plain project language',
+        body: [
+          'Avoid making the reply about whether the request is reasonable. A client may have a good reason for the extra work and it can still be outside the agreed scope. Keep the language factual: original deliverables, approved milestone, included revisions, review window, timeline, and payment step.',
+          'For example: "The current milestone covers the three approved landing page sections. The new comparison table would be an added section, so I will price it separately before adding it to the build." That is easier for a client to accept than a vague note about being too busy or needing to protect your time.',
+        ],
+      },
+      {
+        heading: 'Offer a choice instead of a hard no',
+        body: [
+          'Many scope creep conversations go badly because the freelancer only says no or quietly absorbs the extra work. A better reply gives the client options. They can approve the paid change request, keep the project as originally scoped, or swap priorities if the budget and timeline need to stay the same.',
+          'A useful option line is: "If you want to stay inside the current budget, we can replace [included item] with [new request]. If you want to keep both, I will send the added cost and revised timeline for approval."',
+        ],
+      },
+      {
+        heading: 'Get approval and payment before starting the change',
+        body: [
+          'Do not complete the extra work first and then try to explain the added invoice later. Once the work is done, the client may assume it was included, forget the conversation, or push the decision into a messy approval thread.',
+          'For small add-ons, a short written approval and upfront payment link can be enough for a clean workflow. For larger changes, create a new milestone with deliverables, price, timeline impact, review window, and final approval step before starting.',
+        ],
+      },
+      {
+        heading: 'Use better admin to prevent repeat scope creep',
+        body: [
+          'A good scope creep reply is easier to send when the project already defines deliverables, exclusions, revision limits, change request rules, payment timing, and approval steps. Then the message sounds like normal project administration instead of a personal pushback.',
+          'MicroFreelanceHub helps freelancers draft client replies and create client-ready project links with scope, approvals, signatures, and payment steps. It is software for clearer freelance communication and project admin, not legal advice.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
