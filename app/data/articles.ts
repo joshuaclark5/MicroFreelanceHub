@@ -2485,6 +2485,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-approval-reminder-email-template',
+    title: 'Client Approval Reminder Email Template for Freelance Milestones',
+    description:
+      'A practical freelancer guide to reminding clients for milestone approval, keeping payment deadlines clear, and moving projects forward without sounding impatient.',
+    publishedAt: '2026-08-16',
+    category: 'Client Communication',
+    keywords: [
+      'client approval reminder email',
+      'freelance milestone approval reminder',
+      'client feedback follow up template',
+      'approval reminder before payment deadline',
+      'freelance project admin email',
+      'client reply tool for freelancers',
+    ],
+    aiSummary:
+      'A client approval reminder should restate the milestone, name the decision needed, connect approval to the next payment or timeline step, and give the client one simple action to keep the project moving.',
+    ctaHref: '/tools/client-message-generator',
+    ctaLabel: 'Draft an approval reminder',
+    relatedLinks: [
+      {
+        label: 'Draft a client approval reminder',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with approval steps',
+        href: '/create?source=client-approval-reminder-article',
+      },
+      {
+        label: 'How to Set Client Review Windows Without Delaying Freelance Payment',
+        href: '/articles/freelance-client-review-window-payment-deadline',
+      },
+      {
+        label: 'How to Use Milestone Payments With Client Approval Steps',
+        href: '/articles/freelance-milestone-payment-schedule-client-approval',
+      },
+      {
+        label: 'Mobile App Designer Milestone Approval Template',
+        href: '/templates/mobile-app-designer-milestone-approval-template',
+      },
+      {
+        label: 'Revision Request Reply Generator',
+        href: '/tools/revision-request-reply-generator',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Make the reminder about the next decision',
+        body: [
+          'A useful approval reminder is not a complaint that the client is late. It is a project admin message that tells the client exactly what decision is waiting on them and what happens after they answer.',
+          'Start with the milestone name, the item they need to review, and the action you need: approve as-is, send included feedback, or ask for a paid scope change. That structure keeps the message professional and prevents the client from guessing what kind of response you want.',
+        ],
+      },
+      {
+        heading: 'Use a calm approval reminder template',
+        body: [
+          'Here is a freelancer-friendly version: "Hi [Name], quick reminder that [milestone/deliverable] is ready for your review. To keep the timeline on track, please reply by [date] with either approval or any included revisions. Once approved, I can move into [next step], and the next payment step will be [payment step]."',
+          'That message works because it is specific, short, and tied to the workflow the client already agreed to. It does not accuse the client of holding things up, but it still makes the timeline and payment impact clear.',
+        ],
+      },
+      {
+        heading: 'Connect approval to payment without sounding pushy',
+        body: [
+          'If the next invoice or milestone payment depends on approval, say so directly and neutrally. Avoid vague pressure like "I need this paid soon." Instead, connect the payment to the next project step.',
+          'A cleaner line is: "After written approval, I will send the next payment link so we can begin the build phase." If payment is already due after approval, use: "Once this milestone is approved, the milestone payment is due before the next phase begins."',
+        ],
+      },
+      {
+        heading: 'Give the client a clear review window',
+        body: [
+          'Approval reminders work better when the review window was defined before the project started. If the agreement says the client has three or five business days to review a milestone, your reminder can simply point back to that shared process.',
+          'If no review window exists yet, set one politely: "Could you send approval or included feedback by Friday? If your team needs more time, I can adjust the schedule once I know the new review date." This gives the client room to respond while protecting the project timeline.',
+        ],
+      },
+      {
+        heading: 'Separate feedback from new requests',
+        body: [
+          'Approval reminders often surface extra ideas. That is fine, but the reply should separate included revisions from new work. If the client sends feedback inside the agreed revision round, confirm it and proceed. If they add a new deliverable, treat it as a change request before doing the work.',
+          'A simple boundary is: "The layout feedback is included in this review round. The new landing page section is outside the approved scope, so I can price that as a separate change request if you want to add it."',
+        ],
+      },
+      {
+        heading: 'Turn reminders into repeatable project admin',
+        body: [
+          'The best approval reminder is easier to send when the project already has scope, milestones, review windows, payment timing, and final handoff rules in writing. Then every reminder sounds like part of the process instead of a personal chase.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with approval steps, signatures, and payment links. It is software for clearer freelance communication and admin, not a law firm or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
