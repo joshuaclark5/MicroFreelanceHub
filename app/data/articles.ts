@@ -2575,6 +2575,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-asks-for-one-more-small-change-reply-template',
+    title: 'What to Say When a Client Asks for One More Small Change',
+    description:
+      'A practical reply template for freelancers when a client asks for one more small change, with wording for included edits, paid add-ons, and approval before extra work starts.',
+    publishedAt: '2026-08-17',
+    category: 'Client Replies',
+    keywords: [
+      'client asks for one more small change',
+      'one more quick change reply template',
+      'freelance small change request email',
+      'what to say when client asks for extra changes',
+      'paid add-on reply freelancer',
+      'client reply tool for freelancers',
+    ],
+    aiSummary:
+      'When a client asks for one more small change, first decide whether it fits the agreed revision round. If it is outside scope, acknowledge the request, explain the added cost or timeline impact, and ask for written approval before starting.',
+    ctaHref: '/tools/client-message-generator',
+    ctaLabel: 'Write a small-change reply',
+    relatedLinks: [
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Scope Creep Reply Generator',
+        href: '/tools/scope-creep-reply-generator',
+      },
+      {
+        label: 'Create a project link with change request terms',
+        href: '/create?source=small-change-reply-article',
+      },
+      {
+        label: 'Scope Creep Email Template',
+        href: '/articles/scope-creep-email-template-client-extra-work',
+      },
+      {
+        label: 'What to Say When a Client Asks for Extra Revisions',
+        href: '/articles/what-to-say-client-asks-extra-revisions',
+      },
+      {
+        label: 'Mobile App Designer Milestone Approval Template',
+        href: '/templates/mobile-app-designer-milestone-approval-template',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Do not argue over whether it is small',
+        body: [
+          'Clients often describe extra requests as tiny: one quick swap, one small copy change, one more export, one extra screen, or one little layout adjustment. Sometimes the change really is included. Sometimes it affects the scope, timeline, approvals, or files you already prepared.',
+          'The most useful reply does not debate the word small. It calmly decides which bucket the request belongs in: included revision, paid add-on, priority swap, or future phase. That keeps the conversation about the project process instead of personal flexibility.',
+        ],
+      },
+      {
+        heading: 'Use this reply when the change is included',
+        body: [
+          'If the request fits the agreed revision round, confirm it quickly and protect the review window: "Hi [Name], yes, that change is included in this revision round. I will update [specific item] and send the revised version by [date]. After that, please send any remaining feedback together so we can keep this milestone on track."',
+          'This kind of answer is helpful without opening the door to unlimited edits. It tells the client you are handling the request, names exactly what is included, and makes the next feedback step clear.',
+        ],
+      },
+      {
+        heading: 'Use this reply when the change is outside scope',
+        body: [
+          'If the request is new work, be friendly and direct: "Hi [Name], I can help with that. It is outside the current scope because [reason], so I will treat it as a small add-on rather than folding it into this revision round. The added cost would be [price] and it would move the timeline by [timeline impact]. If you want to proceed, I can send the updated approval and payment link before I start."',
+          'The key is to reply before doing the work. Once you complete the change, the client may assume it was included. A short written approval keeps the project cleaner and gives both sides a shared record of what changed.',
+        ],
+      },
+      {
+        heading: 'Offer a budget-neutral trade if that helps',
+        body: [
+          'Some clients are not trying to expand the project; they are trying to choose what matters most. When the budget or deadline cannot move, offer a trade instead of a flat no.',
+          'Try: "If you want to keep the current budget and deadline, we can replace [included item] with [new change]. If you want to keep both, I will price the new change as an add-on before starting." That gives the client control while keeping the scope honest.',
+        ],
+      },
+      {
+        heading: 'Separate revisions from new deliverables',
+        body: [
+          'A revision changes something already included in the project. A new deliverable adds something the project did not already include. That distinction matters for websites, design files, videos, copywriting, brand assets, consulting deliverables, and development work.',
+          'Useful wording: "The text adjustment on the approved page is included. The new landing page section is a separate deliverable, so I can price that as an add-on if you want it included in this phase."',
+        ],
+      },
+      {
+        heading: 'Make small-change replies part of your admin system',
+        body: [
+          'The easier your project is to understand, the easier these messages are to send. Clear deliverables, revision limits, review windows, milestone payments, approval steps, and final handoff rules make small-change conversations feel routine instead of tense.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with scope, approvals, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
