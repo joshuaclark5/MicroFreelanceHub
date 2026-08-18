@@ -2665,6 +2665,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-asks-to-start-before-deposit-reply-template',
+    title: 'What to Say When a Client Asks to Start Before Paying the Deposit',
+    description:
+      'A practical reply template for freelancers when a client wants work to start before paying the deposit, with calm wording for kickoff, payment links, and project boundaries.',
+    publishedAt: '2026-08-18',
+    category: 'Client Replies',
+    keywords: [
+      'client asks to start before deposit',
+      'freelance deposit reply template',
+      'what to say before upfront payment',
+      'client wants work started before paying',
+      'freelance project kickoff payment message',
+      'client reply tool for freelancers',
+    ],
+    aiSummary:
+      'When a client asks you to start before paying the deposit, thank them for the urgency, restate that kickoff begins after the signed agreement and upfront payment, send the payment link, and give the exact start date once payment is complete.',
+    ctaHref: '/tools/client-message-generator',
+    ctaLabel: 'Write a deposit reply',
+    relatedLinks: [
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with deposit terms',
+        href: '/create?source=start-before-deposit-article',
+      },
+      {
+        label: 'How to Ask for a Freelance Deposit Before Starting Work',
+        href: '/articles/how-to-ask-for-a-freelance-deposit-before-starting-work',
+      },
+      {
+        label: 'How to Collect Client Assets, Access, and Deposit Before Work Starts',
+        href: '/articles/freelance-client-assets-access-deposit-before-work-starts',
+      },
+      {
+        label: 'Freelance Video Editor Deposit Agreement',
+        href: '/templates/freelance-video-editor-deposit-agreement-template',
+      },
+      {
+        label: 'Event Videographer Deposit and Cancellation Contract',
+        href: '/templates/event-videographer-deposit-and-cancellation-contract',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Keep the start date tied to the kickoff steps',
+        body: [
+          'When a client is excited or under deadline, they may ask you to begin before the deposit is paid. The safest reply does not make the request personal. Treat the deposit as a normal kickoff step, like signed scope, access, assets, and scheduling.',
+          'The message should make one thing clear: you are ready to start, and the start date is activated by the agreement and upfront payment. That keeps the tone helpful while avoiding unpaid work before the project is actually open.',
+        ],
+      },
+      {
+        heading: 'Use this reply template',
+        body: [
+          'Try: "Hi [Name], I am ready to get this moving. My project kickoff process starts after the agreement is signed and the deposit is paid, so the next step is completing the payment link here: [link]. Once that is done, I will confirm the start date and begin [first milestone/task]."',
+          'This works because it gives the client a clear yes to the project without saying yes to unpaid work. It also avoids a long explanation about trust, risk, or past client problems.',
+        ],
+      },
+      {
+        heading: 'If the client says it is urgent',
+        body: [
+          'Urgency does not have to turn into free pre-work. A calm response is: "I understand the timeline is tight. The fastest way for me to reserve the slot and begin is for you to complete the signed agreement and deposit today. After that, I can start with [specific first step]."',
+          'That wording respects the deadline but still keeps the process intact. It gives the client control over speed: the sooner the kickoff items are complete, the sooner the work can begin.',
+        ],
+      },
+      {
+        heading: 'Do not send drafts or strategy before kickoff',
+        body: [
+          'Clients sometimes ask for a quick draft, initial direction, sample layout, outline, audit, or production plan before paying the deposit. If that work is part of the paid project, avoid delivering it as a favor before kickoff.',
+          'A useful boundary is: "The strategy and first draft are part of the paid kickoff milestone. Once the deposit is complete, I will include that in the first project update." This keeps your expertise inside the paid workflow instead of leaking into an unpaid sales thread.',
+        ],
+      },
+      {
+        heading: 'Offer a smaller paid kickoff if needed',
+        body: [
+          'If the client is not ready for the full project deposit, you can offer a narrower paid first step instead of starting the full scope unpaid. For example, a paid discovery call, audit, brief, outline, or first milestone can help both sides move forward with clearer expectations.',
+          'The key is that the smaller step still has scope, price, timeline, and payment terms. Do not replace a deposit with vague promises like "we will sort out payment later" if the project work is already beginning.',
+        ],
+      },
+      {
+        heading: 'Make the payment step easy to complete',
+        body: [
+          'A deposit reply is stronger when the client does not have to hunt for the next action. Send one project link with the scope, deposit amount, payment due date, signature step, and any assets or access needed before work starts.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with scope, signatures, deposits, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
