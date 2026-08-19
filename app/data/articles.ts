@@ -2755,6 +2755,97 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-asks-for-net-30-payment-terms-reply-template',
+    title: 'What to Say When a Client Asks for Net 30 Payment Terms',
+    description:
+      'A practical reply template for freelancers when a client asks for Net 30 payment terms, with wording for deposits, milestone payments, and payment links before work continues.',
+    publishedAt: '2026-08-19',
+    category: 'Client Replies',
+    keywords: [
+      'client asks for net 30 payment terms',
+      'freelance net 30 reply template',
+      'what to say when client wants to pay later',
+      'freelance payment terms email',
+      'client payment policy reply',
+      'client reply tool for freelancers',
+    ],
+    aiSummary:
+      'When a client asks for Net 30 terms, freelancers should acknowledge the request, restate their standard payment process, offer a deposit or milestone payment option if appropriate, and send the agreement or payment link before starting or continuing unpaid work.',
+    ctaHref: '/tools/client-message-generator',
+    ctaLabel: 'Write a payment terms reply',
+    relatedLinks: [
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Late Payment Reply Generator',
+        href: '/tools/late-payment-reply-generator',
+      },
+      {
+        label: 'Create a project link with payment terms',
+        href: '/create?source=net-30-payment-terms-article',
+      },
+      {
+        label: 'How to Follow Up on a Late Freelance Invoice',
+        href: '/articles/how-to-follow-up-late-freelance-invoice',
+      },
+      {
+        label: 'How to Write a Freelance Payment Schedule',
+        href: '/articles/freelance-payment-schedule-upfront-milestones-final',
+      },
+      {
+        label: 'What Freelancers Should Put in a Contract Before Sending a Stripe Payment Link',
+        href: '/articles/freelance-stripe-payment-link-contract-terms',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Do not accept slower terms by accident',
+        body: [
+          'A client asking for Net 30 terms may be following their normal purchasing process. The problem is when a freelancer quietly accepts that delay without updating the scope, start date, milestone schedule, or payment risk built into the project.',
+          'Before you say yes, decide what payment timing your business can support. If your standard workflow is deposit before kickoff, milestone payment before the next phase, or final payment before handoff, your reply should restate that process calmly instead of apologizing for it.',
+        ],
+      },
+      {
+        heading: 'Use this Net 30 reply template',
+        body: [
+          'Try: "Hi [Name], thanks for sharing your payment process. For freelance projects, my standard terms are [deposit/milestone/final payment rule] before [kickoff/next phase/final handoff]. I can send the agreement and payment link now so we can keep the schedule on track."',
+          'That message acknowledges the client without turning your payment policy into a debate. It also gives the client a clear next step: review the terms, complete the payment link, and move the project forward.',
+        ],
+      },
+      {
+        heading: 'If you can offer a compromise',
+        body: [
+          'Some clients cannot change their internal payment cycle, especially larger companies. If the project is worth accommodating, make the tradeoff explicit. You might require a deposit before kickoff, shorten the first milestone, or schedule work only after the purchase order and payment date are confirmed in writing.',
+          'A useful compromise line is: "I can work with your Net 30 process for the remaining balance, as long as the kickoff deposit is paid before work begins and each milestone is approved in writing before the next phase starts." Adjust the wording to match what you can realistically support.',
+        ],
+      },
+      {
+        heading: 'If the client wants work before any payment',
+        body: [
+          'Be careful when Net 30 turns into starting the entire project before any money is collected. That leaves you funding the work while the client still has open questions about approvals, budget, and payment timing.',
+          'A calm boundary is: "I am ready to start once the signed agreement and upfront payment are complete. If your team needs Net 30 terms, we can schedule the start date after the payment step is approved or set up a smaller paid kickoff milestone first."',
+        ],
+      },
+      {
+        heading: 'Put the agreed payment timing in one place',
+        body: [
+          'Do not leave payment timing scattered across chat, invoices, and proposal notes. The agreement should show the deposit, milestone amounts, payment due dates, review windows, approval steps, and what pauses if a payment is late.',
+          'This is especially important when a client has formal payment terms. Everyone should be able to see whether Net 30 applies to the full project, the final balance only, a specific invoice, or a future retainer cycle.',
+        ],
+      },
+      {
+        heading: 'Make the next action easy',
+        body: [
+          'The best payment terms reply ends with one concrete action. Send the agreement link, payment link, purchase order request, or smaller paid kickoff option, and explain what happens after the client completes it.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with scope, signatures, deposits, milestones, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
+
 ];
 
 export function getArticle(slug: string) {
