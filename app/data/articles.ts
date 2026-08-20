@@ -2845,6 +2845,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-asks-to-pay-after-launch-reply-template',
+    title: 'What to Say When a Client Asks to Pay After Launch',
+    description:
+      'A practical reply template for freelancers when a client asks to pay after launch, with safer wording for final payment, handoff, approval, and payment links.',
+    publishedAt: '2026-08-20',
+    category: 'Client Replies',
+    keywords: [
+      'client asks to pay after launch',
+      'freelance pay after launch reply template',
+      'what to say when client wants to pay after delivery',
+      'final payment before launch freelancer',
+      'client final payment reply',
+      'client reply tool for freelancers',
+    ],
+    aiSummary:
+      'When a client asks to pay after launch, freelancers should acknowledge the request, restate that launch access or final handoff happens after final payment, offer a preview or staging review, and send the payment link as the next step.',
+    ctaHref: '/tools/final-file-handoff-reply-generator',
+    ctaLabel: 'Write a final payment reply',
+    relatedLinks: [
+      {
+        label: 'Final File Handoff Reply Generator',
+        href: '/tools/final-file-handoff-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with final payment terms',
+        href: '/create?source=pay-after-launch-article',
+      },
+      {
+        label: 'What to Say When a Client Wants Final Files Before Payment',
+        href: '/articles/what-to-say-client-wants-final-files-before-payment',
+      },
+      {
+        label: 'How to Give Freelance Clients Launch Access After Final Payment',
+        href: '/articles/freelance-launch-access-after-final-payment',
+      },
+      {
+        label: 'How to Use Acceptance Criteria Before Final Freelance Payment',
+        href: '/articles/freelance-acceptance-criteria-final-payment-before-handoff',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Do not turn launch into an unpaid credit period',
+        body: [
+          'A client may ask to pay after launch because they want to confirm everything works in production, wait for internal approval, or line payment up with their own cash flow. The request can be understandable, but it changes the final payment risk if the agreement said payment comes before handoff.',
+          'Your reply should stay calm and process-based. You are not accusing the client of anything. You are confirming that launch, final files, production access, or transfer steps happen after the approved balance is paid.',
+        ],
+      },
+      {
+        heading: 'Use this pay-after-launch reply template',
+        body: [
+          'Try: "Hi [Name], I understand wanting to confirm everything before launch. The final review is ready now, and the project terms have final payment due before launch access and final handoff. You can review [preview/staging link/watermarked export] here, and once the final payment is complete at [payment link], I will handle [launch/handoff/sending final files]."',
+          'That message gives the client a fair review path while keeping the payment boundary intact. It also avoids a vague standoff by naming exactly what they can inspect now and what happens after payment.',
+        ],
+      },
+      {
+        heading: 'Offer a preview instead of full control',
+        body: [
+          'If the client needs confidence before paying, use a preview that lets them verify the work without taking full possession. Depending on the project, that might be a staging site, read-only dashboard, screen recording, watermarked export, low-resolution proof, or guided walkthrough call.',
+          'The preview should match the acceptance criteria. If the client approved the layout, content, functionality, or deliverable list, the final payment step should be about completing the agreed handoff, not reopening the whole project without a new scope decision.',
+        ],
+      },
+      {
+        heading: 'If they say payment will be sent right after launch',
+        body: [
+          'A promise to pay after launch still leaves you carrying the risk after the client receives the usable result. A clear reply is: "I can schedule launch as soon as the final payment is complete. If your team needs an invoice or purchase order reference first, send that over and I will attach it to the payment link."',
+          'This keeps the conversation practical. You are helping them complete their payment process, but you are not changing the handoff rule through a casual chat message.',
+        ],
+      },
+      {
+        heading: 'If a tiny post-launch task is the issue',
+        body: [
+          'Sometimes the client is worried about a small post-launch fix, not trying to delay payment. Separate final payment from support. You can say: "Final payment is still due before launch. The included post-launch support covers [specific support window], so any launch-day issue inside that scope will be handled after the site goes live."',
+          'That distinction reassures the client without making payment depend on an open-ended future period. If they want monitoring, extra QA, analytics setup, or content changes after launch, price that as a support add-on or retainer.',
+        ],
+      },
+      {
+        heading: 'Make final payment rules visible before the next project',
+        body: [
+          'The easiest way to avoid this conversation is to define final payment, approval criteria, launch access, source files, credentials, and post-launch support before work starts. Then your launch reply can point back to a shared workflow instead of creating a new rule at the end.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with scope, approvals, signatures, final payment steps, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 
 ];
 
