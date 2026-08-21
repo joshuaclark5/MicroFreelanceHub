@@ -2935,6 +2935,97 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'payment-link-reminder-before-freelance-kickoff',
+    title: 'How to Remind a Client to Complete the Payment Link Before Kickoff',
+    description:
+      'A practical freelancer guide to sending a polite payment link reminder before kickoff, with wording for deposits, start dates, and client-ready next steps.',
+    publishedAt: '2026-08-21',
+    category: 'Client Replies',
+    keywords: [
+      'payment link reminder before kickoff',
+      'freelance deposit reminder email',
+      'client has not paid payment link',
+      'polite payment reminder freelancer',
+      'freelance kickoff payment message',
+      'client reply tool for freelancers',
+    ],
+    aiSummary:
+      'A payment link reminder before kickoff should be short and process-based: confirm enthusiasm, restate that the project starts after the agreement and payment are complete, resend the link, and name the start date or first milestone that follows payment.',
+    ctaHref: '/tools/client-message-generator',
+    ctaLabel: 'Write a payment link reminder',
+    relatedLinks: [
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Late Payment Reply Generator',
+        href: '/tools/late-payment-reply-generator',
+      },
+      {
+        label: 'Create a project link with payment terms',
+        href: '/create?source=payment-link-reminder-article',
+      },
+      {
+        label: 'What to Say When a Client Asks to Start Before Paying the Deposit',
+        href: '/articles/client-asks-to-start-before-deposit-reply-template',
+      },
+      {
+        label: 'How to Ask for a Freelance Deposit Before Starting Work',
+        href: '/articles/how-to-ask-for-a-freelance-deposit-before-starting-work',
+      },
+      {
+        label: 'What Freelancers Should Put in a Contract Before Sending a Stripe Payment Link',
+        href: '/articles/freelance-stripe-payment-link-contract-terms',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Make the reminder about kickoff, not pressure',
+        body: [
+          'When a client says they are ready to start but has not completed the payment link, the best reminder should feel like normal project admin. You are not scolding them or implying bad intent. You are pointing them back to the agreed kickoff sequence.',
+          'A strong reminder connects three things: the client-ready link, the payment step, and the work that begins after payment. That keeps the conversation practical and gives the client a clear action instead of a vague nudge.',
+        ],
+      },
+      {
+        heading: 'Use this payment link reminder template',
+        body: [
+          'Try: "Hi [Name], I am excited to get started. Quick reminder that the kickoff step is still open: please complete the agreement and payment link here: [link]. Once that is done, I will confirm the start date and begin [first milestone/task]."',
+          'This message works because it is calm, specific, and easy to act on. It does not over-explain your payment policy, and it does not make the client search through old messages for the link.',
+        ],
+      },
+      {
+        heading: 'If the client already said payment is coming',
+        body: [
+          'If the client promised to pay soon, keep your reply friendly while still tying the schedule to completion of the payment step. Use: "Thanks for the update. I will watch for the completed payment link, and once it comes through I will send the kickoff confirmation and start [specific next step]."',
+          'That wording avoids sounding impatient, but it also avoids accidentally confirming that work has started before payment. The project is ready, but kickoff is still waiting on the agreed action.',
+        ],
+      },
+      {
+        heading: 'If the start date is at risk',
+        body: [
+          'Sometimes the reminder needs to mention timing. A clean version is: "To keep the planned [start date/milestone date], the agreement and payment link need to be completed by [date/time]. If that timing changes, I can update the schedule once the kickoff step is complete."',
+          'This gives the client a real deadline without making a threat. It also protects your calendar by making the start date conditional on the admin steps being finished.',
+        ],
+      },
+      {
+        heading: 'Do not start unpaid work just because the link was sent',
+        body: [
+          'Sending a payment link is not the same as collecting payment. Before you begin strategy, drafting, design, editing, development, account setup, or client handoff work, confirm that the agreement is signed and the payment has cleared or been marked complete in your workflow.',
+          'If the client asks for a quick preview before paying, move that into a paid kickoff or discovery step. A useful reply is: "The preview work is part of the kickoff milestone, so I can begin that as soon as the payment link is complete."',
+        ],
+      },
+      {
+        heading: 'Make the next step visible in one link',
+        body: [
+          'Payment reminders are easier when the client has one place to act. Put scope, deposit amount, milestone timing, signature status, payment link, and kickoff requirements in the same project link so the reminder can stay short.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with scope, signatures, deposits, milestones, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
+
 
 ];
 
