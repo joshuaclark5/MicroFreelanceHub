@@ -3025,6 +3025,94 @@ export const articles: Article[] = [
       },
     ],
   },
+    {
+    "slug": "what-to-say-client-gives-vague-revision-feedback",
+    "title": "What to Say When a Client Gives Vague Revision Feedback",
+    "description": "A practical reply template for freelancers when client feedback is vague, subjective, or hard to act on, with wording for revision boundaries and clearer next steps.",
+    "publishedAt": "2026-08-22",
+    "category": "Client Replies",
+    "keywords": [
+      "client gives vague revision feedback",
+      "freelance vague feedback reply template",
+      "what to say when client feedback is unclear",
+      "client says make it pop reply",
+      "freelance revision feedback email",
+      "client reply tool for freelancers"
+    ],
+    "aiSummary": "When a client gives vague revision feedback, freelancers should acknowledge the note, ask for specific examples or priorities, separate included revisions from new direction changes, and confirm the next written action before doing more work.",
+    "ctaHref": "/tools/revision-request-reply-generator",
+    "ctaLabel": "Write a vague feedback reply",
+    "relatedLinks": [
+      {
+        "label": "Revision Request Reply Generator",
+        "href": "/tools/revision-request-reply-generator"
+      },
+      {
+        "label": "Free Client Reply Generator",
+        "href": "/tools/client-message-generator"
+      },
+      {
+        "label": "Create a project link with revision terms",
+        "href": "/create?source=vague-revision-feedback-article"
+      },
+      {
+        "label": "What to Say When a Client Asks for Extra Revisions",
+        "href": "/articles/what-to-say-client-asks-extra-revisions"
+      },
+      {
+        "label": "How to Set Freelance Revision Limits That Protect Your Payment Terms",
+        "href": "/articles/freelance-revision-limit-payment-terms"
+      },
+      {
+        "label": "Client Approval Reminder Email Template",
+        "href": "/articles/client-approval-reminder-email-template"
+      }
+    ],
+    "sections": [
+      {
+        "heading": "Do not turn vague feedback into unpaid guessing",
+        "body": [
+          "Vague revision feedback often sounds harmless: \"Can you make it pop?\" \"This feels off.\" \"Can we make it more premium?\" The problem is that those notes do not tell you what to change, how much work is expected, or whether the client is asking for an included revision or a new direction.",
+          "A safer reply slows the project down just enough to get a usable decision. You can stay helpful while asking for specifics before opening files, rewriting copy, redesigning layouts, editing footage, or rebuilding work that might already be approved."
+        ]
+      },
+      {
+        "heading": "Use this vague feedback reply template",
+        "body": [
+          "Try: \"Hi [Name], thanks for the notes. To make the next revision useful, could you point to the specific section, screen, line, or timestamp that feels off and share what you want changed? Once I have that detail, I can confirm whether it fits the included revision round or needs a separate change request before I begin.\"",
+          "That message does three jobs at once. It acknowledges the client, asks for feedback you can actually act on, and keeps the revision boundary visible without sounding defensive."
+        ]
+      },
+      {
+        "heading": "Ask for examples instead of interpreting mood words",
+        "body": [
+          "Words like modern, clean, bold, premium, fun, polished, simple, or punchy can mean different things to different clients. Instead of guessing, ask for one or two examples and the reason they like them.",
+          "A practical line is: \"Could you send one example of the direction you have in mind and tell me which part you want reflected here: spacing, color, copy tone, layout, pacing, or content?\" This turns a subjective reaction into a specific revision brief."
+        ]
+      },
+      {
+        "heading": "Separate clarification from new direction changes",
+        "body": [
+          "Some vague feedback is just a clarification problem. The client may need help naming the change they want, and the final revision may still fit the agreed scope. Other times, the feedback reveals a new direction, new audience, new deliverable, or a request to redo approved work.",
+          "Your reply should leave room for both outcomes. Confirm that you are happy to review the feedback, then explain that you will identify whether the change fits the included revision round or should be priced as a paid change request before work starts."
+        ]
+      },
+      {
+        "heading": "Confirm the revision brief in writing",
+        "body": [
+          "After the client clarifies, write back with a short summary before you begin. For example: \"I will adjust the hero copy to sound less formal, swap the two product screenshots, and tighten the section spacing. That fits the included revision round and should be ready by Thursday.\"",
+          "If the clarified request is larger, use the same structure with a payment boundary: \"The new homepage direction goes beyond the included revision because it changes the approved layout. I can send the added price and timing before starting if you want to move forward.\""
+        ]
+      },
+      {
+        "heading": "Protect future projects with clearer revision admin",
+        "body": [
+          "Vague feedback is easier to manage when the project already defines revision rounds, feedback deadlines, approval checkpoints, examples of out-of-scope changes, and payment timing for extra work. Then your reply can point to the shared process instead of inventing rules mid-project.",
+          "MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with scope, revisions, approvals, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment."
+        ]
+      }
+    ]
+  },
 
 
 ];
