@@ -3114,6 +3114,97 @@ export const articles: Article[] = [
     ]
   },
 
+  {
+    slug: 'client-changes-brief-after-work-starts-reply-template',
+    title: 'What to Say When a Client Changes the Brief After Work Starts',
+    description:
+      'A practical reply template for freelancers when a client changes the brief mid-project, with wording for scope, approval, timeline, and paid change requests.',
+    publishedAt: '2026-08-23',
+    category: 'Client Replies',
+    keywords: [
+      'client changes brief after work starts',
+      'freelance brief change reply template',
+      'what to say when client changes scope',
+      'client changed project requirements',
+      'paid change request freelancer',
+      'scope creep reply generator',
+    ],
+    aiSummary:
+      'When a client changes the brief after work starts, freelancers should acknowledge the new direction, compare it to the approved scope, pause before doing unpaid extra work, and send a paid change request or revised project link before continuing.',
+    ctaHref: '/tools/scope-creep-reply-generator',
+    ctaLabel: 'Write a scope change reply',
+    relatedLinks: [
+      {
+        label: 'Scope Creep Reply Generator',
+        href: '/tools/scope-creep-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with change terms',
+        href: '/create?source=brief-change-after-start-article',
+      },
+      {
+        label: 'Scope Creep Email Template for Client Extra Work',
+        href: '/articles/scope-creep-email-template-client-extra-work',
+      },
+      {
+        label: 'How to Handle Scope Creep With Change Requests and Payment Links',
+        href: '/articles/freelance-scope-creep-change-request-payment-link',
+      },
+      {
+        label: 'What to Say When a Client Asks for Extra Revisions',
+        href: '/articles/what-to-say-client-asks-extra-revisions',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Treat a changed brief as a project decision',
+        body: [
+          'A changed brief can show up as a new audience, new feature, different format, rewritten offer, extra page, new creative direction, or a request to redo work that was already approved. The client may not think of it as scope creep. They may simply be reacting to new information.',
+          'Your job is to make the decision visible before it turns into unpaid work. A good reply should acknowledge the new direction, connect it to the approved brief, and explain what needs to happen before the project continues under different terms.',
+        ],
+      },
+      {
+        heading: 'Use this brief-change reply template',
+        body: [
+          'Try: "Hi [Name], I can help with that direction. Since this changes the approved brief from [original scope] to [new request], I will need to treat it as a change request before I continue. I can send the updated scope, added cost, and timeline for approval so we both have the new plan in writing."',
+          'That message stays cooperative without accepting the extra work by default. It also gives the client a professional next step instead of forcing the conversation into a yes-or-no argument.',
+        ],
+      },
+      {
+        heading: 'Pause the affected work before estimating',
+        body: [
+          'Do not keep building, designing, editing, writing, or planning around the new brief while you are still deciding whether it is included. Continuing too quickly makes the new direction feel approved before payment, schedule, or deliverables are updated.',
+          'A clean boundary is: "I will pause the affected part of the project while I price the updated request. Everything already approved can stay on track unless you want the new direction to replace it." This protects your time and gives the client a clear choice.',
+        ],
+      },
+      {
+        heading: 'Show the client what changed',
+        body: [
+          'Clients are more likely to approve a paid change when they can see the difference between the original brief and the new request. Keep the comparison simple: original deliverable, new deliverable, timeline impact, revision impact, and added payment amount.',
+          'For example: "The original scope included one landing page using the approved offer. The new request adds a second audience and revised offer messaging, so it adds strategy, copy, and layout work. The added cost is $450 and the delivery date moves by three business days."',
+        ],
+      },
+      {
+        heading: 'Offer options instead of absorbing the change',
+        body: [
+          'A safer reply gives the client practical choices. They can keep the original brief, approve the added scope and payment, trade out another deliverable to stay within budget, or schedule the new direction as a later milestone.',
+          'This keeps the relationship collaborative while making the business impact clear. You are not blocking the client from changing direction. You are making sure the changed direction has approval, timing, and payment terms before the work starts.',
+        ],
+      },
+      {
+        heading: 'Update the project admin before continuing',
+        body: [
+          'Once the client chooses an option, put the decision in one place: updated scope, approval note, revision limits, new due dates, and the payment link or milestone rule. Do not rely on a scattered chat thread to remember the new project terms later.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with scope, approvals, signatures, deposits, milestones, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
+
 
 ];
 
