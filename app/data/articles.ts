@@ -3206,6 +3206,97 @@ export const articles: Article[] = [
   },
 
 
+
+  {
+    slug: 'client-asks-for-free-sample-before-deposit-reply-template',
+    title: 'What to Say When a Client Asks for a Free Sample Before Paying a Deposit',
+    description:
+      'A practical reply template for freelancers when a client asks for free sample work, a test task, or a quick preview before completing the deposit or project link.',
+    publishedAt: '2026-08-24',
+    category: 'Client Replies',
+    keywords: [
+      'client asks for free sample before deposit',
+      'freelance free sample reply template',
+      'what to say when client asks for unpaid test task',
+      'client wants preview before paying deposit',
+      'freelance deposit reply tool',
+      'client message generator for freelancers',
+    ],
+    aiSummary:
+      'When a client asks for free sample work before paying a deposit, freelancers should thank them, explain that custom work begins after the project link and deposit are complete, offer a paid discovery or small kickoff option if useful, and avoid creating unpaid deliverables that blur the scope.',
+    ctaHref: '/tools/client-message-generator',
+    ctaLabel: 'Write a free sample reply',
+    relatedLinks: [
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with deposit terms',
+        href: '/create?source=free-sample-before-deposit-article',
+      },
+      {
+        label: 'What to Say When a Client Asks to Start Before Paying the Deposit',
+        href: '/articles/client-asks-to-start-before-deposit-reply-template',
+      },
+      {
+        label: 'Payment Link Reminder Before Freelance Kickoff',
+        href: '/articles/payment-link-reminder-before-freelance-kickoff',
+      },
+      {
+        label: 'How to Ask for a Freelance Deposit Before Starting Work',
+        href: '/articles/how-to-ask-for-a-freelance-deposit-before-starting-work',
+      },
+      {
+        label: 'How to Use Paid Discovery as the First Freelance Milestone',
+        href: '/articles/freelance-paid-discovery-first-milestone-payment',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Do not confuse a portfolio sample with custom work',
+        body: [
+          'A client may ask for a quick sample because they want confidence before hiring you. That is reasonable as a buying concern, but it does not mean you need to create custom unpaid work. A portfolio piece, case study, short process note, or paid discovery option can answer the concern without turning the project into free production.',
+          'The key distinction is whether the work is reusable proof or client-specific output. If the client asks you to write their copy, edit their footage, design their screen, audit their account, build their layout, or solve their actual project problem, that belongs inside a paid kickoff or deposit-backed project step.',
+        ],
+      },
+      {
+        heading: 'Use this free-sample reply template',
+        body: [
+          'Try: "Hi [Name], I understand wanting to see the direction before committing. I do not create custom sample work before the project link and deposit are complete, but I can share relevant examples and outline the first step. If you want a small paid test milestone first, I can set that up with a clear deliverable, price, and timeline."',
+          'This reply is firm without sounding dismissive. It acknowledges the client concern, refuses unpaid custom work, and gives them a practical path forward if they are not ready for the full project yet.',
+        ],
+      },
+      {
+        heading: 'Offer proof that does not become unpaid delivery',
+        body: [
+          'Instead of making a free sample, send evidence that helps the client decide: a similar portfolio example, a before-and-after, a short explanation of your process, a relevant testimonial, or a one-paragraph plan for the first paid milestone. Keep it general enough that it does not become usable project work.',
+          'For example, a designer can share a past landing page and explain the discovery questions they would ask. A copywriter can share a published sample in a similar tone. A developer can describe the technical approach without building the feature before payment.',
+        ],
+      },
+      {
+        heading: 'Turn a test request into a paid first milestone',
+        body: [
+          'If the client genuinely needs a low-risk way to start, offer a small paid milestone instead of a free sample. Name the deliverable, limit the revision round, set the price, and explain whether the cost can be credited toward the larger project if they continue.',
+          'A useful line is: "We can begin with a paid test milestone for [specific deliverable]. It includes [scope], one review round, and delivery by [date]. If you approve the direction, I can roll the next milestone into the full project link."',
+        ],
+      },
+      {
+        heading: 'Keep the deposit boundary connected to scheduling',
+        body: [
+          'Clients often respond better when the deposit is presented as part of project admin, not a trust issue. You can say that the deposit reserves the work window, confirms the brief, and allows you to start the first deliverable without pushing other paid work aside.',
+          'Avoid apologizing for the boundary or over-explaining it. A simple process note is enough: custom work begins after the scope is approved, the project link is complete, and the deposit or paid milestone is received.',
+        ],
+      },
+      {
+        heading: 'Put the decision in one project link',
+        body: [
+          'Once the client chooses between the full project and a paid test milestone, put the scope, payment amount, review limit, timeline, and next step in one project link. That keeps the conversation from drifting across messages and makes the payment step clear before work begins.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with scope, approvals, signatures, deposits, milestones, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
