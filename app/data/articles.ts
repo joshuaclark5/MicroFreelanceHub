@@ -3297,6 +3297,97 @@ export const articles: Article[] = [
       },
     ],
   },
+
+  {
+    slug: 'client-asks-for-discount-after-work-is-done-reply-template',
+    title: 'What to Say When a Client Asks for a Discount After Work Is Done',
+    description:
+      'A practical reply template for freelancers when a client asks for a discount after approving work, with wording for payment, scope, and future project options.',
+    publishedAt: '2026-08-25',
+    category: 'Client Replies',
+    keywords: [
+      'client asks for discount after work is done',
+      'freelance discount request reply template',
+      'client wants lower invoice after approval',
+      'what to say when client asks for a discount',
+      'freelance payment boundary reply',
+      'late payment reply generator',
+    ],
+    aiSummary:
+      'When a client asks for a discount after work is done, freelancers should acknowledge the request, restate the approved scope and invoice amount, avoid reducing completed work by default, and offer clear future options such as a smaller next phase, payment schedule, or revised scope before new work begins.',
+    ctaHref: '/tools/client-message-generator',
+    ctaLabel: 'Write a discount request reply',
+    relatedLinks: [
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Late Payment Reply Generator',
+        href: '/tools/late-payment-reply-generator',
+      },
+      {
+        label: 'Create a project link with payment terms',
+        href: '/create?source=discount-after-work-article',
+      },
+      {
+        label: 'How to Follow Up on a Late Freelance Invoice',
+        href: '/articles/how-to-follow-up-late-freelance-invoice',
+      },
+      {
+        label: 'How to Collect Final Payment Before Delivery',
+        href: '/articles/freelance-final-payment-before-delivery',
+      },
+      {
+        label: 'What to Say When a Client Asks for Extra Revisions',
+        href: '/articles/what-to-say-client-asks-extra-revisions',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Treat the discount request as a payment conversation',
+        body: [
+          'A discount request after the work is done can feel personal, especially if the client already approved the scope, reviewed the deliverables, or received the final invoice. It is better to treat it as a payment conversation, not a debate about whether your work was worth the original price.',
+          'Your reply should stay calm and specific. Acknowledge the request, point back to the approved scope and agreed price, and explain what you can offer without rewriting the completed project after the fact.',
+        ],
+      },
+      {
+        heading: 'Use this discount request reply template',
+        body: [
+          'Try: "Hi [Name], thanks for being direct about the budget concern. The invoice reflects the approved scope we completed: [brief scope summary]. Since the work has already been completed under the agreed project terms, I am not able to discount this invoice after delivery. If helpful, I can discuss a smaller scope or adjusted budget for future work before the next phase begins."',
+          'That message is polite, but it does not accidentally agree that the completed invoice is negotiable. It also gives the client a future-facing option instead of ending the conversation with a flat no.',
+        ],
+      },
+      {
+        heading: 'Restate what was approved',
+        body: [
+          'The strongest version of this reply includes a short record of what was approved: the project link, estimate, milestone, revision round, final approval, or invoice line items. Keep it factual and brief. You are reminding the client of the shared process, not building a long argument.',
+          'For example: "This invoice covers the landing page copy, two revision rounds, and final handoff that were approved on August 18." A clean summary helps the client understand that the price is attached to completed work, not a random number you are defending from memory.',
+        ],
+      },
+      {
+        heading: 'Offer options without discounting completed work',
+        body: [
+          'You can be flexible without reducing the finished invoice. Depending on the relationship, you might offer a payment schedule, a smaller next milestone, a paused future deliverable, or a revised scope for upcoming work. The important boundary is that those options apply going forward.',
+          'A practical line is: "If cash timing is the issue, I can split this invoice into two payment dates. For new work, I can also create a smaller next phase that fits the budget before we start." This keeps the door open while keeping the completed work paid.',
+        ],
+      },
+      {
+        heading: 'Avoid apologizing for the original price',
+        body: [
+          'Freelancers often weaken this message by saying things like "sorry, I know it is expensive" or "I wish I could do less." That can make the client feel the price was uncertain all along. You do not need to sound cold, but you should sound steady.',
+          'Use language like "the agreed project amount," "the approved invoice," or "the completed scope" instead of "my fee" or "what I charge." That shifts the conversation from your personal pricing to the project terms both sides used to move the work forward.',
+        ],
+      },
+      {
+        heading: 'Prevent the same issue on the next project',
+        body: [
+          'Discount requests are easier to handle when every project has visible payment admin from the start: deposit or milestone payment, written scope, revision limits, approval checkpoints, final payment timing, and a payment link. Then your reply can point to the process instead of inventing a boundary in the moment.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with scope, approvals, signatures, deposits, milestones, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
