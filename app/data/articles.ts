@@ -3388,6 +3388,97 @@ export const articles: Article[] = [
       },
     ],
   },
+
+  {
+    slug: 'client-adds-new-deliverable-before-final-payment-reply-template',
+    title: 'What to Say When a Client Adds a New Deliverable Before Final Payment',
+    description:
+      'A practical reply template for freelancers when a client asks for a new deliverable near final payment, with wording for scope, timing, and paid change requests.',
+    publishedAt: '2026-08-26',
+    category: 'Client Replies',
+    keywords: [
+      'client adds new deliverable before final payment',
+      'freelance new deliverable reply template',
+      'client asks for extra deliverable at end of project',
+      'scope creep before final payment',
+      'paid change request reply',
+      'final payment handoff reply generator',
+    ],
+    aiSummary:
+      'When a client adds a new deliverable before final payment, freelancers should acknowledge the request, separate the original final handoff from the new work, confirm the added scope and timing, and collect written approval plus payment before starting the extra deliverable.',
+    ctaHref: '/tools/client-message-generator',
+    ctaLabel: 'Write a new deliverable reply',
+    relatedLinks: [
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Scope Creep Reply Generator',
+        href: '/tools/scope-creep-reply-generator',
+      },
+      {
+        label: 'Final File Handoff Reply Generator',
+        href: '/tools/final-file-handoff-reply-generator',
+      },
+      {
+        label: 'Create a project link with change request terms',
+        href: '/create?source=new-deliverable-before-final-payment-article',
+      },
+      {
+        label: 'Scope Creep Email Template',
+        href: '/articles/scope-creep-email-template-client-extra-work',
+      },
+      {
+        label: 'What to Say When a Client Wants Final Files Before Payment',
+        href: '/articles/what-to-say-client-wants-final-files-before-payment',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Separate final handoff from the new request',
+        body: [
+          'A new deliverable near the end of a project can sound small because the client is already in review mode. They might ask for one extra format, another page, a second cut, a new report, an added integration, or a handoff asset that was not included in the original scope.',
+          'Your first reply should keep two things separate: the approved work that is ready for final payment and the new deliverable the client wants to add. That prevents the extra request from quietly delaying payment for work that is already complete.',
+        ],
+      },
+      {
+        heading: 'Use this reply template',
+        body: [
+          'Try: "Hi [Name], I can help with [new deliverable]. Since it was not part of the approved project scope, I will treat it as a separate change request rather than adding it to the final handoff. The current deliverables are ready for final payment, and I can send the added price and timing for [new deliverable] before starting that extra work."',
+          'That message stays helpful without turning the final payment into a negotiation. It tells the client you are willing to do the work, but only after the added scope, schedule, and payment step are clear.',
+        ],
+      },
+      {
+        heading: 'Name what is already complete',
+        body: [
+          'Be specific about the finished scope. Instead of saying "the project is done," write a short list: "The homepage, pricing page, mobile layout, and included revision round are complete and ready for approval." This makes the final payment step easier to understand.',
+          'If the client still needs review access, send an appropriate preview, staging link, watermarked export, or approval file. Keep clean source files, final exports, launch credentials, or production handoff tied to the agreed final payment process.',
+        ],
+      },
+      {
+        heading: 'Price the added deliverable before starting',
+        body: [
+          'Do not complete the extra deliverable first and hope the client accepts the added invoice later. Confirm the new deliverable, what is included, what is excluded, the timeline impact, the revision limit, and the payment amount before any extra work begins.',
+          'A practical line is: "The added one-page PDF summary would be $300 and would add two business days. It includes one revision round on that PDF. If you approve, I will send the payment link and schedule it after the current final balance is complete."',
+        ],
+      },
+      {
+        heading: 'Give the client clean options',
+        body: [
+          'Clients usually respond better when they can choose a path. Offer options such as finishing the original project now, adding the new deliverable as a paid change request, or saving it for a later milestone. If budget is fixed, you can discuss a tradeoff before doing more work.',
+          'For example: "We can finalize the current scope today, add the new deliverable as a paid change request, or move it into a next phase after handoff. If you want to keep the budget unchanged, I can suggest what we would remove before changing the scope."',
+        ],
+      },
+      {
+        heading: 'Prevent end-of-project scope creep next time',
+        body: [
+          'This conversation is much easier when the original project link defines deliverables, final files, source files, review windows, revision limits, approval steps, payment timing, and the change request process. Then the reply can point to the shared workflow instead of sounding improvised.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with scope, approvals, deposits, milestone payments, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
