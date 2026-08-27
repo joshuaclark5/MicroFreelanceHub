@@ -3479,6 +3479,97 @@ export const articles: Article[] = [
       },
     ],
   },
+
+  {
+    slug: 'client-needs-internal-approval-before-paying-reply-template',
+    title: 'What to Say When a Client Needs Internal Approval Before Paying',
+    description:
+      'A practical reply template for freelancers when a client says payment is waiting on internal approval, with wording for invoices, deadlines, and next steps.',
+    publishedAt: '2026-08-27',
+    category: 'Client Replies',
+    keywords: [
+      'client needs internal approval before paying',
+      'freelance payment approval reply template',
+      'client says invoice is waiting on approval',
+      'late payment internal approval email',
+      'freelance invoice follow up template',
+      'client reply generator for payment delays',
+    ],
+    aiSummary:
+      'When a client says payment needs internal approval, freelancers should acknowledge the process, restate the invoice, payment link, and due date, ask for the approval owner or expected payment date, and pause new work if the payment delay affects the agreed schedule.',
+    ctaHref: '/tools/client-message-generator',
+    ctaLabel: 'Write an internal approval reply',
+    relatedLinks: [
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Late Payment Reply Generator',
+        href: '/tools/late-payment-reply-generator',
+      },
+      {
+        label: 'Create a project link with payment terms',
+        href: '/create?source=internal-approval-before-paying-article',
+      },
+      {
+        label: 'How to Follow Up on a Late Freelance Invoice',
+        href: '/articles/how-to-follow-up-late-freelance-invoice',
+      },
+      {
+        label: 'Client Approval Reminder Email Template',
+        href: '/articles/client-approval-reminder-email-template',
+      },
+      {
+        label: 'Payment Link Reminder Before Kickoff',
+        href: '/articles/payment-link-reminder-before-freelance-kickoff',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Keep the reply calm and specific',
+        body: [
+          'Internal approval is a common reason clients give when a freelance invoice, deposit, milestone payment, or final balance is not moving. It may be a real accounting step, a busy manager, or a sign that the client has not prioritized payment yet.',
+          'Your reply should not accuse the client or let the deadline become vague. Acknowledge the approval process, restate what is due, and ask for the specific person or date that will move the payment forward.',
+        ],
+      },
+      {
+        heading: 'Use this reply template',
+        body: [
+          'Try: "Hi [Name], thanks for the update. I understand this needs internal approval. The invoice for [amount] is still due on [date], and the payment link is here: [link]. Can you confirm who needs to approve it and the expected payment date? That will help me plan the next project step accurately."',
+          'If the invoice is already late, make the timeline clearer: "Since this balance is now past due, I will pause new work until the approval is complete and payment is received. Once it is paid, I can resume the next step in the schedule."',
+        ],
+      },
+      {
+        heading: 'Ask for the approval owner',
+        body: [
+          'A message that only says "waiting on approval" does not give you enough information to manage the project. Ask who owns the approval, whether they need anything else from you, and when the payment is expected to be released.',
+          'That turns a vague delay into an admin checklist. If the client needs a purchase order number, revised invoice details, a W-9, vendor setup, or a different payment recipient, you can handle that quickly without letting the project drift.',
+        ],
+      },
+      {
+        heading: 'Connect payment to the next project step',
+        body: [
+          'The safest wording ties payment to the agreed workflow instead of making it personal. For a kickoff deposit, say that work starts after the deposit is approved and paid. For a milestone, say the next phase begins after the milestone payment clears. For final delivery, say final files or launch access are released after the final balance is complete.',
+          'This does not need to sound harsh. You can write: "I can keep everything queued up, and I will restart the next step as soon as the payment is through." The client still hears that you are ready to help, but the project does not continue on unpaid time.',
+        ],
+      },
+      {
+        heading: 'Send one complete payment trail',
+        body: [
+          'When approvals involve more than one person, scattered messages slow everything down. Send one concise note with the invoice number, amount, due date, payment link, project name, approved milestone or deliverable, and any needed vendor details.',
+          'That makes it easier for your contact to forward the message internally. It also gives you a written record of what was due and when, which helps future follow-ups stay factual instead of awkward.',
+        ],
+      },
+      {
+        heading: 'Prevent approval delays on the next project',
+        body: [
+          'Before work begins, ask who approves deposits, milestone payments, final balances, and change requests. Put the payment timing, approval steps, late-payment pause rule, final-file handoff terms, and payment link in the project link so the client knows the process early.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with scope, approvals, deposits, milestone payments, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
