@@ -3570,6 +3570,97 @@ export const articles: Article[] = [
       },
     ],
   },
+
+  {
+    slug: 'client-asks-to-skip-milestone-payment-reply-template',
+    title: 'What to Say When a Client Asks to Skip a Milestone Payment',
+    description:
+      'A practical reply template for freelancers when a client wants to move past a milestone payment, with wording for approvals, payment links, and next steps.',
+    publishedAt: '2026-08-28',
+    category: 'Client Replies',
+    keywords: [
+      'client asks to skip milestone payment',
+      'freelance milestone payment reply template',
+      'client wants to pay at the end',
+      'milestone invoice follow up email',
+      'freelance payment before next phase',
+      'client reply generator for milestone payments',
+    ],
+    aiSummary:
+      'When a client asks to skip a milestone payment, freelancers should acknowledge the request, restate the approved milestone and payment step, explain that the next phase starts after payment, and offer a clear payment link or a revised written scope if the client wants to change the schedule.',
+    ctaHref: '/tools/client-message-generator',
+    ctaLabel: 'Write a milestone payment reply',
+    relatedLinks: [
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Late Payment Reply Generator',
+        href: '/tools/late-payment-reply-generator',
+      },
+      {
+        label: 'Create a project link with milestone payments',
+        href: '/create?source=skip-milestone-payment-article',
+      },
+      {
+        label: 'How to Use Milestone Payments With Client Approval Steps',
+        href: '/articles/freelance-milestone-payment-schedule-client-approval',
+      },
+      {
+        label: 'How to Pause Freelance Work When a Client Misses a Payment',
+        href: '/articles/freelance-late-payment-pause-work-contract-clause',
+      },
+      {
+        label: 'Client Approval Reminder Email Template',
+        href: '/articles/client-approval-reminder-email-template',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Do not turn the milestone into a favor',
+        body: [
+          'A client may ask to skip a milestone payment because they are waiting on budget, want to keep momentum, or assume the payment can be handled later. The risk for the freelancer is that the next phase begins before the current phase is paid.',
+          'Keep the reply calm, but keep the workflow intact. The milestone is not just an invoice. It is the point where the client approves completed work, pays the agreed amount, and unlocks the next project step.',
+        ],
+      },
+      {
+        heading: 'Use this reply template',
+        body: [
+          'Try: "Hi [Name], I understand wanting to keep things moving. The current milestone is complete and ready for approval, and the payment link for [amount] is here: [link]. Per our project schedule, I can begin the next phase once this milestone payment is complete."',
+          'If you want to sound warmer, add: "I can keep the next phase queued up so we do not lose time once the payment is through." That line shows you are still cooperative without starting unpaid work.',
+        ],
+      },
+      {
+        heading: 'Restate what was delivered',
+        body: [
+          'Be specific about the milestone the client is paying for. Name the deliverable, approval file, draft, staging link, strategy document, design round, automation setup, or other completed work attached to the invoice.',
+          'For example: "This milestone covers the homepage wireframes, mobile layout, and first revision round that were approved on Thursday." Specifics make the payment request easier to forward, approve, and pay.',
+        ],
+      },
+      {
+        heading: 'Offer a written change if they need new terms',
+        body: [
+          'Sometimes the client is not refusing to pay. They may need a different payment date, a split payment, or a smaller next step. If you are open to that, treat it as a written change to the project schedule instead of a casual exception.',
+          'A useful line is: "If you need to adjust the payment schedule, I can pause here and send a revised milestone plan for approval before any new work starts." This keeps the conversation practical and prevents the change from living only in chat.',
+        ],
+      },
+      {
+        heading: 'Pause new work without sounding punitive',
+        body: [
+          'If the milestone payment is due before the next phase, say that clearly. You do not need to threaten the client or argue about intent. Tie the pause to planning, availability, and the agreed project process.',
+          'Try: "I will pause new production work until this milestone is paid, then restart the next phase as soon as the payment clears." That wording is firm, easy to understand, and focused on the workflow rather than blame.',
+        ],
+      },
+      {
+        heading: 'Prevent skipped milestones on the next project',
+        body: [
+          'Before the next project starts, put each milestone, approval step, payment amount, due date, payment link, revision limit, and handoff rule in one client-ready project link. Ask who approves each payment so delays can be handled before they block delivery.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create project links with scope, approvals, deposits, milestone payments, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
