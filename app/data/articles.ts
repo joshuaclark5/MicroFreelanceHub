@@ -3661,6 +3661,97 @@ export const articles: Article[] = [
       },
     ],
   },
+
+  {
+    slug: 'client-questions-invoice-after-approval-reply-template',
+    title: 'What to Say When a Client Questions an Invoice After Approval',
+    description:
+      'A practical reply template for freelancers when a client questions an invoice after approving the work, with wording for scope, payment links, and next steps.',
+    publishedAt: '2026-08-30',
+    category: 'Client Replies',
+    keywords: [
+      'client questions invoice after approval',
+      'freelance invoice dispute reply template',
+      'client says invoice is too high after approval',
+      'what to say when client questions invoice',
+      'freelance payment boundary reply',
+      'client reply generator invoice payment',
+    ],
+    aiSummary:
+      'When a client questions an invoice after approving the work, freelancers should acknowledge the concern, restate the approved scope and payment terms, provide the payment link again, and offer a clear way to discuss future changes without reopening completed work by default.',
+    ctaHref: '/tools/client-message-generator',
+    ctaLabel: 'Write an invoice question reply',
+    relatedLinks: [
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Late Payment Reply Generator',
+        href: '/tools/late-payment-reply-generator',
+      },
+      {
+        label: 'Create a project link with payment terms',
+        href: '/create?source=invoice-question-after-approval-article',
+      },
+      {
+        label: 'How to Follow Up on a Late Freelance Invoice',
+        href: '/articles/how-to-follow-up-late-freelance-invoice',
+      },
+      {
+        label: 'Client Approval Reminder Email Template',
+        href: '/articles/client-approval-reminder-email-template',
+      },
+      {
+        label: 'Client Approval Before Payment Links',
+        href: '/articles/freelance-client-approval-before-payment-link',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Answer the concern without reopening the whole project',
+        body: [
+          'A client may question an invoice after approval because they forgot the original scope, expected a different payment date, missed a change request, or need to explain the charge internally. The safest reply treats the question seriously without implying that approved work is automatically up for renegotiation.',
+          'Keep the message calm and specific. Acknowledge the question, name the approved deliverable or milestone, point to the payment terms, and give the client one clear next step instead of arguing over the value of the work.',
+        ],
+      },
+      {
+        heading: 'Use this invoice question reply template',
+        body: [
+          'Try: "Hi [Name], thanks for checking. The invoice for [amount] reflects the approved scope: [brief scope summary], including [milestone/deliverable/revision round]. These terms were approved on [date], and the payment link is here: [link]. If there is a specific line item you want me to clarify, send it over and I can explain it before the due date."',
+          'That wording gives the client room to ask a real admin question, but it does not turn the invoice into an open negotiation. It also keeps the payment link and due date visible in the same note.',
+        ],
+      },
+      {
+        heading: 'Attach the invoice to the approval trail',
+        body: [
+          'The strongest reply includes a short trail of what was approved: the signed project link, proposal, milestone approval, revision request, final approval, or written change request. You do not need to paste every message. A concise reference is usually enough.',
+          'For example: "This invoice matches the approved landing page build, mobile QA pass, and one included revision round from the project link signed on August 12." Specific wording helps the client see that the amount is tied to agreed work, not a surprise charge.',
+        ],
+      },
+      {
+        heading: 'Clarify line items before defending your price',
+        body: [
+          'Sometimes the client is not asking for a discount. They may need the invoice broken out by milestone, vendor setup details, a purchase order reference, tax information, or a clearer label for accounting. Handle those admin details quickly when they are reasonable.',
+          'A useful line is: "I can update the invoice description so it matches your internal approval process, but the approved project amount remains the same." That keeps the conversation helpful while preserving the payment boundary.',
+        ],
+      },
+      {
+        heading: 'Pause new work if the payment date is slipping',
+        body: [
+          'If the invoice question appears close to the due date or after the due date, connect the reply to the project schedule. New work, extra revisions, final file handoff, launch support, or the next milestone should not quietly continue while the approved invoice remains unresolved.',
+          'Try: "I can answer any invoice questions today. Since this payment is tied to the next project step, I will keep new work paused until the invoice is complete, then I can restart the next phase." This sounds operational rather than emotional.',
+        ],
+      },
+      {
+        heading: 'Prevent invoice questions on the next project',
+        body: [
+          'Invoice questions are easier to answer when the project already has one place for scope, approvals, revision limits, change requests, payment amounts, due dates, and final handoff rules. The clearer the project admin, the shorter your payment reply can be.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with scope, approvals, signatures, deposits, milestone payments, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
