@@ -3752,6 +3752,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-says-they-can-pay-after-their-client-pays-reply-template',
+    title: 'What to Say When a Client Says They Can Pay After Their Client Pays',
+    description:
+      'A practical reply template for freelancers when a client wants to delay payment until their own client pays, with wording for due dates, payment links, and paused work.',
+    publishedAt: '2026-08-31',
+    category: 'Client Replies',
+    keywords: [
+      'client says they can pay after their client pays',
+      'freelance late payment reply template',
+      'client waiting on their client to pay invoice',
+      'what to say when client delays payment',
+      'freelance payment boundary email',
+      'client reply generator late payment',
+    ],
+    aiSummary:
+      'When a client says they can pay after their own client pays, freelancers should acknowledge the delay, restate the agreed due date, resend the payment link, pause new work if needed, and put any revised payment plan in writing before continuing.',
+    ctaHref: '/tools/client-message-generator',
+    ctaLabel: 'Write a payment delay reply',
+    relatedLinks: [
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Late Payment Reply Generator',
+        href: '/tools/late-payment-reply-generator',
+      },
+      {
+        label: 'Create a project link with payment terms',
+        href: '/create?source=client-paying-after-their-client-article',
+      },
+      {
+        label: 'How to Follow Up on a Late Freelance Invoice',
+        href: '/articles/how-to-follow-up-late-freelance-invoice',
+      },
+      {
+        label: 'How to Pause Freelance Work When a Client Misses a Payment',
+        href: '/articles/freelance-late-payment-pause-work-contract-clause',
+      },
+      {
+        label: 'What to Say When a Client Asks for Net 30 Payment Terms',
+        href: '/articles/client-asks-for-net-30-payment-terms-reply-template',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Do not inherit the client\'s cash-flow problem',
+        body: [
+          'A client may say they can pay you after their own client pays them. That may be true, but it does not automatically change the payment terms you agreed to for your project.',
+          'The goal is to stay calm and practical. You can acknowledge the situation without agreeing to keep working on an unpaid invoice or turning your due date into an open-ended wait.',
+        ],
+      },
+      {
+        heading: 'Use this payment delay reply template',
+        body: [
+          'Try: "Hi [Name], I understand you are waiting on payment from your client. For our project, the invoice for [amount] was due on [date], and the payment link is here: [link]. I can keep the next step queued up, and I will resume work as soon as this invoice is complete."',
+          'This wording is firm without being accusatory. It separates your agreement from the client\'s separate payment chain, keeps the amount and link visible, and explains exactly what happens next.',
+        ],
+      },
+      {
+        heading: 'Keep the due date in the message',
+        body: [
+          'Avoid replies that only say "no worries" or "just keep me posted." Those phrases can accidentally turn a late invoice into a vague future payment. Instead, repeat the invoice amount, due date, project step, and payment link in one short message.',
+          'For example: "This balance covers the approved homepage design milestone and was due Friday." Specific context helps the client understand that the invoice is tied to completed work, not a flexible favor.',
+        ],
+      },
+      {
+        heading: 'Pause new work before the balance grows',
+        body: [
+          'If you keep producing while the invoice is delayed, the unpaid balance can grow quickly. A cleaner approach is to pause new production, extra revisions, handoff work, or launch support until the current payment is complete.',
+          'You can write: "I will pause new work here so the balance does not increase while payment is pending. Once the invoice is paid, I can restart the next phase." That gives the client a business reason for the pause instead of making the conversation personal.',
+        ],
+      },
+      {
+        heading: 'Offer revised terms only if you mean them',
+        body: [
+          'Sometimes you may choose to offer a split payment, a shorter extension, or a smaller next milestone. If you do, put it in writing and make the new date specific. Do not leave the timeline tied to when the client\'s client pays.',
+          'A safer line is: "If you need a short extension, I can send a revised payment schedule for approval with a new due date before any additional work starts." This keeps the adjustment documented and limited.',
+        ],
+      },
+      {
+        heading: 'Prevent pass-through payment delays next time',
+        body: [
+          'For future projects, ask whether the client is paying from their own budget or waiting on approval from another customer, department, or partner. Then set deposits, milestone payments, due dates, revision limits, and final-file handoff terms before the work begins.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with scope, approvals, deposits, milestone payments, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
