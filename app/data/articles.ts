@@ -3842,6 +3842,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-sends-revision-feedback-after-review-window-reply-template',
+    title: 'What to Say When a Client Sends Revision Feedback After the Review Window',
+    description:
+      'A practical reply template for freelancers when a client sends revision feedback after the agreed review window, with wording for deadlines, paid changes, and next steps.',
+    publishedAt: '2026-09-01',
+    category: 'Client Replies',
+    keywords: [
+      'client sends revision feedback after review window',
+      'late revision feedback reply template',
+      'freelance revision deadline email',
+      'what to say when client misses review window',
+      'freelance paid revision request reply',
+      'client reply generator revision feedback',
+    ],
+    aiSummary:
+      'When a client sends revision feedback after the review window, freelancers should acknowledge the notes, restate the agreed feedback deadline, explain the schedule or payment impact, and confirm whether the request will be handled as included work, a paid change request, or a future phase before starting.',
+    ctaHref: '/tools/revision-request-reply-generator',
+    ctaLabel: 'Write a late revision feedback reply',
+    relatedLinks: [
+      {
+        label: 'Revision Request Reply Generator',
+        href: '/tools/revision-request-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with review windows',
+        href: '/create?source=late-revision-feedback-article',
+      },
+      {
+        label: 'How to Set Client Review Windows',
+        href: '/articles/freelance-client-review-window-payment-deadline',
+      },
+      {
+        label: 'What to Say When a Client Asks for Extra Revisions After Approval',
+        href: '/articles/what-to-say-client-asks-extra-revisions',
+      },
+      {
+        label: 'Client Approval Reminder Email Template',
+        href: '/articles/client-approval-reminder-email-template',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Treat late feedback as a project admin issue',
+        body: [
+          'Late revision feedback can be awkward because the client may think they are only sending helpful notes, while you are looking at a closed review window, a moved schedule, or work that has already been approved. The reply should keep the conversation operational instead of personal.',
+          'Start by acknowledging the feedback, then connect it to the review process both sides agreed to. That gives you a calm reason to discuss timing, included revisions, payment, or a future phase before doing more work.',
+        ],
+      },
+      {
+        heading: 'Use this late revision feedback reply template',
+        body: [
+          'Try: "Hi [Name], thanks for sending these notes. The review window for [deliverable/milestone] closed on [date], so I need to treat this as a schedule change before I make updates. I can review the feedback and confirm what fits the included revision round versus what would need a paid change request before starting."',
+          'This wording does not accuse the client of being late. It names the deadline, explains why the request needs review, and gives the client a clear next step instead of silently reopening the work.',
+        ],
+      },
+      {
+        heading: 'Separate included fixes from new direction changes',
+        body: [
+          'Not every late note should become a paid add-on. If the feedback points to a mistake, missing agreed item, or issue that clearly does not match the approved scope, it may be reasonable to correct it as part of the project. If the notes change the direction, add a deliverable, reopen approved work, or require another full review round, treat that differently.',
+          'A useful line is: "I will compare these notes against the approved scope and included revision terms. If any items are outside that scope, I will send the added price and timing for approval before making those changes."',
+        ],
+      },
+      {
+        heading: 'Explain the schedule impact before accepting the work',
+        body: [
+          'Late feedback often affects more than the task itself. It can move a launch date, push another client project, reopen QA, delay final payment, or change when source files and final assets are ready for handoff.',
+          'Be specific: "Because the feedback arrived after the review window, the earliest I can schedule the added revision round is [date]. If you approve the updated timing and payment link, I can add it to the queue." The client gets a path forward, but the old deadline is not treated as unchanged.',
+        ],
+      },
+      {
+        heading: 'Keep final payment and handoff visible',
+        body: [
+          'If late feedback arrives near final payment, avoid blending two separate issues together. The current approved balance, final-file handoff, and any new revision request should each have a clear status.',
+          'For example: "The current final balance covers the approved version delivered on [date]. I can keep final handoff tied to that payment, or I can quote the late revision as a separate change request if you want the new notes completed first." That gives the client choices without losing the payment boundary.',
+        ],
+      },
+      {
+        heading: 'Prevent late revision confusion next time',
+        body: [
+          'The easiest late-feedback reply is the one supported by a clear project link from the start. Define the review window, how feedback should be submitted, what counts as an included revision, what happens after approval, and when late notes become a paid change request or later phase.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with scope, approvals, review windows, revision limits, deposits, milestone payments, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
