@@ -3932,6 +3932,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-asks-for-rush-revision-without-approving-fee-reply-template',
+    title: 'What to Say When a Client Asks for a Rush Revision Without Approving the Fee',
+    description:
+      'A practical reply template for freelancers when a client wants urgent revision work before approving the extra fee, timeline, or payment link.',
+    publishedAt: '2026-09-02',
+    category: 'Client Replies',
+    keywords: [
+      'client asks for rush revision without approving fee',
+      'rush revision reply template freelancer',
+      'freelance urgent revision payment link',
+      'what to say when client wants rush changes',
+      'freelance revision fee approval email',
+      'client reply generator rush revision',
+    ],
+    aiSummary:
+      'When a client asks for a rush revision without approving the extra fee, freelancers should acknowledge the urgency, separate included revisions from rush work, send the added price and timeline for written approval, and wait for the payment or approval step before starting.',
+    ctaHref: '/tools/revision-request-reply-generator',
+    ctaLabel: 'Write a rush revision reply',
+    relatedLinks: [
+      {
+        label: 'Revision Request Reply Generator',
+        href: '/tools/revision-request-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with rush revision terms',
+        href: '/create?source=rush-revision-fee-article',
+      },
+      {
+        label: 'What to Say When a Client Asks for Extra Revisions After Approval',
+        href: '/articles/what-to-say-client-asks-extra-revisions',
+      },
+      {
+        label: 'What to Say When a Client Sends Revision Feedback After the Review Window',
+        href: '/articles/client-sends-revision-feedback-after-review-window-reply-template',
+      },
+      {
+        label: 'Scope Creep Email Template for Extra Client Work',
+        href: '/articles/scope-creep-email-template-client-extra-work',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Do not let urgency skip approval',
+        body: [
+          'A rush revision can sound like an emergency, especially when the client says they need it today, before a launch, before a meeting, or before sending the work to their own customer. The pressure is real, but urgency does not replace approval for extra work, rush timing, or payment terms.',
+          'The safest reply is calm and operational. Confirm that you understand the deadline, explain what needs approval, and give the client a fast path to say yes without making the rush work feel like a free favor.',
+        ],
+      },
+      {
+        heading: 'Use this rush revision reply template',
+        body: [
+          'Try: "Hi [Name], I can help with this rush revision. Since it is outside the approved revision round and needs to be turned around by [deadline], the added fee is [amount]. If you approve the updated scope and complete the payment link here: [link], I can reserve the rush slot and start today."',
+          'This wording keeps the tone helpful while making the business terms clear. The client sees that you are not blocking the request; you are asking them to approve the added scope, fee, and timing before you rearrange your schedule.',
+        ],
+      },
+      {
+        heading: 'Name what makes it a rush request',
+        body: [
+          'Clients are more likely to understand the fee when you point to the practical reason for it. The request may require same-day scheduling, evening work, moving another task, reopening an approved file, adding QA, exporting new formats, or turning around a revision faster than the normal review process allows.',
+          'A simple line helps: "Because this changes the approved timeline and needs same-day turnaround, I need to treat it as a rush revision rather than part of the standard revision round." That makes the boundary about project admin, not attitude.',
+        ],
+      },
+      {
+        heading: 'Separate included revisions from paid changes',
+        body: [
+          'Before you quote the rush work, check whether any part of the request is already included. If the client is asking you to fix a missed agreed item, that may be different from a new creative direction, new deliverable, late feedback, or another full revision round after approval.',
+          'You can write: "I will separate anything that falls within the included revision terms from the new rush items. I will only start the added work once you approve the updated price and timing." That keeps the reply fair without giving away unapproved work.',
+        ],
+      },
+      {
+        heading: 'Wait for the approval step before starting',
+        body: [
+          'The risky moment is starting because the client sounds stressed, then trying to collect the fee later. If the work is truly urgent, the approval step should be urgent too. Written approval, a signed update, or a completed payment link gives both sides a clear record of what changed.',
+          'If the client says to begin while they sort out approval, use a short boundary: "I can hold the rush slot until [time]. Once the approval and payment link are complete, I can begin. If that comes through later, I will confirm the next available turnaround."',
+        ],
+      },
+      {
+        heading: 'Prevent rush revision confusion next time',
+        body: [
+          'Future projects are easier when the project link explains normal revision windows, included rounds, after-hours requests, rush fees, approval steps, and when final files or launch support are tied to payment. Then a rush request becomes a known option instead of an awkward negotiation.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with scope, approvals, review windows, revision limits, deposits, milestone payments, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
