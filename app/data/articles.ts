@@ -4022,6 +4022,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-asks-for-editable-source-files-for-free-reply-template',
+    title: 'What to Say When a Client Asks for Editable Source Files for Free',
+    description:
+      'A practical freelancer reply template for when a client asks for editable source files, layered files, project files, or working files that were not included in the original scope.',
+    publishedAt: '2026-09-03',
+    category: 'Client Replies',
+    keywords: [
+      'client asks for editable source files for free',
+      'freelance source files reply template',
+      'what to say when client asks for working files',
+      'editable file handoff freelancer email',
+      'source file fee client reply',
+      'client reply generator source files',
+    ],
+    aiSummary:
+      'When a client asks for editable source files for free, freelancers should check the original scope, explain what final deliverables were included, quote the added source-file handoff clearly, and wait for written approval or payment before releasing files that were not part of the agreement.',
+    ctaHref: '/tools/final-file-handoff-reply-generator',
+    ctaLabel: 'Write a source file handoff reply',
+    relatedLinks: [
+      {
+        label: 'Final File Handoff Reply Generator',
+        href: '/tools/final-file-handoff-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Scope Creep Reply Generator',
+        href: '/tools/scope-creep-reply-generator',
+      },
+      {
+        label: 'Create a project link with source file terms',
+        href: '/create?source=source-file-request-article',
+      },
+      {
+        label: 'How to Release Freelance Source Files Only After Final Payment',
+        href: '/articles/freelance-source-file-release-final-payment',
+      },
+      {
+        label: 'What to Say When a Client Wants Final Files Before Payment',
+        href: '/articles/what-to-say-client-wants-final-files-before-payment',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Check whether source files were included',
+        body: [
+          'Editable source files are not always the same thing as final deliverables. A client may have paid for a finished logo, video, website, illustration, deck, or edited image, but not for the layered design file, project file, raw working file, plugin setup, font package, export settings, or production folder behind it.',
+          'Before you reply, review the agreement, proposal, invoice, and messages. If the source files were included, confirm the final payment and handoff process. If they were not included, treat the request as an added deliverable instead of a casual file transfer.',
+        ],
+      },
+      {
+        heading: 'Use this source file reply template',
+        body: [
+          'Try: "Hi [Name], the original scope included the final deliverables listed in the project link: [deliverables]. Editable source files were not included in that scope, but I can add a source-file handoff for [amount]. That would include [file types] after the updated scope is approved and the payment link is complete."',
+          'This keeps the reply factual. You are not accusing the client of asking for too much; you are showing the difference between the approved deliverables and the new handoff request.',
+        ],
+      },
+      {
+        heading: 'Explain what the added fee covers',
+        body: [
+          'Clients often think source files are sitting in a folder ready to send. Sometimes they are, but a responsible handoff may also require packaging assets, checking linked files, outlining usage notes, naming layers, removing unused drafts, exporting compatible versions, or explaining what third-party tools are required to open the files.',
+          'A short explanation helps: "The source-file fee covers preparing and transferring the editable files separately from the final exports, including [specific cleanup or packaging tasks]." That makes the price easier to understand without turning the reply into a debate.',
+        ],
+      },
+      {
+        heading: 'Do not release unpaid working files under pressure',
+        body: [
+          'The risky move is sending editable files because the client says they need them quickly, then trying to settle the fee later. If source files were not included, wait for written approval, a signed update, or a completed payment link before releasing them.',
+          'If the client pushes back, keep the boundary simple: "I can release the final approved deliverables according to the original scope. Editable working files are a separate handoff, so I need the updated approval and payment completed before I send them."',
+        ],
+      },
+      {
+        heading: 'Separate final delivery from editable file ownership',
+        body: [
+          'A clean project closeout should say what the client receives at final payment, which file formats are included, whether editable files are included, whether raw footage or production files are included, and whether any third-party licenses or tools are needed. That prevents the final handoff from becoming a last-minute negotiation.',
+          'If the client only needs a small export or alternate format, quote that separately from a full source-file transfer. Smaller choices can help the client get what they need while keeping the larger editable-file handoff properly priced.',
+        ],
+      },
+      {
+        heading: 'Prevent source file confusion next time',
+        body: [
+          'For future projects, list final deliverables and editable files separately. Name the file types, payment timing, approval steps, revision limits, handoff method, and any extra fee for source files before work starts.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with scope, approvals, deliverables, revision limits, deposits, milestone payments, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
