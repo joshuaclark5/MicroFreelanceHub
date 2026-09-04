@@ -4112,6 +4112,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-asks-to-remove-watermark-before-payment-reply-template',
+    title: 'What to Say When a Client Asks to Remove the Watermark Before Payment',
+    description:
+      'A practical freelancer reply template for when a client asks for an unwatermarked preview, clean export, or usable final file before the final payment is complete.',
+    publishedAt: '2026-09-04',
+    category: 'Client Replies',
+    keywords: [
+      'client asks to remove watermark before payment',
+      'freelance watermark reply template',
+      'what to say when client wants unwatermarked files before paying',
+      'final export payment reply freelancer',
+      'client wants clean files before payment',
+      'final file handoff reply generator',
+    ],
+    aiSummary:
+      'When a client asks to remove a watermark before payment, freelancers should acknowledge the request, explain that the watermark or preview is part of the review process, send the payment link, and release the clean final file after the approved balance is complete.',
+    ctaHref: '/tools/final-file-handoff-reply-generator',
+    ctaLabel: 'Write a watermark removal reply',
+    relatedLinks: [
+      {
+        label: 'Final File Handoff Reply Generator',
+        href: '/tools/final-file-handoff-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with final payment terms',
+        href: '/create?source=watermark-before-payment-article',
+      },
+      {
+        label: 'What to Say When a Client Wants Final Files Before Payment',
+        href: '/articles/what-to-say-client-wants-final-files-before-payment',
+      },
+      {
+        label: 'How to Collect Final Payment Before Sending Deliverables',
+        href: '/articles/freelance-final-payment-before-delivery',
+      },
+      {
+        label: 'What to Say When a Client Asks for Editable Source Files for Free',
+        href: '/articles/client-asks-for-editable-source-files-for-free-reply-template',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Treat the watermark as a review boundary',
+        body: [
+          'A watermark, staging link, low-resolution export, read-only file, or preview folder is not only a visual detail. It is a project admin boundary that lets the client inspect the work before the clean, usable version is released.',
+          'When a client asks you to remove the watermark before payment, keep the reply calm and process-based. The point is not to imply bad intent. The point is to confirm that review access and final handoff are two different steps.',
+        ],
+      },
+      {
+        heading: 'Use this watermark removal reply template',
+        body: [
+          'Try: "Hi [Name], I can remove the watermark as part of the final handoff. The watermarked version is available for review now, and the clean export is released after the final balance is complete. Here is the payment link: [link]. Once that is done, I will send the unwatermarked file and handoff notes."',
+          'This wording gives the client a yes to the clean file without changing the payment order. It also avoids a long explanation that can make the conversation feel defensive.',
+        ],
+      },
+      {
+        heading: 'Offer a review option that still protects the handoff',
+        body: [
+          'Sometimes the client has a reasonable reason for asking. They may need stakeholder approval, a final quality check, or a way to confirm placement before paying. You can help with that without sending a production-ready file.',
+          'Offer a watermarked preview, screen share, staging page, limited-resolution export, sample clip, or read-only file that is good enough to review but not the same as final delivery. Then connect the clean file to the final payment step.',
+        ],
+      },
+      {
+        heading: 'Keep payment and revision requests separate',
+        body: [
+          'A watermark request can get messy if the client also sends new edits, asks for source files, or wants another format. Do not blend every open issue into one vague final handoff conversation.',
+          'A useful line is: "The current final balance covers the approved deliverables. I can release the clean files after payment, and if you want the extra changes too, I can send those as a separate change request before starting."',
+        ],
+      },
+      {
+        heading: 'Do not remove the watermark based on a promise to pay',
+        body: [
+          'The risky move is sending the unwatermarked file because the client says payment is coming later. Once the client has a clean export, source file, launch access, or usable asset, your leverage becomes weaker and the payment conversation can drag.',
+          'Keep the next step specific: amount due, payment link, what the client receives after payment, and when you will send it. For example: "Once the $[amount] balance is complete, I will send the clean export today."',
+        ],
+      },
+      {
+        heading: 'Prevent watermark tension next time',
+        body: [
+          'For future projects, define review files and final files before work starts. Say whether drafts may be watermarked, what preview format the client will receive, when final payment is due, and which clean files, source files, exports, or launch assets are released after payment.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with scope, approvals, review files, final handoff terms, deposits, milestone payments, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
