@@ -4202,6 +4202,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-asks-for-unlimited-revisions-reply-template',
+    title: 'What to Say When a Client Asks for Unlimited Revisions',
+    description:
+      'A practical freelancer reply template for setting a polite revision boundary when a client asks for unlimited edits, open-ended changes, or ongoing tweaks without a clear approval step.',
+    publishedAt: '2026-09-05',
+    category: 'Client Replies',
+    keywords: [
+      'client asks for unlimited revisions',
+      'unlimited revisions reply template',
+      'freelance revision boundary email',
+      'what to say when client wants unlimited edits',
+      'revision limit client reply generator',
+      'scope creep revisions freelancer',
+    ],
+    aiSummary:
+      'When a client asks for unlimited revisions, freelancers should avoid arguing about effort, restate the included revision rounds, offer a paid option for additional edits, and ask for written approval before continuing open-ended work.',
+    ctaHref: '/tools/revision-request-reply-generator',
+    ctaLabel: 'Write a revision boundary reply',
+    relatedLinks: [
+      {
+        label: 'Revision Request Reply Generator',
+        href: '/tools/revision-request-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Scope Creep Reply Generator',
+        href: '/tools/scope-creep-reply-generator',
+      },
+      {
+        label: 'Create a project link with revision limits',
+        href: '/create?source=unlimited-revisions-article',
+      },
+      {
+        label: 'What to Say When a Client Asks for Extra Revisions After Approval',
+        href: '/articles/what-to-say-client-asks-extra-revisions',
+      },
+      {
+        label: 'What to Say When a Client Sends Revision Feedback After the Review Window',
+        href: '/articles/client-sends-revision-feedback-after-review-window-reply-template',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Do not agree to an open-ended revision promise',
+        body: [
+          'Unlimited revisions can sound client-friendly, but in day-to-day freelance work it usually creates unclear expectations. The client may think every future preference change is included, while the freelancer may only mean a reasonable review process before final approval.',
+          'A better reply does not accuse the client of being difficult. It turns the request into a concrete project admin question: how many rounds are included, what counts as a revision, when approval happens, and how additional edits are handled.',
+        ],
+      },
+      {
+        heading: 'Use this unlimited revisions reply template',
+        body: [
+          'Try: "Hi [Name], I want to make sure the revision process stays clear and useful. The current project includes [number] revision rounds for the agreed deliverables. I cannot offer unlimited revisions, but I can add extra revision rounds at [rate or amount] each if you want more flexibility. If that works, I can send the updated scope and payment link before the next round begins."',
+          'This wording keeps the conversation professional. You acknowledge the client wants confidence in the final result, while making it clear that unlimited, undefined edits are not part of the current agreement.',
+        ],
+      },
+      {
+        heading: 'Define what counts as a revision',
+        body: [
+          'Many revision disputes happen because the word revision is too vague. A reasonable revision might be adjusting copy, swapping an image, tightening an edit, fixing layout spacing, or refining a design direction the client already approved. A new page, new concept, new format, new audience, or major direction change is usually new scope.',
+          'You can add a line like: "Included revisions cover refinements to the approved deliverables. New deliverables, new creative directions, or changes after approval will be quoted as a separate change request." That gives the client a simple rule instead of a surprise boundary later.',
+        ],
+      },
+      {
+        heading: 'Offer a paid option instead of a hard no',
+        body: [
+          'The strongest revision boundary often includes a path forward. If the client truly needs more iteration, offer a paid revision round, hourly revision block, change request, or extended support period. That turns the request from a yes-or-no argument into a normal business choice.',
+          'For example: "If you would like a more flexible review process, I can add two additional revision rounds for [amount], billed before those rounds begin." The client can accept the extra support without assuming it is free.',
+        ],
+      },
+      {
+        heading: 'Pause when revisions become new scope',
+        body: [
+          'If a client keeps sending changes after approval, do not keep working while hoping the boundary will become obvious. Pause, summarize what changed, and ask them to approve the added scope before you continue. The earlier you do this, the less personal the conversation feels.',
+          'A short boundary is enough: "This is moving beyond the included revision rounds, so I need to treat it as an additional change request. I can send the updated scope, timeline, and payment link for approval before starting that work."',
+        ],
+      },
+      {
+        heading: 'Prevent revision confusion next time',
+        body: [
+          'Future projects should name the number of revision rounds, review window, approval step, response time, file handoff timing, and price for extra revisions before work starts. That gives the client a clearer buying decision and gives you a process to point back to when feedback expands.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with scope, approvals, revision limits, deposits, milestone payments, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
