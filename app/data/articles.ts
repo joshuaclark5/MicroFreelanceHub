@@ -4292,6 +4292,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-asks-for-extra-call-without-paying-reply-template',
+    title: 'What to Say When a Client Asks for an Extra Call Without Paying',
+    description:
+      'A practical freelancer reply template for handling unpaid extra calls, strategy sessions, status meetings, or walkthroughs that were not included in the original project scope.',
+    publishedAt: '2026-09-06',
+    category: 'Client Replies',
+    keywords: [
+      'client asks for extra call without paying',
+      'freelance extra meeting reply template',
+      'what to say when client wants another call',
+      'scope creep meeting request freelancer',
+      'paid client call boundary email',
+      'client reply generator extra call',
+    ],
+    aiSummary:
+      'When a client asks for an extra call that was not included, freelancers should acknowledge the request, separate included project communication from added consulting time, offer a paid call or written alternative, and wait for approval before scheduling extra work.',
+    ctaHref: '/tools/scope-creep-reply-generator',
+    ctaLabel: 'Write an extra call reply',
+    relatedLinks: [
+      {
+        label: 'Scope Creep Reply Generator',
+        href: '/tools/scope-creep-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with call limits',
+        href: '/create?source=extra-call-request-article',
+      },
+      {
+        label: 'Scope Creep Email Template for Extra Client Work',
+        href: '/articles/scope-creep-email-template-client-extra-work',
+      },
+      {
+        label: 'What to Say When a Client Asks for One More Small Change',
+        href: '/articles/client-asks-for-one-more-small-change-reply-template',
+      },
+      {
+        label: 'How to Handle Scope Creep With Change Requests and Payment Links',
+        href: '/articles/freelance-scope-creep-change-request-payment-link',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Treat extra calls as project time',
+        body: [
+          'Extra calls can feel harmless because they do not look like a new deliverable. But a thirty-minute strategy call, stakeholder walkthrough, training session, feedback meeting, or repeated status check still uses billable time and can change the shape of the project.',
+          'The safest reply is not defensive. It simply explains which communication is included, what the client is asking to add, and what needs approval before you schedule more live time.',
+        ],
+      },
+      {
+        heading: 'Use this extra call reply template',
+        body: [
+          'Try: "Hi [Name], I can help with an additional call. The current project includes [included calls or communication], and this would be extra consulting/review time. I can add a [length] call for [amount], or I can answer the questions in writing within the current scope. If you want the call, I can send the payment link and schedule options."',
+          'This gives the client a clear yes with choices. You are not refusing to communicate; you are separating normal project updates from added meeting time that needs to be approved.',
+        ],
+      },
+      {
+        heading: 'Offer a written option when a call is not needed',
+        body: [
+          'Some clients ask for a call because it feels easier than organizing feedback. If the topic is simple, offer a written alternative that keeps the project moving without creating another meeting.',
+          'A useful line is: "If the questions are about the current milestone, you can send them here and I will respond in writing. If you would rather walk through strategy or new decisions live, I can add that as a paid call." That keeps small clarifications inside the process and larger discussions priced correctly.',
+        ],
+      },
+      {
+        heading: 'Do not let calls become unpaid consulting',
+        body: [
+          'The risky pattern is joining one extra call, then another, then a stakeholder meeting, then a training session, all while the original fee stays the same. Live conversations can create new action items that were never approved as scope.',
+          'Before the call, state the topic, length, price, and outcome. For example: "This paid call will cover the handoff questions for the approved deliverables. New deliverables or strategy changes from the call will be quoted separately before work begins."',
+        ],
+      },
+      {
+        heading: 'Set the boundary before sending calendar times',
+        body: [
+          'Do not send availability first and try to discuss payment later. Once the meeting is on the calendar, the client may treat it as already approved. Put the approval step before the scheduling step.',
+          'Keep the next action specific: "Once the added call is approved and the payment link is complete, I will send over two time options." That makes scheduling part of the paid workflow instead of a loose favor.',
+        ],
+      },
+      {
+        heading: 'Prevent extra call confusion next time',
+        body: [
+          'Future project links should say how many calls are included, what each call is for, how written updates work, how additional calls are billed, and whether training, stakeholder presentations, or post-handoff support cost extra.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with scope, approvals, call limits, revision boundaries, deposits, milestone payments, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
