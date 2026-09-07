@@ -4382,6 +4382,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-adds-new-stakeholder-after-approval-reply-template',
+    title: 'What to Say When a Client Adds a New Stakeholder After Approval',
+    description:
+      'A practical freelancer reply template for handling new stakeholder feedback after a milestone, design, draft, or final deliverable has already been approved.',
+    publishedAt: '2026-09-07',
+    category: 'Client Replies',
+    keywords: [
+      'client adds new stakeholder after approval',
+      'new stakeholder feedback reply template',
+      'freelance revision boundary email',
+      'what to say when client brings in another reviewer',
+      'client approval changed after stakeholder feedback',
+      'revision request reply generator',
+    ],
+    aiSummary:
+      'When a client adds a new stakeholder after approval, freelancers should acknowledge the new feedback, point back to the approved milestone, separate included revisions from new review cycles, and ask for approval on any added fee or timeline before doing extra work.',
+    ctaHref: '/tools/revision-request-reply-generator',
+    ctaLabel: 'Write a stakeholder revision reply',
+    relatedLinks: [
+      {
+        label: 'Revision Request Reply Generator',
+        href: '/tools/revision-request-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with approval terms',
+        href: '/create?source=stakeholder-after-approval-article',
+      },
+      {
+        label: 'Client Approval Reminder Email Template',
+        href: '/articles/client-approval-reminder-email-template',
+      },
+      {
+        label: 'What to Say When a Client Sends Revision Feedback After the Review Window',
+        href: '/articles/client-sends-revision-feedback-after-review-window-reply-template',
+      },
+      {
+        label: 'What to Say When a Client Asks for Extra Revisions After Approval',
+        href: '/articles/freelance-extra-revisions-after-approval-reply',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Do not treat every new reviewer as included scope',
+        body: [
+          'A new stakeholder can change the project even when the deliverable itself has not changed. A manager, partner, board member, client-side customer, or internal team may bring fresh opinions after the original contact already approved the work.',
+          'The issue is not that the client asked for more input. The issue is timing. Feedback that arrives after approval can reopen decisions, create new revision rounds, and move the project beyond the agreed review process.',
+        ],
+      },
+      {
+        heading: 'Use this stakeholder feedback reply template',
+        body: [
+          'Try: "Hi [Name], thanks for sending this over. Since [milestone/deliverable] was already approved on [date], I need to separate this new stakeholder feedback from the included review round. I can review the requested changes and send a small change request with the updated timeline and fee before making revisions."',
+          'That reply does three useful things: it acknowledges the feedback, anchors the conversation to the prior approval, and offers a paid path forward instead of arguing about whether the stakeholder should have been involved earlier.',
+        ],
+      },
+      {
+        heading: 'Ask for one consolidated decision maker',
+        body: [
+          'When multiple people send separate notes, the freelancer can get trapped between conflicting opinions. Ask the client to consolidate stakeholder feedback before you price or schedule the next revision round.',
+          'A simple line works: "Please send one consolidated list of requested changes from your team, with one final approver for this round. Once I have that, I can confirm what fits the current scope and what would need a change request."',
+        ],
+      },
+      {
+        heading: 'Separate small refinements from reopened decisions',
+        body: [
+          'Some stakeholder notes may be quick fixes: a typo, brand name, factual correction, or small layout adjustment. Others reopen approved choices, such as changing the concept, audience, page structure, edit direction, source files, or launch plan.',
+          'Your reply should name that difference clearly. You can say: "I can include the factual corrections in the current handoff. The new direction and additional review cycle would need to be approved as added scope before I start."',
+        ],
+      },
+      {
+        heading: 'Protect the timeline as well as the fee',
+        body: [
+          'New stakeholder review often affects deadlines, not just payment. If the client wants fresh feedback considered after approval, update the schedule before promising delivery.',
+          'Use language like: "If we add another stakeholder review round, the delivery date will move from [old date] to [new date]. I can send the updated change request and payment link for approval so we both have the revised plan in writing."',
+        ],
+      },
+      {
+        heading: 'Prevent stakeholder surprises next time',
+        body: [
+          'Future project links should define the client-side reviewer, final approver, review window, included revision rounds, and process for late stakeholder feedback. That makes it easier to ask for all decision makers before approvals happen.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with scope, approvals, revision boundaries, deposits, milestone payments, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
