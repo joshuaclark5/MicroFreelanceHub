@@ -4472,6 +4472,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-wants-to-test-final-files-before-payment-reply-template',
+    title: 'What to Say When a Client Wants to Test Final Files Before Payment',
+    description:
+      'A practical freelancer reply template for clients who ask to test, upload, review, or use final files before completing the final payment step.',
+    publishedAt: '2026-09-08',
+    category: 'Client Replies',
+    keywords: [
+      'client wants to test final files before payment',
+      'final files before payment reply template',
+      'freelance final file handoff email',
+      'what to say when client wants files before paying',
+      'client asks to upload before final payment',
+      'final file handoff reply generator',
+    ],
+    aiSummary:
+      'When a client wants to test final files before paying, freelancers should acknowledge the need to verify the work, offer a preview or controlled review option, restate that usable final files are released after final payment, and send the payment link or handoff step clearly.',
+    ctaHref: '/tools/final-file-handoff-reply-generator',
+    ctaLabel: 'Write a final file handoff reply',
+    relatedLinks: [
+      {
+        label: 'Final File Handoff Reply Generator',
+        href: '/tools/final-file-handoff-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with final payment terms',
+        href: '/create?source=final-file-testing-before-payment-article',
+      },
+      {
+        label: 'What to Say When a Client Wants Final Files Before Payment',
+        href: '/articles/what-to-say-client-wants-final-files-before-payment',
+      },
+      {
+        label: 'What to Say When a Client Asks to Remove the Watermark Before Payment',
+        href: '/articles/client-asks-to-remove-watermark-before-payment-reply-template',
+      },
+      {
+        label: 'What to Say When a Client Asks to Pay After Launch',
+        href: '/articles/client-asks-to-pay-after-launch-reply-template',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Separate review access from usable final files',
+        body: [
+          'Clients sometimes ask to test the final files before paying because they want to make sure everything works. That can be reasonable, especially for websites, templates, exports, design files, automation assets, or production-ready media. The risk is giving away usable files before the final payment step is complete.',
+          'A good reply does not make the client feel accused. It separates verification from handoff: you can help them review the work, but the usable final package, upload access, source files, or production files are released after the final payment is complete.',
+        ],
+      },
+      {
+        heading: 'Use this final file testing reply template',
+        body: [
+          'Try: "Hi [Name], I understand wanting to check the final files before handoff. I can provide [preview/watermarked export/test link/screenshare] so you can verify the approved work. The usable final files will be released as soon as the final payment is complete. Here is the payment link: [link]. Once that is done, I will send the full handoff package."',
+          'This wording gives the client a clear review path while keeping the payment and delivery order intact. It also avoids turning the conversation into a debate about trust.',
+        ],
+      },
+      {
+        heading: 'Offer a controlled way to verify the work',
+        body: [
+          'The best option depends on the project. A designer might send watermarked previews or flattened proofs. A developer might record a walkthrough, share a staging link, or demo the files on a call. A video editor might share a low-resolution export. A consultant might send a read-only document or summary first.',
+          'The important boundary is that the client can confirm the work without receiving everything needed to publish, reuse, resell, transfer, or modify the finished deliverable before the final payment step.',
+        ],
+      },
+      {
+        heading: 'Restate the handoff sequence plainly',
+        body: [
+          'Clients are less likely to push back when the next steps are simple. You can write: "The handoff sequence is preview approval, final payment, then final file delivery." That sounds like a normal project process instead of a personal refusal.',
+          'If your original agreement already said final files come after final payment, reference it briefly: "This follows the handoff terms in our project agreement." Do not over-explain. The goal is to move the client to the next action, not bury them in policy language.',
+        ],
+      },
+      {
+        heading: 'Do not upload, transfer, or unlock files early',
+        body: [
+          'Testing requests can slide into early delivery. Be careful with phrases like "just upload it so we can check," "send the editable file and we will pay after review," or "remove the watermark so the team can test it properly." Once the client has usable files, the payment conversation can become harder to manage.',
+          'A concise boundary works: "I can help you verify the deliverable through a preview, but I cannot release the usable final files or production access before final payment. Once payment is complete, I will send the final package right away."',
+        ],
+      },
+      {
+        heading: 'Prevent final handoff confusion next time',
+        body: [
+          'Future project links should define preview access, approval method, final payment due date, file handoff timing, source file rules, launch access, and what counts as a usable final deliverable. That gives the client a clear review process before the project reaches the final invoice.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with scope, approvals, deposits, milestone payments, final payment steps, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
