@@ -4562,6 +4562,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-asks-to-split-final-payment-before-handoff-reply-template',
+    title: 'What to Say When a Client Asks to Split the Final Payment Before Handoff',
+    description:
+      'A practical freelancer reply template for clients who ask to split, delay, or partially pay the final invoice before receiving final files or launch access.',
+    publishedAt: '2026-09-09',
+    category: 'Client Replies',
+    keywords: [
+      'client asks to split final payment before handoff',
+      'final payment before handoff reply template',
+      'freelance client wants to pay final invoice in installments',
+      'what to say when client delays final payment',
+      'final file handoff payment terms',
+      'client payment plan before final files',
+    ],
+    aiSummary:
+      'When a client asks to split the final payment before handoff, freelancers should acknowledge the request, restate the agreed final payment step, offer a clear paid option if they want to change terms, and avoid releasing usable final files or launch access until the agreed payment condition is complete.',
+    ctaHref: '/tools/final-file-handoff-reply-generator',
+    ctaLabel: 'Write a final payment handoff reply',
+    relatedLinks: [
+      {
+        label: 'Final File Handoff Reply Generator',
+        href: '/tools/final-file-handoff-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Late Payment Reply Generator',
+        href: '/tools/late-payment-reply-generator',
+      },
+      {
+        label: 'Create a project link with final payment terms',
+        href: '/create?source=split-final-payment-before-handoff-article',
+      },
+      {
+        label: 'What to Say When a Client Wants Final Files Before Payment',
+        href: '/articles/what-to-say-client-wants-final-files-before-payment',
+      },
+      {
+        label: 'What to Say When a Client Asks to Pay After Launch',
+        href: '/articles/client-asks-to-pay-after-launch-reply-template',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Keep the payment request separate from the handoff',
+        body: [
+          'A client may ask to split the final payment because their cash flow changed, an internal approver is slow, or they want to start using the work before the invoice is fully paid. You can be understanding without changing the delivery order by accident.',
+          'The key is to separate empathy from access. Acknowledge the request, then restate that the usable final files, launch credentials, editable source files, or production handoff happen after the agreed final payment step is complete.',
+        ],
+      },
+      {
+        heading: 'Use this split final payment reply template',
+        body: [
+          'Try: "Hi [Name], I understand wanting to split the final payment. The current handoff terms are final payment first, then release of the final files and access. If you would like to change the payment plan, I can send an updated payment schedule for approval. Once the agreed final payment step is complete, I will send the full handoff package right away."',
+          'This reply avoids arguing about whether the client is trustworthy. It keeps the conversation focused on the agreed process and gives them a path if they genuinely need different terms.',
+        ],
+      },
+      {
+        heading: 'Offer a controlled alternative if you want to be flexible',
+        body: [
+          'Flexibility does not have to mean full delivery before payment. You might offer a read-only preview, watermarked export, staging walkthrough, limited test link, or partial handoff that matches the amount already paid.',
+          'If you agree to a payment plan, write down the new dates, amounts, what is released at each step, and what remains unavailable until the balance is complete. Keep the new plan simple enough that both sides can follow it without searching old messages.',
+        ],
+      },
+      {
+        heading: 'Avoid wording that gives away leverage',
+        body: [
+          'Be careful with phrases like "I can send everything now and you can pay the rest later" or "no rush on the balance." Those lines may feel friendly in the moment, but they make it harder to keep the project admin clean if payment slips again.',
+          'A firmer version is: "I can keep the project ready for handoff, but I cannot release the usable final package until the payment step we agreed to is complete." That is clear without sounding hostile.',
+        ],
+      },
+      {
+        heading: 'If payment is already late, switch to a follow-up message',
+        body: [
+          'If the due date has already passed, treat the message as a late payment follow-up instead of a normal handoff question. Mention the invoice, the due date, the amount due, and the next step. Keep the tone calm and specific.',
+          'For example: "The final invoice was due on [date], and the balance is still open. Please complete the payment here: [link]. Once payment is complete, I will release the final files." This gives the client a direct action instead of another round of negotiation.',
+        ],
+      },
+      {
+        heading: 'Prevent split payment confusion next time',
+        body: [
+          'Future project links should say when final payment is due, what counts as final handoff, whether partial payments change delivery timing, and what preview access is available before the balance is paid. This makes the final week feel procedural instead of personal.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with deposits, milestones, approval steps, payment links, signatures, and final handoff terms. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
