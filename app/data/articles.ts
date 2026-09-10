@@ -4652,6 +4652,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-asks-for-free-support-after-handoff-reply-template',
+    title: 'What to Say When a Client Asks for Free Support After Handoff',
+    description:
+      'A practical freelancer reply template for clients who ask for unpaid troubleshooting, training, calls, fixes, or support after the final handoff is complete.',
+    publishedAt: '2026-09-10',
+    category: 'Client Replies',
+    keywords: [
+      'client asks for free support after handoff',
+      'post handoff support reply template',
+      'freelance support boundary email',
+      'what to say when client asks for free troubleshooting',
+      'client wants extra support after final delivery',
+      'scope creep reply generator',
+    ],
+    aiSummary:
+      'When a client asks for free support after handoff, freelancers should acknowledge the question, point back to what was included, separate small warranty-style fixes from new support time, and offer a paid support option before doing extra work.',
+    ctaHref: '/tools/scope-creep-reply-generator',
+    ctaLabel: 'Write a post-handoff support reply',
+    relatedLinks: [
+      {
+        label: 'Scope Creep Reply Generator',
+        href: '/tools/scope-creep-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with support terms',
+        href: '/create?source=post-handoff-support-article',
+      },
+      {
+        label: 'What to Say When a Client Asks for an Extra Call Without Paying',
+        href: '/articles/client-asks-for-extra-call-without-paying-reply-template',
+      },
+      {
+        label: 'Scope Creep Email Template for Extra Client Work',
+        href: '/articles/scope-creep-email-template-client-extra-work',
+      },
+      {
+        label: 'What to Say When a Client Wants to Test Final Files Before Payment',
+        href: '/articles/client-wants-to-test-final-files-before-payment-reply-template',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Separate handoff questions from ongoing support',
+        body: [
+          'After final handoff, clients may still have questions. Some are normal closeout questions, like where a file is located or how to access a link you already provided. Others are new support work, like training another team member, troubleshooting a platform change, joining extra calls, editing files, or fixing issues caused by later client changes.',
+          'A good reply does not shame the client for asking. It calmly separates what was included in the handoff from what would be additional support time, then gives the client a clear next step if they want help beyond the original scope.',
+        ],
+      },
+      {
+        heading: 'Use this free support after handoff reply template',
+        body: [
+          'Try: "Hi [Name], I can help with this. The final handoff included [included support or handoff items], and this request looks like additional post-handoff support because [reason]. I can add a support block for [amount] or [hourly rate], and I can start once you approve it and complete the payment link."',
+          'This wording keeps the tone helpful while making the boundary explicit. You are not saying no to support. You are saying the support is separate from the completed project and needs approval before more work begins.',
+        ],
+      },
+      {
+        heading: 'Decide what you will answer for free',
+        body: [
+          'It is reasonable to answer a quick clarification if it is truly part of the agreed handoff. For example, you might resend a link, confirm a password handoff step, or point to a line in the handoff document without charging a new fee.',
+          'The boundary changes when the client needs new labor: a walkthrough, investigation, training, platform setup, file edits, stakeholder explanations, emergency fixes, or extra implementation help. Those tasks should be priced before you start, even if they sound small.',
+        ],
+      },
+      {
+        heading: 'Offer a paid support option with limits',
+        body: [
+          'A clear support option is easier for the client to accept than a vague boundary. Offer a one-hour troubleshooting block, a fixed-fee training call, a weekly support retainer, or a small change request tied to the exact task they need.',
+          'Name the scope, price, response time, and what is not included. For example: "This support block covers up to one hour of troubleshooting for the current setup. New feature requests, new deliverables, or issues caused by third-party platform changes would be quoted separately."',
+        ],
+      },
+      {
+        heading: 'Do not restart work before approval',
+        body: [
+          'The risky pattern is answering one free question, then checking one setting, then joining one call, then making one more adjustment. By the time you ask for payment, the client may feel the support already started as a favor.',
+          'Put the approval step first: "Once the support block is approved and paid, I will review the issue and send the next update by [time]." That keeps the project admin clean and prevents unpaid work from growing quietly after handoff.',
+        ],
+      },
+      {
+        heading: 'Prevent post-handoff support confusion next time',
+        body: [
+          'Future project links should define the handoff package, included support window, response times, support limits, what counts as a bug or correction, what counts as new work, and how paid support is approved after delivery.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with scope, approvals, revision boundaries, deposits, milestone payments, final handoff terms, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
