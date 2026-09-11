@@ -4742,6 +4742,89 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-asks-for-first-draft-before-deposit-reply-template',
+    title: 'What to Say When a Client Asks for a First Draft Before the Deposit',
+    description:
+      'A practical freelancer reply template for clients who want a first draft, mockup, sample, or rough concept before paying the upfront deposit.',
+    publishedAt: '2026-09-11',
+    category: 'Client Replies',
+    keywords: [
+      'client asks for first draft before deposit',
+      'freelance deposit reply template',
+      'what to say when client wants draft before paying',
+      'client wants mockup before deposit',
+      'upfront payment client reply',
+      'client message generator',
+    ],
+    aiSummary:
+      'When a client asks for a first draft before paying the deposit, freelancers should thank them, restate that the deposit starts the work, offer a small paid discovery or kickoff option if needed, and avoid creating unpaid deliverables before approval and payment.',
+    ctaHref: '/tools/client-message-generator',
+    ctaLabel: 'Write a deposit-first client reply',
+    relatedLinks: [
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with deposit terms',
+        href: '/create?source=first-draft-before-deposit-article',
+      },
+      {
+        label: 'How to Ask for a Freelance Deposit Before Starting Work',
+        href: '/articles/how-to-ask-for-a-freelance-deposit-before-starting-work',
+      },
+      {
+        label: 'What to Say When a Client Asks to Start Before the Deposit',
+        href: '/articles/client-asks-to-start-before-deposit-reply-template',
+      },
+      {
+        label: 'How to Start Work Only After the Deposit Clears',
+        href: '/articles/freelance-start-work-after-deposit-clears',
+      },
+      {
+        label: 'How to Use Paid Discovery as the First Freelance Milestone',
+        href: '/articles/freelance-paid-discovery-first-milestone-payment',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Treat the first draft as real work',
+        body: [
+          'A first draft, mockup, outline, sample edit, homepage concept, or rough strategy may sound informal, but it is still project work. It uses your judgment, time, and creative direction before the client has approved the agreement or paid the deposit.',
+          'The safest reply does not accuse the client of trying to get free work. It simply explains that the deposit is the step that starts production, then gives them a clean path to move forward.',
+        ],
+      },
+      {
+        heading: 'Use this first draft before deposit reply template',
+        body: [
+          'Try: "Hi [Name], I understand wanting to see the direction before we get too far in. The first draft is part of the project work, so I start that after the agreement is approved and the deposit is complete. Once that is done, I can send the first draft by [date] for review."',
+          'If the client needs a smaller commitment first, add: "If you would prefer to validate the direction before the full project, I can set up a paid discovery or concept milestone with a smaller scope and payment link."',
+        ],
+      },
+      {
+        heading: 'Offer proof without creating unpaid deliverables',
+        body: [
+          'You can still help the client feel confident. Point them to portfolio examples, a short process outline, a paid discovery call, a paid concept milestone, or a project link that clearly explains what the first draft will include.',
+          'Avoid sending custom strategy, editable files, sample copy, design directions, or production-ready ideas as a free preview. Once a client can use the work, the boundary becomes harder to explain later.',
+        ],
+      },
+      {
+        heading: 'Name the next step clearly',
+        body: [
+          'Do not leave the reply at "I cannot do that." Give the client one action: approve the agreement, complete the deposit payment link, or choose a paid discovery milestone. A specific next step makes the boundary feel like normal project admin instead of a personal objection.',
+          'For example: "The next step is approving the project link and completing the deposit. After that, I will begin the first draft and send it for review on [date]."',
+        ],
+      },
+      {
+        heading: 'Prevent the same request next time',
+        body: [
+          'Before sending a proposal, define when work starts, what the deposit covers, what counts as discovery, what counts as a deliverable, and when the first review round happens. That makes the answer easier if the client asks for work before the deposit again.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with scope, deposits, milestones, approvals, revision terms, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
