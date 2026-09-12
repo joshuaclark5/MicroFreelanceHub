@@ -4825,6 +4825,89 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-combines-several-changes-into-one-revision-reply-template',
+    title: 'What to Say When a Client Combines Several Changes Into One Revision',
+    description:
+      'A practical freelancer reply template for clients who bundle multiple new requests into one revision round and expect it to stay included.',
+    publishedAt: '2026-09-12',
+    category: 'Client Replies',
+    keywords: [
+      'client combines changes into one revision',
+      'freelance revision request reply template',
+      'what to say when client sends multiple revisions',
+      'revision boundaries for freelancers',
+      'client asks for many changes in one revision',
+      'revision request reply generator',
+    ],
+    aiSummary:
+      'When a client combines several changes into one revision, freelancers should acknowledge the feedback, compare it to the agreed revision scope, separate included edits from new work, and ask for approval or payment before expanding the project.',
+    ctaHref: '/tools/revision-request-reply-generator',
+    ctaLabel: 'Write a revision boundary reply',
+    relatedLinks: [
+      {
+        label: 'Revision Request Reply Generator',
+        href: '/tools/revision-request-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Scope Creep Reply Generator',
+        href: '/tools/scope-creep-reply-generator',
+      },
+      {
+        label: 'Create a project link with revision terms',
+        href: '/create?source=combined-revision-requests-article',
+      },
+      {
+        label: 'What to Say When a Client Asks for Extra Revisions',
+        href: '/articles/what-to-say-client-asks-extra-revisions',
+      },
+      {
+        label: 'What to Say When a Client Asks for Unlimited Revisions',
+        href: '/articles/client-asks-for-unlimited-revisions-reply-template',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Do not argue over the word revision',
+        body: [
+          'Clients often use "revision" to mean any list of changes they send at once. A freelancer usually needs a narrower definition: changes to the agreed deliverable, within the approved scope, during the active review window. Those two meanings collide when one message includes small edits, new ideas, extra formats, stakeholder preferences, and strategy changes.',
+          'The reply should not sound like a vocabulary lesson. Start by acknowledging the feedback, then sort the request into what is included and what needs a separate approval step. That keeps the conversation practical instead of personal.',
+        ],
+      },
+      {
+        heading: 'Use this combined revision request reply template',
+        body: [
+          'Try: "Hi [Name], thanks for sending the notes. I can handle the included revision items that adjust the approved deliverable: [included items]. A few requests in the list are outside the current revision scope because they add [new deliverable/new direction/new format/new stakeholder changes]. I can quote those as an added change request before starting them."',
+          'If you want a shorter version, use: "I can include the edits tied to the approved scope in this revision round. The new items would need a separate approval and payment link before I add them to the project."',
+        ],
+      },
+      {
+        heading: 'Separate small edits from new work',
+        body: [
+          'Included edits are usually corrections, polish, formatting fixes, or adjustments to something the client already approved. New work is different: a new deliverable, a new concept direction, additional pages, extra file versions, extra stakeholder review, new copy, new footage, new integrations, or changes to an already approved phase.',
+          'Write the split directly in your response. For example: "Included in this round: color adjustments and headline edits. Separate change request: adding a second landing page and creating social ad variations." A list like that is harder to misunderstand than a broad statement about scope.',
+        ],
+      },
+      {
+        heading: 'Keep the next step specific',
+        body: [
+          'A good boundary gives the client a path forward. Tell them which items you can start now, which items need approval, and whether the added work changes the timeline. Avoid starting the extra items while you are still waiting for them to agree to the change.',
+          'For example: "I can complete the included revision items by [date]. If you want to add the extra items, I will send a change request with the added cost and timing first." That keeps the project moving without quietly expanding the unpaid workload.',
+        ],
+      },
+      {
+        heading: 'Prevent bundled revision confusion next time',
+        body: [
+          'Future project links should define how many revision rounds are included, what counts as one round, what is excluded, how feedback should be submitted, when the review window closes, and how new work is approved. The cleaner the revision terms are upfront, the less awkward the reply feels later.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with revision limits, scope boundaries, approval steps, deposits, milestone payments, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
