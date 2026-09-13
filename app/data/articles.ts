@@ -4908,6 +4908,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-asks-for-revisions-before-paying-overdue-invoice-reply-template',
+    title: 'What to Say When a Client Asks for Revisions Before Paying an Overdue Invoice',
+    description:
+      'A practical freelancer reply template for clients who want another revision round while an invoice, milestone payment, or final payment is still overdue.',
+    publishedAt: '2026-09-13',
+    category: 'Client Replies',
+    keywords: [
+      'client asks for revisions before paying overdue invoice',
+      'late payment revision reply template',
+      'what to say when client wants revisions but has not paid',
+      'freelance overdue invoice reply',
+      'pause revisions until payment client message',
+      'late payment reply generator',
+    ],
+    aiSummary:
+      'When a client asks for revisions before paying an overdue invoice, freelancers should acknowledge the request, separate the revision discussion from the overdue payment, pause new work until the payment is complete, and give the client a clear payment link or approval step before restarting.',
+    ctaHref: '/tools/late-payment-reply-generator',
+    ctaLabel: 'Write a late payment revision reply',
+    relatedLinks: [
+      {
+        label: 'Late Payment Reply Generator',
+        href: '/tools/late-payment-reply-generator',
+      },
+      {
+        label: 'Revision Request Reply Generator',
+        href: '/tools/revision-request-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with payment and revision terms',
+        href: '/create?source=revision-before-overdue-invoice-article',
+      },
+      {
+        label: 'How to Follow Up on a Late Freelance Invoice',
+        href: '/articles/how-to-follow-up-late-freelance-invoice',
+      },
+      {
+        label: 'What to Say When a Client Asks for Extra Revisions',
+        href: '/articles/what-to-say-client-asks-extra-revisions',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Do not mix unpaid invoices with new revision work',
+        body: [
+          'A client may send revision notes while an invoice is already overdue because they see the project as still active. That does not mean you should keep working while the payment is unresolved. New revision work can quietly turn one late invoice into a larger unpaid balance.',
+          'The safest reply keeps the tone calm, confirms you received the notes, and makes payment the next step before more production time starts. You are not refusing to finish the project. You are keeping the agreed payment order intact.',
+        ],
+      },
+      {
+        heading: 'Use this revision before overdue invoice reply template',
+        body: [
+          'Try: "Hi [Name], thanks for sending the revision notes. I have them saved and can review the included items once the overdue invoice for [amount/milestone] is complete. Here is the payment link again: [link]. After payment is confirmed, I will restart the revision round and send the next update by [date]."',
+          'If the requested changes may be outside scope, add: "If any of the notes are outside the included revision scope, I will flag those first and send a separate change request before starting extra work."',
+        ],
+      },
+      {
+        heading: 'Keep the message about process, not blame',
+        body: [
+          'Avoid language that sounds like an accusation, even if the invoice is late. Phrases like "as a reminder," "once the payment is complete," and "I can continue after payment is confirmed" are usually enough to make the boundary clear without escalating the conversation.',
+          'A clean process statement also gives the client fewer openings to debate. The payment was due, the revision notes were received, and the next production step happens after the overdue payment is handled.',
+        ],
+      },
+      {
+        heading: 'Separate included revisions from extra work',
+        body: [
+          'Payment status and scope status are two different questions. First, the overdue invoice needs to be paid before more work begins. Second, the revision notes need to be checked against the agreed revision scope, review window, and deliverables.',
+          'If the notes include both included edits and new requests, say that plainly after the payment step: "Once the invoice is complete, I will handle the included edits and quote the new items separately before adding them." That prevents the client from treating the late-payment pause as approval for everything in the revision list.',
+        ],
+      },
+      {
+        heading: 'Give one clear restart condition',
+        body: [
+          'The client should know exactly what unlocks the next step. Do not say "we can discuss this later" or "I will get to it soon." Say whether you need the invoice paid, a milestone approved, a payment link completed, or a change request accepted before work resumes.',
+          'A useful restart line is: "Once payment is confirmed, I will resume the revision round and send the next proof by [date]." That keeps the project moving without giving away more unpaid time.',
+        ],
+      },
+      {
+        heading: 'Prevent this situation on future projects',
+        body: [
+          'Future project links should define when payments are due, whether work pauses after missed payments, how many revision rounds are included, when revision windows close, and whether final files or new rounds are held until invoices are current.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with deposits, milestone payments, approval steps, revision boundaries, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
