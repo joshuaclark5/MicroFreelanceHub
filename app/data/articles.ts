@@ -4998,6 +4998,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-gives-vague-revision-feedback-reply-template',
+    title: 'What to Say When a Client Gives Vague Revision Feedback',
+    description:
+      'A practical freelancer reply template for vague revision notes like make it pop, try something different, or I am not sure what is wrong yet.',
+    publishedAt: '2026-09-14',
+    category: 'Client Replies',
+    keywords: [
+      'client gives vague revision feedback reply template',
+      'what to say when client feedback is vague',
+      'freelance revision request reply',
+      'make it pop client feedback response',
+      'ask client for specific revision notes',
+      'revision request reply generator',
+    ],
+    aiSummary:
+      'When a client gives vague revision feedback, freelancers should acknowledge the concern, ask for specific decision-based notes, restate the included revision process, and avoid starting another round until the client confirms what should change.',
+    ctaHref: '/tools/revision-request-reply-generator',
+    ctaLabel: 'Write a vague revision feedback reply',
+    relatedLinks: [
+      {
+        label: 'Revision Request Reply Generator',
+        href: '/tools/revision-request-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with revision terms',
+        href: '/create?source=vague-revision-feedback-article',
+      },
+      {
+        label: 'What to Say When a Client Combines Several Changes Into One Revision',
+        href: '/articles/client-combines-several-changes-into-one-revision-reply-template',
+      },
+      {
+        label: 'What to Say When a Client Asks for Unlimited Revisions',
+        href: '/articles/client-asks-for-unlimited-revisions-reply-template',
+      },
+      {
+        label: 'What to Say When a Client Asks for Extra Revisions',
+        href: '/articles/what-to-say-client-asks-extra-revisions',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Do not start guessing at the revision',
+        body: [
+          'Vague feedback can feel urgent because the client is unhappy but has not named a specific fix. Notes like "make it pop," "try another direction," "I am not sure yet," or "something feels off" do not give you enough information to complete a useful revision round.',
+          'The safer move is to acknowledge the concern, ask for decision-ready details, and pause production changes until the client confirms what should be adjusted. Guessing can waste the included revision round and create a new argument about whether the change counted.',
+        ],
+      },
+      {
+        heading: 'Use this vague revision feedback reply template',
+        body: [
+          'Try: "Hi [Name], thanks for taking a look. I can help with the revision, but I need a little more specific direction before I start so the round is useful. Could you point to the exact section, file, or moment that feels off and tell me what you want changed there? Once I have that, I can confirm what is included in this revision round and send the next update by [date]."',
+          'For a firmer version, add: "To keep the project inside the agreed revision process, I will wait for the specific notes before making changes. Broad direction changes or new concepts may need a separate approval step before I begin."',
+        ],
+      },
+      {
+        heading: 'Turn opinions into specific notes',
+        body: [
+          'A useful revision note names the location, the problem, and the requested change. For example: "In section two, replace the headline with a more direct benefits headline" is workable. "It needs more energy" is not enough by itself.',
+          'You can guide the client with prompts: which option is closest, which example should this match, what should the viewer or customer understand faster, what should be removed, and what would make this ready to approve. Those questions keep the reply collaborative while protecting your time.',
+        ],
+      },
+      {
+        heading: 'Protect the included revision round',
+        body: [
+          'If your agreement includes one or two revision rounds, vague feedback should not automatically consume a full round before the client has given usable notes. Say that you are collecting clarification first, then the revision round begins once the client sends specific changes.',
+          'If the clarified request becomes a new direction, new deliverable, extra stakeholder preference, or change to an approved concept, separate that from the included revision. The message can stay simple: "That is a new direction rather than an adjustment to the approved version, so I can quote it as a change request before starting."',
+        ],
+      },
+      {
+        heading: 'Give the client an easy response format',
+        body: [
+          'Many clients give vague feedback because they do not know how to review creative or technical work. Give them a short format to fill in: item, location, requested change, and priority. That turns a tense conversation into project admin.',
+          'For example: "Please send notes in this format: 1. Where is the issue? 2. What should change? 3. Is this required for approval or a preference?" That last question helps you separate approval blockers from nice-to-have changes.',
+        ],
+      },
+      {
+        heading: 'Prevent vague feedback on future projects',
+        body: [
+          'Future project links should define what a revision round includes, how feedback should be submitted, when the review window closes, who can approve changes, and how new direction requests are handled. The clearer the review process is upfront, the easier it is to ask for specific notes later.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with revision limits, approval steps, deposits, milestone payments, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
