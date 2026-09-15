@@ -5088,6 +5088,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-asks-for-revisions-after-final-files-delivered-reply-template',
+    title: 'What to Say When a Client Asks for Revisions After Final Files Are Delivered',
+    description:
+      'A practical freelancer reply template for clients who request another revision round after final files, source files, or launch access have already been delivered.',
+    publishedAt: '2026-09-15',
+    category: 'Client Replies',
+    keywords: [
+      'client asks for revisions after final files delivered',
+      'post delivery revision reply template',
+      'what to say when client wants changes after handoff',
+      'freelance final file revision request',
+      'reply to client after final delivery changes',
+      'revision request reply generator',
+    ],
+    aiSummary:
+      'When a client asks for revisions after final files are delivered, freelancers should acknowledge the request, check whether the review window or included revision rounds are closed, separate warranty-style fixes from new work, and send a paid change request or support option before starting more production time.',
+    ctaHref: '/tools/revision-request-reply-generator',
+    ctaLabel: 'Write a post-delivery revision reply',
+    relatedLinks: [
+      {
+        label: 'Revision Request Reply Generator',
+        href: '/tools/revision-request-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with handoff and revision terms',
+        href: '/create?source=post-delivery-revisions-article',
+      },
+      {
+        label: 'What to Say When a Client Asks for Free Support After Handoff',
+        href: '/articles/client-asks-for-free-support-after-handoff-reply-template',
+      },
+      {
+        label: 'What to Say When a Client Sends Revision Feedback After the Review Window',
+        href: '/articles/client-sends-revision-feedback-after-review-window-reply-template',
+      },
+      {
+        label: 'How to Release Freelance Source Files Only After Final Payment',
+        href: '/articles/freelance-source-file-release-final-payment',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Do not reopen the project automatically',
+        body: [
+          'A client may treat final delivery as another chance to revise because the files are still fresh in their mind. For the freelancer, final delivery usually means the agreed review window, included rounds, final payment step, and handoff process are complete. Those expectations need to be reset before more work starts.',
+          'The reply should stay helpful without quietly reopening the project for free. Acknowledge the note, check whether the request is a correction, support item, or new revision, and name the next approval step before touching the files again.',
+        ],
+      },
+      {
+        heading: 'Use this post-delivery revision reply template',
+        body: [
+          'Try: "Hi [Name], thanks for sending this over. Since the final files were delivered on [date] and the included revision window is now complete, I can review these as a post-delivery change request. If you want to move forward, I will confirm the scope, timing, and fee before making the updates."',
+          'If the request might be a small fix, add: "If any item is a file issue from the approved final version, I will flag that separately. New preferences, added formats, copy changes, or direction changes would be handled as paid updates."',
+        ],
+      },
+      {
+        heading: 'Separate fixes from new preferences',
+        body: [
+          'Not every post-delivery message is the same. A broken export, missing agreed file, typo you introduced, or issue with the approved deliverable may deserve a quick correction. A new stakeholder opinion, new format, updated copy, different creative direction, or extra implementation request is new work.',
+          'Spell out the difference in plain language. For example: "I can correct the missing PDF export from the final package. The new social sizes and rewritten intro copy are outside the delivered scope, so I can quote those as an update." That makes the boundary concrete instead of emotional.',
+        ],
+      },
+      {
+        heading: 'Reference the delivery and review timeline',
+        body: [
+          'Dates make the reply easier to understand. Mention when final files were delivered, when approval happened, or when the review window closed. This is not about shaming the client. It is about pointing back to the agreed project admin trail.',
+          'A useful line is: "The review window closed on [date], and final files were delivered after approval on [date]. I can still help with updates, but they need to go through a new approval and payment step."',
+        ],
+      },
+      {
+        heading: 'Give the client a paid path forward',
+        body: [
+          'A boundary works better when it includes a next step. Offer to estimate the added work, send a payment link, book a paid support block, or create a new mini-project. Avoid debating whether the request is small before you have named the process.',
+          'For a simple response, write: "Send me the exact list of changes, and I will reply with the update fee and earliest delivery date before starting." That keeps the relationship service-oriented while protecting your unpaid time.',
+        ],
+      },
+      {
+        heading: 'Prevent post-delivery revision confusion next time',
+        body: [
+          'Future project links should define the final review window, what counts as final approval, which files are included in handoff, how long small corrections are accepted, and how post-delivery updates are priced. Clients are less surprised by boundaries when they saw them before the project ended.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with revision limits, handoff rules, deposits, milestone payments, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
