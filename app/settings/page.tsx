@@ -8,6 +8,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { deleteUserAccount } from '../actions/delete-account';
 
 type SettingsTab = 'profile' | 'billing' | 'team';
+type Billing = { plan: string; status: string; cycle: string; nextDate: string | null; cancelAtPeriodEnd: boolean; canManage: boolean; canCancel: boolean };
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
@@ -18,6 +19,27 @@ export default function SettingsPage() {
   const [teamEmailSubmitted, setTeamEmailSubmitted] = useState(false);
 
   const [userId, setUserId] = useState<string | null>(null);
+  const [billing, setBilling] = useState<Billing | null>(null);
+  const [billingError, setBillingError] = useState('');
+  const [billingLoading, setBillingLoading] = useState(true);
+
+  const loadBilling = async () => {
+    setBillingLoading(true);
+    setBillingError('');
+    try {
+      const response = await fetch('/api/stripe/subscription', { cache: 'no-store' });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Unable to load billing details.');
+      setBilling(data);
+    } catch (error) {
+      setBilling(null);
+      setBillingError(error instanceof Error ? error.message : 'Unable to load billing details.');
+    } finally {
+      setBillingLoading(false);
+    }
+  };
+
+  useEffect(() => { if (userId) void loadBilling(); }, [userId]);
   
   // Loading states
   const [loadingPortal, setLoadingPortal] = useState(false);
@@ -254,7 +276,7 @@ export default function SettingsPage() {
                     : 'text-slate-600'
                 }`}
               >
-                <User className="w-4 h-4" />
+                <User className="w-4 h-4" aria-hidden="true" /> Profile
               </button>
               <button
                 onClick={() => setActiveTab('billing')}
@@ -264,7 +286,7 @@ export default function SettingsPage() {
                     : 'text-slate-600'
                 }`}
               >
-                <Zap className="w-4 h-4" />
+                <Zap className="w-4 h-4" aria-hidden="true" /> Billing
               </button>
               <button
                 onClick={() => setActiveTab('team')}
@@ -274,7 +296,7 @@ export default function SettingsPage() {
                     : 'text-slate-600'
                 }`}
               >
-                <Users className="w-4 h-4" />
+                <Users className="w-4 h-4" aria-hidden="true" /> Team
               </button>
             </div>
           </div>
@@ -381,55 +403,28 @@ export default function SettingsPage() {
                   <div className="space-y-6">
                     <div>
                       <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Current Plan</p>
-                      <h3 className="text-3xl font-bold text-slate-900">Starter Plan</h3>
-                      <p className="text-slate-600 text-sm mt-2">You're on our most popular plan. Perfect for solo freelancers.</p>
+                      <h3 className="text-3xl font-bold text-slate-900">{billingLoading ? 'Loading...' : billing?.plan || 'Billing unavailable'}</h3>
+                      {billingError && <p role="alert" className="text-red-700 text-sm mt-2">{billingError} <button onClick={loadBilling} className="underline">Retry</button></p>}
+                      {billing?.status === 'No subscription' && <p className="text-slate-600 text-sm mt-2">No recurring subscription. <Link href="/pricing" className="underline">View plans</Link></p>}
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-6 border-t border-gray-100">
                       <div>
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Billing Cycle</p>
-                        <p className="text-slate-900 font-bold">Monthly</p>
+                        <p className="text-slate-900 font-bold">{billing?.cycle || 'Unavailable'}</p>
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Next Billing Date</p>
-                        <p className="text-slate-900 font-bold">May 21, 2026</p>
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{billing?.cancelAtPeriodEnd ? 'Subscription Ends' : 'Next Billing Date'}</p>
+                        <p className="text-slate-900 font-bold">{billing?.nextDate ? new Date(billing.nextDate).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : billing?.status === 'No subscription' ? 'None' : 'Unavailable'}</p>
                       </div>
                       <div>
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Status</p>
-                        <p className="text-emerald-600 font-bold flex items-center gap-1">
-                          <span className="w-2 h-2 bg-emerald-600 rounded-full"></span>
-                          Active
+                        <p className="text-slate-900 font-bold capitalize">
+                          {billing?.status || 'Unavailable'}
                         </p>
                       </div>
                     </div>
                   </div>
-                </div>
-
-                {/* Plan Features */}
-                <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Included Features</p>
-                  <ul className="space-y-3">
-                    <li className="flex items-center gap-3 text-slate-700">
-                      <span className="w-1.5 h-1.5 bg-indigo-600 rounded-full"></span>
-                      <span className="text-sm font-medium">Unlimited contracts & proposals</span>
-                    </li>
-                    <li className="flex items-center gap-3 text-slate-700">
-                      <span className="w-1.5 h-1.5 bg-indigo-600 rounded-full"></span>
-                      <span className="text-sm font-medium">Digital signature integration</span>
-                    </li>
-                    <li className="flex items-center gap-3 text-slate-700">
-                      <span className="w-1.5 h-1.5 bg-indigo-600 rounded-full"></span>
-                      <span className="text-sm font-medium">Stripe payment connections</span>
-                    </li>
-                    <li className="flex items-center gap-3 text-slate-700">
-                      <span className="w-1.5 h-1.5 bg-indigo-600 rounded-full"></span>
-                      <span className="text-sm font-medium">Email invoice reminders</span>
-                    </li>
-                    <li className="flex items-center gap-3 text-slate-700">
-                      <span className="w-1.5 h-1.5 bg-indigo-600 rounded-full"></span>
-                      <span className="text-sm font-medium">Expense tracking</span>
-                    </li>
-                  </ul>
                 </div>
 
                 {/* Actions */}
@@ -441,7 +436,7 @@ export default function SettingsPage() {
                     </div>
                     <button
                       onClick={handleManageBilling}
-                      disabled={loadingPortal}
+                      disabled={loadingPortal || billingLoading || !billing?.canManage}
                       className="w-full bg-slate-900 text-white hover:bg-slate-800 disabled:bg-slate-700 disabled:cursor-wait px-6 py-3 rounded-lg font-bold text-sm transition-all shadow-lg hover:shadow-slate-900/20 active:scale-95 flex items-center justify-center gap-2"
                     >
                       {loadingPortal ? (
@@ -460,7 +455,7 @@ export default function SettingsPage() {
                 </div>
 
                 {/* NEW: Cancel Subscription Area */}
-                <div className="bg-red-50 rounded-2xl p-8 border-2 border-red-200 space-y-4">
+                {billing?.canCancel && <div className="bg-red-50 rounded-2xl p-8 border-2 border-red-200 space-y-4">
                   <div>
                     <h3 className="font-bold text-lg text-red-900 flex items-center gap-2">
                       <span className="w-2 h-2 bg-red-600 rounded-full"></span>
@@ -481,7 +476,7 @@ export default function SettingsPage() {
                       'Unsubscribe in Stripe'
                     )}
                   </button>
-                </div>
+                </div>}
 
               </div>
             )}

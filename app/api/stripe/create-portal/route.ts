@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-10-16' as any,
@@ -13,24 +15,19 @@ const supabase = createClient(
 
 export async function POST(request: Request) {
   try {
-    const { userId } = await request.json();
-
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID required' }, { status: 400 });
-    }
-
-    // Verify user exists
-    const { data: { user }, error: userError } = await supabase.auth.admin.getUserById(userId);
+    const cookieStore = cookies();
+    const auth = createRouteHandlerClient({ cookies: () => cookieStore });
+    const { data: { user }, error: userError } = await auth.auth.getUser();
 
     if (userError || !user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Sign in required' }, { status: 401 });
     }
 
     // Get user's Stripe customer ID
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('stripe_customer_id')
-      .eq('id', userId)
+      .eq('id', user.id)
       .single();
 
     if (profileError || !profile?.stripe_customer_id) {
@@ -49,6 +46,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ url: portalSession.url });
   } catch (err: any) {
     console.error('Billing Portal Error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Unable to open billing portal.' }, { status: 500 });
   }
 }

@@ -8,6 +8,7 @@ import {
   Briefcase, Wrench, UserCheck, ClipboardCheck
 } from 'lucide-react';
 import RelatedRoles from '../../components/seo/RelatedRoles';
+import { isEmailTemplate, isChecklistTemplate, templateBadge } from '../../lib/templateType';
 
 export const revalidate = 86400;
 
@@ -97,9 +98,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   
   const { doc } = result;
   const title = toTitleCase(doc.job_title || doc.keyword);
-  const isEmail = params.slug.startsWith('late-payment-email');
+  const isEmail = isEmailTemplate(doc.document_type, params.slug);
   const documentType = doc.document_type || 'Contract';
-  const label = isEmail ? 'Late Payment Emails' : documentType;
+  const label = isEmail ? 'Email' : documentType;
   const pageTitle = doc.seo_title || `Free ${title} ${label} (2026)`;
   
   const metaDescription = `Start with a free, professional ${title} ${label.toLowerCase()} template to outline scope, deliverables, approvals, and payment steps.`;
@@ -124,8 +125,10 @@ export default async function TemplatePage({ params }: { params: { slug: string 
   }
   
   const title = doc.job_title || toTitleCase(doc.keyword);
-  const isEmail = params.slug.startsWith('late-payment-email');
-  const docType = doc.document_type || (isEmail ? 'Email' : 'Contract');
+  const isEmail = isEmailTemplate(doc.document_type, params.slug);
+  const isChecklist = isChecklistTemplate(doc.document_type, params.slug);
+  const isReference = isEmail || isChecklist;
+  const docType = isEmail ? 'Email' : isChecklist ? 'Checklist' : doc.document_type || 'Contract';
   
   let professionSlug = params.slug;
   const suffixes = [
@@ -161,19 +164,19 @@ export default async function TemplatePage({ params }: { params: { slug: string 
   const isSignOff = !isEmail && docType === 'Project Sign-Off Form';
   const isDepositAgreement = !isEmail && docType === 'Deposit Agreement';
   const isProposal = isEstimate || isQuote;
-  const ctaHref = isEmail ? "/login" : `/create?template=${params.slug}`;
-  const primaryCta = isEmail
-    ? 'Create My Free Account'
+  const ctaHref = isReference ? '#template-content' : `/create?template=${params.slug}`;
+  const primaryCta = isReference
+    ? isChecklist ? 'Read the Checklist' : 'View Email Template'
     : isInvoice
       ? 'Generate Invoice & Accept Payment'
       : 'Generate Contract & Collect Deposit';
-  const secondaryCta = isEmail
-    ? 'Save and send this template'
+  const secondaryCta = isReference
+    ? 'Review and customize for your client'
     : isInvoice
       ? 'Turn this into a secure payment link'
       : 'Turn this into a client-ready agreement and deposit link';
 
-  const badgeText = isEmail ? 'Email Templates' : `${docType} Template`;
+  const badgeText = templateBadge(docType);
   
   const themeColors = isEmail ? 'bg-indigo-600' 
     : isInvoice ? 'bg-emerald-600' : isProposal ? 'bg-amber-600' : isRetainer ? 'bg-violet-600'
@@ -242,7 +245,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
     <div className="min-h-screen bg-white font-sans text-slate-900 pb-20">
       
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd) }} />
+      {!isReference && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd) }} />}
 
       {/* 🚀 ICEBERG LAYOUT: Hero + Preview side-by-side above the fold */}
       <div className="bg-slate-900 text-white py-16 md:py-24 px-4 relative overflow-hidden">
@@ -266,11 +269,11 @@ export default async function TemplatePage({ params }: { params: { slug: string 
 
             {/* 🚀 FIXED: Removed hard break, added text-balance for perfect responsive wrapping */}
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 tracking-tight leading-tight text-balance">
-              Stop losing money on <span className={textColors}>{title}</span> projects.
+              {isReference ? <><span className={textColors}>{title}</span> template.</> : <>Stop losing money on <span className={textColors}>{title}</span> projects.</>}
             </h1>
             
             <p className="text-lg md:text-xl text-slate-300 mb-8 leading-relaxed">
-              Send your first 3 {isEmail ? 'emails' : `${docType.toLowerCase()}s`} for free. {softenLegalClaims(doc.pain_point_hook) || `Define your scope, collect signatures, and make payment steps clear.`}
+              {isReference ? 'Review this free template and adapt it to your project. ' : `Send your first 3 ${docType.toLowerCase()}s for free. `}{softenLegalClaims(doc.pain_point_hook) || 'Keep client expectations and next steps clear.'}
             </p>
 
             <Link href={ctaHref}>
@@ -281,7 +284,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
             <p className="text-xs text-slate-400 mt-4 flex items-center gap-2">
               <Shield className="w-3 h-3" /> No credit card required. Setup takes 30 seconds.
             </p>
-            {!isEmail && (
+            {!isReference && (
               <p className="text-sm text-slate-300 mt-3 max-w-xl">
                 Build the agreement, add your deposit amount, and send one secure client link for signature and payment.
               </p>
@@ -311,7 +314,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                  {/* 🚀 FIXED: Professional Header without liability */}
                  <div className="text-center mb-8 border-b-2 border-slate-800 pb-6">
                     <h2 className="text-2xl md:text-3xl font-serif font-bold uppercase tracking-widest text-slate-900 mb-2">
-                        {isInvoice ? 'Invoice' : isEstimate ? 'Estimate' : isQuote ? 'Quote' : isRetainer ? 'Retainer Agreement' : isChangeOrder ? 'Change Order' : isScopeOfWork ? 'Scope of Work' : isWorkOrder ? 'Work Order' : isSubcontractor ? 'Subcontractor Agreement' : isNDA ? 'Non-Disclosure Agreement' : isDemandLetter ? 'Demand Letter' : isCeaseAndDesist ? 'Cease & Desist' : isServiceAgreement ? 'Service Agreement' : isMaintenance ? 'Maintenance Agreement' : isContractor ? 'Contractor Agreement' : isSignOff ? 'Project Sign-Off' : isDepositAgreement ? 'Deposit Agreement' : 'Statement of Work'}
+                        {isReference ? `${docType} Preview` : isInvoice ? 'Invoice' : isEstimate ? 'Estimate' : isQuote ? 'Quote' : isRetainer ? 'Retainer Agreement' : isChangeOrder ? 'Change Order' : isScopeOfWork ? 'Scope of Work' : isWorkOrder ? 'Work Order' : isSubcontractor ? 'Subcontractor Agreement' : isNDA ? 'Non-Disclosure Agreement' : isDemandLetter ? 'Demand Letter' : isCeaseAndDesist ? 'Cease & Desist' : isServiceAgreement ? 'Service Agreement' : isMaintenance ? 'Maintenance Agreement' : isContractor ? 'Contractor Agreement' : isSignOff ? 'Project Sign-Off' : isDepositAgreement ? 'Deposit Agreement' : 'Statement of Work'}
                     </h2>
                     <p className="text-[10px] uppercase tracking-widest text-slate-400">Ref: {new Date().getFullYear()}-001 • Standard Business Template</p>
                  </div>
@@ -376,7 +379,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
       </div>
 
       {/* 🚀 SEO CONTENT WALL (Below the fold, centered layout) */}
-      {!isEmail && (
+      {!isReference && (
         <div className="max-w-5xl mx-auto px-4 mb-16">
           <div className="bg-slate-950 text-white rounded-2xl p-6 md:p-8 shadow-xl border border-slate-800 grid md:grid-cols-[1fr_360px] gap-8 items-center">
             <div>
@@ -429,6 +432,10 @@ export default async function TemplatePage({ params }: { params: { slug: string 
       )}
 
       <div className="max-w-3xl mx-auto px-4 py-8">
+        {isReference && <section id="template-content" className="mb-12 scroll-mt-8">
+          <h2 className="mb-6 text-2xl font-bold">{docType} Template</h2>
+          <div className="prose max-w-none whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: doc.content || '<p>Template content is currently unavailable.</p>' }} />
+        </section>}
         
         {doc.snippet_answer && (
           <div className="mb-10 text-center">
@@ -529,7 +536,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
           <RelatedRoles currentSlug={params.slug} jobTitle={doc.job_title} />
       </div>
 
-      {!isEmail && (
+      {!isReference && (
         <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur-md shadow-[0_-12px_30px_rgba(15,23,42,0.12)] px-4 py-3 print:hidden">
           <div className="max-w-5xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 import { ArrowRight, BookOpen, CheckCircle2 } from 'lucide-react';
 import { articles } from '../data/articles';
+import { formatArticleDate } from '../lib/articleDate';
 
 export const metadata: Metadata = {
   title: 'Freelance Business Articles',
@@ -50,7 +51,7 @@ export default function ArticlesPage() {
             <article key={article.slug} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
               <div className="mb-3 flex flex-wrap items-center gap-3 text-xs font-bold uppercase tracking-wider text-slate-500">
                 <span>{article.category}</span>
-                <span>{new Date(article.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                <span>{formatArticleDate(article.publishedAt, 'short')}</span>
               </div>
               <h2 className="text-2xl font-extrabold text-slate-900">{article.title}</h2>
               <p className="mt-3 max-w-3xl text-slate-600">{article.description}</p>

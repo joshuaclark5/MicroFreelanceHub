@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ArrowRight, CheckCircle2, FileText, Sparkles } from 'lucide-react';
 import { articles, getArticle } from '../../data/articles';
+import { formatArticleDate } from '../../lib/articleDate';
 
 export function generateStaticParams() {
   return articles.map((article) => ({ slug: article.slug }));
@@ -62,7 +63,7 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
           </Link>
           <div className="mb-5 flex flex-wrap items-center gap-3 text-xs font-bold uppercase tracking-wider text-blue-200">
             <span>{article.category}</span>
-            <span>{new Date(article.publishedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+            <span>{formatArticleDate(article.publishedAt)}</span>
           </div>
           <h1 className="text-4xl font-extrabold tracking-tight md:text-6xl">{article.title}</h1>
           <p className="mt-6 max-w-3xl text-lg leading-relaxed text-slate-300">{article.description}</p>

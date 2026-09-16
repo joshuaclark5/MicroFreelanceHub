@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import PricingModal from '../components/PricingModal';
 import { AuthRequiredModal } from '../components/modals/AuthRequiredModal';
+import { isEmailTemplate, isChecklistTemplate } from '../lib/templateType';
 
 // 🛡️ THE LEGAL SHIELD
 const LEGAL_TERMS = `
@@ -257,6 +258,12 @@ If the Client cancels the project after work has begun, any deposit, completed w
         }
 
         if (seoDoc) {
+             if (!isSow && (isEmailTemplate(seoDoc.document_type, slug) || isChecklistTemplate(seoDoc.document_type, slug))) {
+                 localStorage.removeItem('pending_template');
+                 router.replace(`/templates/${slug}#template-content`);
+                 setLoading(false);
+                 return;
+             }
              if (isSow) {
                  setFormData(prev => ({ ...prev, projectTitle: seoDoc.title, deliverables: seoDoc.deliverables, description: `Contract for ${seoDoc.title}` }));
                  if (seoDoc.price) setManualPriceOverride(seoDoc.price.toString());
@@ -353,8 +360,8 @@ If the Client cancels the project after work has begun, any deposit, completed w
 
   const handleClearContent = () => {
     if (confirmClear) {
+        setUndoText(formData.deliverables);
         setFormData(prev => ({ ...prev, deliverables: '' }));
-        setUndoText('');
         setConfirmClear(false);
     } else {
         setConfirmClear(true);

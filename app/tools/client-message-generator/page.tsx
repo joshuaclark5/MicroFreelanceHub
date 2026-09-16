@@ -85,9 +85,9 @@ export default function ClientMessageGeneratorPage() {
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <div className="rounded-2xl bg-blue-50 p-5">
                 <Search className="h-5 w-5 text-blue-600" />
-                <h2 className="mt-3 font-extrabold text-slate-900">SEO wedge</h2>
+                <h2 className="mt-3 font-extrabold text-slate-900">Replies for real client situations</h2>
                 <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                  Each client situation can become a search page where the tool is the answer.
+                  Find a starting point for payment reminders, revision requests, and project handoffs.
                 </p>
               </div>
               <div className="rounded-2xl bg-emerald-50 p-5">

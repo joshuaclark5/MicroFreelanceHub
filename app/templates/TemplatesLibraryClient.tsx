@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowRight, Briefcase, FileSignature, Receipt, Search, Wrench } from 'lucide-react';
 
 export interface TemplateLibraryItem {
@@ -47,18 +47,35 @@ function matchesFilter(template: TemplateLibraryItem, filter: string) {
   return true;
 }
 
-export default function TemplatesLibraryClient({ templates }: { templates: TemplateLibraryItem[] }) {
+export default function TemplatesLibraryClient({ templates, total }: { templates: TemplateLibraryItem[]; total: number }) {
   const [query, setQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
 
-  const filteredTemplates = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-
-    return templates.filter((template) => {
-      const searchable = `${getDisplayTitle(template)} ${template.slug} ${template.ai_summary || ''}`.toLowerCase();
-      return matchesFilter(template, activeFilter) && (!normalizedQuery || searchable.includes(normalizedQuery));
-    });
-  }, [activeFilter, query, templates]);
+  const [page, setPage] = useState(1);
+  const [results, setResults] = useState({ templates, total });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [retry, setRetry] = useState(0);
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    setError('');
+    const timer = setTimeout(async () => {
+      try {
+        const params = new URLSearchParams({ q: query, filter: activeFilter, page: String(page) });
+        const response = await fetch(`/api/templates?${params}`, { signal: controller.signal });
+        if (!response.ok) throw new Error('Unable to load templates.');
+        const data = await response.json();
+        if (!controller.signal.aborted) setResults(data);
+      } catch {
+        if (!controller.signal.aborted) setError('Unable to load templates.');
+      } finally {
+        if (!controller.signal.aborted) setLoading(false);
+      }
+    }, 250);
+    return () => { clearTimeout(timer); controller.abort(); };
+  }, [query, activeFilter, page, retry]);
+  const filteredTemplates = results.templates;
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
@@ -91,7 +108,8 @@ export default function TemplatesLibraryClient({ templates }: { templates: Templ
               <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               <input
                 value={query}
-                onChange={(event) => setQuery(event.target.value)}
+                aria-label="Search templates"
+                onChange={(event) => { setQuery(event.target.value); setPage(1); }}
                 placeholder="Search by trade, service, document type, or keyword"
                 className="h-13 w-full rounded-xl border border-slate-200 bg-white py-4 pl-12 pr-4 text-base font-semibold outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
               />
@@ -106,7 +124,7 @@ export default function TemplatesLibraryClient({ templates }: { templates: Templ
                   <button
                     key={filter.value}
                     type="button"
-                    onClick={() => setActiveFilter(filter.value)}
+                    onClick={() => { setActiveFilter(filter.value); setPage(1); }}
                     className={`inline-flex shrink-0 items-center gap-2 rounded-xl border px-4 py-3 text-sm font-extrabold transition ${
                       selected
                         ? 'border-slate-900 bg-slate-900 text-white'
@@ -126,14 +144,14 @@ export default function TemplatesLibraryClient({ templates }: { templates: Templ
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="mb-5 flex items-center justify-between gap-4">
           <p className="text-sm font-bold text-slate-500">
-            {filteredTemplates.length} templates
+            {loading ? 'Loading...' : `${results.total} templates`}
           </p>
           <Link href="/articles" className="text-sm font-bold text-blue-600 hover:text-blue-700">
             Browse articles
           </Link>
         </div>
 
-        {filteredTemplates.length > 0 ? (
+        {error ? <p role="alert">{error} <button onClick={() => setRetry(value => value + 1)} className="underline">Retry</button></p> : filteredTemplates.length > 0 ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {filteredTemplates.map((template) => (
               <Link
@@ -170,6 +188,11 @@ export default function TemplatesLibraryClient({ templates }: { templates: Templ
             <p className="mt-2 text-slate-600">Try a broader trade, service, or document type.</p>
           </div>
         )}
+        <nav aria-label="Template pages" className="mt-8 flex items-center justify-center gap-6">
+          <button disabled={loading || page === 1} onClick={() => setPage(value => value - 1)} className="disabled:opacity-40">Previous</button>
+          <span>Page {page} of {Math.max(1, Math.ceil(results.total / 48))}</span>
+          <button disabled={loading || page * 48 >= results.total} onClick={() => setPage(value => value + 1)} className="disabled:opacity-40">Next</button>
+        </nav>
       </section>
     </main>
   );

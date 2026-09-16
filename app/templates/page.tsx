@@ -1,8 +1,8 @@
-import { createClient } from '@supabase/supabase-js';
+import { searchTemplates } from '../lib/templateLibrary';
 import { Metadata } from 'next';
 import TemplatesLibraryClient, { TemplateLibraryItem } from './TemplatesLibraryClient';
 
-export const revalidate = 86400;
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Freelance Contract Template Library',
@@ -12,22 +12,7 @@ export const metadata: Metadata = {
   },
 };
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
 export default async function TemplatesLibraryPage() {
-  const { data } = await supabase
-    .from('seo_pages')
-    .select('slug, document_type, job_title, ai_summary')
-    .not('slug', 'is', null)
-    .neq('document_type', 'Comparison')
-    .order('job_title', { ascending: true })
-    .limit(600);
-
-  const templates = ((data || []) as TemplateLibraryItem[])
-    .filter((template) => template.slug && !template.slug.startsWith('alternative-to-'));
-
-  return <TemplatesLibraryClient templates={templates} />;
+  const { templates, total } = await searchTemplates();
+  return <TemplatesLibraryClient templates={templates as TemplateLibraryItem[]} total={total} />;
 }
