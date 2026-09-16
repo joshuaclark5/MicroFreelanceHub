@@ -5178,6 +5178,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-says-payment-is-processing-wants-final-files-reply-template',
+    title: 'What to Say When a Client Says Payment Is Processing and Wants Final Files',
+    description:
+      'A practical freelancer reply template for clients who say the payment is processing but ask for final files, source files, launch access, or handoff before the payment is confirmed.',
+    publishedAt: '2026-09-16',
+    category: 'Client Replies',
+    keywords: [
+      'client says payment is processing wants final files',
+      'payment processing final files reply template',
+      'what to say before sending final files after payment',
+      'freelance final payment confirmation reply',
+      'client asks for handoff while payment pending',
+      'final file handoff reply generator',
+    ],
+    aiSummary:
+      'When a client says payment is processing but wants final files now, freelancers should thank them, confirm that final handoff happens after the payment is received or marked complete, offer a preview or receipt-based next step if appropriate, and avoid releasing source files, launch access, or final exports while the payment is still pending.',
+    ctaHref: '/tools/final-file-handoff-reply-generator',
+    ctaLabel: 'Write a payment-pending handoff reply',
+    relatedLinks: [
+      {
+        label: 'Final File Handoff Reply Generator',
+        href: '/tools/final-file-handoff-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Late Payment Reply Generator',
+        href: '/tools/late-payment-reply-generator',
+      },
+      {
+        label: 'Create a project link with final handoff terms',
+        href: '/create?source=payment-processing-final-files-article',
+      },
+      {
+        label: 'What to Say When a Client Wants Final Files Before Payment',
+        href: '/articles/what-to-say-client-wants-final-files-before-payment',
+      },
+      {
+        label: 'What to Say When a Client Wants to Test Final Files Before Payment',
+        href: '/articles/client-wants-to-test-final-files-before-payment-reply-template',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Treat pending payment as not complete yet',
+        body: [
+          'A client may honestly believe that a payment marked processing, queued, pending, or sent is the same as complete. For your handoff workflow, those are different states. Final files, source files, owner permissions, credentials, production access, or launch transfer should wait until the payment is received or marked complete in the system you use.',
+          'The reply does not need to challenge the client or accuse them of stalling. It should acknowledge that they started the payment step, then restate the handoff condition in calm operational language: once payment is confirmed, the final package goes out.',
+        ],
+      },
+      {
+        heading: 'Use this payment-pending final file reply template',
+        body: [
+          'Try: "Hi [Name], thanks for the update. I will keep an eye out for the payment confirmation. Once it shows as received/complete on my end, I will send the final files and handoff items right away. Until then, I can keep the preview link available so you can review the approved version."',
+          'For a firmer version, write: "Because the final handoff includes editable/source files and project access, I release those after the final payment is confirmed rather than while it is still pending. As soon as it clears, I will send the final package by [time/date]."',
+        ],
+      },
+      {
+        heading: 'Offer proof or preview access without giving away handoff assets',
+        body: [
+          'You can stay helpful without releasing the asset that depends on final payment. Depending on the project, offer a staging link, watermarked export, screenshot set, walkthrough video, read-only preview, compressed proof, or confirmation that the approved version is ready for handoff.',
+          'Keep the line clear: preview access is for review, final files are for ownership or production use. A useful sentence is: "The approved preview will stay available while the payment finishes processing, and the downloadable final package will follow after confirmation."',
+        ],
+      },
+      {
+        heading: 'Ask for the right payment detail if there is a delay',
+        body: [
+          'If the payment should already be complete, ask for one practical detail instead of opening a debate. You might request the transaction receipt, expected clearing date, accounts payable contact, invoice reference, or confirmation that the correct payment link was used.',
+          'The goal is to remove confusion, not to become the client\'s payment support desk. If the payment remains pending past the expected window, send a late-payment follow-up that repeats the invoice, amount, payment link, and project step waiting on confirmation.',
+        ],
+      },
+      {
+        heading: 'Do not let urgency rewrite the handoff rule',
+        body: [
+          'Clients often ask for final files while payment is processing because they have a launch, meeting, printer deadline, developer handoff, or internal review happening soon. That urgency may be real, but it does not need to change the sequence after the project is approved: final payment confirmation first, final handoff second.',
+          'If the client needs faster access next time, the better fix is an earlier payment deadline, milestone payment, deposit, or final approval date before launch week. That keeps the schedule from depending on same-day payment processing.',
+        ],
+      },
+      {
+        heading: 'Prevent pending-payment handoff pressure next time',
+        body: [
+          'Future project links should define what counts as final payment complete, which files or access are released after confirmation, what preview method is available before handoff, and how processing delays affect delivery dates. Put that in the project admin trail before the client approves final work.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with final handoff terms, deposits, milestone payments, approval steps, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
