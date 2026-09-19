@@ -5268,6 +5268,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-says-they-will-pay-after-their-client-pays-reply-template',
+    title: 'What to Say When a Client Says They Will Pay After Their Client Pays',
+    description:
+      'A practical reply template for freelancers when a client wants to delay your invoice, final payment, or next milestone until their own customer pays them.',
+    publishedAt: '2026-09-19',
+    category: 'Client Replies',
+    keywords: [
+      'client says they will pay after their client pays',
+      'freelance client waiting on their client to pay reply',
+      'what to say when client delays payment because customer has not paid',
+      'freelance late payment reply template',
+      'client asks to delay invoice payment',
+      'late payment reply generator',
+    ],
+    aiSummary:
+      'When a client says they will pay after their own client pays them, freelancers should acknowledge the situation, restate the agreed payment terms, keep the invoice tied to the original client, and avoid continuing work or releasing final assets until the required payment step is complete.',
+    ctaHref: '/tools/late-payment-reply-generator',
+    ctaLabel: 'Write a late-payment reply',
+    relatedLinks: [
+      {
+        label: 'Late Payment Reply Generator',
+        href: '/tools/late-payment-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with payment milestones',
+        href: '/create?source=client-paid-after-their-client-article',
+      },
+      {
+        label: 'How to Follow Up on a Late Freelance Invoice',
+        href: '/articles/how-to-follow-up-late-freelance-invoice',
+      },
+      {
+        label: 'What to Say When a Client Asks for Net 30 Payment Terms',
+        href: '/articles/client-asks-for-net-30-payment-terms-reply-template',
+      },
+      {
+        label: 'How to Use Milestone Payments With Client Approval Steps',
+        href: '/articles/freelance-milestone-payment-schedule-client-approval',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Keep the payment responsibility clear',
+        body: [
+          'A client may say they cannot pay you until their own customer, stakeholder, sponsor, or accounting team pays them. That may be true, but it does not automatically change your agreement, invoice due date, milestone terms, or final handoff process.',
+          'Your reply should stay calm and practical. Acknowledge the delay, restate that your payment arrangement is with this client, and name the next step required before more work, launch access, source files, or final delivery moves forward.',
+        ],
+      },
+      {
+        heading: 'Use this pay-after-my-client-pays reply template',
+        body: [
+          'Try: "Hi [Name], I understand you are waiting on payment from your client. The invoice for our project is still due based on the agreed payment terms between us, so I will need that balance completed before I continue with [next milestone/final handoff]. Here is the payment link again: [link]. Once payment is complete, I can move forward with [specific next step]."',
+          'This wording does not debate the client\'s cash flow or accuse them of bad intent. It keeps the conversation tied to the project admin trail: invoice, payment link, due date, and the work that depends on the payment step.',
+        ],
+      },
+      {
+        heading: 'Avoid becoming the backup financing plan',
+        body: [
+          'If you keep working while payment depends on someone outside your agreement, you can end up carrying the project risk without any control over that outside relationship. The client may be waiting on a purchase order, agency payment, brand approval, ad revenue, or their own final invoice.',
+          'A clean boundary is: "I am happy to continue once the open balance is paid. For now I will pause new work so the account does not grow while payment is still unresolved." That keeps the message operational instead of personal.',
+        ],
+      },
+      {
+        heading: 'Offer a smaller paid next step if the project still needs movement',
+        body: [
+          'Sometimes the client has a real timing problem and you want to preserve the relationship. If it fits your business, offer a smaller paid milestone, partial payment, or adjusted schedule instead of quietly extending credit for the whole project.',
+          'For example: "If paying the full remaining balance today is difficult, I can split the next work into a smaller paid milestone. I would need [amount] completed before starting that piece, and the final files would still be released after the remaining balance is paid." Only offer this if you can support it without creating confusion.',
+        ],
+      },
+      {
+        heading: 'Do not release final assets while payment depends on a third party',
+        body: [
+          'The highest-risk version of this conversation is a client asking for final files, source files, credentials, launch access, or production-ready exports while saying payment will come after their own client pays. That gives away the usable result before your payment step is complete.',
+          'A safer line is: "I can keep the preview available while your payment process is sorted out. The downloadable final files and handoff items will be released after the final balance is paid." If a dispute is unusual or high-value, consider getting qualified professional advice. MicroFreelanceHub is software for communication and project admin, not legal advice.',
+        ],
+      },
+      {
+        heading: 'Prevent pass-through payment delays next time',
+        body: [
+          'For future projects, define whether payment depends on your client only or on their end customer, when deposits are due, what happens if outside funding is delayed, and which milestones pause until payment is complete. Put the payment link, approval steps, and handoff rules where the client can see them before work starts.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with scope, deposits, milestone payments, approvals, signatures, and payment links. It does not guarantee payment, but clearer admin makes these conversations easier to handle before they become emergencies.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
