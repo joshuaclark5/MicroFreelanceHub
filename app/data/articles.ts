@@ -5358,6 +5358,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-asks-to-split-final-payment-after-delivery-reply-template',
+    title: 'What to Say When a Client Asks to Split Final Payment After Delivery',
+    description:
+      'A practical freelancer reply template for clients who ask to receive final files, launch access, or source files now and split the final payment into later installments.',
+    publishedAt: '2026-09-20',
+    category: 'Client Replies',
+    keywords: [
+      'client asks to split final payment after delivery',
+      'freelance final payment installment reply template',
+      'client wants final files before paying balance',
+      'what to say when client asks to pay final invoice later',
+      'final file handoff reply generator',
+      'freelance payment plan after project delivery',
+    ],
+    aiSummary:
+      'When a client asks to split final payment after delivery, freelancers should acknowledge the request, restate that final files or launch access are released after the agreed final balance is paid, and offer a smaller paid handoff, adjusted milestone, or written payment schedule only if they are comfortable with that risk.',
+    ctaHref: '/tools/final-file-handoff-reply-generator',
+    ctaLabel: 'Write a final payment reply',
+    relatedLinks: [
+      {
+        label: 'Final File Handoff Reply Generator',
+        href: '/tools/final-file-handoff-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Late Payment Reply Generator',
+        href: '/tools/late-payment-reply-generator',
+      },
+      {
+        label: 'Create a project link with final payment terms',
+        href: '/create?source=split-final-payment-after-delivery-article',
+      },
+      {
+        label: 'What to Say When a Client Wants Final Files Before Payment',
+        href: '/articles/what-to-say-client-wants-final-files-before-payment',
+      },
+      {
+        label: 'What to Say When a Client Says Payment Is Processing and Wants Final Files',
+        href: '/articles/client-says-payment-is-processing-wants-final-files-reply-template',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Do not turn final handoff into unpaid credit by accident',
+        body: [
+          'A client may ask to split the final balance after the project is approved because their budget changed, accounting needs time, a stakeholder is slow, or they want to launch before the full invoice is paid. The request can sound reasonable, especially if the relationship has been friendly.',
+          'The risk is that final delivery gives the client the usable value before the agreed payment step is complete. Your reply should be calm, specific, and tied to the existing handoff process: final payment first, final files or launch access second.',
+        ],
+      },
+      {
+        heading: 'Use this split-final-payment reply template',
+        body: [
+          'Try: "Hi [Name], I understand you would like to split the final balance. For this project, final files and handoff items are released after the agreed final payment is complete. I can keep the approved preview available, and once the remaining balance is paid, I will send the final package right away."',
+          'If you are open to a payment plan, use a clearer version: "If you need to split the balance, I can send a short written payment schedule. The final/source files and launch access would still be released after the final installment is complete unless we agree to a smaller paid handoff scope first."',
+        ],
+      },
+      {
+        heading: 'Separate preview access from final delivery',
+        body: [
+          'Clients often ask for the final files because they want to test, show a stakeholder, send assets to a developer, upload to a printer, or prepare a launch. You can support that without handing over the full final package before payment.',
+          'Offer a preview link, watermarked export, staging view, read-only walkthrough, screenshot set, or limited proof. Then name the boundary: the downloadable final files, editable source files, transfer permissions, credentials, or production access come after final payment is complete.',
+        ],
+      },
+      {
+        heading: 'Only offer installments if the admin is clear',
+        body: [
+          'Sometimes a split payment is a business choice you are comfortable making. If so, do not leave it as a casual chat promise. Write the installment amounts, due dates, payment link, what happens to delivery while payments are open, and which assets remain withheld until the balance is complete.',
+          'A practical line is: "I can split the remaining balance into [amount] due today and [amount] due on [date]. The preview stays available now, and the final package is released after the second payment is complete." That gives the client a path forward without blurring the handoff rule.',
+        ],
+      },
+      {
+        heading: 'Pause new work until the payment question is settled',
+        body: [
+          'A final-payment installment request can quietly expand into more unpaid work: one more export, one more upload, one more support call, one more stakeholder change. Before doing any of that, confirm whether the existing invoice is being paid or whether you are creating a new paid milestone.',
+          'Use: "I am going to pause new production and handoff work until we confirm the payment plan. Once the balance/payment step is complete, I can move forward with [specific handoff item]." This keeps the conversation operational rather than personal.',
+        ],
+      },
+      {
+        heading: 'Prevent this pressure on the next project',
+        body: [
+          'Future project links should define the final payment trigger, what counts as final approval, which files are withheld until payment is complete, whether installment requests are available, and how late payments affect launch dates or handoff timing. These terms are easier to discuss before the client is waiting on final delivery.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with deposits, milestones, approvals, final handoff terms, signatures, and payment links. It is software for clearer communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
