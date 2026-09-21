@@ -5448,6 +5448,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-asks-for-kickoff-call-before-deposit-reply-template',
+    title: 'What to Say When a Client Asks for a Kickoff Call Before the Deposit',
+    description:
+      'A practical freelancer reply template for clients who want a full kickoff call, planning session, or project walkthrough before paying the agreed deposit.',
+    publishedAt: '2026-09-21',
+    category: 'Client Replies',
+    keywords: [
+      'client asks for kickoff call before deposit',
+      'freelance kickoff call before payment reply template',
+      'what to say when client wants meeting before paying deposit',
+      'freelance deposit reply template',
+      'client message generator for freelancers',
+      'freelance project admin before kickoff',
+    ],
+    aiSummary:
+      'When a client asks for a kickoff call before paying the deposit, freelancers should separate a short fit or payment-help call from the full project kickoff, restate that detailed planning begins after the deposit is complete, and send the payment link or project link again with a clear next step.',
+    ctaHref: '/tools/client-message-generator',
+    ctaLabel: 'Write a deposit-before-kickoff reply',
+    relatedLinks: [
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with deposit terms',
+        href: '/create?source=kickoff-call-before-deposit-article',
+      },
+      {
+        label: 'How to Ask for a Freelance Deposit Before Starting Work',
+        href: '/articles/how-to-ask-for-a-freelance-deposit-before-starting-work',
+      },
+      {
+        label: 'What to Say When a Client Asks to Start Before the Deposit',
+        href: '/articles/client-asks-to-start-before-deposit-reply-template',
+      },
+      {
+        label: 'What to Say When a Client Asks for a First Draft Before the Deposit',
+        href: '/articles/client-asks-for-first-draft-before-deposit-reply-template',
+      },
+      {
+        label: 'When Should Freelancers Start Work After a Client Pays the Deposit?',
+        href: '/articles/freelance-start-work-after-deposit-clears',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Separate a sales call from a project kickoff',
+        body: [
+          'A client may ask for a kickoff call before paying the deposit because they want to feel prepared, align stakeholders, explain background, or make sure you understand the work. The request is not automatically unreasonable. The boundary is that a full kickoff call usually includes planning, strategy, scope decisions, and project direction that belong after the project is officially started.',
+          'Your reply should distinguish between a short pre-deposit clarification call and the real kickoff. That lets you stay helpful without starting unpaid project admin, discovery, or production work before the deposit step is complete.',
+        ],
+      },
+      {
+        heading: 'Use this kickoff-before-deposit reply template',
+        body: [
+          'Try: "Hi [Name], I am happy to keep the project moving. The full kickoff call happens after the signed project link and deposit are complete, since that call is where we start planning the actual work. If you have a quick question about the payment link or agreement before paying, send it over and I can help. Once the deposit is complete, I will schedule the kickoff right away."',
+          'For a warmer version, write: "I want the kickoff to be useful, so I run it after the deposit is paid and the project is officially active. That way we can use the call for real decisions instead of tentative planning. Here is the project link again: [link]."',
+        ],
+      },
+      {
+        heading: 'Offer one small pre-deposit option if needed',
+        body: [
+          'Sometimes the client is not trying to get free work. They may be stuck on the payment process, confused about the scope, or unsure who should sign. In that case, offer a narrow pre-deposit option: a five-minute admin call, one clarification email, or a quick note confirming what the deposit covers.',
+          'Keep that option specific. Avoid turning it into a strategy session, onboarding call, content review, technical audit, creative direction meeting, or stakeholder workshop. A useful line is: "I can answer quick admin questions before payment, but project planning begins during kickoff after the deposit is complete."',
+        ],
+      },
+      {
+        heading: 'Do not solve the project on the unpaid call',
+        body: [
+          'A kickoff call can quietly become unpaid consulting if you start mapping timelines, reviewing assets, giving recommendations, assigning tasks, or explaining exactly how you will execute the work. By the end, the client may have useful direction while your project still has no deposit attached.',
+          'If the conversation starts drifting into real project work, pause and reset: "That is exactly what we will cover in kickoff once the project is active. The next step is completing the deposit here: [link]." This keeps the tone practical instead of defensive.',
+        ],
+      },
+      {
+        heading: 'Make the next step easy to complete',
+        body: [
+          'Many deposit delays happen because the client is juggling too many loose messages: one thread for scope, another for the invoice, another for scheduling, and another for questions. Your reply should put the client back onto one clear path: approve the project link, pay the deposit, then book the kickoff call.',
+          'Include the payment link, the deposit amount, what the deposit unlocks, and when you can schedule the kickoff after payment. For example: "Once the $[amount] deposit is complete, I can book kickoff for [two time options] and we will cover assets, timeline, responsibilities, and first milestone details."',
+        ],
+      },
+      {
+        heading: 'Prevent this on future projects',
+        body: [
+          'Future project links should name the sequence before work begins: signed agreement, deposit, kickoff call, asset collection, first milestone. If you offer a free fit call, define that separately from kickoff so the client understands which conversation is exploratory and which one starts the paid project.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with deposits, approvals, milestones, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
