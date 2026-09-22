@@ -5538,6 +5538,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-misses-deposit-deadline-wants-start-date-reply-template',
+    title: 'What to Say When a Client Misses the Deposit Deadline but Wants the Same Start Date',
+    description:
+      'A practical freelancer reply template for clients who miss the deposit deadline but still expect the original project start date, kickoff, or delivery timeline.',
+    publishedAt: '2026-09-22',
+    category: 'Client Replies',
+    keywords: [
+      'client missed deposit deadline reply template',
+      'freelance deposit deadline start date',
+      'what to say when client pays deposit late',
+      'client wants same timeline after late deposit',
+      'freelance project start date payment reply',
+      'client message generator for freelancers',
+    ],
+    aiSummary:
+      'When a client misses the deposit deadline but wants the same start date, freelancers should acknowledge the delay, explain that the schedule starts after the deposit is complete, and offer the next available start date or revised timeline once payment is received.',
+    ctaHref: '/tools/client-message-generator',
+    ctaLabel: 'Write a late-deposit reply',
+    relatedLinks: [
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with deposit terms',
+        href: '/create?source=missed-deposit-deadline-article',
+      },
+      {
+        label: 'How to Ask for a Freelance Deposit Before Starting Work',
+        href: '/articles/how-to-ask-for-a-freelance-deposit-before-starting-work',
+      },
+      {
+        label: 'What to Say When a Client Asks to Start Before the Deposit',
+        href: '/articles/client-asks-to-start-before-deposit-reply-template',
+      },
+      {
+        label: 'What to Say When a Client Asks for a Kickoff Call Before the Deposit',
+        href: '/articles/client-asks-for-kickoff-call-before-deposit-reply-template',
+      },
+      {
+        label: 'When Should Freelancers Start Work After a Client Pays the Deposit?',
+        href: '/articles/freelance-start-work-after-deposit-clears',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Do not let a late deposit quietly compress the project',
+        body: [
+          'A client may miss the deposit deadline by a day, a week, or longer and still expect the original kickoff, draft date, launch date, or final delivery date to stay the same. That creates pressure to absorb the delay by working faster or squeezing other client work.',
+          'Your reply should be friendly, but clear: the project schedule begins after the agreed deposit and project link are complete. If that step happens late, the start date and milestone dates may need to move too.',
+        ],
+      },
+      {
+        heading: 'Use this missed-deposit-deadline reply template',
+        body: [
+          'Try: "Hi [Name], thanks for the update. The original start date was based on the deposit being completed by [deadline]. Since that step is still open, I cannot hold the same project slot. Once the deposit is complete here: [link], I can confirm the next available start date and adjust the timeline from there."',
+          'If the client has now paid, use: "Thanks, I received the deposit. Because it came in after the original deadline, I will update the schedule and send the revised kickoff/start date shortly. I want to make sure the project still gets the right amount of focused time instead of compressing the work into the old timeline."',
+        ],
+      },
+      {
+        heading: 'Tie the boundary to scheduling, not punishment',
+        body: [
+          'The cleanest tone is operational. You are not scolding the client for paying late. You are explaining that your calendar, kickoff prep, and delivery dates depend on the payment step being complete before the slot is reserved.',
+          'A useful line is: "I schedule active project time after the deposit is complete, so I can only confirm dates once that step is done." That keeps the message about project admin instead of trust, blame, or urgency.',
+        ],
+      },
+      {
+        heading: 'Offer the next available start date instead of rushing',
+        body: [
+          'If you still want the project, give the client a simple path forward: pay the deposit, confirm the updated start date, then move into kickoff. Avoid promising to keep the original delivery date unless you can actually do it without harming quality or other commitments.',
+          'For example: "If the deposit is completed today, my next available start date is [date], with the first milestone expected by [date]. If that works, the payment link is here: [link]." Specific dates make the decision easier and reduce another round of vague messages.',
+        ],
+      },
+      {
+        heading: 'Protect your calendar before the deposit is paid',
+        body: [
+          'Many freelancers get stuck because they mentally reserve time for a client who has not completed the deposit. Then, when the client pays late, the freelancer feels obligated to honor a slot that was never actually secured.',
+          'A safer policy is to say that project slots are confirmed only after the signed project link and deposit are complete. You can still be flexible, but the default is that unpaid dates are tentative and paid dates are scheduled.',
+        ],
+      },
+      {
+        heading: 'Prevent missed deposit deadlines next time',
+        body: [
+          'Future project links should include the deposit amount, due date, what the deposit reserves, when kickoff is scheduled, and how missed payment deadlines affect the start date. The more visible this is before the client says yes, the easier it is to enforce calmly later.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with deposits, approvals, milestones, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
