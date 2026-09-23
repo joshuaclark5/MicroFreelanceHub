@@ -5628,6 +5628,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-wants-work-to-continue-with-overdue-invoice-reply-template',
+    title: 'What to Say When a Client Wants Work to Continue With an Overdue Invoice',
+    description:
+      'A practical freelancer reply template for clients who want the project to keep moving while an invoice, milestone payment, or payment link is still overdue.',
+    publishedAt: '2026-09-23',
+    category: 'Client Replies',
+    keywords: [
+      'client wants work to continue overdue invoice reply template',
+      'freelance overdue invoice pause work message',
+      'what to say when client has not paid invoice',
+      'late payment reply generator for freelancers',
+      'client asking for more work before paying invoice',
+      'freelance payment boundary message',
+    ],
+    aiSummary:
+      'When a client wants work to continue while an invoice is overdue, freelancers should acknowledge the request, point back to the unpaid invoice or milestone, pause new work until payment is complete, and offer a clear restart step through the payment link.',
+    ctaHref: '/tools/late-payment-reply-generator',
+    ctaLabel: 'Write a late-payment boundary reply',
+    relatedLinks: [
+      {
+        label: 'Late Payment Reply Generator',
+        href: '/tools/late-payment-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with payment milestones',
+        href: '/create?source=overdue-invoice-work-continue-article',
+      },
+      {
+        label: 'How to Follow Up on a Late Freelance Invoice Without Sounding Pushy',
+        href: '/articles/how-to-follow-up-late-freelance-invoice',
+      },
+      {
+        label: 'How to Pause Freelance Work When a Client Misses a Payment',
+        href: '/articles/freelance-late-payment-pause-work-contract-clause',
+      },
+      {
+        label: 'What to Say When a Client Asks for Revisions Before Paying an Overdue Invoice',
+        href: '/articles/client-asks-for-revisions-before-paying-overdue-invoice-reply-template',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Do not let unpaid work become the new normal',
+        body: [
+          'A client may be friendly, busy, or genuinely delayed and still ask you to keep the project moving while an invoice is overdue. The risk is that each new task makes the unpaid balance feel less urgent and gives you more work to chase later.',
+          'Your reply should separate two things: you are willing to continue the project, and new work resumes after the overdue invoice or milestone payment is complete. That keeps the relationship open without turning the payment boundary into a debate.',
+        ],
+      },
+      {
+        heading: 'Use this overdue-invoice reply template',
+        body: [
+          'Try: "Hi [Name], I can continue with [next task/milestone] once the overdue invoice is complete. The current balance is [amount], and the payment link is here: [link]. After that is paid, I will restart work on [specific next step] and confirm the updated timeline."',
+          'If you want a softer version, use: "I am happy to keep the project moving. Before I take on the next round of work, I need to close out the open invoice from [date]. Once that is handled here: [link], I can pick up with [next step]."',
+        ],
+      },
+      {
+        heading: 'Keep the tone operational',
+        body: [
+          'The strongest message does not accuse the client of avoiding payment. It simply explains how your workflow operates: open invoices are cleared before the next task, revision round, handoff, or milestone begins.',
+          'A useful sentence is: "I pause new work when an invoice is overdue so the project admin stays clear for both of us." That line is direct, but it avoids threats, blame, or legal-sounding pressure.',
+        ],
+      },
+      {
+        heading: 'Name exactly what is paused',
+        body: [
+          'Vague pauses create more back-and-forth. Be specific about what you are holding until payment arrives: new revisions, additional design work, implementation, file export, launch support, handoff, or the next milestone.',
+          'For example: "I will hold the next revision pass until the invoice is paid, then I can send the updated draft by [date]." The client gets a clear consequence and a clear path back to progress.',
+        ],
+      },
+      {
+        heading: 'Do not promise the old timeline automatically',
+        body: [
+          'If payment is late, your original schedule may no longer be realistic. Avoid saying you can still deliver on the old date unless you have the time available and want to absorb the delay.',
+          'A safer line is: "Once payment is complete, I will confirm the next available work slot and revised delivery date." This protects your calendar without making the message harsher than it needs to be.',
+        ],
+      },
+      {
+        heading: 'Prevent the same issue on future projects',
+        body: [
+          'Future project links should connect each work phase to a payment step: deposit before kickoff, milestone payment before the next phase, and final payment before final files or handoff. That way, your pause is not a surprise when an invoice is overdue.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with deposits, approvals, milestones, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
