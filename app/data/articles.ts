@@ -5718,6 +5718,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-asks-for-admin-access-before-final-payment-reply-template',
+    title: 'What to Say When a Client Asks for Admin Access Before Final Payment',
+    description:
+      'A practical freelancer reply template for clients who want admin access, publish access, login credentials, or transfer rights before the final payment is complete.',
+    publishedAt: '2026-09-25',
+    category: 'Client Replies',
+    keywords: [
+      'client asks for admin access before final payment reply template',
+      'freelance final payment before admin access',
+      'client wants login before paying final invoice',
+      'final file handoff reply generator',
+      'what to say before transferring website access',
+      'freelance handoff payment boundary message',
+    ],
+    aiSummary:
+      'When a client asks for admin access before final payment, freelancers should acknowledge the handoff request, separate preview or review access from full control, restate that final transfer happens after the balance is paid, and send the payment link with the next handoff step.',
+    ctaHref: '/tools/final-file-handoff-reply-generator',
+    ctaLabel: 'Write a final-handoff boundary reply',
+    relatedLinks: [
+      {
+        label: 'Final File Handoff Reply Generator',
+        href: '/tools/final-file-handoff-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with final payment terms',
+        href: '/create?source=admin-access-before-final-payment-article',
+      },
+      {
+        label: 'What to Say When a Client Wants Final Files Before Payment',
+        href: '/articles/what-to-say-client-wants-final-files-before-payment',
+      },
+      {
+        label: 'How to Give Freelance Clients Launch Access After Final Payment',
+        href: '/articles/freelance-launch-access-after-final-payment',
+      },
+      {
+        label: 'How to Release Freelance Source Files Only After Final Payment',
+        href: '/articles/freelance-source-file-release-final-payment',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Separate review access from final control',
+        body: [
+          'Clients may ask for admin access, owner permissions, login credentials, source files, publish rights, or account transfer before the final balance is paid. Sometimes they need to review the work. Sometimes they want to prepare an internal handoff. The risk is giving away full control before the project admin is finished.',
+          'Your reply should make a clean distinction: you can provide whatever preview, staging link, export sample, walkthrough, or limited review access is appropriate, while full admin access or final transfer happens after final payment is complete.',
+        ],
+      },
+      {
+        heading: 'Use this admin-access-before-payment reply template',
+        body: [
+          'Try: "Hi [Name], I can handle the admin access handoff after the final balance is complete. For now, you can review the work here: [preview link]. Once the final payment is paid through this link: [payment link], I will transfer admin access and send the handoff notes."',
+          'For a warmer version, write: "I want the handoff to be smooth, so I separate review access from full transfer. You can review everything at [link], and after the final payment is complete I will send the admin access details and any launch or ownership notes in one handoff message."',
+        ],
+      },
+      {
+        heading: 'Name exactly what is being held',
+        body: [
+          'Avoid vague language like "I will send the rest later." Be specific about what stays pending until final payment: owner role, website admin login, source files, production credentials, deploy access, editable files, final exports, DNS changes, app store transfer, or launch permissions.',
+          'Specific wording reduces friction because the client knows you are not blocking review or feedback. You are simply keeping the final handoff step attached to the agreed payment step.',
+        ],
+      },
+      {
+        heading: 'Offer a limited review path when it makes sense',
+        body: [
+          'If the client needs to check the work before paying, offer a controlled option that fits the project: a staging link, screen recording, watermarked export, view-only dashboard, limited collaborator role, or live walkthrough. The right option depends on the work, but the principle is the same: make review possible without transferring final control too early.',
+          'For example: "I can add you as a view-only reviewer today so you can confirm the final items. Owner access will transfer after the final payment is complete." That keeps the project moving without turning the payment boundary into a standoff.',
+        ],
+      },
+      {
+        heading: 'Keep the message practical, not threatening',
+        body: [
+          'The strongest reply does not need legal pressure or dramatic language. Frame the sequence as normal project admin: review, final payment, handoff. That is easier for a client to accept than a message that sounds like you expect a fight.',
+          'A useful line is: "My handoff process is final payment first, then full admin transfer and documentation." It is direct, calm, and connected to a workflow instead of suspicion.',
+        ],
+      },
+      {
+        heading: 'Prevent access confusion on future projects',
+        body: [
+          'Future project links should explain what the client receives for review, what counts as final handoff, when final payment is due, and which access or files transfer after payment. That prevents a late-project surprise when the client asks for credentials or owner permissions.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with deposits, approvals, milestones, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
