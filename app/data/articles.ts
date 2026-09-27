@@ -5808,6 +5808,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-wants-you-to-hold-project-slot-without-deposit-reply-template',
+    title: 'What to Say When a Client Wants You to Hold a Project Slot Without a Deposit',
+    description:
+      'A practical freelancer reply template for clients who want you to reserve calendar time, kickoff dates, or delivery slots before completing the deposit or project link.',
+    publishedAt: '2026-09-27',
+    category: 'Client Replies',
+    keywords: [
+      'client wants to hold project slot without deposit reply template',
+      'freelance deposit to reserve project slot',
+      'what to say when client has not paid deposit',
+      'freelance project slot payment boundary',
+      'client reply generator for deposits',
+      'freelance kickoff before deposit message',
+    ],
+    aiSummary:
+      'When a client wants a freelancer to hold a project slot without paying the deposit, the best reply is to acknowledge the request, explain that calendar time is confirmed only after the project link and deposit are complete, and offer the payment link plus the next available start date.',
+    ctaHref: '/tools/client-message-generator',
+    ctaLabel: 'Write a project-slot deposit reply',
+    relatedLinks: [
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with deposit terms',
+        href: '/create?source=hold-project-slot-without-deposit-article',
+      },
+      {
+        label: 'How to Ask for a Freelance Deposit Before Starting Work',
+        href: '/articles/how-to-ask-for-a-freelance-deposit-before-starting-work',
+      },
+      {
+        label: 'What to Say When a Client Asks to Start Before Paying the Deposit',
+        href: '/articles/client-asks-to-start-before-deposit-reply-template',
+      },
+      {
+        label: 'What to Say When a Client Misses the Deposit Deadline but Wants the Same Start Date',
+        href: '/articles/client-misses-deposit-deadline-wants-start-date-reply-template',
+      },
+      {
+        label: 'What to Say When a Client Asks for a Kickoff Call Before the Deposit',
+        href: '/articles/client-asks-for-kickoff-call-before-deposit-reply-template',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Do not reserve unpaid calendar time indefinitely',
+        body: [
+          'A client may say they are ready to move forward, ask you to keep a start date open, or request that you block off delivery time while they sort out the deposit. That can sound harmless, but it turns your calendar into unpaid inventory if the project link is never completed.',
+          'Your reply should be warm and practical: you are happy to work with them, but project slots are confirmed after the signed project link and deposit are complete. Until then, dates can be discussed, but they are not reserved.',
+        ],
+      },
+      {
+        heading: 'Use this project-slot deposit reply template',
+        body: [
+          'Try: "Hi [Name], I can hold the project slot once the project link and deposit are complete. The link is here: [link]. After that is done, I will confirm the start date and milestone schedule so we both have the same timeline in writing."',
+          'For a softer version, write: "I would like to keep that date available for you. My calendar is confirmed in the order deposits are completed, so the best next step is finishing the project link here: [link]. Once that is complete, I can lock in the kickoff slot."',
+        ],
+      },
+      {
+        heading: 'Make the boundary about scheduling',
+        body: [
+          'The cleanest tone is not distrustful or defensive. It is an operations rule: deposits reserve active project time. That makes the message easier for a client to accept because it connects payment to scheduling, not suspicion.',
+          'A useful line is: "I confirm project slots after the deposit is complete so I can protect the time needed to do the work properly." That explains the why without turning the reply into a long negotiation.',
+        ],
+      },
+      {
+        heading: 'Offer a clear next step and deadline',
+        body: [
+          'If the client is serious, make the next action simple. Send the project link, repeat the deposit amount if needed, and tell them what happens after payment: confirmed kickoff, updated milestone dates, onboarding, or asset collection.',
+          'When the schedule is tight, add a polite deadline: "If the deposit is completed by [date/time], I can keep [start date] available. After that, I may need to offer the next open slot." This gives the client urgency without sounding pushy.',
+        ],
+      },
+      {
+        heading: 'Avoid starting prep work before the slot is confirmed',
+        body: [
+          'It is easy to spend unpaid time on kickoff notes, research, calls, file setup, or strategy before the deposit arrives. If that prep is part of the paid project, wait until the project link is complete or sell it as a separate paid discovery step.',
+          'A simple boundary is: "Once the deposit is complete, I will start onboarding and send the asset checklist." That keeps unpaid pre-work from becoming the default start of every project.',
+        ],
+      },
+      {
+        heading: 'Prevent calendar confusion on future projects',
+        body: [
+          'Future project links should say what the deposit reserves, when kickoff is scheduled, how long the quote or slot stays available, and how missed deposit deadlines affect the timeline. That way, the client sees the rule before there is pressure around a start date.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with deposits, approvals, milestones, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
