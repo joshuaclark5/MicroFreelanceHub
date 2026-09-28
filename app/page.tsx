@@ -125,7 +125,6 @@ export default function Home() {
 
       {/* 2. HERO SECTION */}
       <section className="px-6 pt-16 pb-16 md:pt-24 md:pb-24 max-w-7xl mx-auto relative overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-blue-50 rounded-full blur-3xl opacity-50 -z-10 pointer-events-none"></div>
 
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center lg:items-start relative z-10">
           
@@ -136,23 +135,23 @@ export default function Home() {
             </div>
             
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
-              Handle awkward <span className="text-blue-600">client moments</span> faster.
+              Agreements, <span className="text-blue-600">changes & payments.</span>
             </h1>
             
             <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-medium">
-              Draft calm client replies, outline scope, collect signatures, and organize payment steps in one simple workspace. <span className="font-bold text-slate-800">No messy threads. No scattered project details.</span>
+              Put the scope in writing. Collect signatures, organize change orders, and accept payments through your connected Stripe account. <span className="font-bold text-slate-800">One clear client workflow.</span>
             </p>
 
             <div className="flex flex-col items-center lg:items-start gap-4 pt-4">
-              <Link href="/tools/client-message-generator" className="w-full sm:w-auto">
+              <Link href="/create" className="w-full sm:w-auto">
                 <div className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-200 rounded-xl px-8 py-4 font-bold text-lg flex items-center justify-center transition-all hover:-translate-y-1 hover:shadow-blue-300">
-                  Try the free client reply tool
+                  Create your first agreement
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </div>
               </Link>
               
-              <Link href="/create" className="text-sm font-bold text-blue-600 hover:text-blue-700">
-                Or create a project link
+              <Link href="/templates" className="text-sm font-bold text-blue-600 hover:text-blue-700">
+                Browse agreement templates
               </Link>
 
               {/* Objection Handling & Risk Reversal */}
@@ -560,7 +559,7 @@ export default function Home() {
             </div>
             <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
               <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">AI search ready</p>
-              <h3 className="text-xl font-extrabold text-slate-900">Built for quick answers and topical authority.</h3>
+              <h3 className="text-xl font-extrabold text-slate-900">Practical answers for your next project.</h3>
               <p className="mt-3 text-sm leading-relaxed text-slate-600">
                 Each article includes focused metadata, a clear answer summary, structured data, and relevant supporting links.
               </p>
@@ -639,19 +638,18 @@ export default function Home() {
 
       {/* 8. CTA Footer */}
       <section className="bg-blue-600 py-24 relative overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-white opacity-10 blur-[120px] rounded-full pointer-events-none"></div>
         
         <div className="max-w-4xl mx-auto text-center px-4 relative z-10">
-          <h2 className="text-4xl md:text-6xl font-extrabold text-white mb-6 tracking-tight">Start your next client conversation clearly.</h2>
+          <h2 className="text-4xl md:text-6xl font-extrabold text-white mb-6 tracking-tight">Your next project starts with a clear agreement.</h2>
           <p className="text-blue-100 mb-12 text-xl max-w-2xl mx-auto font-medium">
-             Draft a client reply or create a project link in under 5 minutes.
+             Outline the work, review the details, and prepare your client link.
           </p>
           <div className="flex justify-center">
              <Link 
-               href="/tools/client-message-generator"
+               href="/create"
                className="inline-block bg-slate-900 text-white font-bold px-10 py-5 rounded-full shadow-xl hover:bg-black transition-all text-lg hover:-translate-y-1 hover:shadow-2xl"
              >
-               Try the Free Reply Tool
+               Create your first agreement
              </Link>
           </div>
           <p className="mt-8 text-sm text-blue-200">No credit card required · Free for 3 projects</p>

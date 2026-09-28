@@ -34,7 +34,7 @@ const base = process.env.QA_BASE_URL || 'http://localhost:3025';
       await page.goto(`${base}/templates/late-payment-reminder-email-after-no-response`);
       const email = await page.locator('body').innerText();
       assert.ok(!/template template|statement of work|generate contract/i.test(email));
-      await page.goto(`${base}/create`);
+      await page.goto(`${base}/create?mode=editor`);
       const editor = page.getByPlaceholder('Start typing your agreement here...');
       await editor.waitFor();
       await editor.fill('Regression check\nPreserve this exact text.');

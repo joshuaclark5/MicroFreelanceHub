@@ -13,6 +13,7 @@ import {
 import PricingModal from '../components/PricingModal';
 import { AuthRequiredModal } from '../components/modals/AuthRequiredModal';
 import { isEmailTemplate, isChecklistTemplate } from '../lib/templateType';
+import AgreementStarter from '../components/AgreementStarter';
 
 // 🛡️ THE LEGAL SHIELD
 const LEGAL_TERMS = `
@@ -38,6 +39,8 @@ interface LineItem {
 }
 
 function CreateProjectContent() {
+  const [initialized, setInitialized] = useState(false);
+  const [initializationError, setInitializationError] = useState(false);
   const [formData, setFormData] = useState({
     clientName: '',
     clientEmail: '',
@@ -70,7 +73,7 @@ function CreateProjectContent() {
   // UI States
   const [undoText, setUndoText] = useState('');
   const [confirmClear, setConfirmClear] = useState(false);
-  const [step, setStep] = useState<'select_mode' | 'ai_input' | 'questions' | 'final'>('final');
+  const [step, setStep] = useState<'select_mode' | 'ai_input' | 'questions' | 'final'>('select_mode');
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [questions, setQuestions] = useState<string[]>([]);
@@ -312,10 +315,10 @@ If the Client cancels the project after work has begun, any deposit, completed w
       } else {
         const content = generateFullContract("Project", "- Deliverable 1\n- Deliverable 2");
         setFormData(prev => ({ ...prev, deliverables: content }));
-        setStep('final');
+        setStep(searchParams.get('mode') === 'editor' ? 'final' : 'select_mode');
       }
     };
-    init();
+    init().catch(() => setInitializationError(true)).finally(() => setInitialized(true));
   }, [supabase, searchParams]);
 
   // Update contract text dynamically
@@ -344,10 +347,6 @@ If the Client cancels the project after work has begun, any deposit, completed w
       setFormData(prev => ({ ...prev, deliverables: content }));
       setStep('final');
   };
-
-  useEffect(() => {
-    if (step === 'select_mode') handleStartManual();
-  }, [step]);
 
   const handleStartAi = () => {
     if (!isPro) {
@@ -549,9 +548,15 @@ If the Client cancels the project after work has begun, any deposit, completed w
       {renderHeader()}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        {!initialized ? <div role="status" className="py-16 text-center text-gray-600">Loading your agreement...</div> : initializationError ? <div role="alert" className="py-16 text-center text-red-700">We could not load the editor. Please refresh to try again.</div> : <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
 
           {/* STEP 0: MODE SELECTION */}
+          {step === 'select_mode' && <AgreementStarter onSkip={handleStartManual} onComplete={brief => {
+            setManualPriceOverride(brief.price);
+            const scope = brief.scope + (brief.timing ? '\n\nTIMELINE\n' + brief.timing : '');
+            setFormData(prev => ({ ...prev, projectTitle: brief.title, deliverables: generateFullContract(brief.title, scope), description: brief.scope }));
+            setStep('final');
+          }} />}
           {false && step === 'select_mode' && (
              <div className="p-8 md:p-12 animate-in fade-in slide-in-from-bottom-4">
                 <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">Create a new agreement</h2>
@@ -637,7 +642,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
                       </div>
                     )}
 
-                  <textarea required className="w-full flex-1 resize-none font-mono text-sm leading-relaxed focus:outline-none text-gray-800 p-6 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all min-h-[400px] md:min-h-0" value={formData.deliverables} onChange={(e) => setFormData({ ...formData, deliverables: e.target.value })} placeholder="Start typing your agreement here..." />
+                  <textarea required aria-label="Agreement text" className="w-full flex-1 resize-none font-sans text-base leading-7 focus:outline-none text-gray-800 p-6 bg-white rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-600 transition-all min-h-[400px] md:min-h-0" value={formData.deliverables} onChange={(e) => setFormData({ ...formData, deliverables: e.target.value })} placeholder="Start typing your agreement here..." />
                 </form>
               </div>
 
@@ -671,13 +676,13 @@ If the Client cancels the project after work has begun, any deposit, completed w
                              onClick={() => setPaymentType('one_time')}
                              className={`flex-1 py-2 rounded-lg text-xs font-bold border transition-all flex items-center justify-center gap-2 ${paymentType === 'one_time' ? 'bg-black text-white border-black' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}
                           >
-                             <Briefcase className="w-4 h-4" /> <span className="hidden sm:inline">One-Time</span>
+                             <Briefcase className="w-4 h-4" /> <span>One-Time</span>
                           </button>
                           <button 
                              onClick={() => setPaymentType('monthly')}
                              className={`flex-1 py-2 rounded-lg text-xs font-bold border transition-all flex items-center justify-center gap-2 ${paymentType === 'monthly' ? 'bg-black text-white border-black' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}
                           >
-                             <CalendarDays className="w-4 h-4" /> <span className="hidden sm:inline">Monthly</span>
+                             <CalendarDays className="w-4 h-4" /> <span>Monthly</span>
                           </button>
                           
                           <button 
@@ -863,7 +868,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
             </div>
           )}
 
-        </div>
+        </div>}
       </div>
       <PricingModal isOpen={showPricingModal} onClose={() => setShowPricingModal(false)} userId={userId} />
     </div>

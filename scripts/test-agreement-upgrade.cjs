@@ -1,0 +1,46 @@
+const assert = require('node:assert/strict');
+const { chromium } = require('C:/Users/joshu/AppData/Roaming/npm/node_modules/openclaw/node_modules/playwright-core');
+const base = process.env.QA_BASE_URL || 'http://localhost:3036';
+
+(async () => {
+  const browser = await chromium.launch({ channel: 'msedge', headless: true });
+  try {
+    for (const width of [1440, 390]) {
+      const page = await browser.newPage({ viewport: { width, height: 950 } });
+      const errors = [];
+      page.on('pageerror', error => errors.push(error.message));
+      await page.goto(base);
+      await page.getByRole('link', { name: 'Create your first agreement' }).first().waitFor();
+      await page.screenshot({ path: `upgrade-home-${width}.png` });
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+      await page.getByRole('link', { name: 'Create your first agreement' }).first().click();
+      await page.getByLabel('Project name').fill('Website redesign');
+      await page.getByLabel('Project price').fill('1000');
+      await page.getByRole('button', { name: 'Continue', exact: true }).click();
+      await page.getByLabel('Deliverables and included revisions').fill('Five pages and two revision rounds.');
+      await page.getByLabel('Timeline and milestones').fill('First draft in two weeks.');
+      await page.getByRole('button', { name: 'Continue', exact: true }).click();
+      assert.ok((await page.locator('body').innerText()).includes('$1,000.00'));
+      await page.screenshot({ path: `upgrade-review-${width}.png` });
+      await page.getByRole('button', { name: 'Review agreement', exact: true }).click();
+      const editor = page.getByPlaceholder('Start typing your agreement here...');
+      await editor.waitFor();
+      await page.waitForFunction(() => document.querySelector('textarea')?.value.includes('1039.00'));
+      assert.match(await editor.inputValue(), /Five pages and two revision rounds/);
+      assert.match(await editor.inputValue(), /First draft in two weeks/);
+      await page.getByRole('button', { name: 'Monthly', exact: true }).waitFor();
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+      await editor.fill('Preserve this exact text.');
+      await page.getByRole('button', { name: 'Clear', exact: true }).click();
+      await page.getByRole('button', { name: 'Are you sure?', exact: true }).click();
+      await page.getByRole('button', { name: 'Undo', exact: true }).click();
+      assert.equal(await editor.inputValue(), 'Preserve this exact text.');
+      await page.goto(`${base}/create?mode=editor`);
+      await editor.waitFor();
+      assert.equal(await page.getByLabel('Project name').count(), 0);
+      assert.deepEqual(errors, []);
+      await page.close();
+    }
+    console.log('PASS: homepage CTA, guided draft, price and scope transfer, direct editor, Clear/Undo, mobile labels, overflow, runtime errors');
+  } finally { await browser.close(); }
+})().catch(error => { console.error(error); process.exitCode = 1; });

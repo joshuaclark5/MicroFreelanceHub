@@ -410,15 +410,26 @@ export default function Dashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8">
         
         {/* 🟢 STATS ROW */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="flex flex-wrap items-center justify-between gap-5 border-b border-gray-200 pb-6">
+          <div><h2 className="text-2xl font-semibold text-gray-950">Your agreements</h2><p className="mt-2 text-sm text-gray-600">Scope, client approvals and payment activity.</p></div>
+          <Link href="/create" className="inline-flex items-center gap-2 rounded-md bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800"><Plus size={18} /> New agreement</Link>
+        </div>
+        <div className="flex flex-wrap gap-6 border-b border-gray-200 pb-5" aria-label="Agreement filters">
+          <button type="button" aria-pressed={statusFilter === 'DRAFT'} onClick={() => setStatusFilter('DRAFT')} className="text-left text-sm text-gray-600 hover:text-blue-700">Draft agreements <span className="ml-2 font-semibold text-gray-950">{sows.filter(sow => String(sow.status).toLowerCase() === 'draft').length}</span></button>
+          <button type="button" aria-pressed={statusFilter === 'PAID'} onClick={() => setStatusFilter('PAID')} className="text-left text-sm text-gray-600 hover:text-blue-700">Paid records <span className="ml-2 font-semibold text-gray-950">{sows.filter(sow => String(sow.status).toLowerCase() === 'paid').length}</span></button>
+          <button type="button" aria-pressed={statusFilter === 'ALL'} onClick={() => setStatusFilter('ALL')} className="text-left text-sm text-gray-600 hover:text-blue-700">All agreements <span className="ml-2 font-semibold text-gray-950">{sows.length}</span></button>
+        </div>
+        <details className="border-b border-gray-200 pb-5">
+          <summary className="cursor-pointer text-sm font-semibold text-gray-600">Financial overview and Stripe connection</summary>
+        <div className="mt-5 grid grid-cols-1 lg:grid-cols-3 gap-6">
             
             {/* 1. FINANCIAL HEALTH CARD */}
-            <div className="lg:col-span-2 bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-xl shadow-gray-200/40 flex flex-col justify-between relative overflow-hidden group">
+            <div className="lg:col-span-2 bg-white py-4 flex flex-col justify-between relative overflow-hidden group">
                 
                 <div className="flex justify-between items-start z-10">
                     <div>
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Financial Health</p>
-                        <h3 className="text-5xl font-bold text-slate-900 tracking-tighter mt-2">{formatMoney(profit)}</h3>
+                        <h3 className="text-3xl font-semibold text-gray-950 mt-2">{formatMoney(profit)}</h3>
                         <p className={`text-sm font-medium mt-1 flex items-center gap-1 ${profit === 0 ? 'text-amber-500' : 'text-emerald-600'}`}>
                            <TrendingUp className="w-4 h-4" /> 
                            {profit === 0 ? "Send an invoice to see this grow!" : "Net Profit"}
@@ -476,21 +487,20 @@ export default function Dashboard() {
             </div>
 
             {/* 2. THE CREATE CARD */}
-            <Link href="/create" className="lg:col-span-1 group relative overflow-hidden bg-indigo-600 rounded-3xl p-8 text-white shadow-xl shadow-indigo-600/20 flex flex-col justify-between h-full min-h-[200px] sm:min-h-[280px] hover:scale-[1.02] transition-all duration-300">
+            <Link href="/create" className="lg:col-span-1 group relative border-l border-gray-200 p-6 text-gray-900 flex flex-col justify-between">
                 <div className="relative z-10">
                     <div className="bg-white/20 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center mb-4 sm:mb-6 backdrop-blur-md border border-white/20 group-hover:bg-white/30 transition-colors">
                         <PenTool className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                     </div>
-                    <h3 className="text-2xl sm:text-3xl font-bold tracking-tight">New Project</h3>
-                    <p className="text-indigo-100 text-xs sm:text-sm mt-2 font-medium leading-relaxed">Draft a new proposal or invoice in seconds.</p>
+                    <h3 className="text-xl font-semibold">New agreement</h3>
+                    <p className="text-gray-600 text-sm mt-2">Start with the scope and review your payment details.</p>
                 </div>
                 <div className="mt-auto pt-6 relative z-10 flex items-center gap-2 font-bold text-sm">
                     Start Now <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </div>
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-                <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/30 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
             </Link>
         </div>
+        </details>
 
         {/* 🟢 PROJECTS SECTION */}
         <div className="space-y-6">
@@ -601,7 +611,9 @@ export default function Dashboard() {
                             />
                           ) : (
                             <button 
-                              onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === sow.id ? null : sow.id); }} 
+                              aria-label={`Actions for ${sow.title || 'agreement'}`}
+                              aria-expanded={openMenuId === sow.id}
+                              onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === sow.id ? null : sow.id); }}
                               className="p-1.5 text-gray-300 hover:text-slate-900 hover:bg-gray-50 rounded-lg transition-colors"
                             >
                               <MoreVertical className="w-4 h-4" />
