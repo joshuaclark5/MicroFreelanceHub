@@ -5898,6 +5898,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-says-accounting-needs-vendor-setup-before-paying-reply-template',
+    title: 'What to Say When a Client Says Accounting Needs Vendor Setup Before Paying',
+    description:
+      'A practical freelancer reply template for clients who say payment is delayed by vendor setup, accounting forms, purchase orders, or internal payment admin.',
+    publishedAt: '2026-09-28',
+    category: 'Client Replies',
+    keywords: [
+      'client says accounting needs vendor setup before paying reply template',
+      'freelance invoice vendor setup delay',
+      'client payment delayed by accounting email',
+      'what to say when client needs W-9 before payment',
+      'freelance purchase order payment delay',
+      'late payment reply generator accounting delay',
+    ],
+    aiSummary:
+      'When a client says accounting needs vendor setup before paying, freelancers should acknowledge the admin step, ask exactly what information is missing, restate the invoice amount and due date, keep new work tied to payment, and send a clear payment link or revised payment timeline once setup is complete.',
+    ctaHref: '/tools/late-payment-reply-generator',
+    ctaLabel: 'Write an accounting-delay reply',
+    relatedLinks: [
+      {
+        label: 'Late Payment Reply Generator',
+        href: '/tools/late-payment-reply-generator',
+      },
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with payment terms',
+        href: '/create?source=vendor-setup-payment-delay-article',
+      },
+      {
+        label: 'What to Say When a Client Needs Internal Approval Before Paying',
+        href: '/articles/client-needs-internal-approval-before-paying-reply-template',
+      },
+      {
+        label: 'How to Follow Up on a Late Freelance Invoice Without Sounding Pushy',
+        href: '/articles/how-to-follow-up-late-freelance-invoice',
+      },
+      {
+        label: 'What to Say When a Client Wants Work to Continue With an Overdue Invoice',
+        href: '/articles/client-wants-work-to-continue-with-overdue-invoice-reply-template',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Treat accounting delays as project admin',
+        body: [
+          'A client may say payment is waiting on vendor setup, a purchase order, W-9 details, finance approval, invoice formatting, or another accounting step. Sometimes that is a normal company process. Sometimes it becomes a vague reason for the invoice to sit unpaid.',
+          'Your reply should keep the tone practical. You can cooperate with the admin request while still making the payment status clear: what is owed, what is missing, who owns the next step, and whether new work is paused until payment is complete.',
+        ],
+      },
+      {
+        heading: 'Use this vendor-setup delay reply template',
+        body: [
+          'Try: "Hi [Name], thanks for the update. I can help with the vendor setup step. Please send the exact accounting form or details your team needs from me. The open invoice is [amount], due [date], and the payment link is here: [link]. Once the vendor setup is complete, can you confirm the expected payment date so I can plan the next project step?"',
+          'If the invoice is already late, use a firmer version: "I am happy to provide any missing vendor details today. Since the invoice is now past due, I will pause new work until accounting setup is complete and payment is received. Once that clears, I can restart [next step]."',
+        ],
+      },
+      {
+        heading: 'Ask what is actually missing',
+        body: [
+          'Do not let "accounting is setting you up" remain the whole explanation. Ask whether they need a tax form, address confirmation, invoice number, purchase order, bank or payment method update, project code, contact email, or revised invoice line item.',
+          'A useful line is: "Can you confirm the exact item blocking payment and who needs it?" That turns a vague delay into a checklist you can close quickly without chasing the wrong person.',
+        ],
+      },
+      {
+        heading: 'Restate the invoice and due date',
+        body: [
+          'Accounting delays can make the original payment terms disappear from the conversation. Bring them back politely by naming the invoice, amount, due date, and payment link in the same message.',
+          'For example: "Invoice 1042 for $1,800 was due on September 25. I have attached the invoice again and included the payment link here." That gives the client something clean to forward to finance.',
+        ],
+      },
+      {
+        heading: 'Keep new work tied to payment',
+        body: [
+          'If the payment step is blocking a deposit, milestone, final handoff, or overdue balance, say what happens while accounting finishes setup. New revisions, implementation, launch support, file handoff, or the next milestone can wait until the payment path is complete.',
+          'Keep the wording operational: "I can keep the next milestone queued up, and I will start it once the invoice is paid." That avoids arguing about the client\'s internal process while still protecting your unpaid time.',
+        ],
+      },
+      {
+        heading: 'Prevent accounting delays next time',
+        body: [
+          'For future projects, ask before kickoff whether the client needs vendor onboarding, a purchase order, tax forms, invoice formatting, or finance approval before they can pay. Build those steps into the project link so payment admin happens before the deadline, not after work is waiting on it.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with deposits, approvals, milestones, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
