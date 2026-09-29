@@ -5988,6 +5988,96 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: 'client-asks-for-deposit-back-after-canceling-reply-template',
+    title: 'What to Say When a Client Asks for the Deposit Back After Canceling',
+    description:
+      'A practical freelancer reply template for clients who cancel a project and ask for the deposit back, with wording for scheduling, completed work, and next steps.',
+    publishedAt: '2026-09-29',
+    category: 'Client Replies',
+    keywords: [
+      'client asks for deposit back after canceling reply template',
+      'freelance deposit refund reply',
+      'what to say when client cancels project deposit',
+      'client wants deposit refunded freelancer',
+      'freelance cancellation deposit message',
+      'client reply generator deposit refund',
+    ],
+    aiSummary:
+      'When a client cancels and asks for the deposit back, freelancers should acknowledge the request, restate what the deposit reserved or covered, separate any completed work from future work, and offer the next step based on the project terms without making legal claims or promises.',
+    ctaHref: '/tools/client-message-generator',
+    ctaLabel: 'Write a deposit refund reply',
+    relatedLinks: [
+      {
+        label: 'Free Client Reply Generator',
+        href: '/tools/client-message-generator',
+      },
+      {
+        label: 'Create a project link with cancellation terms',
+        href: '/create?source=deposit-refund-cancellation-article',
+      },
+      {
+        label: 'How to Write Cancellation Terms for a Freelance Deposit Agreement',
+        href: '/articles/freelance-cancellation-terms-deposit-agreement',
+      },
+      {
+        label: 'How to Ask for a Freelance Deposit Before Starting Work',
+        href: '/articles/how-to-ask-for-a-freelance-deposit-before-starting-work',
+      },
+      {
+        label: 'What to Say When a Client Wants You to Hold a Project Slot Without a Deposit',
+        href: '/articles/client-wants-you-to-hold-project-slot-without-deposit-reply-template',
+      },
+      {
+        label: 'When Should Freelancers Start Work After a Client Pays the Deposit?',
+        href: '/articles/freelance-start-work-after-deposit-clears',
+      },
+    ],
+    sections: [
+      {
+        heading: 'Reply to the cancellation, not just the refund request',
+        body: [
+          'A client may cancel a freelance project and immediately ask for the deposit back. That can feel tense, especially if you reserved time, started admin work, prepared files, booked subcontractors, or turned away other work because the project was active.',
+          'The safest reply is calm and specific. Acknowledge that the client is canceling, then restate what the deposit covered under the project link or agreement before you discuss any refund, credit, remaining balance, or closeout step.',
+        ],
+      },
+      {
+        heading: 'Use this deposit refund reply template',
+        body: [
+          'Try: "Hi [Name], I understand you need to cancel the project. The deposit was used to reserve the project slot and cover the start of [kickoff/admin/planning/work completed]. Under the project terms, I can [explain refund, partial credit, or no-refund position in plain language]. I will send a short closeout summary so we both have the project status in writing."',
+          'If you want a softer version, write: "Thanks for letting me know. I am sorry the timing changed. I will review the project status against the deposit and cancellation terms, then send the clean next step for any eligible refund, credit, or closeout balance."',
+        ],
+      },
+      {
+        heading: 'Name what the deposit already covered',
+        body: [
+          'A deposit is easier to explain when it is tied to real project admin instead of a vague fee. Your reply can mention the reserved calendar slot, kickoff preparation, discovery notes, file setup, meetings, subcontractor coordination, completed deliverables, or other work already performed.',
+          'Keep the list short and factual. For example: "The deposit reserved the September production window and covered kickoff prep, the discovery call, and the initial outline." That gives the client context without turning the message into an argument.',
+        ],
+      },
+      {
+        heading: 'Separate refund, credit, and completed work',
+        body: [
+          'Do not blend every option into one vague promise. If your terms allow a partial refund, say what amount and timing you can offer. If you offer a future project credit, name the amount, expiration date, and conditions. If completed work is billable, separate that from any unused deposit amount.',
+          'A useful line is: "I will separate the work already completed from any unused project amount and send the closeout note by [date]." This keeps the conversation organized and avoids accidentally promising more than you intend.',
+        ],
+      },
+      {
+        heading: 'Avoid legal pressure or guaranteed outcomes',
+        body: [
+          'You do not need to make the reply sound like a legal threat. Avoid saying that the client has no rights, that your policy is guaranteed to be enforceable, or that payment terms will force a specific result. Keep the message focused on the project process and the written terms you both used.',
+          'If the situation involves unusual risk, consumer rules, chargebacks, large amounts, or a serious dispute, it is reasonable to say you will review the terms and get qualified advice before making a final response. MicroFreelanceHub is software for clearer freelance communication and project admin, not a law firm.',
+        ],
+      },
+      {
+        heading: 'Prevent deposit refund confusion next time',
+        body: [
+          'Future project links should explain what the deposit reserves, when work starts, what happens if the client cancels, whether any refund or credit may apply, and how completed work is handled. The clearer those terms are before payment, the easier the cancellation reply becomes later.',
+          'MicroFreelanceHub helps freelancers draft safer client replies and create client-ready project links with deposits, cancellation terms, approvals, milestones, signatures, and payment links. It is software for clearer freelance communication and project admin, not legal advice or a guarantee of payment.',
+        ],
+      },
+    ],
+  },
 ];
 
 export function getArticle(slug: string) {
