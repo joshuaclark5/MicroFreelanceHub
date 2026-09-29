@@ -9,7 +9,7 @@ import {
   Gem, ArrowUpRight, FileText, ExternalLink,
   LayoutGrid, Clock, TrendingUp, CheckCircle,
   PenTool, Repeat, Wallet, ArrowRight, History, Search, Filter,
-  FileWarning, Link2, Mail, Loader2, Settings
+  FileWarning, Link2, Mail, Loader2, Settings, ChevronDown
 } from 'lucide-react';
 import ConnectStripeButton from '../components/ConnectStripeButton';
 import PricingModal from '../components/PricingModal';
@@ -39,6 +39,8 @@ function UpgradeButton({ onClick }: { onClick: () => void }) {
   return (
     <button 
       onClick={onClick} 
+      aria-label="Upgrade to Pro"
+      title="Upgrade to Pro"
       className="bg-slate-900 text-white hover:bg-slate-800 border border-slate-700 rounded-full font-bold transition-all flex items-center justify-center shadow-lg hover:shadow-slate-900/20 group w-9 h-9 sm:w-auto sm:px-4 sm:py-1.5 sm:gap-2"
     >
       <Gem className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
@@ -193,11 +195,6 @@ export default function Dashboard() {
     if (!error) setSows(sows.filter((s) => s.id !== id));
   };
 
-  const handleMarkPaid = async (id: string) => {
-    const { error } = await supabase.from('sow_documents').update({ status: 'Paid', last_payment_date: new Date().toISOString() }).eq('id', id);
-    if (!error) setSows(sows.map(s => s.id === id ? { ...s, status: 'Paid' } : s));
-  };
-
   const handleDuplicate = async (sow: any) => {
     setProcessing(true);
     if (!isPro && sows.length >= 3) { setProcessing(false); setShowPricingModal(true); return; }
@@ -339,14 +336,14 @@ export default function Dashboard() {
   if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-400 bg-gray-50">Loading Dashboard...</div>;
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-32">
+    <div className="dashboard-workspace min-h-screen bg-[#F8FAFC] pb-32">
 
       {/* Welcome Wizard Modal */}
       {showWelcomeWizard && <WelcomeWizard onComplete={() => setShowWelcomeWizard(false)} />}
 
       {/* 🟢 TOP NAV */}
       <div className="bg-white border-b border-gray-100 sticky top-0 z-40 backdrop-blur-md bg-white/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 min-h-16 py-3 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
               <div className="bg-slate-900 text-white w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl font-bold text-lg shadow-lg shadow-slate-900/20">M</div>
               <div className="flex flex-col">
@@ -359,10 +356,10 @@ export default function Dashboard() {
             {!isPro && <UpgradeButton onClick={() => setShowPricingModal(true)} />}
             {isPro && <span className="text-[10px] font-bold bg-amber-50 text-amber-700 px-2 py-1 rounded border border-amber-100 whitespace-nowrap">PRO</span>}
             <div className="h-4 w-px bg-gray-200"></div>
-            <Link href="/settings" className="text-gray-400 hover:text-slate-900 transition-colors p-1 rounded hover:bg-gray-50" title="Settings">
+            <Link href="/settings" className="dashboard-icon-button" aria-label="Settings" title="Settings">
               <Settings className="w-5 h-5" />
             </Link>
-            <button onClick={handleLogout} className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded hover:bg-gray-50" title="Logout"><LogOut className="w-5 h-5" /></button>
+            <button onClick={handleLogout} className="dashboard-icon-button" aria-label="Log out" title="Log out"><LogOut className="w-5 h-5" /></button>
           </div>
         </div>
       </div>
@@ -374,13 +371,13 @@ export default function Dashboard() {
           <div><h2 className="text-2xl font-semibold text-gray-950">Your agreements</h2><p className="mt-2 text-sm text-gray-600">Scope, client approvals and payment activity.</p></div>
           <Link href="/create" className="inline-flex items-center gap-2 rounded-md bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800"><Plus size={18} /> New agreement</Link>
         </div>
-        <div className="flex flex-wrap gap-6 border-b border-gray-200 pb-5" aria-label="Agreement filters">
+        <div className="dashboard-filters flex flex-wrap gap-3 border-b border-gray-200 pb-5" role="group" aria-label="Agreement filters">
           <button type="button" aria-pressed={statusFilter === 'DRAFT'} onClick={() => setStatusFilter('DRAFT')} className="text-left text-sm text-gray-600 hover:text-blue-700">Draft agreements <span className="ml-2 font-semibold text-gray-950">{sows.filter(sow => String(sow.status).toLowerCase() === 'draft').length}</span></button>
           <button type="button" aria-pressed={statusFilter === 'PAID'} onClick={() => setStatusFilter('PAID')} className="text-left text-sm text-gray-600 hover:text-blue-700">Paid records <span className="ml-2 font-semibold text-gray-950">{sows.filter(sow => String(sow.status).toLowerCase() === 'paid').length}</span></button>
           <button type="button" aria-pressed={statusFilter === 'ALL'} onClick={() => setStatusFilter('ALL')} className="text-left text-sm text-gray-600 hover:text-blue-700">All agreements <span className="ml-2 font-semibold text-gray-950">{sows.length}</span></button>
         </div>
         <details className="border-b border-gray-200 pb-5">
-          <summary className="cursor-pointer text-sm font-semibold text-gray-600">Financial overview and Stripe connection</summary>
+          <summary className="dashboard-disclosure flex min-h-12 cursor-pointer items-center justify-between gap-3 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-800 hover:bg-gray-50"><span className="flex items-center gap-2"><Wallet size={18} /> Financial overview and Stripe connection</span><ChevronDown size={18} className="shrink-0" /></summary>
         <div className="mt-5 grid grid-cols-1 lg:grid-cols-3 gap-6">
             
             {/* 1. FINANCIAL HEALTH CARD */}
@@ -447,18 +444,16 @@ export default function Dashboard() {
             </div>
 
             {/* 2. THE CREATE CARD */}
-            <Link href="/create" className="lg:col-span-1 group relative border-l border-gray-200 p-6 text-gray-900 flex flex-col justify-between">
+            <div className="lg:col-span-1 relative border-l border-gray-200 p-6 text-gray-900 flex flex-col justify-between">
                 <div className="relative z-10">
                     <div className="bg-white/20 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center mb-4 sm:mb-6 backdrop-blur-md border border-white/20 group-hover:bg-white/30 transition-colors">
-                        <PenTool className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+                        <PenTool className="w-6 h-6 sm:w-7 sm:h-7 text-blue-700" />
                     </div>
                     <h3 className="text-xl font-semibold">New agreement</h3>
                     <p className="text-gray-600 text-sm mt-2">Start with the scope and review your payment details.</p>
                 </div>
-                <div className="mt-auto pt-6 relative z-10 flex items-center gap-2 font-bold text-sm">
-                    Start Now <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </div>
-            </Link>
+                <Link href="/create" className="dashboard-secondary-button mt-6 self-start">Create agreement <Plus size={16} /></Link>
+            </div>
         </div>
         </details>
 
@@ -469,10 +464,10 @@ export default function Dashboard() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-4">
                  <div className="flex items-center gap-3">
                     <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
-                        <LayoutGrid className="w-5 h-5 text-gray-400" /> Recent Projects
+                        <LayoutGrid className="w-5 h-5 text-gray-400" /> Agreement library
                     </h2>
                     {/* Status Tabs */}
-                    <div className="hidden md:flex bg-gray-100 p-1 rounded-lg">
+                    <div className="hidden" aria-hidden="true">
                         {['ALL', 'DRAFT', 'PAID'].map(status => (
                             <button 
                                 key={status}
@@ -492,15 +487,16 @@ export default function Dashboard() {
                        <input 
                           type="text" 
                           placeholder="Search clients..." 
+                          aria-label="Search agreements or clients"
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          className="pl-9 pr-4 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-40 sm:w-64 transition-all"
+                          className="min-h-11 pl-9 pr-4 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 w-40 sm:w-64 transition-all"
                        />
                    </div>
 
                    {/* Select Toggle */}
                    {sows.length > 0 && (
-                     <button onClick={() => { setSelectionMode(!selectionMode); setSelectedIds([]); }} className={`text-xs font-bold px-3 py-1.5 rounded-lg border transition-all flex items-center gap-2 ${selectionMode ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-500 border-gray-200 hover:border-slate-300'}`}>
+                     <button aria-pressed={selectionMode} onClick={() => { setSelectionMode(!selectionMode); setSelectedIds([]); }} className={`min-h-11 text-xs font-bold px-3 py-2 rounded-lg border transition-all flex items-center gap-2 ${selectionMode ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-gray-700 border-gray-300 hover:border-slate-500'}`}>
                         <CheckSquare className="w-3.5 h-3.5" /> {selectionMode ? 'Done' : 'Select'}
                      </button>
                    )}
@@ -516,19 +512,13 @@ export default function Dashboard() {
 
             <div className={filteredSows.length > 0 ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "block"}>
               {filteredSows.length === 0 ? (
-                <div className="text-center py-24 bg-white rounded-[2rem] border border-dashed border-gray-200 shadow-sm">
+                <div className="text-center py-16 border-y border-gray-200">
                   <div className="bg-gray-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300"><FileText className="w-10 h-10" /></div>
                   <h3 className="text-xl font-bold text-slate-900">No projects found</h3>
                   <p className="text-slate-500 mt-2 max-w-xs mx-auto">
-                      {searchQuery ? "Try a different search term." : "Your dashboard is empty. Create your first contract to get started."}
+                      {searchQuery || statusFilter !== 'ALL' ? "No agreements match these filters." : "Your first agreement starts with a project and a clear scope."}
                   </p>
-                  {!searchQuery && (
-                      <Link href="/create">
-                          <button className="mt-6 bg-slate-900 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-slate-800 transition-all shadow-lg hover:-translate-y-0.5">
-                              + Create Project
-                          </button>
-                      </Link>
-                  )}
+                  {searchQuery || statusFilter !== 'ALL' ? <button className="dashboard-secondary-button mt-6" onClick={() => { setSearchQuery(''); setStatusFilter('ALL'); }}>Clear filters</button> : <Link href="/create" className="mt-6 inline-flex items-center gap-2 rounded-lg bg-blue-700 px-6 py-3 font-semibold text-white hover:bg-blue-800"><Plus size={18} /> New agreement</Link>}
                 </div>
               ) : (
                 filteredSows.map((sow) => {
@@ -541,8 +531,6 @@ export default function Dashboard() {
 
                    if (isPaid) {
                        statusConfig = { label: "Paid", color: "bg-emerald-100 text-emerald-700", icon: CheckCircle };
-                       if (sched.type === 'split') statusConfig.label = "Part Paid";
-                       else if (sched.depositAmount) statusConfig.label = "Dep. Paid";
                    } else if (isSigned) {
                        statusConfig = { label: "Signed", color: "bg-blue-100 text-blue-700", icon: PenTool };
                    } else if (isMonthly && isPaid) {
@@ -552,8 +540,7 @@ export default function Dashboard() {
                    return (
                    <div 
                       key={sow.id} 
-                      onClick={() => router.push(`/sow/${sow.id}`)}
-                      className={`cursor-pointer group bg-white rounded-2xl p-6 shadow-sm border transition-all hover:shadow-lg hover:-translate-y-1 relative flex flex-col justify-between min-h-[220px] ${selectedIds.includes(sow.id) ? 'border-indigo-500 ring-1 ring-indigo-500' : 'border-gray-100'}`}
+                      className={`group bg-white rounded-lg p-5 shadow-sm border relative flex flex-col justify-between min-h-[220px] ${selectedIds.includes(sow.id) ? 'border-blue-600 ring-1 ring-blue-600' : 'border-gray-200'}`}
                    >
                      
                      <div className="flex justify-between items-start mb-6">
@@ -564,6 +551,7 @@ export default function Dashboard() {
                           {selectionMode ? (
                             <input 
                               type="checkbox" 
+                              aria-label={`Select ${sow.title || 'agreement'}`}
                               checked={selectedIds.includes(sow.id)} 
                               onChange={(e) => { e.stopPropagation(); toggleSelect(sow.id); }} 
                               onClick={(e) => e.stopPropagation()}
@@ -574,7 +562,8 @@ export default function Dashboard() {
                               aria-label={`Actions for ${sow.title || 'agreement'}`}
                               aria-expanded={openMenuId === sow.id}
                               onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === sow.id ? null : sow.id); }}
-                              className="p-1.5 text-gray-300 hover:text-slate-900 hover:bg-gray-50 rounded-lg transition-colors"
+                              title="More agreement actions"
+                              className="dashboard-icon-button"
                             >
                               <MoreVertical className="w-4 h-4" />
                             </button>
@@ -605,15 +594,9 @@ export default function Dashboard() {
                                     <Edit2 className="w-3.5 h-3.5" /> Edit Details
                                 </button>
 
-                                <button onClick={(e) => { e.stopPropagation(); handleDuplicate(sow); }} className="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-50 flex items-center gap-2">
+                                <button disabled={processing} onClick={(e) => { e.stopPropagation(); handleDuplicate(sow); }} className="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-50 flex items-center gap-2 disabled:opacity-50">
                                     <Copy className="w-3.5 h-3.5" /> Duplicate
                                 </button>
-
-                                {!isPaid && (
-                                    <button onClick={(e) => { e.stopPropagation(); handleMarkPaid(sow.id); }} className="w-full text-left px-4 py-2.5 text-xs font-bold text-emerald-600 hover:bg-emerald-50 flex items-center gap-2">
-                                        <CheckCircle className="w-3.5 h-3.5" /> Mark Paid
-                                    </button>
-                                )}
 
                                 <div className="h-px bg-gray-100 my-1"></div>
 
@@ -641,13 +624,13 @@ export default function Dashboard() {
                                ? 'bg-emerald-100 text-emerald-700 cursor-default'
                                : sendingId === sow.id
                                ? 'bg-indigo-100 text-indigo-600 cursor-wait'
-                               : 'bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95'
+                               : 'border border-gray-300 bg-white text-gray-800 hover:bg-blue-50 hover:border-blue-600'
                            }`}
                          >
                            {invoiceSentIds.includes(sow.id) ? (
                              <>
                                <CheckCircle className="w-4 h-4" />
-                               Invoice Sent
+                               Link emailed
                              </>
                            ) : sendingId === sow.id ? (
                              <>
@@ -657,18 +640,20 @@ export default function Dashboard() {
                            ) : (
                              <>
                                <Mail className="w-4 h-4" />
-                               Send Invoice
+                               Email client link
                              </>
                            )}
                          </button>
                        </div>
                      )}
 
-                     <div className="pt-4 border-t border-gray-100 flex items-center justify-between mt-auto">
+                     <div className="pt-4 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3 mt-auto">
                         <span className="text-lg font-bold text-slate-900">{formatMoney(sow.price || 0)}</span>
-                        <div className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                           Open <ArrowUpRight className="w-3 h-3" />
-                        </div>
+                        <Link href={`/sow/${sow.id}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-blue-700 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-800" aria-label={`Open ${sow.title || 'agreement'}`}>Open agreement <ArrowUpRight size={16} /></Link>
+                     </div>
+                     <div className="mt-3 grid grid-cols-2 gap-2">
+                       <Link href={`/edit/${sow.id}`} className="dashboard-secondary-button"><Edit2 size={15} /> {isSigned || isPaid ? 'Change order' : 'Edit draft'}</Link>
+                       <button className="dashboard-secondary-button" onClick={e => handleCopyPayLink(e, sow)} disabled={paymentLinkLoadingId === sow.id}><Link2 size={15} /> {copiedPayLinkId === sow.id ? 'Copied' : 'Copy link'}</button>
                      </div>
                    </div>
                 )})
@@ -676,11 +661,10 @@ export default function Dashboard() {
             </div>
             
             {selectionMode && selectedIds.length > 0 && (
-              <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-6 z-50 animate-in slide-in-from-bottom-4 border border-white/10">
+              <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 max-w-[calc(100%-2rem)] bg-slate-900 text-white px-6 py-3 rounded-lg shadow-2xl flex items-center gap-6 z-50 border border-white/10">
                 <span className="font-bold text-sm whitespace-nowrap">{selectedIds.length} selected</span>
                 <div className="h-4 w-px bg-slate-700"></div>
-                <button onClick={() => {}} className="text-slate-300 hover:text-white text-xs font-bold flex items-center gap-2 transition-colors"><Copy className="w-4 h-4" /> Duplicate</button>
-                <button onClick={handleBulkDelete} className="text-red-300 hover:text-red-100 text-xs font-bold flex items-center gap-2 transition-colors"><Trash2 className="w-4 h-4" /> Delete</button>
+                <button disabled={processing} onClick={handleBulkDelete} className="min-h-11 rounded-md border border-red-300 px-3 text-red-100 hover:bg-red-950 text-xs font-bold flex items-center gap-2 disabled:opacity-50"><Trash2 className="w-4 h-4" /> Delete</button>
               </div>
             )}
         </div>

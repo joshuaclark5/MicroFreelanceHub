@@ -75,7 +75,7 @@ export default function RootLayout({
                 </p>
 
                 {/* Links */}
-                <div className="flex justify-center gap-6 text-xs text-gray-500 font-medium">
+                <div className="flex flex-wrap justify-center gap-x-6 gap-y-4 text-xs text-gray-600 font-medium">
                     <Link href="/terms-of-service" className="hover:text-black transition-colors">Terms of Service</Link>
                     <Link href="/privacy-policy" className="hover:text-black transition-colors">Privacy Policy</Link>
                     <Link href="/disclaimer" className="hover:text-black transition-colors">Full Disclaimer</Link>

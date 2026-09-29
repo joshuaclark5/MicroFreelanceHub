@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { Metadata } from 'next';
 import { 
   Briefcase, FileSignature, Receipt, ChevronRight, Wrench, Home, Sparkles,
@@ -66,6 +66,9 @@ export default async function ProfessionHubPage({ params }: { params: { slug: st
     .ilike('slug', `${professionSlug}-%`);
 
   if (!templates || templates.length === 0) {
+    // Older backlinks used document slugs as professions. Redirect exact matches only.
+    const { data: document } = await supabase.from('seo_pages').select('slug').eq('slug', professionSlug).maybeSingle();
+    if (document) permanentRedirect(`/templates/${document.slug}`);
     return notFound();
   }
 

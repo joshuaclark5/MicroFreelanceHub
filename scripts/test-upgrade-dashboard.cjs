@@ -29,7 +29,7 @@ const docs = [
     page.setDefaultTimeout(120000);
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
-    for (const width of [1440, 390]) {
+    for (const width of [1440, 390, 320]) {
       await page.setViewportSize({ width, height: 950 });
       await page.goto(`${base}/dashboard`);
       await page.getByRole('heading', { name: 'Your agreements', exact: true }).waitFor();
@@ -39,8 +39,18 @@ const docs = [
       await page.getByRole('heading', { name: 'Website agreement', exact: true }).waitFor();
       assert.equal(await page.getByRole('heading', { name: 'Brand agreement', exact: true }).count(), 0);
       assert.equal(await page.locator('details').getAttribute('open'), null);
-      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+      assert.equal(await page.getByRole('link', { name: 'Open Website agreement', exact: true }).getAttribute('href'), '/sow/draft-fixture');
+      await page.getByRole('link', { name: 'Edit draft', exact: true }).waitFor();
+      await page.getByRole('button', { name: 'Copy link', exact: true }).waitFor();
+      const box = await page.getByRole('button', { name: 'Actions for Website agreement', exact: true }).boundingBox();
+      assert.ok(box.width >= 44 && box.height >= 44, 'Actions must have a visible touch target');
+      await page.getByRole('button', { name: 'Actions for Website agreement', exact: true }).click();
+      assert.equal(await page.getByRole('button', { name: 'Mark Paid', exact: true }).count(), 0);
+      await draft.click();
+      await page.getByRole('link', { name: 'Open Website agreement', exact: true }).focus();
+      assert.equal(await page.getByRole('link', { name: 'Open Website agreement', exact: true }).evaluate(el => el === document.activeElement), true);
       await page.screenshot({ path: `upgrade-dashboard-${width}.png` });
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Overflow at ${width}px`);
     }
     const pending = {
       version: 2, id: '00000000-0000-4000-8000-000000000099', saved_at: Date.now(),

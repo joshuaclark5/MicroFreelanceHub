@@ -7,6 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { CheckCircle2, ArrowRight, LockKeyhole, Mail } from 'lucide-react';
 import { getTrackedData, getAuthAttribution } from '../lib/trackingClient';
+import { sanitizeAttribution } from '../lib/profileAttribution';
 
 function LoginForm() {
   const [message, setMessage] = useState('');
@@ -91,12 +92,8 @@ function LoginForm() {
     if (attribution.landing_page) params.set('landing_page', attribution.landing_page);
     if (attribution.lead_source) params.set('lead_source', attribution.lead_source);
 
-    if (plan) {
-      params.set('plan', plan);
-      return `/checkout-plan?${params.toString()}`;
-    }
-
-    return params.toString() ? `/signup-success?${params.toString()}` : '/dashboard';
+    if (plan) params.set('plan', plan);
+    return `/auth/callback?${params.toString()}`;
   };
 
   const handleEmailAuth = async (e: React.FormEvent) => {
@@ -119,6 +116,10 @@ function LoginForm() {
           password,
           options: {
             emailRedirectTo: redirectTo,
+            data: {
+              signup_landing_page: sanitizeAttribution(attribution.landing_page, attribution.lead_source).signup_landing_page,
+              signup_lead_source: sanitizeAttribution(attribution.landing_page, attribution.lead_source).lead_source,
+            },
           },
         });
 

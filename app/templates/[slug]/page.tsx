@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import RelatedRoles from '../../components/seo/RelatedRoles';
 import { isEmailTemplate, isChecklistTemplate, templateBadge } from '../../lib/templateType';
+import { tradeWorkflows } from '../../lib/tradeWorkflows';
 
 export const revalidate = 86400;
 
@@ -165,7 +166,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
   const isSignOff = !isEmail && docType === 'Project Sign-Off Form';
   const isDepositAgreement = !isEmail && docType === 'Deposit Agreement';
   const isProposal = isEstimate || isQuote;
-  const ctaHref = isReference ? '#template-content' : `/create?template=${params.slug}`;
+  const trade = tradeWorkflows[params.slug];
+  const ctaHref = isReference ? '#template-content' : `/create?template=${params.slug}${trade ? '&source=trade-workflow' : ''}`;
   const primaryCta = isReference
     ? isChecklist ? 'Read the Checklist' : 'View Email Template'
     : isInvoice
@@ -289,6 +291,18 @@ export default async function TemplatePage({ params }: { params: { slug: string 
               </p>
             )}
           </div>
+
+          {trade && (
+            <section aria-label={`${trade.name} project details`} className="border-y border-gray-300 py-7">
+              <h2 className="text-xl font-semibold text-gray-950">From job details to an approved scope</h2>
+              <p className="mt-3 max-w-3xl text-gray-700 leading-relaxed">{trade.intro}</p>
+              <ul className="mt-5 grid gap-4 sm:grid-cols-3">
+                {trade.checks.map(check => <li key={check} className="flex items-start gap-2 text-sm text-gray-800"><ClipboardCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" />{check}</li>)}
+              </ul>
+              <p className="mt-5 max-w-3xl text-sm text-gray-600 leading-relaxed">{trade.change}</p>
+              <Link href={ctaHref} className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-lg border border-blue-700 bg-white px-4 py-3 text-sm font-semibold text-blue-800 hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"><FileText size={18} /> Start my {trade.name.toLowerCase()} agreement</Link>
+            </section>
+          )}
 
           {/* RIGHT SIDE: The Visual Preview Document (PRO TIER UPDATE) */}
           <div className="relative group">

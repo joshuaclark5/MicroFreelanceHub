@@ -2,6 +2,7 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { persistFirstTouch } from '../../lib/profileAttribution';
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
@@ -29,22 +30,10 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // Ensure every auth user has a profile row and preserve signup attribution.
-  const profileUpdate: Record<string, string | null> = {
-    id: user.id,
-    email: user.email || null,
-    updated_at: new Date().toISOString(),
-  };
-
-  if (landing_page) profileUpdate.signup_landing_page = landing_page;
-  if (lead_source) profileUpdate.lead_source = lead_source;
-
-  const { error: profileError } = await supabaseAdmin
-    .from('profiles')
-    .upsert(profileUpdate, { onConflict: 'id' });
-
-  if (profileError) {
-    console.error('Profile upsert failed during auth callback:', profileError);
+  try {
+    await persistFirstTouch(supabaseAdmin, user, landing_page, lead_source);
+  } catch {
+    console.error('Signup attribution could not be persisted');
   }
 
   const successParams = new URLSearchParams({
