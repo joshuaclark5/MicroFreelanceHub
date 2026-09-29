@@ -547,16 +547,14 @@ export default async function TemplatePage({ params }: { params: { slug: string 
       </div>
 
       {!isReference && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur-md shadow-[0_-12px_30px_rgba(15,23,42,0.12)] px-4 py-3 print:hidden">
+        <div className="border-y border-gray-200 bg-gray-50 px-4 py-6 print:hidden">
           <div className="max-w-5xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <p className="text-sm font-extrabold text-slate-900">Ready to turn this into a paid client link?</p>
               <p className="text-xs text-slate-500">Add scope, deposit, e-signature, and Stripe payment in one flow.</p>
             </div>
-            <Link href={ctaHref}>
-              <button className={`w-full sm:w-auto px-5 py-3 rounded-xl text-sm font-bold text-white shadow-lg ${themeColors}`}>
+            <Link href={ctaHref} className={`inline-flex min-h-11 items-center justify-center px-5 py-3 rounded-lg text-sm font-semibold text-white ${themeColors}`}>
                 {primaryCta}
-              </button>
             </Link>
           </div>
         </div>

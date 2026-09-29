@@ -23,6 +23,10 @@ const base = process.env.QA_BASE_URL || 'http://localhost:3037';
         assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${slug} at ${width}px`);
         if (slug === 'mobile-mechanic-contract-template') await page.screenshot({ path: `trade-entry-${width}.png`, fullPage: true });
       }
+      await page.getByRole('button', { name: 'Send feedback', exact: true }).click();
+      await page.getByRole('textbox', { name: 'Feedback message', exact: true }).waitFor();
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+      await page.getByRole('button', { name: 'Close feedback', exact: true }).first().click();
     }
     for (const slug of ['unpaid-extra-work-response-template-for-freelancers', 'interior-plant-stylist', 'operations-automation-consultant-change-request-payment-agreement']) {
       await page.goto(`${base}/profession/${slug}`);

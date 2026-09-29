@@ -10,6 +10,8 @@
   Mark Paid control, which conflicts with verified payment protection. Verified
   Paid agreements no longer incorrectly display Deposit Paid/Part Paid labels.
 - Narrow dashboard navigation wraps; footer links wrap without horizontal overflow.
+- Template conversion strip and feedback now remain in document flow rather than
+  overlapping page content. Feedback controls are labeled and fit narrow screens.
 - Email signup stores sanitized acquisition metadata for confirmation on another
   device. Immediate email sessions and returning password logins go through the
   existing server callback. Conditional profile updates preserve first-recorded

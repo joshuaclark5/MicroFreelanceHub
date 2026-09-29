@@ -44,14 +44,14 @@ export default function FeedbackWidget() {
 
   return (
     // 👇 UPDATED CSS: 'bottom-20' on mobile prevents covering the Save button
-    <div className={pathname === '/create' || pathname === '/dashboard' || pathname.startsWith('/edit/') || pathname.startsWith('/sow/') ? 'relative mx-auto max-w-7xl px-6 py-6 flex flex-col items-end' : 'fixed bottom-20 right-4 sm:bottom-8 sm:right-8 z-50 flex flex-col items-end'}>
+    <div className="relative mx-auto w-full max-w-7xl px-4 py-6 flex flex-col items-end">
       
       {/* THE FORM BOX */}
       {isOpen && (
-        <div className="mb-4 w-72 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden animate-in slide-in-from-bottom-5 fade-in duration-300">
+        <div className="mb-4 w-72 max-w-full bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
           <div className="bg-black p-3 flex justify-between items-center text-white">
             <span className="font-bold text-sm">Send Feedback</span>
-            <button onClick={() => setIsOpen(false)} className="hover:text-gray-300">
+            <button aria-label="Close feedback" onClick={() => setIsOpen(false)} className="h-11 w-11 flex items-center justify-center hover:text-gray-300">
               <X size={16} />
             </button>
           </div>
@@ -63,6 +63,7 @@ export default function FeedbackWidget() {
           ) : (
             <form onSubmit={handleSubmit} className="p-4 space-y-3">
               <textarea
+                aria-label="Feedback message"
                 className="w-full text-sm p-2 border border-gray-300 rounded-md focus:outline-none focus:border-black resize-none"
                 rows={3}
                 placeholder="Found a bug? Have an idea?"
@@ -71,6 +72,7 @@ export default function FeedbackWidget() {
                 required
               />
               <input 
+                aria-label="Email (optional)"
                 type="email"
                 placeholder="Email (optional)"
                 className="w-full text-sm p-2 border border-gray-300 rounded-md focus:outline-none focus:border-black"
@@ -91,9 +93,12 @@ export default function FeedbackWidget() {
       {/* THE FLOATING BUTTON */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="h-12 w-12 bg-black text-white rounded-full shadow-lg hover:scale-105 transition-transform flex items-center justify-center"
+        aria-label={isOpen ? 'Close feedback' : 'Send feedback'}
+        aria-expanded={isOpen}
+        title={isOpen ? 'Close feedback' : 'Send feedback'}
+        className="min-h-11 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-800 hover:bg-gray-100 flex items-center justify-center gap-2"
       >
-        {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
+        {isOpen ? <X size={18} /> : <MessageSquare size={18} />} Feedback
       </button>
 
     </div>
