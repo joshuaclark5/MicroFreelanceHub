@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
+import { persistFirstTouch, sanitizeAttribution } from '../../../lib/profileAttribution';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-10-16' as any,
@@ -40,7 +41,7 @@ export async function POST(request: Request) {
     if (userId !== authenticatedUser.id) return NextResponse.json({ error: 'Account mismatch.' }, { status: 403 });
 
     // Validate plan
-    if (!plan || !PLAN_PRICES[plan as keyof typeof PLAN_PRICES]) {
+    if (typeof plan !== 'string' || !Object.prototype.hasOwnProperty.call(PLAN_PRICES, plan)) {
       return NextResponse.json({ error: 'Invalid plan' }, { status: 400 });
     }
 
@@ -55,7 +56,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Get user's Stripe customer ID or create one
+    await persistFirstTouch(supabase, user, landingPage, leadSource);
+
+    // Read the persisted first touch rather than replacing it with checkout input.
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('*')
@@ -63,8 +66,12 @@ export async function POST(request: Request) {
       .maybeSingle();
 
     if (profileError) {
-      console.error('Error loading profile for checkout:', profileError);
+      throw new Error('Unable to load checkout profile');
     }
+
+    const attribution = sanitizeAttribution(profile?.signup_landing_page, profile?.lead_source);
+    const attributedLanding = attribution.signup_landing_page || '';
+    const attributedSource = attribution.lead_source || '';
 
     let stripeCustomerId = profile?.stripe_customer_id;
 
@@ -85,13 +92,11 @@ export async function POST(request: Request) {
           id: userId,
           email: user.email,
           stripe_customer_id: stripeCustomerId,
-          signup_landing_page: landingPage || null,
-          lead_source: leadSource || null,
           updated_at: new Date().toISOString(),
         }, { onConflict: 'id' });
 
       if (updateError) {
-        console.error('Error saving Stripe customer ID:', updateError);
+        throw new Error('Unable to save checkout customer');
       }
     }
 
@@ -105,15 +110,15 @@ export async function POST(request: Request) {
       client_reference_id: userId, // Pass userId so webhook can identify the user
       metadata: {
         plan,
-        landing_page: landingPage || '',
-        lead_source: leadSource || '',
+        landing_page: attributedLanding,
+        lead_source: attributedSource,
       },
       subscription_data: {
         metadata: {
           plan,
           userId,
-          landing_page: landingPage || '',
-          lead_source: leadSource || '',
+          landing_page: attributedLanding,
+          lead_source: attributedSource,
         },
       },
       line_items: [
@@ -132,13 +137,13 @@ export async function POST(request: Request) {
           quantity: 1,
         },
       ],
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment-success?plan=${plan}&session_id={CHECKOUT_SESSION_ID}&landing_page=${encodeURIComponent(landingPage || '')}&lead_source=${encodeURIComponent(leadSource || '')}`,
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment-success?plan=${plan}&session_id={CHECKOUT_SESSION_ID}&landing_page=${encodeURIComponent(attributedLanding)}&lead_source=${encodeURIComponent(attributedSource)}`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/pricing?upgrade=cancelled`,
     });
 
     return NextResponse.json({ url: session.url });
   } catch (err: any) {
     console.error('Plan Checkout Error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Unable to start checkout. Please try again.' }, { status: 500 });
   }
 }
