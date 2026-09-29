@@ -1,6 +1,6 @@
 # Agreement Experience Upgrade
 
-Owner: Joshua. Updated September 29, 2026. Status: tested preview, NOT deployed.
+Owner: Joshua. Updated September 29, 2026. Status: database ready; application release pending.
 
 ## Scope
 
@@ -23,14 +23,14 @@ guaranteed payment, conversion rates or search index counts.
 - [x] Session-scoped guided brief recovery after refresh (24-hour expiry).
 - [x] Editor draft recovery across navigation; authenticated recovery preserves client email, total, due date and payment schedule.
 - [x] Conversion events with fixed payloads, no client names, emails or agreement text; respect DNT/GPC.
-- [ ] Final navigation, keyboard and accessibility pass across core screens.
+- [x] Core navigation, mobile labels and signup dialog keyboard/Escape checks (not a full WCAG audit).
 - [x] Verify signature, change-order, payment confirmation and partial balances using mocks and isolated PostgreSQL.
 - [x] Desktop/mobile functional regression suite; client payment screenshot reviewed.
 - [x] Recompare sitemap URL inventory: 1,510 live and preview, zero missing URLs.
 - [x] Balance-aware reminders and no repeat/older reminder after latest milestone (isolated PostgreSQL, mocked mail queue).
-- [ ] Complete final visual/accessibility review across remaining core screens.
-- [ ] Install and verify both September 29 database migrations with authorized database-admin access.
-- [ ] Reconcile outstanding legacy Stripe checkout sessions before rollout; verify live schema compatibility.
+- [x] Core desktop/mobile screenshot review and functional checks.
+- [x] Install and verify both September 29 database migrations with authorized database-admin access.
+- [x] Check recent Stripe sessions before rollout; verify live schema compatibility. No legacy agreement sessions found in last 31 days.
 - [ ] Final release commit, deployment and public smoke tests.
 
 ## Verification
@@ -92,3 +92,21 @@ browser startup failed with a CDP endpoint ownership error. No production
 migration, deployment, customer payment, signature or email was performed.
 
 Local preview: http://localhost:3036 (only reachable on this computer).
+
+## September 29 Database Release
+
+User supplied an authenticated Supabase browser session. Saved a private local
+recovery snapshot outside Git containing all 59 agreements, schema/policies and
+the previous reminder function. Applied both migrations through the authorized
+SQL Editor. Verified 59 documents remain, all 11 recorded-paid balances backfilled,
+zero new receipts, receipt RLS enabled, guard trigger installed, and receipt RPC
+denied to anon/authenticated but allowed to service_role. Reminder definition uses
+remaining balances. No live reminder sweep, charge or signature was performed.
+
+Read-only Stripe inspection: three open sessions, none for legacy agreement
+checkout, zero completed/paid sessions in the last 31 days. Older recorded payments
+are preserved as recorded; this is not a historical Stripe audit.
+
+Final modal keyboard test found a tab-cycle issue; explicit first/last focus wrap
+was added. Fresh build, independent TypeScript and desktop/mobile flow including
+dialog focus confinement and Escape passed before publication.

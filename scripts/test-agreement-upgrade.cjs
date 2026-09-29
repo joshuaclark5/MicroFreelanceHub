@@ -48,6 +48,18 @@ const base = process.env.QA_BASE_URL || 'http://localhost:3036';
       await page.goto(`${base}/create?mode=editor`);
       await editor.waitFor();
       assert.equal(await page.getByLabel('Project name').count(), 0);
+      await page.getByPlaceholder('e.g. John Smith').fill('QA Client');
+      await page.getByPlaceholder('e.g. john@example.com').fill('qa@example.test');
+      await page.getByRole('button', { name: 'Create Client Link', exact: true }).click();
+      const dialog = page.getByRole('dialog', { name: 'Save your agreement' });
+      await dialog.waitFor();
+      for (let tab = 0; tab < 8; tab++) {
+        await page.keyboard.press('Tab');
+        assert.ok(await dialog.evaluate(el => el.contains(document.activeElement)), 'Signup dialog contains keyboard focus');
+      }
+      await page.keyboard.press('Escape');
+      await dialog.waitFor({ state: 'hidden' });
+      assert.equal(await editor.inputValue(), 'Preserve this exact text.');
       assert.deepEqual(errors, []);
       await page.close();
     }

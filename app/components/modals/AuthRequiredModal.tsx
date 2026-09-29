@@ -18,6 +18,17 @@ export function AuthRequiredModal({ open, onOpenChange }: AuthRequiredModalProps
 
   return (
     <dialog ref={dialog} aria-labelledby="save-agreement-title"
+      onKeyDown={event => {
+        if (event.key !== 'Tab') return;
+        const controls = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], input:not([disabled]), [tabindex="0"]'));
+        const first = controls[0];
+        const last = controls[controls.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault(); last?.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault(); first?.focus();
+        }
+      }}
       onCancel={() => onOpenChange(false)}
       onClose={() => onOpenChange(false)}
       className="w-[calc(100%-2rem)] max-w-md rounded-lg border border-gray-200 bg-white p-0 text-gray-900 shadow-xl backdrop:bg-black/40">
