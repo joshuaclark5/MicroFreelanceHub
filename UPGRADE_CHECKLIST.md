@@ -1,6 +1,6 @@
 # Agreement Experience Upgrade
 
-Owner: Joshua. Updated September 29, 2026. Status: database ready; application release pending.
+Owner: Joshua. Updated September 29, 2026. Status: deployed and public smoke tests passed.
 
 ## Scope
 
@@ -31,7 +31,7 @@ guaranteed payment, conversion rates or search index counts.
 - [x] Core desktop/mobile screenshot review and functional checks.
 - [x] Install and verify both September 29 database migrations with authorized database-admin access.
 - [x] Check recent Stripe sessions before rollout; verify live schema compatibility. No legacy agreement sessions found in last 31 days.
-- [ ] Final release commit, deployment and public smoke tests.
+- [x] Final release commit e4eb8e4, Vercel success and public smoke tests.
 
 ## Verification
 
@@ -110,3 +110,19 @@ are preserved as recorded; this is not a historical Stripe audit.
 Final modal keyboard test found a tab-cycle issue; explicit first/last focus wrap
 was added. Fresh build, independent TypeScript and desktop/mobile flow including
 dialog focus confinement and Escape passed before publication.
+
+## Live Verification (September 29, 04:58 UTC)
+
+Published e4eb8e4 to origin/main. Vercel reported success:
+https://vercel.com/joshua-clarks-projects-fcc96aed/micro-freelance-hub-gxip/CUWiRpDYYKUYL1jof2noVhiRgEb4
+
+Live https://www.microfreelancehub.com passed desktop/mobile guided flow, draft
+recovery, scope/price transfer, Clear/Undo, signup dialog focus/Escape, full-library
+search and pagination, reference classification, dates and billing authorization.
+No live accounts, charges, signatures or emails were created by tests. Sampled
+template/article canonicals retained their URLs, returned HTTP 200 and no noindex.
+Robots permits public resources. Sitemap retains 1,510 URLs with none missing.
+
+This completes this release's checklist, not a guarantee of Google index counts,
+conversion uplift, a complete accessibility audit or all recurring Stripe events.
+Historical blocker notes above describe earlier checkpoints, not current status.
