@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Sparkles, ShieldCheck, X } from 'lucide-react';
+import { useEffect, useRef } from 'react';
+import { ArrowRight, FileSignature, X } from 'lucide-react';
 
 interface AuthRequiredModalProps {
   open: boolean;
@@ -9,65 +10,34 @@ interface AuthRequiredModalProps {
 }
 
 export function AuthRequiredModal({ open, onOpenChange }: AuthRequiredModalProps) {
-  if (!open) return null;
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    if (open && !dialog.current?.open) dialog.current?.showModal();
+    if (!open && dialog.current?.open) dialog.current?.close();
+  }, [open]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop (Dark overlay) */}
-      <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" 
-        onClick={() => onOpenChange(false)}
-      />
-
-      {/* Modal Content */}
-      <div className="relative z-50 w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden scale-100 transition-all m-4">
-        
-        {/* Close Button */}
-        <button 
-          onClick={() => onOpenChange(false)}
-          className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors z-20"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        <div className="p-8 pt-10 text-center relative">
-            {/* Decorative background icons */}
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-                <Sparkles className="w-32 h-32 text-blue-50 absolute -top-10 -left-10 opacity-50" />
-                <Sparkles className="w-24 h-24 text-indigo-50 absolute -bottom-12 -right-8 opacity-50" />
-            </div>
-
-            <div className="relative z-10">
-                <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6 shadow-sm ring-4 ring-blue-50">
-                    <ShieldCheck className="w-8 h-8 text-blue-600" />
-                </div>
-                
-                <h2 className="text-2xl font-bold text-slate-900 mb-3">
-                  Create Your Client Link
-                </h2>
-                
-                <p className="text-slate-500 leading-relaxed">
-                  Create a free account to save this agreement, collect signatures, and accept the deposit from one secure client link.
-                </p>
-            </div>
+    <dialog ref={dialog} aria-labelledby="save-agreement-title"
+      onCancel={() => onOpenChange(false)}
+      onClose={() => onOpenChange(false)}
+      className="w-[calc(100%-2rem)] max-w-md rounded-lg border border-gray-200 bg-white p-0 text-gray-900 shadow-xl backdrop:bg-black/40">
+      <div className="p-6 sm:p-8">
+        <div className="mb-6 flex items-center justify-between">
+          <FileSignature className="h-7 w-7 text-emerald-700" aria-hidden="true" />
+          <button type="button" aria-label="Close" onClick={() => onOpenChange(false)}
+            className="rounded-md p-2 text-gray-500 hover:bg-gray-100"><X size={20} /></button>
         </div>
-
-        {/* Footer Actions */}
-        <div className="p-6 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row gap-3">
-          <button 
-            onClick={() => onOpenChange(false)}
-            className="w-full sm:w-auto px-6 py-3 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-white hover:border-slate-300 transition-all order-2 sm:order-1"
-          >
-            Not Now
-          </button>
-          
-          <Link href="/login" className="w-full sm:flex-1 order-1 sm:order-2">
-            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200 rounded-xl font-bold flex items-center justify-center gap-2 py-3 transition-all transform hover:-translate-y-0.5">
-                 Continue Free <ArrowRight className="w-5 h-5" />
-            </button>
-          </Link>
-        </div>
+        <h2 id="save-agreement-title" className="text-2xl font-semibold">Save your agreement</h2>
+        <p className="mt-3 text-base leading-7 text-gray-600">
+          Create an account to save your draft and create a client link.
+          Connect Stripe when you are ready to accept payments.
+        </p>
+        <Link href="/login" className="mt-6 flex items-center justify-center gap-2 rounded-md bg-emerald-700 px-5 py-3 font-semibold text-white hover:bg-emerald-800">
+          Continue Free <ArrowRight size={18} />
+        </Link>
+        <Link href="/login?mode=signin" className="mt-4 block text-center text-sm font-medium text-gray-700 underline underline-offset-4">Already have an account? Sign in</Link>
+        <button type="button" onClick={() => onOpenChange(false)} className="mt-5 w-full py-2 text-sm text-gray-500">Keep editing</button>
       </div>
-    </div>
+    </dialog>
   );
 }

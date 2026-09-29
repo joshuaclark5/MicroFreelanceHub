@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -16,6 +16,7 @@ import PricingModal from '../components/PricingModal';
 import AddExpenseModal from '../components/AddExpenseModal';
 import ExpenseHistoryModal from '../components/ExpenseHistoryModal';
 import WelcomeWizard from '../components/WelcomeWizard';
+import { agreementBalance } from '../lib/agreementPayment';
 
 const formatMoney = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -47,6 +48,7 @@ function UpgradeButton({ onClick }: { onClick: () => void }) {
 }
 
 export default function Dashboard() {
+  const initialLoadRunning = useRef(false);
   const [sows, setSows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPro, setIsPro] = useState(false);
@@ -108,9 +110,11 @@ export default function Dashboard() {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (initialLoadRunning.current) return;
+      initialLoadRunning.current = true;
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user) { router.push('/login'); return; }
+        if (!user) { router.push('/login?mode=signin'); return; }
         setUserEmail(user.email || '');
         setUserId(user.id);
 
@@ -125,6 +129,9 @@ export default function Dashboard() {
         if (pendingSOW) {
             console.log("📦 Found pending SOW, saving...");
             const sowData = JSON.parse(pendingSOW);
+            const isVersionTwo = sowData.version === 2 && typeof sowData.id === 'string' &&
+                /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(sowData.id) &&
+                Number.isFinite(sowData.price) && sowData.price >= 0;
 
             // Calculate totals for recovery
             let grandTotal = 0;
@@ -137,21 +144,32 @@ export default function Dashboard() {
             }
 
             const { error } = await supabase.from('sow_documents').insert({
+                ...(isVersionTwo ? {
+                    id: sowData.id,
+                    client_data: { name: sowData.client_name, email: sowData.client_data?.email || '' },
+                    due_date: sowData.due_date || null,
+                    dunning_enabled: sowData.dunning_enabled === true,
+                } : {}),
                 user_id: user.id,
                 client_name: sowData.client_name,
                 title: sowData.title,
-                price: grandTotal > 0 ? grandTotal : 0,
+                price: isVersionTwo ? sowData.price : grandTotal > 0 ? grandTotal : 0,
                 line_items: sowData.line_items,
                 deliverables: sowData.deliverables,
                 status: 'Draft',
                 payment_type: sowData.payment_type || 'one_time',
-                payment_schedule_structured: {
+                payment_schedule_structured: isVersionTwo ? sowData.payment_schedule_structured : {
                     depositAmount: sowData.deposit_amount || 0,
                     type: sowData.deposit_amount ? 'fixed' : 'none'
                 }
             });
 
-            if (!error) {
+            let alreadyRecovered = false;
+            if (isVersionTwo && error?.code === '23505') {
+                const { data: existing } = await supabase.from('sow_documents').select('id').eq('id', sowData.id).eq('user_id', user.id).maybeSingle();
+                alreadyRecovered = Boolean(existing);
+            }
+            if (!error || alreadyRecovered) {
                 console.log("✅ Pending SOW saved successfully!");
                 localStorage.removeItem('pendingSOW'); // Clear luggage
             } else {
@@ -164,7 +182,7 @@ export default function Dashboard() {
           setShowWelcomeWizard(true);
         }
 
-      } catch (err) { console.error(err); } finally { setLoading(false); }
+      } catch (err) { console.error(err); } finally { initialLoadRunning.current = false; setLoading(false); }
     };
     fetchData();
   }, [supabase, router]);
@@ -245,33 +263,7 @@ export default function Dashboard() {
         return;
       }
 
-      // Step 1: Generate Stripe Payment Link
-      let paymentLink = null;
-      try {
-        const checkoutRes = await fetch('/api/stripe/checkout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sowId: sow.id,
-            amount: sow.price || 0,
-          }),
-        });
-
-        const checkoutData = await checkoutRes.json();
-        if (checkoutData.url) {
-          paymentLink = checkoutData.url;
-        } else {
-          console.error('Failed to generate payment link:', checkoutData.error);
-          alert('Failed to generate payment link. Please try again.');
-          setSendingId(null);
-          return;
-        }
-      } catch (checkoutErr) {
-        console.error('Checkout generation error:', checkoutErr);
-        alert('Failed to generate payment link. Please try again.');
-        setSendingId(null);
-        return;
-      }
+      const paymentLink = `${window.location.origin}/sow/${sow.id}`;
 
       // Step 2: Call the Edge Function with the payment link
       const { data: invoiceResult, error: invoiceError } = await supabase.functions.invoke('send-invoice-email', {
@@ -279,7 +271,7 @@ export default function Dashboard() {
           invoice_id: sow.id,
           client_email: clientEmail,
           client_name: sow.client_name || 'Client',
-          amount_due: sow.price || 0,
+          amount_due: Number(sow.price) > 0 ? agreementBalance(sow).due / 100 : 0,
           project_name: sow.title || 'Project',
           payment_link: paymentLink,
         }
@@ -292,23 +284,8 @@ export default function Dashboard() {
         return;
       }
 
-      // Step 3: Update the database to mark as 'unpaid'
-      const { error: updateError } = await supabase
-        .from('sow_documents')
-        .update({ status: 'unpaid' })
-        .eq('id', sow.id);
-
-      if (updateError) {
-        console.error('Database update error:', updateError);
-        alert('Failed to update invoice status. Please try again.');
-        setSendingId(null);
-        return;
-      }
-
-      // Mark as sent
+      // Sending a link must not change payment or signature state.
       setInvoiceSentIds([...invoiceSentIds, sow.id]);
-      // Update the local state to reflect the status change
-      setSows(sows.map(s => s.id === sow.id ? { ...s, status: 'unpaid' } : s));
 
       // Optionally show success message
       console.log('✅ Invoice sent successfully to', clientEmail);
@@ -325,27 +302,10 @@ export default function Dashboard() {
     setPaymentLinkLoadingId(sow.id);
 
     try {
-      // Generate Stripe Payment Link
-      const checkoutRes = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sowId: sow.id,
-          amount: sow.price || 0,
-        }),
-      });
-
-      const checkoutData = await checkoutRes.json();
-      if (checkoutData.url) {
-        // Copy to clipboard
-        await navigator.clipboard.writeText(checkoutData.url);
-        setCopiedPayLinkId(sow.id);
-        setTimeout(() => setCopiedPayLinkId(null), 2000);
-        setOpenMenuId(null);
-      } else {
-        console.error('Failed to generate payment link:', checkoutData.error);
-        alert('Failed to generate payment link. Please try again.');
-      }
+      await navigator.clipboard.writeText(`${window.location.origin}/sow/${sow.id}`);
+      setCopiedPayLinkId(sow.id);
+      setTimeout(() => setCopiedPayLinkId(null), 2000);
+      setOpenMenuId(null);
     } catch (err) {
       console.error('Error copying payment link:', err);
       alert('Failed to copy payment link. Please try again.');
@@ -629,7 +589,7 @@ export default function Dashboard() {
                                 >
                                     <span className="flex items-center gap-2">
                                       {copiedPayLinkId === sow.id ? <CheckCircle className="w-3.5 h-3.5" /> : paymentLinkLoadingId === sow.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Wallet className="w-3.5 h-3.5" />}
-                                      {copiedPayLinkId === sow.id ? 'Copied!' : paymentLinkLoadingId === sow.id ? 'Copying...' : 'Copy Pay Link'}
+                                      {copiedPayLinkId === sow.id ? 'Copied!' : paymentLinkLoadingId === sow.id ? 'Copying...' : 'Copy Client Link'}
                                     </span>
                                 </button>
 

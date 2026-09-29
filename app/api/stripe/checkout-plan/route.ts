@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-10-16' as any,
@@ -31,7 +33,11 @@ const PLAN_PRICES = {
 
 export async function POST(request: Request) {
   try {
+    const auth = createRouteHandlerClient({ cookies });
+    const { data: { user: authenticatedUser } } = await auth.auth.getUser();
+    if (!authenticatedUser) return NextResponse.json({ error: 'Sign in to choose a plan.' }, { status: 401 });
     const { plan, userId, landingPage, leadSource } = await request.json();
+    if (userId !== authenticatedUser.id) return NextResponse.json({ error: 'Account mismatch.' }, { status: 403 });
 
     // Validate plan
     if (!plan || !PLAN_PRICES[plan as keyof typeof PLAN_PRICES]) {

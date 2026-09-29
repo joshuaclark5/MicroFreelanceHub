@@ -151,7 +151,7 @@ function EditProjectContent() {
   useEffect(() => {
     const fetchData = async () => {
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user) { router.push('/login'); return; }
+        if (!user) { router.push('/login?mode=signin'); return; }
         setUserId(user.id);
 
         const { data: profile } = await supabase.from('profiles').select('is_pro').eq('id', user.id).single();
@@ -159,7 +159,7 @@ function EditProjectContent() {
 
         const { data: project, error } = await supabase.from('sow_documents').select('*').eq('id', projectId).single();
 
-        if (error || !project) {
+        if (error || !project || project.user_id !== user.id) {
             alert('Project not found');
             router.push('/dashboard');
             return;
@@ -420,7 +420,8 @@ function EditProjectContent() {
             signed_by: null,
             provider_sign: null
         })
-        .eq('id', projectId);
+        .eq('id', projectId)
+        .eq('user_id', userId);
 
     if (!error) router.push('/dashboard');
     else alert("Error updating: " + error.message);
@@ -531,7 +532,7 @@ function EditProjectContent() {
                       </div>
                     )}
 
-                  <textarea required className="w-full flex-1 resize-none font-mono text-sm leading-relaxed focus:outline-none text-gray-800 p-6 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all min-h-[400px] md:min-h-0" value={formData.deliverables} onChange={(e) => setFormData({ ...formData, deliverables: e.target.value })} placeholder="Start typing your agreement here..." />
+                  <textarea aria-label="Agreement text" required className="w-full flex-1 resize-none font-sans text-base leading-7 focus:outline-none text-gray-800 p-6 bg-gray-50 rounded-lg border border-gray-200 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all min-h-[400px] md:min-h-0" value={formData.deliverables} onChange={(e) => setFormData({ ...formData, deliverables: e.target.value })} placeholder="Start typing your agreement here..." />
                 </form>
               </div>
 
@@ -565,13 +566,13 @@ function EditProjectContent() {
                              onClick={() => setPaymentType('one_time')}
                              className={`flex-1 py-2 rounded-lg text-xs font-bold border transition-all flex items-center justify-center gap-2 ${paymentType === 'one_time' ? 'bg-black text-white border-black' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}
                           >
-                             <Briefcase className="w-4 h-4" /> <span className="hidden sm:inline">One-Time</span>
+                             <Briefcase className="hidden sm:block w-4 h-4" aria-hidden="true" /> <span>One-Time</span>
                           </button>
                           <button 
                              onClick={() => setPaymentType('monthly')}
                              className={`flex-1 py-2 rounded-lg text-xs font-bold border transition-all flex items-center justify-center gap-2 ${paymentType === 'monthly' ? 'bg-black text-white border-black' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}
                           >
-                             <CalendarDays className="w-4 h-4" /> <span className="hidden sm:inline">Monthly</span>
+                             <CalendarDays className="hidden sm:block w-4 h-4" aria-hidden="true" /> <span>Monthly</span>
                           </button>
                           
                           {/* 🆕 AGREEMENT ONLY (PRO FEATURE) - FIXED ALIGNMENT */}

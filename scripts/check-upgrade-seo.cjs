@@ -16,9 +16,9 @@ const base = process.env.QA_BASE_URL || 'http://localhost:3036';
     const live = await urls('https://www.microfreelancehub.com');
     const preview = await urls(base);
     const missing = live.filter(url => !preview.includes(url));
-    const report = { capturedAt: new Date().toISOString(), liveCount: live.length, previewCount: preview.length, missing, added: preview.filter(url => !live.includes(url)), note: 'Sitemap coverage is not Google indexing evidence. Preview is based on commit 235644b; later published articles need integration before release.' };
+    const report = { capturedAt: new Date().toISOString(), liveCount: live.length, previewCount: preview.length, missing, added: preview.filter(url => !live.includes(url)), note: 'Sitemap coverage verifies route inventory, not Google indexing or future ranking.' };
     fs.writeFileSync('upgrade-seo-baseline.json', JSON.stringify(report, null, 2));
     console.log(JSON.stringify(report, null, 2));
-    if (missing.some(url => !url.startsWith('/articles/'))) process.exitCode = 1;
+    if (missing.length) process.exitCode = 1;
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

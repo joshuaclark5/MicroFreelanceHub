@@ -12,14 +12,21 @@ const docs = [
   const browser = await chromium.launch({ channel: 'msedge', headless: true });
   try {
     const context = await browser.newContext();
+    await context.route(/google-analytics\.com|googletagmanager\.com/, route => route.abort());
+    const recovered = [];
     await context.addCookies([{ name: `sb-${host.split('.')[0]}-auth-token`, value: encodeURIComponent(JSON.stringify({ access_token: 'fixture-token', refresh_token: 'fixture-refresh', expires_at: Math.floor(Date.now()/1000)+3600, token_type: 'bearer', user })), url: base }]);
     await context.route(`https://${host}/**`, route => {
-      if (route.request().method() !== 'GET') return route.abort();
       const path = new URL(route.request().url()).pathname;
+      if (route.request().method() === 'POST' && path.includes('/sow_documents')) {
+        recovered.push(route.request().postDataJSON());
+        return route.fulfill({ status: 201, contentType: 'application/json', body: '[]' });
+      }
+      if (route.request().method() !== 'GET') return route.abort();
       const body = path.includes('/auth/v1/user') ? user : path.includes('/profiles') ? { is_pro: true, has_completed_onboarding: true, stripe_account_id: null } : path.includes('/sow_documents') ? docs : [];
       return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) });
     });
     const page = await context.newPage();
+    page.setDefaultTimeout(120000);
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     for (const width of [1440, 390]) {
@@ -35,7 +42,25 @@ const docs = [
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
       await page.screenshot({ path: `upgrade-dashboard-${width}.png` });
     }
+    const pending = {
+      version: 2, id: '00000000-0000-4000-8000-000000000099', saved_at: Date.now(),
+      title: 'Recovery fixture', client_name: 'Example client', client_data: { email: 'client@example.test' },
+      price: 1139, tax_rate: '10', line_items: [{ id: 'base', description: 'Project', quantity: 1, amount: 1000 }, { id: 'fee-auto', description: 'Fee', quantity: 1, amount: 39 }],
+      deliverables: 'Fixture scope', payment_type: 'one_time', due_date: '2026-12-01', dunning_enabled: false,
+      payment_schedule_structured: { type: 'split', depositAmount: 569.5, remainingAmount: 569.5, paymentTerms: 'net30', splitCount: '2', splitFrequency: '30' },
+    };
+    await page.evaluate(value => localStorage.setItem('pendingSOW', JSON.stringify(value)), pending);
+    await page.reload();
+    await page.waitForFunction(() => localStorage.getItem('pendingSOW') === null);
+    assert.equal(recovered.length, 1);
+    const record = Array.isArray(recovered[0]) ? recovered[0][0] : recovered[0];
+    assert.equal(record.id, pending.id);
+    assert.equal(record.price, 1139, 'Recovery must not apply tax to the processing fee');
+    assert.equal(record.client_data.email, pending.client_data.email);
+    assert.equal(record.due_date, pending.due_date);
+    assert.equal(record.dunning_enabled, false);
+    assert.deepEqual(record.payment_schedule_structured, pending.payment_schedule_structured);
     assert.deepEqual(errors, []);
-    console.log('PASS: dashboard fixture rendering, filters, collapsed finances and mobile layout; all Supabase calls mocked, no live data written');
+    console.log('PASS: dashboard layout and pending draft recovery preserve total, email, due date and split terms; all Supabase writes mocked');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

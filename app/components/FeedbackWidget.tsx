@@ -44,7 +44,7 @@ export default function FeedbackWidget() {
 
   return (
     // 👇 UPDATED CSS: 'bottom-20' on mobile prevents covering the Save button
-    <div className={pathname === '/create' || pathname === '/dashboard' ? 'relative mx-auto max-w-7xl px-6 py-6 flex flex-col items-end' : 'fixed bottom-20 right-4 sm:bottom-8 sm:right-8 z-50 flex flex-col items-end'}>
+    <div className={pathname === '/create' || pathname === '/dashboard' || pathname.startsWith('/edit/') || pathname.startsWith('/sow/') ? 'relative mx-auto max-w-7xl px-6 py-6 flex flex-col items-end' : 'fixed bottom-20 right-4 sm:bottom-8 sm:right-8 z-50 flex flex-col items-end'}>
       
       {/* THE FORM BOX */}
       {isOpen && (

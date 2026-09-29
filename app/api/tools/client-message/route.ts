@@ -72,6 +72,7 @@ Rules:
 - Return only the message body.
 - Do not mention legal advice, legal protection, enforceability, lawsuits, guaranteed payment, or forcing payment.
 - Do not claim any legal outcome.
+- Do not invent attachments, sent invoices, completed work, approvals, payments, or other completed actions. Only describe an action as completed when the supplied situation explicitly says the sender completed it. Otherwise offer a future action or use a clearly marked placeholder.
 - Keep it professional, specific, and easy to edit.
 - Keep it under 140 words.
 - Use placeholders like [Client Name], [Invoice Number], or [Date] only when useful.

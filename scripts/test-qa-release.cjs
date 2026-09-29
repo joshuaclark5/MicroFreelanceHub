@@ -12,6 +12,7 @@ const base = process.env.QA_BASE_URL || 'http://localhost:3025';
   const browser = await chromium.launch({ channel: 'msedge', headless: true });
   try {
     const page = await browser.newPage();
+    await page.route(/google-analytics\.com|googletagmanager\.com/, route => route.abort());
     const first = await (await page.request.get(`${base}/api/templates`)).json();
     const second = await (await page.request.get(`${base}/api/templates?page=2`)).json();
     assert.ok(first.total > 600);
@@ -26,7 +27,7 @@ const base = process.env.QA_BASE_URL || 'http://localhost:3025';
       await page.getByRole('textbox', { name: 'Search templates' }).fill(slug);
       await page.locator(`a[href="/templates/${slug}"]`).waitFor();
       await page.goto(`${base}/templates/project-handoff-checklist-for-logo-designers`);
-      await page.getByRole('button', { name: 'Read the Checklist', exact: true }).first().waitFor();
+      await page.getByRole('link', { name: 'Read the Checklist', exact: true }).first().waitFor();
       const checklist = await page.locator('body').innerText();
       assert.ok(!/statement of work|generate contract|collect deposit/i.test(checklist));
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
@@ -50,6 +51,8 @@ const base = process.env.QA_BASE_URL || 'http://localhost:3025';
     assert.ok(/September 15, 2026/i.test(await page.locator('body').innerText()));
     assert.equal((await page.request.get(`${base}/api/stripe/subscription`)).status(), 401);
     assert.equal((await page.request.post(`${base}/api/stripe/create-portal`, { data: { userId: 'untrusted' } })).status(), 401);
+    assert.equal((await page.request.post(`${base}/api/stripe/checkout-plan`, { data: { userId: 'untrusted', plan: 'pro' } })).status(), 401);
+    assert.equal((await page.request.post(`${base}/api/sow/mark-paid`, { data: { sowId: 'untrusted' } })).status(), 400);
     console.log('PASS: full-library search, pagination, checklist/email classification, Clear/Undo desktop/mobile, dates, public copy, billing authorization');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

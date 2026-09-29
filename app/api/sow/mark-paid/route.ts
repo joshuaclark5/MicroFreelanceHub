@@ -1,37 +1,23 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
+import Stripe from 'stripe';
+import { recordAgreementPayment } from '../../../lib/recordAgreementPayment';
 
-// 🔐 Initialize Supabase with the ADMIN Key (Service Role)
-// This key bypasses RLS security rules so we can force the update regardless of who pays.
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!, 
-  { auth: { persistSession: false } }
-);
+const database = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, { auth: { persistSession: false } });
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2023-10-16' as any });
 
 export async function POST(request: Request) {
   try {
-    const { sowId } = await request.json();
-
-    if (!sowId) {
-      return NextResponse.json({ error: "No SOW ID provided" }, { status: 400 });
+    const { sowId, sessionId } = await request.json();
+    if (typeof sowId !== 'string' || typeof sessionId !== 'string' || !sessionId.startsWith('cs_')) {
+      return NextResponse.json({ error: 'A Stripe confirmation is required.' }, { status: 400 });
     }
-
-    // Force update the status to Paid AND timestamp it
-    const { error } = await supabaseAdmin
-      .from('sow_documents')
-      .update({ 
-        status: 'Paid',
-        last_payment_date: new Date().toISOString()
-      })
-      .eq('id', sowId);
-
-    if (error) throw error;
-
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const { data: document, error } = await database.from('sow_documents').select('*').eq('id', sowId).single();
+    if (error || !document) return NextResponse.json({ error: 'Agreement not found.' }, { status: 404 });
+    await recordAgreementPayment(database, session, document);
     return NextResponse.json({ success: true });
-
-  } catch (error: any) {
-    console.error('Update Error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: 'Payment has not been verified. Please refresh shortly or contact support.' }, { status: 409 });
   }
 }

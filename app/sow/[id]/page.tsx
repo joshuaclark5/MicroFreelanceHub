@@ -11,6 +11,7 @@ import {
   CreditCard, ChevronDown, ChevronUp, Receipt, UserCheck, Smartphone, FileSignature, Bell, Loader2
 } from 'lucide-react'; 
 import PayContractButton from '../../components/PayContractButton';
+import { agreementBalance } from '../../lib/agreementPayment';
 
 // 1. Clean Cursive Font
 const cursive = { fontFamily: "'Brush Script MT', 'Comic Sans MS', cursive", fontStyle: 'italic' };
@@ -29,6 +30,8 @@ export default function ViewContract({ params }: { params: { id: string } }) {
   const [doc, setDoc] = useState<any>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [paymentNotice, setPaymentNotice] = useState('');
+  const [paymentVerificationPending, setPaymentVerificationPending] = useState(false);
   const [showInvoice, setShowInvoice] = useState(false);
   const [dunningActive, setDunningActive] = useState(false);
   const [pausingDunning, setPausingDunning] = useState(false); 
@@ -46,6 +49,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
   const supabase = createClientComponentClient();
   const searchParams = useSearchParams();
   const paymentStatus = searchParams.get('payment');
+  const sessionId = searchParams.get('session_id');
 
   useEffect(() => {
     const load = async () => {
@@ -53,15 +57,25 @@ export default function ViewContract({ params }: { params: { id: string } }) {
 
       if (error || !docData) { setLoading(false); return; }
 
+      setDoc(docData);
       if (paymentStatus === 'success' && docData.status !== 'Paid') {
-         await fetch('/api/sow/mark-paid', {
-           method: 'POST',
-           headers: { 'Content-Type': 'application/json' },
-           body: JSON.stringify({ sowId: params.id }),
-         });
-         setDoc({ ...docData, status: 'Paid' });
-      } else {
-         setDoc(docData);
+        setPaymentVerificationPending(true);
+        setPaymentNotice('Checking payment confirmation.');
+        try {
+          if (!sessionId) throw new Error('No payment confirmation');
+          const confirmation = await fetch('/api/sow/mark-paid', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sowId: params.id, sessionId }),
+          });
+          if (!confirmation.ok) throw new Error('Payment not verified');
+          const { data: refreshed, error: refreshError } = await supabase.from('sow_documents').select('*').eq('id', params.id).single();
+          if (refreshError || !refreshed) throw new Error('Confirmation pending');
+          setDoc(refreshed);
+          setPaymentVerificationPending(false);
+          setPaymentNotice(refreshed.status === 'Paid' ? 'Payment confirmed.' : 'Payment received. The remaining balance is shown below.');
+        } catch {
+          setPaymentNotice('Payment confirmation is pending. Refresh shortly before attempting another payment.');
+        }
       }
 
       const { data: { user } } = await supabase.auth.getUser();
@@ -88,7 +102,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
       setLoading(false);
     };
     load();
-  }, [params.id, supabase, paymentStatus]);
+  }, [params.id, supabase, paymentStatus, sessionId]);
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -120,7 +134,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
 
   const isOwner = currentUser?.id === doc?.user_id;
   const isFullySigned = doc?.signed_by && doc?.provider_sign;
-  const isPaid = doc?.status === 'Paid' || paymentStatus === 'success';
+  const isPaid = doc?.status === 'Paid';
   const isAgreementOnly = doc?.payment_type === 'none' || doc?.price === 0;
 
   // --- 💰 DYNAMIC PAYMENT CALCULATOR ---
@@ -134,6 +148,12 @@ export default function ViewContract({ params }: { params: { id: string } }) {
 
       const sched = doc.payment_schedule_structured || {};
       if (isPaid) return { amount: 0, label: 'Paid in Full' };
+      if (Number(doc.payment_received_cents) > 0) {
+        try {
+          const balance = agreementBalance(doc);
+          return { amount: balance.due / 100, label: sched.type === 'split' ? 'Next Installment' : 'Remaining Balance' };
+        } catch { return { amount: 0, label: 'Payment unavailable' }; }
+      }
       if (sched.type === 'split' && sched.depositAmount) {
           return { amount: sched.depositAmount, label: `Installment (1 of ${sched.splitCount || '?'})` };
       }
@@ -176,6 +196,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
 
   return (
     <div className="min-h-screen bg-slate-50 py-6 sm:py-8 px-4 print:bg-white print:p-0 print:m-0">
+      {paymentNotice && <p role="status" className="mx-auto mb-5 max-w-5xl rounded-md border border-gray-200 bg-white p-4 text-sm text-gray-700 print:hidden">{paymentNotice}</p>}
 
       {dunningActive && (
         <div className="max-w-3xl mx-auto mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-sm print:hidden">
@@ -305,7 +326,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
                       <FileSignature className="w-4 h-4" /> {portalActionLabel}
                     </button>
                   ) : isFullySigned ? (
-                    <PayContractButton sowId={doc.id} price={dueNow} paymentType={doc.payment_type} label={dueLabel === 'Total Due' ? 'Pay Full Amount' : `Pay ${dueLabel}`} />
+                    <PayContractButton disabled={paymentVerificationPending || dueNow <= 0} sowId={doc.id} price={dueNow} paymentType={doc.payment_type} label={dueLabel === 'Total Due' ? 'Pay Full Amount' : `Pay ${dueLabel}`} />
                   ) : (
                     <button
                       onClick={() => setShowSignModal(true)}
@@ -454,7 +475,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
                     {isPaid ? (
                         <button disabled className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 cursor-default"><CheckCircle className="w-5 h-5" /> Paid in Full</button>
                     ) : isFullySigned ? (
-                        <PayContractButton sowId={doc.id} price={dueNow} paymentType={doc.payment_type} label={dueLabel === 'Total Due' ? 'Pay Full Amount' : `Pay ${dueLabel}`} />
+                        <PayContractButton disabled={paymentVerificationPending || dueNow <= 0} sowId={doc.id} price={dueNow} paymentType={doc.payment_type} label={dueLabel === 'Total Due' ? 'Pay Full Amount' : `Pay ${dueLabel}`} />
                     ) : (
                         <button disabled className="w-full bg-gray-100 text-gray-400 font-bold py-4 rounded-xl cursor-not-allowed flex items-center justify-center gap-3 border border-gray-200">
                         <Lock className="w-4 h-4" /> 

@@ -2,6 +2,7 @@ import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+import { recordAgreementPayment } from '../../lib/recordAgreementPayment';
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -32,9 +33,19 @@ export async function POST(req: Request) {
   }
 
   // 2. Handle checkout.session.completed
-  if (event.type === 'checkout.session.completed') {
+  if (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') {
     try {
       const session = event.data.object as Stripe.Checkout.Session;
+      if (session.metadata?.purpose === 'agreement_payment') {
+        if (session.payment_status !== 'paid') return NextResponse.json({ received: true });
+        const { data: document, error: lookupError } = await supabaseAdmin.from('sow_documents').select('*').eq('id', session.metadata.sow_id).single();
+        if (lookupError || !document) return NextResponse.json({ error: 'Agreement lookup failed' }, { status: 500 });
+        await recordAgreementPayment(supabaseAdmin, session, document);
+        return NextResponse.json({ received: true });
+      }
+      if (session.mode !== 'subscription' || !session.subscription || session.payment_status !== 'paid' || !['starter', 'pro', 'agency'].includes(session.metadata?.plan || '')) {
+        return NextResponse.json({ received: true });
+      }
 
       // Extract data from session
       const userId = session.client_reference_id;

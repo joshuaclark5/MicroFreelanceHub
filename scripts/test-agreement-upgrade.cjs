@@ -7,9 +7,11 @@ const base = process.env.QA_BASE_URL || 'http://localhost:3036';
   try {
     for (const width of [1440, 390]) {
       const page = await browser.newPage({ viewport: { width, height: 950 } });
+      page.setDefaultTimeout(120000);
+      await page.route(/google-analytics\.com|googletagmanager\.com/, route => route.abort());
       const errors = [];
       page.on('pageerror', error => errors.push(error.message));
-      await page.goto(base);
+      await page.goto(base, { waitUntil: 'domcontentloaded' });
       await page.getByRole('link', { name: 'Create your first agreement' }).first().waitFor();
       await page.screenshot({ path: `upgrade-home-${width}.png` });
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
@@ -19,6 +21,10 @@ const base = process.env.QA_BASE_URL || 'http://localhost:3036';
       await page.getByRole('button', { name: 'Continue', exact: true }).click();
       await page.getByLabel('Deliverables and included revisions').fill('Five pages and two revision rounds.');
       await page.getByLabel('Timeline and milestones').fill('First draft in two weeks.');
+      await page.reload();
+      await page.getByLabel('Deliverables and included revisions').waitFor();
+      assert.equal(await page.getByLabel('Deliverables and included revisions').inputValue(), 'Five pages and two revision rounds.');
+      assert.equal(await page.getByLabel('Timeline and milestones').inputValue(), 'First draft in two weeks.');
       await page.getByRole('button', { name: 'Continue', exact: true }).click();
       assert.ok((await page.locator('body').innerText()).includes('$1,000.00'));
       await page.screenshot({ path: `upgrade-review-${width}.png` });
@@ -35,12 +41,16 @@ const base = process.env.QA_BASE_URL || 'http://localhost:3036';
       await page.getByRole('button', { name: 'Are you sure?', exact: true }).click();
       await page.getByRole('button', { name: 'Undo', exact: true }).click();
       assert.equal(await editor.inputValue(), 'Preserve this exact text.');
+      await page.waitForFunction(() => JSON.parse(sessionStorage.getItem('mfh-editor-draft-v1') || 'null')?.draft.formData.deliverables === 'Preserve this exact text.');
+      await page.reload();
+      await editor.waitFor();
+      assert.equal(await editor.inputValue(), 'Preserve this exact text.');
       await page.goto(`${base}/create?mode=editor`);
       await editor.waitFor();
       assert.equal(await page.getByLabel('Project name').count(), 0);
       assert.deepEqual(errors, []);
       await page.close();
     }
-    console.log('PASS: homepage CTA, guided draft, price and scope transfer, direct editor, Clear/Undo, mobile labels, overflow, runtime errors');
+    console.log('PASS: homepage CTA, guided draft reload recovery, price and scope transfer, direct editor, Clear/Undo, mobile labels, overflow, runtime errors');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

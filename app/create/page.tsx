@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { generateQuestions, generateFinalSOW, refineSOW } from '../actions/generateSOW';
@@ -14,6 +14,8 @@ import PricingModal from '../components/PricingModal';
 import { AuthRequiredModal } from '../components/modals/AuthRequiredModal';
 import { isEmailTemplate, isChecklistTemplate } from '../lib/templateType';
 import AgreementStarter from '../components/AgreementStarter';
+import { trackAgreementEvent } from '../lib/agreementEvents';
+import { DRAFT_KEY, parseEditorDraft } from '../lib/agreementDraft';
 
 // 🛡️ THE LEGAL SHIELD
 const LEGAL_TERMS = `
@@ -39,6 +41,7 @@ interface LineItem {
 }
 
 function CreateProjectContent() {
+  const skipDraftSave = useRef(false);
   const [initialized, setInitialized] = useState(false);
   const [initializationError, setInitializationError] = useState(false);
   const [formData, setFormData] = useState({
@@ -200,6 +203,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
 
   // 1. Load User & Template
   useEffect(() => {
+    let requestedTemplate = false;
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
@@ -216,6 +220,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
       const urlSlug = searchParams.get('template');
       const localSlug = localStorage.getItem('pending_template');
       const slug = urlSlug || localSlug;
+      requestedTemplate = Boolean(slug);
 
       if (slug) {
         setLoading(true);
@@ -318,8 +323,41 @@ If the Client cancels the project after work has begun, any deposit, completed w
         setStep(searchParams.get('mode') === 'editor' ? 'final' : 'select_mode');
       }
     };
-    init().catch(() => setInitializationError(true)).finally(() => setInitialized(true));
+    init().then(() => {
+      if (requestedTemplate) return;
+      try {
+        const draft = parseEditorDraft(sessionStorage.getItem(DRAFT_KEY));
+        if (!draft) return;
+        setFormData(draft.formData);
+        setLineItems(draft.lineItems);
+        setManualPriceOverride(draft.manualPriceOverride);
+        setIncludeFee(draft.includeFee);
+        setDepositType(draft.depositType);
+        setFixedDepositAmount(draft.fixedDepositAmount);
+        setPaymentTerms(draft.paymentTerms);
+        setIsSplit(draft.isSplit);
+        setSplitCount(draft.splitCount);
+        setSplitFrequency(draft.splitFrequency);
+        setPaymentType(draft.paymentType);
+        setDunningEnabled(draft.dunningEnabled);
+        setStep('final');
+      } catch { /* Browser storage is optional. */ }
+    }).catch(() => setInitializationError(true)).finally(() => setInitialized(true));
   }, [supabase, searchParams]);
+
+  useEffect(() => {
+    if (!initialized || step !== 'final') return;
+    const timer = window.setTimeout(() => {
+      if (skipDraftSave.current) return;
+      try {
+        sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ version: 1, savedAt: Date.now(), draft: {
+          formData, lineItems, manualPriceOverride, includeFee, depositType, fixedDepositAmount,
+          paymentTerms, isSplit, splitCount, splitFrequency, paymentType, dunningEnabled,
+        } }));
+      } catch { /* Editing remains available when storage is blocked or full. */ }
+    }, 250);
+    return () => window.clearTimeout(timer);
+  }, [initialized, step, formData, lineItems, manualPriceOverride, includeFee, depositType, fixedDepositAmount, paymentTerms, isSplit, splitCount, splitFrequency, paymentType, dunningEnabled]);
 
   // Update contract text dynamically
   useEffect(() => {
@@ -449,6 +487,8 @@ If the Client cancels the project after work has begun, any deposit, completed w
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
+    trackAgreementEvent('agreement_save_requested');
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -474,14 +514,29 @@ If the Client cancels the project after work has begun, any deposit, completed w
     if (!user) {
       setLoading(false); 
       localStorage.setItem('pendingSOW', JSON.stringify({
+        version: 2,
+        id: crypto.randomUUID(),
+        saved_at: Date.now(),
         client_name: formData.clientName,
+        client_data: { name: formData.clientName, email: formData.clientEmail },
         title: formData.projectTitle,
+        price: paymentType === 'none' ? 0 : financials.grandTotal,
         line_items: finalLineItems, 
         tax_rate: formData.taxRate,
         deliverables: formData.deliverables,
         status: 'Draft',
         payment_type: paymentType,
-        deposit_amount: financials.depositAmount
+        deposit_amount: financials.depositAmount,
+        due_date: formData.dueDate || null,
+        dunning_enabled: dunningEnabled,
+        payment_schedule_structured: {
+          type: isSplit ? 'split' : depositType,
+          depositAmount: isSplit ? financials.splitAmount : financials.depositAmount,
+          remainingAmount: financials.grandTotal - (isSplit ? financials.splitAmount : financials.depositAmount),
+          paymentTerms,
+          splitCount: isSplit ? splitCount : null,
+          splitFrequency: isSplit ? splitFrequency : null,
+        },
       }));
       setShowAuthModal(true);
       return;
@@ -515,7 +570,15 @@ If the Client cancels the project after work has begun, any deposit, completed w
       }
     });
 
-    if (!error) router.push('/dashboard');
+    if (!error) {
+      skipDraftSave.current = true;
+      trackAgreementEvent('agreement_saved');
+      try {
+        sessionStorage.removeItem('mfh-agreement-brief-v1');
+        sessionStorage.removeItem(DRAFT_KEY);
+      } catch { /* Optional local draft cache. */ }
+      router.push('/dashboard');
+    }
     else alert("Error saving: " + error.message);
     setLoading(false);
   };
@@ -533,6 +596,16 @@ If the Client cancels the project after work has begun, any deposit, completed w
           </h1>
         </div>
         <div className="flex items-center gap-3">
+            <button type="button" onClick={() => {
+              if (confirm('Start a new agreement? This replaces the unsaved draft in this tab.')) {
+                skipDraftSave.current = true;
+                try {
+                  sessionStorage.removeItem(DRAFT_KEY);
+                  sessionStorage.removeItem('mfh-agreement-brief-v1');
+                } catch { /* Browser storage may be unavailable. */ }
+                window.location.assign('/create');
+              }
+            }} className="text-sm font-medium text-gray-600 underline underline-offset-4">New draft</button>
             {!isPro && projectCount >= 3 && <span className="hidden md:flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full border border-amber-200 cursor-pointer" onClick={() => setShowPricingModal(true)}><AlertCircle className="w-3 h-3" /> Free Limit Reached</span>}
             <div className="bg-black text-white w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg font-bold text-lg shadow-sm">M</div>
             <span className="text-sm font-bold text-gray-900 hidden sm:block">MicroFreelance</span>
@@ -673,16 +746,22 @@ If the Client cancels the project after work has begun, any deposit, completed w
                        <label className="block text-xs font-bold text-gray-500 uppercase mb-3">Structure</label>
                        <div className="flex gap-2">
                           <button 
+                             type="button"
+                             aria-label="One-Time"
+                             aria-pressed={paymentType === 'one_time'}
                              onClick={() => setPaymentType('one_time')}
                              className={`flex-1 py-2 rounded-lg text-xs font-bold border transition-all flex items-center justify-center gap-2 ${paymentType === 'one_time' ? 'bg-black text-white border-black' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}
                           >
-                             <Briefcase className="w-4 h-4" /> <span>One-Time</span>
+                             <Briefcase className="hidden sm:block w-4 h-4" aria-hidden="true" /> <span>One-Time</span>
                           </button>
                           <button 
+                             type="button"
+                             aria-label="Monthly"
+                             aria-pressed={paymentType === 'monthly'}
                              onClick={() => setPaymentType('monthly')}
                              className={`flex-1 py-2 rounded-lg text-xs font-bold border transition-all flex items-center justify-center gap-2 ${paymentType === 'monthly' ? 'bg-black text-white border-black' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}
                           >
-                             <CalendarDays className="w-4 h-4" /> <span>Monthly</span>
+                             <CalendarDays className="hidden sm:block w-4 h-4" aria-hidden="true" /> <span>Monthly</span>
                           </button>
                           
                           <button 

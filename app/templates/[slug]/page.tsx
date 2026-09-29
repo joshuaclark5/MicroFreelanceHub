@@ -101,9 +101,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const isEmail = isEmailTemplate(doc.document_type, params.slug);
   const documentType = doc.document_type || 'Contract';
   const label = isEmail ? 'Email' : documentType;
-  const pageTitle = doc.seo_title || `Free ${title} ${label} (2026)`;
+  const labeledTitle = title.toLowerCase().endsWith(label.toLowerCase()) ? title : `${title} ${label}`;
+  const pageTitle = (doc.seo_title || `Free ${labeledTitle} (2026)`).replace(/\bemail\s+email\b/gi, 'Email');
   
-  const metaDescription = `Start with a free, professional ${title} ${label.toLowerCase()} template to outline scope, deliverables, approvals, and payment steps.`;
+  const metaDescription = `Start with a free, professional ${labeledTitle} template to outline scope, deliverables, approvals, and payment steps.`;
 
   return {
     title: pageTitle,
@@ -236,7 +237,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
     step: [
       { '@type': 'HowToStep', name: 'Select the Template', text: `Click the CTA button to open the generator.` },
       { '@type': 'HowToStep', name: 'Customize Deliverables', text: 'Add your specific project milestones and pricing.' },
-      { '@type': 'HowToStep', name: 'Enable Payments', text: 'Connect Stripe to accept deposits or full payments instantly.' },
+      { '@type': 'HowToStep', name: 'Enable Payments', text: 'Connect Stripe to accept deposits or full payments.' },
       { '@type': 'HowToStep', name: 'Send to Client', text: 'Generate a secure link and send it for e-signature.' }
     ]
   };
@@ -248,15 +249,15 @@ export default async function TemplatePage({ params }: { params: { slug: string 
       {!isReference && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd) }} />}
 
       {/* 🚀 ICEBERG LAYOUT: Hero + Preview side-by-side above the fold */}
-      <div className="bg-slate-900 text-white py-16 md:py-24 px-4 relative overflow-hidden">
+      <div className="bg-gray-50 text-gray-950 py-16 px-5 relative overflow-hidden border-b border-gray-200">
         
         <div className="absolute top-4 left-4 md:top-8 md:left-8 z-50">
-           <Link href={`/profession/${professionSlug}`} className="text-slate-400 hover:text-white text-sm font-bold transition-all flex items-center gap-2">
+           <Link href="/templates" className="text-gray-600 hover:text-gray-950 text-sm font-semibold transition-all flex items-center gap-2">
               ← {title} Templates
            </Link>
         </div>
 
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-20 items-center relative z-10 mt-8">
+        <div className="max-w-5xl mx-auto space-y-10 relative z-10 mt-8">
           
           {/* LEFT SIDE: Copy & CTA */}
           <div>
@@ -268,24 +269,22 @@ export default async function TemplatePage({ params }: { params: { slug: string 
             </div>
 
             {/* 🚀 FIXED: Removed hard break, added text-balance for perfect responsive wrapping */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 tracking-tight leading-tight text-balance">
-              {isReference ? <><span className={textColors}>{title}</span> template.</> : <>Stop losing money on <span className={textColors}>{title}</span> projects.</>}
+            <h1 className="text-3xl sm:text-4xl font-semibold mb-5 leading-tight break-words">
+              {title}{/template$/i.test(title.trim()) ? '' : ' template'}
             </h1>
             
-            <p className="text-lg md:text-xl text-slate-300 mb-8 leading-relaxed">
+            <p className="text-lg text-gray-600 mb-7 leading-relaxed max-w-3xl">
               {isReference ? 'Review this free template and adapt it to your project. ' : `Send your first 3 ${docType.toLowerCase()}s for free. `}{softenLegalClaims(doc.pain_point_hook) || 'Keep client expectations and next steps clear.'}
             </p>
 
-            <Link href={ctaHref}>
-               <button className={`w-full sm:w-auto font-bold px-8 py-4 rounded-xl text-lg shadow-xl hover:-translate-y-1 transition-transform text-white flex items-center justify-center gap-2 ${themeColors} hover:opacity-90`}>
+            <Link href={ctaHref} className={`w-full sm:w-fit font-semibold px-6 py-3 rounded-md text-base text-white flex items-center justify-center gap-2 ${themeColors} hover:opacity-90`}>
                  {primaryCta} -&gt;
-               </button>
             </Link>
-            <p className="text-xs text-slate-400 mt-4 flex items-center gap-2">
-              <Shield className="w-3 h-3" /> No credit card required. Setup takes 30 seconds.
+            <p className="text-sm text-gray-500 mt-4 flex items-center gap-2">
+              <Shield className="w-4 h-4" /> No credit card required to get started.
             </p>
             {!isReference && (
-              <p className="text-sm text-slate-300 mt-3 max-w-xl">
+              <p className="text-sm text-gray-600 mt-3 max-w-xl">
                 Build the agreement, add your deposit amount, and send one secure client link for signature and payment.
               </p>
             )}
@@ -293,10 +292,9 @@ export default async function TemplatePage({ params }: { params: { slug: string 
 
           {/* RIGHT SIDE: The Visual Preview Document (PRO TIER UPDATE) */}
           <div className="relative group">
-            <div className={`absolute inset-0 transform rotate-2 rounded-2xl opacity-20 transition-transform group-hover:rotate-3 ${themeColors}`}></div>
             
             {/* 🚀 FIXED: Height adjusted for mobile, added select-none */}
-            <div className={`relative bg-white text-slate-900 border border-slate-200 rounded-xl shadow-2xl overflow-hidden flex flex-col h-[400px] md:h-[600px] select-none`}>
+            <div className="relative bg-white text-gray-900 border border-gray-200 rounded-lg overflow-hidden flex flex-col h-[540px] md:h-[680px]">
               
               {/* Fake App Bar */}
               <div className="bg-slate-50 border-b border-slate-200 p-3 flex gap-2 items-center shrink-0">
@@ -309,7 +307,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
               </div>
 
               {/* The Document Area - SCROLL LOCKED (overflow-hidden) */}
-              <div className="p-6 md:p-10 text-xs md:text-sm leading-relaxed overflow-hidden h-full max-w-none text-slate-700 whitespace-pre-wrap relative">
+              <div tabIndex={0} aria-label="Template preview" className="p-6 md:p-10 text-sm leading-7 overflow-auto min-h-0 flex-1 max-w-none text-gray-700 whitespace-pre-wrap relative">
                  
                  {/* 🚀 FIXED: Professional Header without liability */}
                  <div className="text-center mb-8 border-b-2 border-slate-800 pb-6">
@@ -341,15 +339,13 @@ export default async function TemplatePage({ params }: { params: { slug: string 
               </div>
 
               {/* 🚀 FIXED: Shorter blur gradient to reveal more initial text */}
-              <div className="absolute bottom-0 left-0 right-0 h-56 bg-gradient-to-t from-white via-white/95 to-transparent flex flex-col items-center justify-end pb-6 md:pb-8 z-10 backdrop-blur-[1px]">
-                <div className="bg-white/95 p-5 md:p-6 rounded-2xl border border-slate-100 shadow-xl flex flex-col items-center transform transition-transform hover:-translate-y-1 text-center w-[90%] md:w-[85%] mx-auto">
+              <div className="shrink-0 border-t border-gray-200 bg-gray-50 px-5 py-4">
+                <div className="flex flex-col items-center text-center max-w-md mx-auto">
                    <Lock className={`w-6 h-6 md:w-8 md:h-8 mb-2 md:mb-3 ${textColors}`} />
                    <h3 className="font-bold text-slate-900 text-sm md:text-base mb-1">Client-ready workflow</h3>
                    <p className="text-[10px] md:text-xs text-slate-500 mb-3 md:mb-4 px-2">{secondaryCta}.</p>
-                   <Link href={ctaHref} className="w-full">
-                     <button className={`w-full py-2.5 md:py-3 rounded-xl font-bold text-white text-xs md:text-sm shadow-md transition-colors ${themeColors}`}>
+                   <Link href={ctaHref} className={`w-full py-3 rounded-md font-semibold text-white text-sm transition-colors ${themeColors}`}>
                        {primaryCta}
-                     </button>
                    </Link>
                 </div>
               </div>

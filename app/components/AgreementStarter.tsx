@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight, FileText } from 'lucide-react';
+import { trackAgreementEvent } from '../lib/agreementEvents';
 
 export type AgreementBrief = { title: string; scope: string; timing: string; price: string };
 
@@ -11,6 +12,24 @@ export default function AgreementStarter({ onComplete, onSkip }: {
 }) {
   const [stage, setStage] = useState(0);
   const [brief, setBrief] = useState<AgreementBrief>({ title: '', scope: '', timing: '', price: '' });
+  const [restored, setRestored] = useState(false);
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem('mfh-agreement-brief-v1') || 'null');
+      if (saved && Date.now() - saved.savedAt < 86400000 &&
+          ['title', 'scope', 'timing', 'price'].every(key => typeof saved.brief?.[key] === 'string')) {
+        setBrief({ title: saved.brief.title.slice(0, 160), scope: saved.brief.scope.slice(0, 12000), timing: saved.brief.timing.slice(0, 1000), price: saved.brief.price.slice(0, 30) });
+        setStage(Number.isInteger(saved.stage) && saved.stage >= 0 && saved.stage <= 2 ? saved.stage : 0);
+      }
+    } catch { /* Storage can be unavailable in private browsing. */ }
+    setRestored(true);
+  }, []);
+  useEffect(() => {
+    if (!restored) return;
+    try {
+      sessionStorage.setItem('mfh-agreement-brief-v1', JSON.stringify({ brief, stage, savedAt: Date.now() }));
+    } catch { /* Drafting remains available without browser storage. */ }
+  }, [brief, stage, restored]);
   const labels = ['Project', 'Scope', 'Review'];
   const field = 'mt-2 w-full rounded-md border border-gray-300 bg-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-600';
 
@@ -22,7 +41,12 @@ export default function AgreementStarter({ onComplete, onSkip }: {
     <ol aria-label="Agreement progress" className="my-7 flex gap-5 text-sm">
       {labels.map((label, index) => <li key={label} aria-current={stage === index ? 'step' : undefined} className={stage === index ? 'font-semibold text-blue-700' : 'text-gray-500'}>{index + 1}. {label}</li>)}
     </ol>
-    <form onSubmit={event => { event.preventDefault(); stage < 2 ? setStage(stage + 1) : onComplete(brief); }}>
+    <form onSubmit={event => {
+      event.preventDefault();
+      trackAgreementEvent(stage === 0 ? 'agreement_started' : stage === 1 ? 'agreement_scope_completed' : 'agreement_editor_opened');
+      stage < 2 ? setStage(stage + 1) : onComplete(brief);
+    }}>
+      <fieldset disabled={!restored}>
       {stage === 0 && <>
         <h1 className="text-3xl font-semibold text-gray-950">What are you working on?</h1>
         <label className="mt-7 block font-medium">Project name<input autoFocus required maxLength={160} value={brief.title} onChange={e => setBrief({ ...brief, title: e.target.value })} className={field} placeholder="Website redesign for Acme" /></label>
@@ -47,6 +71,7 @@ export default function AgreementStarter({ onComplete, onSkip }: {
         <button type="button" disabled={stage === 0} onClick={() => setStage(stage - 1)} className="flex items-center gap-2 py-3 text-sm font-medium disabled:invisible"><ArrowLeft size={16} /> Back</button>
         <button type="submit" className="flex items-center gap-2 rounded-md bg-blue-700 px-5 py-3 font-semibold text-white hover:bg-blue-800">{stage === 2 ? 'Review agreement' : 'Continue'}<ArrowRight size={18} /></button>
       </div>
+      </fieldset>
     </form>
     <p className="mt-8 border-t border-gray-200 pt-5 text-sm text-gray-500">Free to draft. No Stripe connection needed to preview. An account is required to save a client link; plan limits apply.</p>
   </section>;

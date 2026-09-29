@@ -43,16 +43,17 @@ export default function Home() {
   }, [supabase]);
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-100">
+    <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-emerald-100 [&_*]:tracking-normal">
       
       {/* 1. NAVBAR */}
       <nav className="border-b border-gray-100/50 bg-white/70 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center">
-          <div className="flex items-center gap-2">
+          <Link href="/" aria-label="MicroFreelanceHub home" className="flex items-center gap-2 min-w-0">
             <div className="bg-slate-900 text-white w-8 h-8 flex items-center justify-center rounded-lg font-bold text-lg shadow-md">M</div>
-            <span className="font-bold text-xl tracking-tight text-slate-900">MicroFreelance</span>
-          </div>
+            <span className="font-semibold text-base sm:text-lg text-gray-950">MicroFreelanceHub</span>
+          </Link>
           <div className="hidden md:flex gap-4 items-center">
+            <Link href="/pricing" className="text-sm font-semibold text-gray-600 hover:text-gray-950">Pricing</Link>
             <Link href="/articles" className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">
               Articles
             </Link>
@@ -75,17 +76,18 @@ export default function Home() {
                   Log in
                 </Link>
                 <Link
-                  href="/login"
+                  href="/create"
                   className="bg-blue-600 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg"
                 >
-                  Sign up
+                  Start an agreement
                 </Link>
               </>
             )}
           </div>
           <button
             type="button"
-            aria-label="Open navigation menu"
+            aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={isMenuOpen}
             onClick={() => setIsMenuOpen((open) => !open)}
             className="md:hidden rounded-lg border border-slate-200 p-2 text-slate-700"
           >
@@ -95,6 +97,7 @@ export default function Home() {
         {isMenuOpen && (
           <div className="border-t border-slate-100 bg-white px-4 py-4 md:hidden">
             <div className="mx-auto flex max-w-7xl flex-col gap-3">
+              <Link href="/pricing" className="rounded-md px-3 py-2 text-sm font-semibold text-gray-700">Pricing</Link>
               <Link href="/articles" className="rounded-lg px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
                 Articles
               </Link>
@@ -123,121 +126,29 @@ export default function Home() {
         )}
       </nav>
 
-      {/* 2. HERO SECTION */}
-      <section className="px-6 pt-16 pb-16 md:pt-24 md:pb-24 max-w-7xl mx-auto relative overflow-hidden">
-
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center lg:items-start relative z-10">
-          
-          {/* Left Side: Copy */}
-          <div className="space-y-6 text-center lg:text-left lg:pt-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 font-semibold text-sm border border-blue-100 mb-2">
-               <Zap className="w-4 h-4" /> Built for freelancers & contractors
-            </div>
-            
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
-              Agreements, <span className="text-blue-600">changes & payments.</span>
-            </h1>
-            
-            <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-medium">
-              Put the scope in writing. Collect signatures, organize change orders, and accept payments through your connected Stripe account. <span className="font-bold text-slate-800">One clear client workflow.</span>
-            </p>
-
-            <div className="flex flex-col items-center lg:items-start gap-4 pt-4">
-              <Link href="/create" className="w-full sm:w-auto">
-                <div className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-200 rounded-xl px-8 py-4 font-bold text-lg flex items-center justify-center transition-all hover:-translate-y-1 hover:shadow-blue-300">
-                  Create your first agreement
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </div>
-              </Link>
-              
-              <Link href="/templates" className="text-sm font-bold text-blue-600 hover:text-blue-700">
-                Browse agreement templates
-              </Link>
-
-              {/* Objection Handling & Risk Reversal */}
-              <div className="flex flex-col sm:flex-row flex-wrap justify-center lg:justify-start gap-3 sm:gap-5 text-sm font-medium text-slate-500 mt-2">
-                 <div className="flex items-center justify-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Free for 3 contracts
-                 </div>
-                 <div className="flex items-center justify-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500" /> No credit card required
-                 </div>
-                 <div className="flex items-center justify-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Client doesn't need an account
-                 </div>
-              </div>
-            </div>
-
+      {/* Product entry point; public resource routes remain below. */}
+      <section className="px-5 pt-10 pb-14 max-w-7xl mx-auto">
+        <div className="max-w-3xl mx-auto text-center">
+          <p className="text-sm font-semibold text-emerald-700 mb-4">MicroFreelanceHub</p>
+          <h1 className="text-4xl sm:text-5xl font-semibold text-gray-950 leading-tight">
+            Agreements, changes & payments.
+          </h1>
+          <p className="mt-5 text-lg text-gray-600 leading-relaxed">
+            Turn a project brief into a client agreement. Keep scope changes in writing,
+            collect signatures, and accept payments through your connected Stripe account.
+          </p>
+          <div className="mt-7 flex flex-col sm:flex-row justify-center items-stretch sm:items-center gap-4">
+            <Link href="/create" className="inline-flex items-center justify-center gap-2 rounded-md bg-emerald-700 px-6 py-3 font-semibold text-white hover:bg-emerald-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-700">
+              Create your first agreement <ArrowRight size={18} />
+            </Link>
+            <Link href="/templates" className="inline-flex items-center justify-center rounded-md border border-gray-300 px-6 py-3 font-semibold text-gray-800 hover:bg-gray-50">
+              Browse agreement templates
+            </Link>
           </div>
-
-          {/* Right Side: The Money Shot */}
-          <div className="relative mx-auto w-full max-w-md lg:max-w-none mt-8 lg:mt-0 lg:pl-12">
-             <div className="absolute -top-5 -left-5 bg-slate-900 text-white text-sm font-bold px-5 py-2 rounded-full z-20 shadow-xl border-2 border-white transform -rotate-2">
-                Your client gets one secure link
-             </div>
-             <div className="relative rounded-[2rem] overflow-hidden shadow-2xl border border-slate-200 bg-slate-950 p-3">
-               <div className="bg-white rounded-[1.5rem] overflow-hidden border border-slate-100">
-                 <div className="bg-slate-50 border-b border-slate-200 px-5 py-4 flex items-center justify-between">
-                   <div>
-                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Secure client link</p>
-                     <p className="text-sm font-bold text-slate-900">Kitchen remodel agreement</p>
-                   </div>
-                   <div className="h-9 w-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                     <ShieldCheck className="w-5 h-5" />
-                   </div>
-                 </div>
-
-                 <div className="p-6 space-y-5">
-                   <div className="rounded-2xl bg-slate-900 text-white p-5">
-                     <p className="text-xs font-bold text-blue-200 uppercase tracking-wider mb-2">Amount due today</p>
-                     <div className="flex items-end justify-between gap-4">
-                       <div>
-                         <p className="text-4xl font-extrabold tracking-tight">$2,500</p>
-                         <p className="text-sm text-slate-300 mt-1">50% upfront deposit</p>
-                       </div>
-                       <CreditCard className="w-8 h-8 text-emerald-300" />
-                     </div>
-                   </div>
-
-                   <div className="grid grid-cols-2 gap-3">
-                     <div className="rounded-xl border border-slate-200 p-4">
-                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Project total</p>
-                       <p className="text-lg font-extrabold text-slate-900 mt-1">$5,000</p>
-                     </div>
-                     <div className="rounded-xl border border-slate-200 p-4">
-                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</p>
-                       <p className="text-lg font-extrabold text-emerald-600 mt-1">Ready</p>
-                     </div>
-                   </div>
-
-                   <div className="rounded-2xl border border-slate-200 p-5">
-                     <div className="flex items-center justify-between mb-4 gap-3">
-                       <p className="font-bold text-slate-900">Agreement checklist</p>
-                       <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full whitespace-nowrap">Client ready</span>
-                     </div>
-                     <div className="space-y-3">
-                       {['Scope locked', 'E-signature required', 'Stripe deposit link attached'].map((item) => (
-                         <div key={item} className="flex items-center gap-3 text-sm font-semibold text-slate-700">
-                           <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                           <span>{item}</span>
-                         </div>
-                       ))}
-                     </div>
-                   </div>
-
-                   <button className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-100">
-                     Sign & Pay Deposit
-                   </button>
-                   <p className="text-center text-xs text-slate-400 font-medium">Powered by Stripe. Client does not need an account.</p>
-                 </div>
-               </div>
-             </div>
-          </div>
-
+          <p className="mt-4 text-sm text-gray-500">Free to draft. No credit card needed to get started.</p>
         </div>
-
         {/* PRODUCT DEMO VIDEO */}
-        <div className="mt-20 md:mt-24 max-w-6xl mx-auto relative z-20">
+        <div className="mt-10 max-w-6xl mx-auto relative z-20">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5 mb-6">
             <div className="max-w-2xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-bold text-slate-700 mb-4 shadow-sm">
@@ -290,7 +201,7 @@ export default function Home() {
                  <FileEdit className="w-8 h-8" />
               </div>
               <h3 className="font-bold text-slate-900 text-lg">1. Send one link</h3>
-              <p className="text-sm text-slate-500 mt-2">Create and send your first project agreement in under 2 minutes.</p>
+              <p className="text-sm text-slate-500 mt-2">Start with your project scope, review the terms, and share a client link.</p>
            </div>
 
            <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-lg flex flex-col items-center text-center hover:-translate-y-1 transition-transform">
@@ -306,8 +217,8 @@ export default function Home() {
               <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-4 border-4 border-white shadow-sm">
                  <CreditCard className="w-8 h-8" />
               </div>
-              <h3 className="font-bold text-slate-900 text-lg">3. You get paid</h3>
-              <p className="text-sm text-slate-700 mt-2">The deposit hits your Stripe account instantly.</p>
+              <h3 className="font-bold text-slate-900 text-lg">3. Accept a payment</h3>
+              <p className="text-sm text-slate-700 mt-2">Clients pay through your connected Stripe account. Processing and payout timing depend on Stripe.</p>
            </div>
         </div>
       </section>

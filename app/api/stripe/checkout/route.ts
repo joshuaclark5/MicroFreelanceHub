@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+import { agreementBalance } from '../../../lib/agreementPayment';
+import { createHash } from 'node:crypto';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-10-16' as any,
@@ -15,7 +17,10 @@ const supabase = createClient(
 export async function POST(request: Request) {
   try {
     // 1. Get SOW ID & Optional Amount from Frontend
-    const { sowId, amount } = await request.json();
+    const { sowId } = await request.json();
+    if (typeof sowId !== 'string' || !/^[0-9a-f-]{36}$/i.test(sowId)) {
+      return NextResponse.json({ error: 'Invalid agreement' }, { status: 400 });
+    }
 
     // 2. Get SOW details from Database
     const { data: sow, error: sowError } = await supabase
@@ -27,6 +32,14 @@ export async function POST(request: Request) {
     if (sowError || !sow) {
       return NextResponse.json({ error: 'Contract not found' }, { status: 404 });
     }
+    if (!sow.signed_by || !sow.provider_sign || sow.payment_type === 'none' || ['Cancelled', 'Canceled'].includes(sow.status)) {
+      return NextResponse.json({ error: 'This agreement is not ready for payment.' }, { status: 409 });
+    }
+    if (sow.payment_received_cents === undefined) {
+      return NextResponse.json({ error: 'Payment reconciliation is not available yet.' }, { status: 503 });
+    }
+    const balance = agreementBalance(sow);
+    if (balance.due <= 0) return NextResponse.json({ error: 'This agreement is already paid.' }, { status: 409 });
 
     // 3. Get Freelancer's Stripe Connected ID
     const { data: profile } = await supabase
@@ -48,11 +61,16 @@ export async function POST(request: Request) {
     
     // ⚡ MAGIC FIX: Use the specific amount from frontend if provided (for deposits/splits),
     // otherwise fallback to the full database price.
-    const chargeAmount = amount ? amount : sow.price;
-    const priceInCents = Math.round(chargeAmount * 100);
+    const priceInCents = balance.due;
+    const chargeAmount = priceInCents / 100;
 
     // 5. Construct the Session Config
     let sessionConfig: Stripe.Checkout.SessionCreateParams = {
+      client_reference_id: sow.id,
+      metadata: {
+        purpose: 'agreement_payment', sow_id: sow.id, owner_id: sow.user_id,
+        expected_amount_cents: String(priceInCents),
+      },
       payment_method_types: ['card'],
       line_items: [{
         price_data: {
@@ -70,7 +88,7 @@ export async function POST(request: Request) {
         quantity: 1,
       }],
       // Redirects
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/sow/${sowId}?payment=success`,
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/sow/${sowId}?payment=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/sow/${sowId}?payment=cancelled`,
     };
 
@@ -97,12 +115,19 @@ export async function POST(request: Request) {
     }
 
     // 7. Create the Session
-    const session = await stripe.checkout.sessions.create(sessionConfig);
+    const key = 'agreement-' + createHash('sha256').update(JSON.stringify({ sessionConfig, received: balance.received })).digest('hex');
+    let session = await stripe.checkout.sessions.create(sessionConfig, { idempotencyKey: key });
+    if (session.status === 'expired') {
+      session = await stripe.checkout.sessions.create(sessionConfig, { idempotencyKey: `${key}-${session.id}` });
+    }
+    if (session.status === 'complete' || !session.url) {
+      return NextResponse.json({ error: 'This payment is being reconciled. Refresh the agreement shortly.' }, { status: 409 });
+    }
 
     return NextResponse.json({ url: session.url });
 
   } catch (err: any) {
     console.error('Checkout Error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Unable to start payment. Please try again or contact the agreement owner.' }, { status: 500 });
   }
 }
