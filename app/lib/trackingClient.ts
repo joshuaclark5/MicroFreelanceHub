@@ -39,9 +39,21 @@ export function getTrackedData() {
     return { landing_page: null, lead_source: null };
   }
 
+  try {
+    return {
+      landing_page: localStorage.getItem(LANDING_PAGE_KEY),
+      lead_source: localStorage.getItem(MARKETING_SOURCE_KEY),
+    };
+  } catch {
+    return { landing_page: null, lead_source: null };
+  }
+}
+
+export function getAuthAttribution(landingPage?: string | null, leadSource?: string | null) {
+  const stored = getTrackedData();
   return {
-    landing_page: localStorage.getItem(LANDING_PAGE_KEY),
-    lead_source: localStorage.getItem(MARKETING_SOURCE_KEY),
+    landing_page: landingPage || stored.landing_page,
+    lead_source: leadSource || stored.lead_source,
   };
 }
 

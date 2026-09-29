@@ -60,11 +60,6 @@ export default function SignupSuccessPage({ searchParams }: Props) {
           </Link>
         </div>
 
-        <div className="mt-8 border-t border-slate-100 pt-5 text-left text-xs text-slate-400">
-          <p>Analytics route: free-tier signup</p>
-          {searchParams.landing_page && <p>Landing page: {searchParams.landing_page}</p>}
-          {searchParams.lead_source && <p>Lead source: {searchParams.lead_source}</p>}
-        </div>
       </div>
     </div>
   );

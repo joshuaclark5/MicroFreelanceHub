@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { CheckCircle2, ArrowRight, LockKeyhole, Mail } from 'lucide-react';
-import { getTrackedData } from '../lib/trackingClient';
+import { getTrackedData, getAuthAttribution } from '../lib/trackingClient';
 
 function LoginForm() {
   const [message, setMessage] = useState('');
@@ -86,9 +86,10 @@ function LoginForm() {
 
   const getPostAuthPath = () => {
     const params = new URLSearchParams();
+    const attribution = getAuthAttribution(landingPageParam, leadSourceParam);
     if (templateSlug) params.set('template', templateSlug);
-    if (landingPageParam) params.set('landing_page', landingPageParam);
-    if (leadSourceParam) params.set('lead_source', leadSourceParam);
+    if (attribution.landing_page) params.set('landing_page', attribution.landing_page);
+    if (attribution.lead_source) params.set('lead_source', attribution.lead_source);
 
     if (plan) {
       params.set('plan', plan);
@@ -105,10 +106,11 @@ function LoginForm() {
 
     try {
       const callbackUrl = new URL('/auth/callback', window.location.origin);
+      const attribution = getAuthAttribution(landingPageParam, leadSourceParam);
       if (plan) callbackUrl.searchParams.set('plan', plan);
       if (templateSlug) callbackUrl.searchParams.set('template', templateSlug);
-      if (landingPageParam) callbackUrl.searchParams.set('landing_page', landingPageParam);
-      if (leadSourceParam) callbackUrl.searchParams.set('lead_source', leadSourceParam);
+      if (attribution.landing_page) callbackUrl.searchParams.set('landing_page', attribution.landing_page);
+      if (attribution.lead_source) callbackUrl.searchParams.set('lead_source', attribution.lead_source);
       const redirectTo = callbackUrl.toString();
 
       if (authMode === 'signup') {
@@ -128,7 +130,7 @@ function LoginForm() {
         }
 
         setIsSuccess(true);
-        setMessage('Check your email to confirm your account, then we will continue your checkout.');
+        setMessage(plan ? 'Check your email to confirm your account, then continue to checkout.' : 'Check your email to confirm your account, then continue with your agreement.');
         return;
       }
 
