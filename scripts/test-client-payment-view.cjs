@@ -7,16 +7,18 @@ const id = '00000000-0000-4000-8000-000000000099';
 (async () => {
   const browser = await chromium.launch({ channel: 'msedge', headless: true });
   try {
-    for (const width of [1440, 390]) {
+    for (const width of [1440, 390, 320]) {
       const context = await browser.newContext({ viewport: { width, height: 950 } });
       await context.route(/google-analytics\.com|googletagmanager\.com/, route => route.abort());
       let verified = false;
+      let agreementOnly = false;
       await context.route(`https://${host}/**`, route => {
         if (route.request().method() !== 'GET') return route.abort();
         const path = new URL(route.request().url()).pathname;
         const body = path.includes('sow_documents') ? {
           id, user_id: 'owner', title: 'Website agreement', client_name: 'Example client',
-          price: 1000, status: 'Signed', signed_by: 'Client', provider_sign: 'Owner',
+          created_at: '2026-09-29T12:00:00Z',
+          price: agreementOnly ? 0 : 1000, status: agreementOnly ? 'Pending' : 'Signed', signed_by: agreementOnly ? null : 'Client', provider_sign: agreementOnly ? null : 'Owner',
           deliverables: 'Five pages and two revision rounds.', payment_type: 'one_time',
           payment_received_cents: verified ? 50000 : 0,
           payment_schedule_structured: { type: '50', depositAmount: 500 },
@@ -40,9 +42,21 @@ const id = '00000000-0000-4000-8000-000000000099';
       assert.ok(await page.getByRole('button', { name: /Pay Remaining Balance/ }).count());
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
       await page.screenshot({ path: `upgrade-client-payment-${width}.png` });
+      agreementOnly = true;
+      await page.goto(`${base}/sow/${id}`);
+      const portal = page.getByTestId('client-portal');
+      await portal.getByText('No payment or client account needed.', { exact: false }).waitFor();
+      assert.equal(await portal.evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(255, 255, 255)');
+      const review = portal.getByRole('button', { name: 'Review and sign agreement' });
+      assert.equal(await review.evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(37, 99, 235)');
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+      await page.screenshot({ path: `upgrade-client-portal-${width}.png` });
+      await review.click();
+      await page.getByRole('heading', { name: 'Sign Contract', exact: true }).waitFor();
+      await page.getByRole('button', { name: 'Cancel', exact: true }).click();
       assert.deepEqual(errors, []);
       await context.close();
     }
-    console.log('PASS: forged success query stays unpaid, verified deposit shows remaining balance, desktop/mobile layout; all payment and database requests mocked.');
+    console.log('PASS: payment verification states, white portal/blue action, agreement-only copy, signing dialog and desktop/mobile layouts; all payment and database requests mocked.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

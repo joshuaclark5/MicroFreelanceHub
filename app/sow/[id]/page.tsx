@@ -249,7 +249,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
             {!isFullySigned && !isPaid ? (
                 <button 
                 onClick={() => setShowSignModal(true)}
-                className="flex-1 sm:flex-none px-6 py-2.5 bg-black text-white rounded-full text-sm font-bold hover:bg-gray-800 shadow-lg transition-all flex items-center justify-center gap-2"
+                className="flex-1 sm:flex-none px-6 py-2.5 bg-white text-blue-700 border border-blue-200 rounded-lg text-sm font-bold hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-colors flex items-center justify-center gap-2"
                 >
                 <PenTool className="w-4 h-4" /> Sign Contract
                 </button>
@@ -285,27 +285,27 @@ export default function ViewContract({ params }: { params: { id: string } }) {
       )}
 
       <div className="max-w-5xl mx-auto mb-6 print:hidden">
-        <div className="overflow-hidden rounded-3xl bg-slate-950 text-white shadow-2xl border border-slate-800">
-          <div className="p-5 sm:p-7 lg:p-8">
+        <div data-testid="client-portal" className="border-b border-gray-200 bg-white text-gray-900">
+          <div className="px-4 py-6 sm:p-7 lg:p-8">
             <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
               <div className="max-w-2xl">
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-blue-100">
+                <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-normal text-gray-600">
                   <Lock className="w-3.5 h-3.5" />
                   Secure client portal
                 </div>
-                <h1 className="mt-4 text-2xl sm:text-3xl font-black tracking-tight leading-tight">
+                <h1 className="mt-4 text-2xl sm:text-3xl font-bold tracking-normal leading-tight break-words">
                   {cleanTitle(doc.title)}
                 </h1>
-                <p className="mt-2 text-sm sm:text-base text-slate-300 leading-relaxed">
-                  Review the agreement, sign electronically, and complete the required payment through Stripe. No client account needed.
+                <p className="mt-2 text-sm sm:text-base text-gray-600 leading-relaxed">
+                  {isAgreementOnly ? 'Review the agreement and sign electronically. No payment or client account needed.' : 'Review the agreement, sign electronically, and complete the required payment through Stripe. No client account needed.'}
                 </p>
               </div>
 
-              <div className="w-full lg:w-80 rounded-2xl bg-white text-slate-950 p-5 shadow-xl">
-                <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
+              <div className="w-full lg:w-80 lg:shrink-0 rounded-lg border border-blue-200 bg-blue-50 text-gray-900 p-5">
+                <p className="text-xs font-semibold uppercase tracking-normal text-gray-600">
                   {isAgreementOnly ? 'Document status' : dueLabel}
                 </p>
-                <p className="mt-1 text-3xl font-black tracking-tight">
+                <p className="mt-1 text-3xl font-bold tracking-normal">
                   {isAgreementOnly ? (isFullySigned ? 'Signed' : 'Pending') : formatMoney(dueNow)}
                 </p>
                 {!isAgreementOnly && dueNow !== doc.price && !isPaid && (
@@ -321,7 +321,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
                     <button
                       onClick={() => !isFullySigned && setShowSignModal(true)}
                       disabled={isFullySigned}
-                      className="w-full rounded-xl bg-slate-950 px-4 py-3 text-sm font-bold text-white disabled:bg-slate-200 disabled:text-slate-500 flex items-center justify-center gap-2"
+                      className="w-full min-h-12 rounded-lg bg-blue-600 px-4 py-3 text-sm font-bold text-white hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:bg-gray-200 disabled:text-gray-600 flex items-center justify-center gap-2"
                     >
                       <FileSignature className="w-4 h-4" /> {portalActionLabel}
                     </button>
@@ -340,26 +340,26 @@ export default function ViewContract({ params }: { params: { id: string } }) {
             </div>
 
             <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+              <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm font-bold">Client signature</p>
-                  {isClientSigned ? <CheckCircle className="w-5 h-5 text-emerald-300" /> : <PenTool className="w-5 h-5 text-blue-200" />}
+                  {isClientSigned ? <CheckCircle className="w-5 h-5 shrink-0 text-emerald-700" /> : <PenTool className="w-5 h-5 shrink-0 text-gray-500" />}
                 </div>
-                <p className="mt-1 text-xs text-slate-300">{isClientSigned ? `Signed by ${doc.signed_by}` : `${doc.client_name} still needs to sign.`}</p>
+                <p className="mt-1 text-sm text-gray-600 break-words">{isClientSigned ? `Signed by ${doc.signed_by}` : `${doc.client_name} still needs to sign.`}</p>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+              <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm font-bold">Provider signature</p>
-                  {isProviderSigned ? <CheckCircle className="w-5 h-5 text-emerald-300" /> : <PenTool className="w-5 h-5 text-blue-200" />}
+                  {isProviderSigned ? <CheckCircle className="w-5 h-5 shrink-0 text-emerald-700" /> : <PenTool className="w-5 h-5 shrink-0 text-gray-500" />}
                 </div>
-                <p className="mt-1 text-xs text-slate-300">{isProviderSigned ? `Signed by ${doc.provider_sign}` : 'Waiting on the service provider.'}</p>
+                <p className="mt-1 text-sm text-gray-600 break-words">{isProviderSigned ? `Signed by ${doc.provider_sign}` : 'Waiting on the service provider.'}</p>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+              <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm font-bold">Secure payment</p>
-                  <CreditCard className="w-5 h-5 text-emerald-300" />
+                  <CreditCard className="w-5 h-5 shrink-0 text-emerald-700" />
                 </div>
-                <p className="mt-1 text-xs text-slate-300">
+                <p className="mt-1 text-sm text-gray-600">
                   {isAgreementOnly ? 'No payment is attached to this agreement.' : isFullySigned ? 'Stripe payment is ready.' : 'Payment unlocks after signatures.'}
                 </p>
               </div>
@@ -566,7 +566,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
 
             <div className="flex gap-3">
               <button onClick={() => setShowSignModal(false)} className="flex-1 py-3 bg-gray-100 rounded-lg font-bold hover:bg-gray-200">Cancel</button>
-              <button onClick={handleSign} disabled={isSigning || !signerName} className="flex-1 py-3 bg-black text-white rounded-lg font-bold hover:bg-gray-800 disabled:opacity-50">{isSigning ? 'Signing...' : 'Agree & Sign'}</button>
+              <button onClick={handleSign} disabled={isSigning || !signerName} className="flex-1 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50">{isSigning ? 'Signing...' : 'Agree & Sign'}</button>
             </div>
           </div>
         </div>
