@@ -19,7 +19,7 @@ const nextConfig = {
       { source: '/hire/hire-:slug', destination: '/templates/:slug-contract-template', permanent: true },
       { source: '/hire/:slug', destination: '/templates/:slug-contract-template', permanent: true },
       { source: '/posts/graphic-designer', destination: '/templates/freelance-graphic-designer-contract-template', permanent: true },
-      { source: '/posts/web-developer-programmer', destination: '/templates/freelance-web-developer-contract-template', permanent: true },
+      { source: '/posts/web-developer-programmer', destination: '/templates/web-development-contract', permanent: true },
       { source: '/posts/freelance-writer-copywriter', destination: '/templates/freelance-copywriter-contract-template', permanent: true },
       { source: '/posts/freelance-writing-and-blogging-yes-on-a-phone', destination: '/templates/freelance-copywriter-contract-template', permanent: true },
       { source: '/posts/social-media-management-and-content-creation', destination: '/templates/social-media-manager-contract-template', permanent: true },
