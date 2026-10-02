@@ -817,7 +817,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
                                    </div>
                                ) : (
                                    <div className="mb-4">
-                                       <label htmlFor="manual-total" className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Manual Total Price</label>
+                                       <label htmlFor="manual-total" className="block text-[10px] font-bold text-gray-600 uppercase mb-1">Manual Total Price</label>
                                        <div className="relative">
                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
                                            <input id="manual-total" type="number" className="w-full pl-7 p-2 border border-gray-200 rounded-lg font-bold text-gray-900" placeholder="0.00" value={manualPriceOverride} onChange={(e) => setManualPriceOverride(e.target.value)} />
@@ -947,7 +947,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
                       )}
                       
                       <button onClick={handleSubmit} disabled={loading} className={`w-full font-bold py-4 rounded-xl transition-all shadow-md hover:shadow-lg text-lg bg-black text-white hover:bg-gray-900 transform hover:-translate-y-0.5`}>{loading ? 'Creating...' : 'Create Client Link'}</button>
-                      <p className="text-center text-xs text-gray-400 mt-4 leading-snug">By clicking Save, you agree to the <Link href="/terms-of-service" className="underline hover:text-gray-600">Terms</Link> and acknowledge that you are responsible for the legal validity of this contract.</p>
+                      <p className="text-center text-xs text-gray-600 mt-4 leading-snug">By clicking Save, you agree to the <Link href="/terms-of-service" className="underline hover:text-gray-600">Terms</Link> and acknowledge that you are responsible for the legal validity of this contract.</p>
                   </div>
               </div>
             </div>
