@@ -587,7 +587,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
     <div className="bg-white border-b border-gray-200 sticky top-0 z-30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard" className="text-gray-400 hover:text-gray-900 transition-colors"><ArrowLeft className="w-5 h-5" /></Link>
+          <Link href="/dashboard" aria-label="Back to dashboard" title="Back to dashboard" className="text-gray-600 hover:text-gray-900 transition-colors"><ArrowLeft className="w-5 h-5" /></Link>
           <h1 className="text-lg font-bold text-gray-900">
             {step === 'select_mode' && 'Contract Editor'}
             {step === 'ai_input' && 'AI Assistant'}
@@ -659,8 +659,8 @@ If the Client cancels the project after work has begun, any deposit, completed w
                   <>
                     <h2 className="text-2xl font-bold text-gray-900 mb-8">Tell us about the project</h2>
                     <div className="space-y-6">
-                        <div><label className="block text-sm font-bold text-gray-700 mb-2">Client Name</label><input type="text" className="w-full px-4 py-3 rounded-xl border border-gray-300" value={formData.clientName} onChange={(e) => setFormData({...formData, clientName: e.target.value})} /></div>
-                        <div><label className="block text-sm font-bold text-gray-700 mb-2">Project Description</label><textarea className="w-full px-4 py-3 rounded-xl border border-gray-300" rows={6} value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} /></div>
+                        <div><label htmlFor="client-name" className="block text-sm font-bold text-gray-700 mb-2">Client Name</label><input id="client-name" type="text" className="w-full px-4 py-3 rounded-xl border border-gray-300" value={formData.clientName} onChange={(e) => setFormData({...formData, clientName: e.target.value})} /></div>
+                        <div><label htmlFor="project-description" className="block text-sm font-bold text-gray-700 mb-2">Project Description</label><textarea id="project-description" className="w-full px-4 py-3 rounded-xl border border-gray-300" rows={6} value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} /></div>
                         <button onClick={handleAnalyze} disabled={loading} className={`w-full py-4 rounded-xl font-bold text-white transition-all text-lg flex items-center justify-center gap-2 ${isPro ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-900 hover:bg-black'}`}>
                             {loading ? <><Loader2 className="w-5 h-5 animate-spin" /> Analyzing Project...</> : isPro ? <><Sparkles className="w-5 h-5"/> Start AI Interview</> : 'Unlock AI Assistant ($9/mo)'}
                         </button>
@@ -671,7 +671,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
                     <h2 className="text-2xl font-bold text-gray-900 mb-2">AI Interview</h2>
                     <div className="space-y-8">
                         {questions.map((q, index) => (
-                        <div key={index}><label className="block text-base font-bold text-gray-800 mb-3">{q}</label><input type="text" className="w-full px-4 py-3 border border-gray-300 rounded-xl" value={answers[index]} onChange={(e) => { const newAnswers = [...answers]; newAnswers[index] = e.target.value; setAnswers(newAnswers); }} /></div>
+                        <div key={index}><label htmlFor={`ai-answer-${index}`} className="block text-base font-bold text-gray-800 mb-3">{q}</label><input id={`ai-answer-${index}`} type="text" className="w-full px-4 py-3 border border-gray-300 rounded-xl" value={answers[index]} onChange={(e) => { const newAnswers = [...answers]; newAnswers[index] = e.target.value; setAnswers(newAnswers); }} /></div>
                         ))}
                     </div>
                     <button onClick={handleFinalize} disabled={loading} className="w-full bg-black text-white font-bold py-4 rounded-xl hover:bg-gray-800 transition-all mt-10 text-lg flex items-center justify-center gap-2">
@@ -687,17 +687,17 @@ If the Client cancels the project after work has begun, any deposit, completed w
             <div className="flex flex-col lg:flex-row h-full animate-in fade-in zoom-in duration-300">
               
               {/* MAIN EDITOR COLUMN */}
-              <div className="flex-1 p-8 md:p-10 border-r border-gray-200">
+              <div className="flex-1 min-w-0 p-4 sm:p-8 md:p-10 border-r border-gray-200">
                 <form onSubmit={handleSubmit} className="space-y-6 h-full flex flex-col">
                   <div>
-                    <input type="text" required className="w-full px-0 py-2 text-3xl font-bold text-gray-900 border-none focus:ring-0 placeholder-gray-300" value={formData.projectTitle} onChange={(e) => setFormData({ ...formData, projectTitle: e.target.value })} placeholder="Untitled Agreement" />
+                    <input type="text" required className="w-full px-0 py-2 text-xl sm:text-3xl font-bold text-gray-900 border-none focus:ring-0 placeholder-gray-500" aria-label="Agreement title" value={formData.projectTitle} onChange={(e) => setFormData({ ...formData, projectTitle: e.target.value })} placeholder="Untitled Agreement" />
                   </div>
 
-                  <div className="flex items-center justify-between border-b border-gray-200 pb-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 pb-4">
                     <div className="flex items-center gap-4">
                       {isTemplateLoaded && <span className="bg-green-100 text-green-800 text-xs font-bold px-2.5 py-1 rounded-full border border-green-200 inline-flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green-600 animate-pulse"></span>{templateName ? `${templateName} loaded` : 'Template loaded'}</span>}
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                         <button type="button" onClick={() => isPro ? setShowAiRefiner(!showAiRefiner) : setShowPricingModal(true)} className={`text-sm font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${isPro ? 'text-indigo-600 hover:bg-indigo-50' : 'text-gray-500 hover:text-gray-900'}`}><Wand2 className="w-4 h-4" /> {isPro ? (showAiRefiner ? 'Close AI' : 'Use AI Assistant') : 'Unlock AI'}</button>
                         <div className="h-4 w-px bg-gray-200"></div>
                         <button type="button" onClick={handleUndo} disabled={!undoText} className={`text-sm font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${!undoText ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}><Undo2 className="w-4 h-4" /> Undo</button>
@@ -708,7 +708,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
 
                   {showAiRefiner && (
                       <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100 animate-in slide-in-from-top-2 flex gap-3 items-center">
-                        <input type="text" value={refineText} onChange={(e) => setRefineText(e.target.value)} placeholder="e.g. 'Add a $500 rush fee to the pricing section'" className="flex-1 px-4 py-2 rounded-lg border border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" onKeyDown={(e) => e.key === 'Enter' && handleRefine()} />
+                        <input type="text" aria-label="AI editing instructions" value={refineText} onChange={(e) => setRefineText(e.target.value)} placeholder="e.g. 'Add a $500 rush fee to the pricing section'" className="flex-1 px-4 py-2 rounded-lg border border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" onKeyDown={(e) => e.key === 'Enter' && handleRefine()} />
                         <button type="button" onClick={handleRefine} disabled={isRefining || !refineText} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-sm flex items-center gap-2">
                           {isRefining ? <><Loader2 className="w-4 h-4 animate-spin" /> Refining...</> : <><Sparkles className="w-4 h-4" /> Update</>}
                         </button>
@@ -720,20 +720,22 @@ If the Client cancels the project after work has begun, any deposit, completed w
               </div>
 
               {/* SIDEBAR (CONTRACT DETAILS) */}
-              <div className="w-full lg:w-[450px] bg-gray-50/50 p-8 md:p-10 flex flex-col h-full overflow-y-auto">
+              <div className="w-full lg:w-[450px] bg-gray-50/50 p-4 sm:p-8 md:p-10 flex flex-col h-full overflow-y-auto">
                   <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2"><CreditCard className="w-5 h-5"/> Contract Details</h3>
                   <div className="space-y-6 flex-1">
-                    <div><label className="block text-sm font-bold text-gray-700 mb-2">Client Name</label><input required type="text" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" value={formData.clientName} onChange={(e) => setFormData({...formData, clientName: e.target.value})} placeholder="e.g. John Smith" /></div>
+                    <div><label htmlFor="client-name" className="block text-sm font-bold text-gray-700 mb-2">Client Name</label><input id="client-name" required type="text" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" value={formData.clientName} onChange={(e) => setFormData({...formData, clientName: e.target.value})} placeholder="e.g. John Smith" /></div>
 
-                    <div><label className="block text-sm font-bold text-gray-700 mb-2">Client Email</label><input required type="email" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" value={formData.clientEmail} onChange={(e) => setFormData({...formData, clientEmail: e.target.value})} placeholder="e.g. john@example.com" /></div>
+                    <div><label htmlFor="client-email" className="block text-sm font-bold text-gray-700 mb-2">Client Email</label><input id="client-email" required type="email" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" value={formData.clientEmail} onChange={(e) => setFormData({...formData, clientEmail: e.target.value})} placeholder="e.g. john@example.com" /></div>
 
-                    <div><label className="block text-sm font-bold text-gray-700 mb-2">Payment Due Date</label><input type="date" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" value={formData.dueDate} onChange={(e) => setFormData({...formData, dueDate: e.target.value})} /></div>
+                    <div><label htmlFor="payment-due-date" className="block text-sm font-bold text-gray-700 mb-2">Payment Due Date</label><input id="payment-due-date" type="date" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" value={formData.dueDate} onChange={(e) => setFormData({...formData, dueDate: e.target.value})} /></div>
 
                     <div className="flex items-center justify-between bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
                       <div><label htmlFor="dunning-toggle" className="text-sm font-bold text-gray-700 cursor-pointer">Automated Late Reminders</label><p className="text-xs text-gray-500 mt-1">Send dunning emails if invoice is unpaid</p></div>
                       <button
                         id="dunning-toggle"
                         type="button"
+                        role="switch"
+                        aria-checked={dunningEnabled}
                         onClick={() => setDunningEnabled(!dunningEnabled)}
                         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${dunningEnabled ? 'bg-green-600' : 'bg-gray-300'}`}
                       >
@@ -788,17 +790,17 @@ If the Client cancels the project after work has begun, any deposit, completed w
                             <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm animate-in fade-in slide-in-from-top-2">
                                <label className="block text-xs font-bold text-gray-500 uppercase mb-3">Itemized Invoice</label>
                                
-                               <div className="flex gap-2 items-end mb-4">
-                                  <div className="flex-1">
-                                     <input className="w-full p-2 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:bg-white transition-colors" placeholder="Item (e.g. Labor)" value={newItem.description} onChange={(e) => setNewItem({ ...newItem, description: e.target.value })} />
+                               <div className="flex flex-wrap gap-2 items-end mb-4">
+                                  <div className="w-full sm:w-auto sm:flex-1 min-w-0">
+                                     <input className="w-full p-2 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:bg-white transition-colors" placeholder="Item (e.g. Labor)" aria-label="Invoice item description" value={newItem.description} onChange={(e) => setNewItem({ ...newItem, description: e.target.value })} />
                                   </div>
                                   <div className="w-16">
-                                     <input type="number" className="w-full p-2 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:bg-white text-center" placeholder="Qty" value={newItem.quantity} onChange={(e) => setNewItem({ ...newItem, quantity: parseInt(e.target.value) || 1 })} />
+                                     <input type="number" className="w-full p-2 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:bg-white text-center" placeholder="Qty" aria-label="Invoice item quantity" value={newItem.quantity} onChange={(e) => setNewItem({ ...newItem, quantity: parseInt(e.target.value) || 1 })} />
                                   </div>
                                   <div className="w-20">
-                                     <input type="number" className="w-full p-2 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:bg-white" placeholder="Price" value={newItem.amount} onChange={(e) => setNewItem({ ...newItem, amount: e.target.value })} />
+                                     <input type="number" className="w-full p-2 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:bg-white" placeholder="Price" aria-label="Invoice item price" value={newItem.amount} onChange={(e) => setNewItem({ ...newItem, amount: e.target.value })} />
                                   </div>
-                                  <button onClick={handleAddItem} className="p-2 bg-black text-white rounded-lg hover:bg-gray-800"><Plus className="w-4 h-4" /></button>
+                                  <button type="button" aria-label="Add invoice item" title="Add invoice item" onClick={handleAddItem} className="p-2 bg-black text-white rounded-lg hover:bg-gray-800"><Plus className="w-4 h-4" /></button>
                                </div>
 
                                {lineItems.length > 0 ? (
@@ -808,25 +810,25 @@ If the Client cancels the project after work has begun, any deposit, completed w
                                                <div className="flex-1"><span className="font-medium text-gray-900">{item.description}</span> <span className="text-gray-400 text-xs">x{item.quantity}</span></div>
                                                <div className="flex items-center gap-3">
                                                    <span className="font-mono font-bold">${(item.amount * item.quantity).toFixed(2)}</span>
-                                                   <button onClick={() => handleRemoveItem(item.id)} className="text-gray-300 hover:text-red-500"><X className="w-3 h-3" /></button>
+                                                   <button type="button" aria-label={`Remove invoice item: ${item.description}`} title="Remove invoice item" onClick={() => handleRemoveItem(item.id)} className="text-gray-600 hover:text-red-700"><X className="w-3 h-3" /></button>
                                                </div>
                                            </div>
                                        ))}
                                    </div>
                                ) : (
                                    <div className="mb-4">
-                                       <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Manual Total Price</label>
+                                       <label htmlFor="manual-total" className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Manual Total Price</label>
                                        <div className="relative">
                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
-                                           <input type="number" className="w-full pl-7 p-2 border border-gray-200 rounded-lg font-bold text-gray-900" placeholder="0.00" value={manualPriceOverride} onChange={(e) => setManualPriceOverride(e.target.value)} />
+                                           <input id="manual-total" type="number" className="w-full pl-7 p-2 border border-gray-200 rounded-lg font-bold text-gray-900" placeholder="0.00" value={manualPriceOverride} onChange={(e) => setManualPriceOverride(e.target.value)} />
                                        </div>
                                    </div>
                                )}
                             </div>
 
                             <div className="animate-in fade-in slide-in-from-top-3">
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Tax Rate (%)</label>
-                                <div className="relative"><input type="number" placeholder="0" className="w-full pl-4 pr-8 py-3 rounded-xl border border-gray-200 bg-white" value={formData.taxRate} onChange={(e) => setFormData({ ...formData, taxRate: e.target.value })} /><span className="absolute right-4 top-3.5 text-gray-500 font-bold">%</span></div>
+                                <label htmlFor="tax-rate" className="block text-sm font-bold text-gray-700 mb-2">Tax Rate (%)</label>
+                                <div className="relative"><input id="tax-rate" type="number" placeholder="0" className="w-full pl-4 pr-8 py-3 rounded-xl border border-gray-200 bg-white" value={formData.taxRate} onChange={(e) => setFormData({ ...formData, taxRate: e.target.value })} /><span className="absolute right-4 top-3.5 text-gray-500 font-bold">%</span></div>
                                 
                                 <div className="flex items-center gap-2 mt-4 select-none">
                                     <input type="checkbox" id="fee-toggle" checked={includeFee} onChange={(e) => setIncludeFee(e.target.checked)} className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer"/>
@@ -839,6 +841,10 @@ If the Client cancels the project after work has begun, any deposit, completed w
                                     <div className="flex justify-between items-center mb-1">
                                         <label className="block text-sm font-bold text-gray-700">Split into Installments?</label>
                                         <button 
+                                            type="button"
+                                            role="switch"
+                                            aria-label="Split into Installments?"
+                                            aria-checked={isSplit}
                                             onClick={() => { setIsSplit(!isSplit); setDepositType('none'); }}
                                             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isSplit ? 'bg-black' : 'bg-gray-200'}`}
                                         >
@@ -850,12 +856,12 @@ If the Client cancels the project after work has begun, any deposit, completed w
                                         <div className="space-y-3 bg-gray-50 p-4 rounded-xl border border-gray-200 animate-in fade-in slide-in-from-top-1">
                                             <div className="flex gap-4">
                                                 <div className="flex-1">
-                                                    <label className="text-xs font-bold text-gray-500 uppercase">Payments</label>
-                                                    <input type="number" value={splitCount} onChange={(e) => setSplitCount(e.target.value)} className="w-full mt-1 px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black text-center" />
+                                                    <label htmlFor="installment-count" className="text-xs font-bold text-gray-500 uppercase">Payments</label>
+                                                    <input id="installment-count" type="number" value={splitCount} onChange={(e) => setSplitCount(e.target.value)} className="w-full mt-1 px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black text-center" />
                                                 </div>
                                                 <div className="flex-1">
-                                                    <label className="text-xs font-bold text-gray-500 uppercase">Every (Days)</label>
-                                                    <input type="number" value={splitFrequency} onChange={(e) => setSplitFrequency(e.target.value)} className="w-full mt-1 px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black text-center" />
+                                                    <label htmlFor="installment-frequency" className="text-xs font-bold text-gray-500 uppercase">Every (Days)</label>
+                                                    <input id="installment-frequency" type="number" value={splitFrequency} onChange={(e) => setSplitFrequency(e.target.value)} className="w-full mt-1 px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black text-center" />
                                                 </div>
                                             </div>
                                             <div className="text-xs text-center text-gray-500 font-medium">
@@ -871,16 +877,16 @@ If the Client cancels the project after work has begun, any deposit, completed w
                                                 <button type="button" onClick={() => setDepositType('fixed')} className={`px-4 py-2 rounded-lg text-sm font-bold border transition-all ${depositType === 'fixed' ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}>Fixed $</button>
                                             </div>
                                             {depositType === 'fixed' && (
-                                                <div className="mt-2 relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span><input type="number" placeholder="500.00" className="w-full pl-7 px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black" value={fixedDepositAmount} onChange={(e) => setFixedDepositAmount(e.target.value)} /></div>
+                                                <div className="mt-2 relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span><input type="number" placeholder="500.00" className="w-full pl-7 px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black" aria-label="Fixed deposit amount" value={fixedDepositAmount} onChange={(e) => setFixedDepositAmount(e.target.value)} /></div>
                                             )}
                                         </div>
                                     )}
 
                                     {!isSplit && (
                                         <div>
-                                            <label className="block text-sm font-bold text-gray-700 mb-2">Balance Due Date</label>
+                                            <label htmlFor="balance-terms" className="block text-sm font-bold text-gray-700 mb-2">Balance Due Date</label>
                                             <div className="relative">
-                                                <select 
+                                                <select id="balance-terms"
                                                     className="w-full appearance-none px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-black cursor-pointer text-sm font-medium"
                                                     value={paymentTerms}
                                                     onChange={(e) => setPaymentTerms(e.target.value as any)}
