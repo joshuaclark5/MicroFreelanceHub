@@ -171,8 +171,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
   const primaryCta = isReference
     ? isChecklist ? 'Read the Checklist' : 'View Email Template'
     : isInvoice
-      ? 'Generate Invoice & Accept Payment'
-      : 'Generate Contract & Collect Deposit';
+      ? 'Customize this invoice'
+      : 'Customize this template';
   const secondaryCta = isReference
     ? 'Review and customize for your client'
     : isInvoice
@@ -245,8 +245,12 @@ export default async function TemplatePage({ params }: { params: { slug: string 
   };
 
   return (
-    <div className="min-h-screen bg-white font-sans text-slate-900 pb-20">
+    <div className="d4-template min-h-screen bg-white font-sans text-slate-900 pb-20">
       
+      <nav aria-label="Site navigation" className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 bg-white px-5 py-4">
+        <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold"><span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-lg font-bold text-white">M</span>MicroFreelanceHub</Link>
+        <div className="flex flex-wrap items-center gap-4 text-sm"><Link href="/templates">Templates</Link><Link href="/pricing">Pricing</Link><a href="mailto:support@microfreelancehub.com">Help</a><Link href="/login?mode=signin">Sign in</Link></div>
+      </nav>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       {!isReference && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd) }} />}
 
@@ -259,7 +263,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
            </Link>
         </div>
 
-        <div className="max-w-5xl mx-auto space-y-10 relative z-10 mt-8">
+        <div className="d4-template-top max-w-6xl mx-auto relative z-10 mt-8">
           
           {/* LEFT SIDE: Copy & CTA */}
           <div>
@@ -276,7 +280,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
             </h1>
             
             <p className="text-lg text-gray-600 mb-7 leading-relaxed max-w-3xl">
-              {isReference ? 'Review this free template and adapt it to your project. ' : `Send your first 3 ${docType.toLowerCase()}s for free. `}{softenLegalClaims(doc.pain_point_hook) || 'Keep client expectations and next steps clear.'}
+              {isReference ? 'Review this free template and adapt it to your project. ' : 'Start with a draft, then review the terms and payment settings. '}{softenLegalClaims(doc.pain_point_hook) || 'Keep client expectations and next steps clear.'}
             </p>
 
             <Link href={ctaHref} className={`w-full sm:w-fit font-semibold px-6 py-3 rounded-md text-base text-white flex items-center justify-center gap-2 ${themeColors} hover:opacity-90`}>
@@ -287,13 +291,13 @@ export default async function TemplatePage({ params }: { params: { slug: string 
             </p>
             {!isReference && (
               <p className="text-sm text-gray-600 mt-3 max-w-xl">
-                Build the agreement, add your deposit amount, and send one secure client link for signature and payment.
+                Build the agreement and review your payment terms before sharing. Payment collection requires an eligible Stripe account; plan limits apply.
               </p>
             )}
           </div>
 
           {trade && (
-            <section aria-label={`${trade.name} project details`} className="border-y border-gray-300 py-7">
+            <section aria-label={`${trade.name} project details`} className="d4-trade border-y border-gray-300 py-7">
               <h2 className="text-xl font-semibold text-gray-950">From job details to an approved scope</h2>
               <p className="mt-3 max-w-3xl text-gray-700 leading-relaxed">{trade.intro}</p>
               <ul className="mt-5 grid gap-4 sm:grid-cols-3">
@@ -305,7 +309,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
           )}
 
           {/* RIGHT SIDE: The Visual Preview Document (PRO TIER UPDATE) */}
-          <div className="relative group">
+          <div className="d4-template-preview relative group">
             
             {/* 🚀 FIXED: Height adjusted for mobile, added select-none */}
             <div className="relative bg-white text-gray-900 border border-gray-200 rounded-lg overflow-hidden flex flex-col h-[540px] md:h-[680px]">
@@ -315,8 +319,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                 <div className="w-3 h-3 rounded-full bg-red-400/80"></div>
                 <div className="w-3 h-3 rounded-full bg-yellow-400/80"></div>
                 <div className="w-3 h-3 rounded-full bg-green-400/80"></div>
-                <div className="mx-auto bg-white border border-slate-200 text-[10px] md:text-xs font-mono text-slate-400 px-4 py-1 rounded-md flex items-center gap-2 shadow-sm">
-                   <Lock className="w-3 h-3" /> SECURE PREVIEW
+                <div className="mx-auto bg-white border border-slate-200 text-[10px] md:text-xs font-mono text-slate-600 px-4 py-1 rounded-md flex items-center gap-2 shadow-sm">
+                   <Lock className="w-3 h-3" /> DOCUMENT PREVIEW
                 </div>
               </div>
 
@@ -328,7 +332,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                     <h2 className="text-2xl md:text-3xl font-serif font-bold uppercase tracking-widest text-slate-900 mb-2">
                         {isReference ? `${docType} Preview` : isInvoice ? 'Invoice' : isEstimate ? 'Estimate' : isQuote ? 'Quote' : isRetainer ? 'Retainer Agreement' : isChangeOrder ? 'Change Order' : isScopeOfWork ? 'Scope of Work' : isWorkOrder ? 'Work Order' : isSubcontractor ? 'Subcontractor Agreement' : isNDA ? 'Non-Disclosure Agreement' : isDemandLetter ? 'Demand Letter' : isCeaseAndDesist ? 'Cease & Desist' : isServiceAgreement ? 'Service Agreement' : isMaintenance ? 'Maintenance Agreement' : isContractor ? 'Contractor Agreement' : isSignOff ? 'Project Sign-Off' : isDepositAgreement ? 'Deposit Agreement' : 'Statement of Work'}
                     </h2>
-                    <p className="text-[10px] uppercase tracking-widest text-slate-400">Ref: {new Date().getFullYear()}-001 • Standard Business Template</p>
+                    <p className="text-[10px] uppercase tracking-widest text-slate-600">Ref: {new Date().getFullYear()}-001 • Standard Business Template</p>
                  </div>
 
                 {isEmail ? (
@@ -413,20 +417,20 @@ export default async function TemplatePage({ params }: { params: { slug: string 
             <div className="bg-white text-slate-900 rounded-2xl p-5 shadow-lg border border-white/10">
               <div className="space-y-3">
                 <label className="block">
-                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Scope of work</span>
+                  <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Scope of work</span>
                   <div className="mt-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700">
                     {title} project details
                   </div>
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <label className="block">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Project total</span>
+                    <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Project total</span>
                     <div className="mt-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700">
                       $5,000
                     </div>
                   </label>
                   <label className="block">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Deposit</span>
+                    <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Deposit</span>
                     <div className="mt-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-emerald-700">
                       $2,500
                     </div>
@@ -521,7 +525,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
         )}
 
         <div className="mt-8 bg-slate-50 border border-slate-200 rounded-xl p-4 flex gap-3 text-left">
-          <AlertTriangle className="w-5 h-5 text-slate-400 shrink-0" />
+          <AlertTriangle className="w-5 h-5 text-slate-600 shrink-0" />
           <p className="text-xs text-slate-500 leading-relaxed">
             <strong>Legal Disclaimer:</strong> MicroFreelanceHub is a software workflow tool, not a law firm. The templates and information provided on this website are for general informational purposes only and do not constitute legal advice.
           </p>

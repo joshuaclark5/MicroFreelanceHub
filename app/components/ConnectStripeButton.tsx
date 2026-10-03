@@ -21,9 +21,9 @@ export default function ConnectStripeButton({ userId }: { userId: string }) {
   return (
     <button 
       onClick={handleConnect} 
-      className="w-full bg-black hover:bg-gray-800 text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+      className="d4-primary w-full"
     >
-      Setup Payouts
+      Connect Stripe
     </button>
   );
 }

@@ -1,19 +1,17 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
+import AgreementExample from './components/AgreementExample';
 import { useEffect, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 // 👉 WE ARE STATICALLY IMPORTING ALL IMAGES HERE
-import builderImg from './builder.png';
-import dashboardImg from './dashboard.png';
 
-import { 
-  ArrowRight, 
+import {
+  ArrowRight,
   BookOpen,
-  CheckCircle2, 
-  ShieldCheck, 
+  CheckCircle2,
+  ShieldCheck,
   Wrench,
   Paintbrush,
   Code2,
@@ -43,8 +41,8 @@ export default function HomePage() {
   }, [supabase]);
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-emerald-100 [&_*]:tracking-normal">
-      
+    <div className="d4-home min-h-screen bg-white text-gray-900 font-sans selection:bg-emerald-100 [&_*]:tracking-normal">
+
       {/* 1. NAVBAR */}
       <nav className="border-b border-gray-100/50 bg-white/70 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center">
@@ -54,6 +52,7 @@ export default function HomePage() {
           </Link>
           <div className="hidden md:flex gap-4 items-center">
             <Link href="/pricing" className="text-sm font-semibold text-gray-600 hover:text-gray-950">Pricing</Link>
+            <a href="#help" className="text-sm font-semibold text-slate-700">Help</a>
             <Link href="/articles" className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">
               Articles
             </Link>
@@ -64,8 +63,8 @@ export default function HomePage() {
               Templates
             </Link>
             {user ? (
-              <Link 
-                href="/dashboard" 
+              <Link
+                href="/dashboard"
                 className="bg-slate-900 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-slate-800 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
               >
                 Dashboard <ArrowRight className="w-4 h-4" />
@@ -97,7 +96,7 @@ export default function HomePage() {
         {isMenuOpen && (
           <div className="border-t border-slate-100 bg-white px-4 py-4 md:hidden">
             <div className="mx-auto flex max-w-7xl flex-col gap-3">
-              <Link href="/pricing" className="rounded-md px-3 py-2 text-sm font-semibold text-gray-700">Pricing</Link>
+              <Link href="/pricing" className="rounded-md px-3 py-2 text-sm font-semibold text-gray-700">Pricing</Link><a href="#help" onClick={() => setIsMenuOpen(false)} className="rounded-md px-3 py-2 text-sm font-semibold text-gray-700">Help &amp; support</a>
               <Link href="/articles" className="rounded-lg px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
                 Articles
               </Link>
@@ -126,77 +125,23 @@ export default function HomePage() {
         )}
       </nav>
 
-      {/* Product entry point; public resource routes remain below. */}
-      <section className="px-5 pt-10 pb-14 max-w-7xl mx-auto">
+      <section className="px-5 pt-8 pb-12 max-w-7xl mx-auto">
         <div className="max-w-3xl mx-auto text-center">
-          <p className="text-sm font-semibold text-emerald-700 mb-4">MicroFreelanceHub</p>
-          <h1 className="text-4xl sm:text-5xl font-semibold text-gray-950 leading-tight">
-            Agreements, changes & payments.
-          </h1>
-          <p className="mt-5 text-lg text-gray-600 leading-relaxed">
-            Turn a project brief into a client agreement. Keep scope changes in writing,
-            collect signatures, and accept payments through your connected Stripe account.
-          </p>
-          <div className="mt-7 flex flex-col sm:flex-row justify-center items-stretch sm:items-center gap-4">
-            <Link href="/create" className="inline-flex items-center justify-center gap-2 rounded-md bg-emerald-700 px-6 py-3 font-semibold text-white hover:bg-emerald-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-700">
-              Create your first agreement <ArrowRight size={18} />
-            </Link>
-            <Link href="/templates" className="inline-flex items-center justify-center rounded-md border border-gray-300 px-6 py-3 font-semibold text-gray-800 hover:bg-gray-50">
-              Browse agreement templates
-            </Link>
+          <p className="d4-eyebrow mb-3">Agreement software for freelancers &amp; service businesses</p>
+          <h1 className="text-3xl sm:text-5xl font-semibold text-gray-950 leading-tight">Agree on the job.<br/>Approve the changes.<br/>Let clients pay.</h1>
+          <p className="mt-4 text-base sm:text-lg text-gray-600 leading-relaxed">Create an agreement, collect signatures and accept payments through your connected Stripe account—all from one client link.</p>
+          <div className="mt-6 flex flex-col sm:flex-row justify-center items-stretch sm:items-center gap-3">
+            <Link href="/create" className="d4-primary">Start my agreement <ArrowRight size={18}/></Link>
+            <a href="#agreement-example" className="inline-flex min-h-11 items-center justify-center px-3 text-sm font-semibold text-blue-700 underline underline-offset-4">See a sample client link</a>
           </div>
-          <p className="mt-4 text-sm text-gray-500">Free to draft. No credit card needed to get started.</p>
+          <p className="mt-3 text-xs sm:text-sm text-slate-600">Free to draft. Create an account to save. <Link href="/pricing" className="underline underline-offset-2">Compare plan limits and payment features</Link>.</p>
         </div>
-        {/* PRODUCT DEMO VIDEO */}
-        <div className="mt-10 max-w-6xl mx-auto relative z-20">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5 mb-6">
-            <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-bold text-slate-700 mb-4 shadow-sm">
-                <MonitorPlay className="h-4 w-4 text-blue-600" />
-                Product walkthrough
-              </div>
-              <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900">
-                Watch the client-payment workflow.
-              </h2>
-            </div>
-            <p className="text-base md:text-lg text-slate-600 font-medium md:max-w-sm">
-              From dashboard to agreement builder, MicroFreelanceHub keeps scope, signature, and deposit steps in one place.
-            </p>
-          </div>
-
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-950 shadow-2xl shadow-slate-200/80">
-            <div className="flex h-11 items-center justify-between border-b border-white/10 bg-slate-900 px-4">
-              <div className="flex items-center gap-2">
-                <span className="h-3 w-3 rounded-full bg-red-400"></span>
-                <span className="h-3 w-3 rounded-full bg-amber-400"></span>
-                <span className="h-3 w-3 rounded-full bg-emerald-400"></span>
-              </div>
-              <div className="hidden sm:block rounded-md bg-white/10 px-4 py-1 text-xs font-semibold text-slate-300">
-                microfreelancehub.com
-              </div>
-              <div className="w-[60px]"></div>
-            </div>
-            <video
-              className="block aspect-[16/10] w-full bg-white object-contain sm:aspect-video"
-              src="/videos/homepage-demo.webm"
-              poster="/videos/homepage-demo-poster.png"
-              autoPlay
-              muted
-              loop
-              playsInline
-              controls
-              preload="metadata"
-            >
-              Your browser does not support embedded video.
-            </video>
-          </div>
-        </div>
-
+        <div className="mt-7"><AgreementExample /></div>
         {/* VISUAL FLOW GRAPHIC */}
-        <div className="mt-24 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 relative z-20">
+        <div className="mt-10 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 relative z-20">
            <div className="hidden md:block absolute top-1/2 left-1/6 right-1/6 h-1 bg-gradient-to-r from-slate-200 via-blue-300 to-emerald-300 -z-10 translate-y-2"></div>
-           
-           <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-lg flex flex-col items-center text-center hover:-translate-y-1 transition-transform">
+
+           <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-lg flex flex-col items-center text-center  transition-transform">
               <div className="w-16 h-16 bg-slate-100 text-slate-700 rounded-full flex items-center justify-center mb-4 border-4 border-white shadow-sm">
                  <FileEdit className="w-8 h-8" />
               </div>
@@ -204,7 +149,7 @@ export default function HomePage() {
               <p className="text-sm text-slate-500 mt-2">Start with your project scope, review the terms, and share a client link.</p>
            </div>
 
-           <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-lg flex flex-col items-center text-center hover:-translate-y-1 transition-transform">
+           <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-lg flex flex-col items-center text-center  transition-transform">
               <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4 border-4 border-white shadow-sm">
                  <FileSignature className="w-8 h-8" />
               </div>
@@ -212,7 +157,7 @@ export default function HomePage() {
               <p className="text-sm text-slate-500 mt-2">They review and securely e-sign from their phone.</p>
            </div>
 
-           <div className="bg-white border-2 border-emerald-400 p-6 rounded-2xl shadow-xl flex flex-col items-center text-center hover:-translate-y-1 transition-transform relative overflow-hidden">
+           <div className="bg-white border-2 border-emerald-400 p-6 rounded-2xl shadow-xl flex flex-col items-center text-center  transition-transform relative overflow-hidden">
               <div className="absolute inset-0 bg-emerald-50 opacity-50 -z-10"></div>
               <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-4 border-4 border-white shadow-sm">
                  <CreditCard className="w-8 h-8" />
@@ -223,14 +168,15 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section id="help" className="scroll-mt-24 max-w-5xl mx-auto px-5 pb-10"><div className="flex flex-wrap items-center justify-between gap-5 rounded-lg border border-slate-200 p-5"><div><h2 className="font-semibold text-slate-900">Start with the work. Connect payments when you need them.</h2><p className="mt-2 text-sm text-slate-600">Review your draft before sharing. Stripe availability, processing fees and plan limits apply.</p></div><Link href="/templates" className="d4-secondary">Choose a template</Link><a href="mailto:support@microfreelancehub.com" className="d4-secondary">Contact support</a></div></section>
       {/* 3. THE PAIN SECTION */}
-      <section className="bg-slate-50 py-24 border-y border-slate-200">
+      <section className="bg-slate-50 py-14 border-y border-slate-200">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-6" />
           <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-10 tracking-tight">
             Still stuck in messy client threads?
           </h2>
-          
+
           <div className="grid sm:grid-cols-2 gap-6 text-left max-w-3xl mx-auto mb-12">
             <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex gap-4 items-start">
                <div className="text-red-500 font-bold text-xl mt-1">✕</div>
@@ -269,7 +215,7 @@ export default function HomePage() {
       </section>
 
       {/* 4. THE VISUAL SOLUTION SECTION */}
-      <section className="py-24 relative z-10 bg-white">
+      <section className="py-14 relative z-10 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 max-w-3xl mx-auto">
             <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">One link handles everything.</h2>
@@ -279,23 +225,17 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            
+
             {/* Image Feature 1: The Builder */}
             <div className="bg-slate-50 rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col">
               <div className="mb-8">
-                 <h3 className="text-2xl font-bold text-slate-900 mb-3">1. Build it in seconds</h3>
+                 <h3 className="text-2xl font-bold text-slate-900 mb-3">1. Build a clear agreement</h3>
                  <p className="text-slate-600 leading-relaxed">
                    Itemize your scope, set your tax rates, and clearly define the deliverables. The builder organizes project details into a clean, client-ready agreement.
                  </p>
               </div>
-              <div className="mt-auto relative rounded-xl overflow-hidden border border-slate-200 shadow-lg h-[350px] bg-white">
-                 <Image 
-                   src={builderImg} 
-                   alt="Contract Builder Screen" 
-                   className="w-full h-full object-cover object-top" 
-                   quality={100}
-                   unoptimized
-                 />
+              <div className="mt-auto relative rounded-xl overflow-hidden border border-slate-200 shadow-lg min-h-[260px] bg-white">
+                 <ol className="space-y-5 p-6 text-sm text-slate-700"><li><strong className="block text-slate-950">01 / Define the scope</strong>Deliverables, revisions and exclusions.</li><li><strong className="block text-slate-950">02 / Set expectations</strong>Timeline, price and payment terms.</li><li><strong className="block text-slate-950">03 / Review before sharing</strong>Keep the client’s next step clear.</li></ol>
               </div>
             </div>
 
@@ -307,14 +247,8 @@ export default function HomePage() {
                    Treat your freelance gig like a real business. Track your revenue, active projects, and profit margins all from one simple dashboard.
                  </p>
               </div>
-              <div className="mt-auto relative rounded-xl overflow-hidden border border-slate-200 shadow-lg h-[350px] bg-white flex items-start">
-                 <Image 
-                   src={dashboardImg} 
-                   alt="Analytics Dashboard Screen" 
-                   className="w-full h-full object-cover object-left-top" 
-                   quality={100}
-                   unoptimized
-                 />
+              <div className="mt-auto relative rounded-xl overflow-hidden border border-slate-200 shadow-lg min-h-[260px] bg-white flex items-start">
+                 <div className="w-full p-6 text-sm text-slate-700"><p className="d4-eyebrow mb-5">A practical workspace</p><p className="border-b border-slate-200 py-4">Continue unfinished drafts</p><p className="border-b border-slate-200 py-4">Review signatures and payment details</p><p className="py-4">Open, edit or copy a client link</p><Link href="/dashboard" className="d4-secondary mt-4">Open your dashboard</Link></div>
               </div>
             </div>
 
@@ -324,7 +258,7 @@ export default function HomePage() {
                  <ShieldCheck className="w-12 h-12 text-emerald-400 mb-6" />
                  <h3 className="text-3xl font-bold text-white mb-4">Keep changes clear before extra work begins.</h3>
                  <p className="text-slate-300 text-lg leading-relaxed mb-6">
-                   Client wants to add "just one more quick thing" mid-project? Edit the live agreement, update the scope, and request signature and payment steps before extra work begins.
+                   Client wants to add "just one more quick thing" mid-project? Review the requested changes, update the proposed scope, and confirm the next signature and payment steps before extra work begins.
                  </p>
                  <div className="flex gap-4">
                     <div className="flex items-center gap-2 bg-emerald-500/20 text-emerald-300 px-4 py-2 rounded-lg text-sm font-bold border border-emerald-500/30">
@@ -350,7 +284,7 @@ export default function HomePage() {
       </section>
 
       {/* 5. PRICING SECTION */}
-      <section className="bg-slate-50 py-24 border-y border-slate-200">
+      <section className="bg-slate-50 py-14 border-y border-slate-200">
          <div className="max-w-4xl mx-auto px-6 text-center">
             <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">Simple client project setup.</h2>
             <p className="text-lg text-slate-600 mb-16">Only pay when you are actually using it.</p>
@@ -372,7 +306,7 @@ export default function HomePage() {
 
                {/* Starter Tier */}
                <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-xl relative overflow-hidden flex flex-col">
-                  <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">Most Popular</div>
+
                   <h3 className="text-2xl font-bold text-white mb-2">Starter</h3>
                   <div className="text-4xl font-extrabold text-white mb-6">$9<span className="text-lg text-slate-400 font-medium">/mo</span></div>
                   <ul className="space-y-4 mb-8 flex-1">
@@ -410,7 +344,7 @@ export default function HomePage() {
             </h2>
             <div className="space-y-6 text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">
               <p>
-                I was a metal worker. I did the work, bought the materials, and installed the project. 
+                I was a metal worker. I did the work, bought the materials, and installed the project.
                 But because the project details were scattered across text messages, when the client changed their mind,
                 the scope, approvals, and payment steps were not clear enough.
               </p>
@@ -452,7 +386,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-3">
-            <Link href="/articles/how-to-ask-for-a-freelance-deposit-before-starting-work" className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
+            <Link href="/articles/how-to-ask-for-a-freelance-deposit-before-starting-work" className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all  hover:shadow-lg">
               <p className="text-xs font-bold uppercase tracking-wider text-blue-600 mb-3">Freelance Payments</p>
               <h3 className="text-xl font-extrabold text-slate-900 group-hover:text-blue-600">
                 How to Ask for a Freelance Deposit Before Starting Work
@@ -480,7 +414,7 @@ export default function HomePage() {
       </section>
 
       {/* 7. USE CASES / TEMPLATES (SEO Friendly) */}
-      <div className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-200 bg-white relative z-10">
+      <div className="py-14 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-200 bg-white relative z-10">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-extrabold text-slate-900 mb-4">
             Works for any freelance job.
@@ -491,9 +425,9 @@ export default function HomePage() {
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
-        
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          
+
           {/* Trades */}
           <div className="bg-slate-50 border border-slate-200 rounded-xl p-6">
             <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-lg">
@@ -543,22 +477,22 @@ export default function HomePage() {
               <li><Link href="/templates/copywriting-contract" className="text-slate-600 hover:text-blue-600 hover:underline font-medium">Copywriting SOW</Link></li>
             </ul>
           </div>
-          
+
         </div>
       </div>
 
       {/* 8. CTA Footer */}
-      <section className="bg-blue-600 py-24 relative overflow-hidden">
-        
+      <section className="bg-blue-600 py-14 relative overflow-hidden">
+
         <div className="max-w-4xl mx-auto text-center px-4 relative z-10">
           <h2 className="text-4xl md:text-6xl font-extrabold text-white mb-6 tracking-tight">Your next project starts with a clear agreement.</h2>
           <p className="text-blue-100 mb-12 text-xl max-w-2xl mx-auto font-medium">
              Outline the work, review the details, and prepare your client link.
           </p>
           <div className="flex justify-center">
-             <Link 
+             <Link
                href="/create"
-               className="inline-block bg-slate-900 text-white font-bold px-10 py-5 rounded-full shadow-xl hover:bg-black transition-all text-lg hover:-translate-y-1 hover:shadow-2xl"
+               className="inline-block bg-slate-900 text-white font-bold px-10 py-5 rounded-full shadow-xl hover:bg-black transition-all text-lg  hover:shadow-sm"
              >
                Create your first agreement
              </Link>
@@ -569,7 +503,7 @@ export default function HomePage() {
           </p>
         </div>
       </section>
-      
+
     </div>
   );
 }

@@ -607,15 +607,15 @@ If the Client cancels the project after work has begun, any deposit, completed w
               }
             }} className="text-sm font-medium text-gray-600 underline underline-offset-4">New draft</button>
             {!isPro && projectCount >= 3 && <span className="hidden md:flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full border border-amber-200 cursor-pointer" onClick={() => setShowPricingModal(true)}><AlertCircle className="w-3 h-3" /> Free Limit Reached</span>}
-            <div className="bg-black text-white w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg font-bold text-lg shadow-sm">M</div>
-            <span className="text-sm font-bold text-gray-900 hidden sm:block">MicroFreelance</span>
+            <div className="bg-slate-900 text-white w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg font-bold text-lg shadow-sm">M</div>
+            <span className="text-sm font-bold text-gray-900 hidden sm:block">MicroFreelanceHub</span>
         </div>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="d4-editor min-h-screen bg-gray-50/50">
       <AuthRequiredModal open={showAuthModal} onOpenChange={setShowAuthModal} />
       <div className="absolute inset-0 h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-0"></div>
       {renderHeader()}

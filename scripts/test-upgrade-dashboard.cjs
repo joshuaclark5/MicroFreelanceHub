@@ -36,8 +36,8 @@ const docs = [
       const draft = page.getByRole('button', { name: 'Draft agreements 1', exact: true });
       await draft.click();
       assert.equal(await draft.getAttribute('aria-pressed'), 'true');
-      await page.getByRole('heading', { name: 'Website agreement', exact: true }).waitFor();
-      assert.equal(await page.getByRole('heading', { name: 'Brand agreement', exact: true }).count(), 0);
+      await page.getByRole('heading', { name: 'Website agreement', exact: true, level: 3 }).waitFor();
+      assert.equal(await page.getByRole('heading', { name: 'Brand agreement', exact: true, level: 3 }).count(), 0);
       assert.equal(await page.locator('details').getAttribute('open'), null);
       assert.equal(await page.getByRole('link', { name: 'Open Website agreement', exact: true }).getAttribute('href'), '/sow/draft-fixture');
       await page.getByRole('link', { name: 'Edit draft', exact: true }).waitFor();
@@ -49,6 +49,7 @@ const docs = [
       await draft.click();
       await page.getByRole('link', { name: 'Open Website agreement', exact: true }).focus();
       assert.equal(await page.getByRole('link', { name: 'Open Website agreement', exact: true }).evaluate(el => el === document.activeElement), true);
+      await page.evaluate(() => window.scrollTo(0, 0));
       await page.screenshot({ path: `upgrade-dashboard-${width}.png` });
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Overflow at ${width}px`);
     }
@@ -70,6 +71,17 @@ const docs = [
     assert.equal(record.due_date, pending.due_date);
     assert.equal(record.dunning_enabled, false);
     assert.deepEqual(record.payment_schedule_structured, pending.payment_schedule_structured);
+    await page.setViewportSize({width:1440,height:950});
+    await page.goto(`${base}/dashboard`);
+    await page.getByRole('heading',{name:'Your agreements',exact:true}).waitFor();
+    await page.locator('.d4-agreement-row').filter({hasText:'Brand agreement'}).getByRole('button',{name:'View details',exact:true}).click();
+    await page.getByRole('complementary',{name:'Selected agreement details'}).getByRole('heading',{name:'Brand agreement',exact:true}).waitFor();
+    assert.equal(await page.locator('.d4-agreement-row').first().evaluate(e=>getComputedStyle(e).display),'grid');
+    docs.length=0;
+    await page.reload();
+    await page.getByRole('heading',{name:'Your first agreement starts here.',exact:true}).waitFor();
+    assert.equal(await page.getByRole('complementary',{name:'Selected agreement details'}).count(),0);
+    await page.screenshot({path:'d4-dashboard-empty.png'});
     assert.deepEqual(errors, []);
     console.log('PASS: dashboard layout and pending draft recovery preserve total, email, due date and split terms; all Supabase writes mocked');
   } finally { await browser.close(); }

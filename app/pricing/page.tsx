@@ -105,9 +105,9 @@ export default function PricingPage() {
       {/* PRICING CARDS */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
         <div className="grid md:grid-cols-3 gap-8 items-start">
-          
+
           {/* TIER 1: Free */}
-          <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col h-full">
+          <div className="bg-white rounded-xl p-8 border border-slate-200 shadow-sm flex flex-col h-full">
             <h3 className="text-2xl font-bold text-slate-900 mb-2">Free</h3>
             <p className="text-slate-500 text-sm mb-6 h-10">Try the platform and create your first client-ready agreements.</p>
             <div className="text-5xl font-extrabold text-slate-900 mb-6">$0<span className="text-lg text-slate-500 font-medium">/mo</span></div>
@@ -115,18 +115,18 @@ export default function PricingPage() {
               Start Free
             </Link>
             <ul className="space-y-4 flex-1">
-              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-400 shrink-0" /> <span>First 3 contracts free</span></li>
-              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-400 shrink-0" /> <span>ESIGN Act compliant signatures</span></li>
-              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-400 shrink-0" /> <span>Preview contract and payment flow</span></li>
+              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-600 shrink-0" /> <span>First 3 contracts free</span></li>
+              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-600 shrink-0" /> <span>Electronic signature workflow</span></li>
+              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-600 shrink-0" /> <span>Preview contract and payment flow</span></li>
             </ul>
           </div>
 
           {/* TIER 2: Starter (Highlighted) */}
-          <div className="bg-slate-900 rounded-3xl p-8 border border-slate-800 shadow-2xl relative overflow-hidden flex flex-col h-full transform md:-translate-y-4">
-            <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-4 py-1.5 rounded-bl-lg uppercase tracking-wider">Most Popular</div>
-            <h3 className="text-2xl font-bold text-white mb-2">Starter</h3>
-            <p className="text-slate-400 text-sm mb-6 h-10">For solo operators who need one live client link to collect deposits.</p>
-            <div className="text-5xl font-extrabold text-white mb-6">$9<span className="text-lg text-slate-400 font-medium">/mo</span></div>
+          <div className="bg-blue-50 rounded-xl p-8 border border-blue-200 shadow-sm relative overflow-hidden flex flex-col h-full transform md:-translate-y-4">
+
+            <h3 className="text-2xl font-bold text-slate-950 mb-2">Starter</h3>
+            <p className="text-slate-600 text-sm mb-6 h-10">For solo operators who need one live client link to collect deposits.</p>
+            <div className="text-5xl font-extrabold text-slate-950 mb-6">$9<span className="text-lg text-slate-600 font-medium">/mo</span></div>
             <button
               onClick={() => handlePricingClick('starter')}
               disabled={checkoutLoading === 'starter'}
@@ -135,16 +135,16 @@ export default function PricingPage() {
               {checkoutLoading === 'starter' ? 'Loading...' : 'Start Starter'}
             </button>
             <ul className="space-y-4 flex-1">
-              <li className="flex items-start gap-3 text-slate-200"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> <strong>1 active client project</strong></li>
-              <li className="flex items-start gap-3 text-slate-200"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> <strong>Live contract + deposit link</strong></li>
-              <li className="flex items-start gap-3 text-slate-200"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> <span>AI agreement generation</span></li>
-              <li className="flex items-start gap-3 text-slate-200"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> <span>Stripe payment collection</span></li>
-              <li className="flex items-start gap-3 text-slate-200"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> <span>Client signing portal</span></li>
+              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> <strong>1 active client project</strong></li>
+              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> <strong>Live contract + deposit link</strong></li>
+              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> <span>AI agreement generation</span></li>
+              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> <span>Stripe payment collection</span></li>
+              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> <span>Client signing portal</span></li>
             </ul>
           </div>
 
           {/* TIER 3: Pro */}
-          <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col h-full">
+          <div className="bg-white rounded-xl p-8 border border-slate-200 shadow-sm flex flex-col h-full">
             <h3 className="text-2xl font-bold text-slate-900 mb-2">Professional</h3>
             <p className="text-slate-500 text-sm mb-6 h-10">For active freelancers managing multiple jobs and payment links.</p>
             <div className="text-5xl font-extrabold text-slate-900 mb-6">$29<span className="text-lg text-slate-500 font-medium">/mo</span></div>
@@ -157,11 +157,11 @@ export default function PricingPage() {
             </button>
 
             <ul className="space-y-4 flex-1">
-              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-400 shrink-0" /> <span>Unlimited active projects</span></li>
-              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-400 shrink-0" /> <span>Automated dunning emails</span></li>
-              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-400 shrink-0" /> <span>Mid-project change orders</span></li>
-              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-400 shrink-0" /> <span>Remove watermarks</span></li>
-              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-400 shrink-0" /> <span>Profit and expense tracking</span></li>
+              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-600 shrink-0" /> <span>Unlimited active projects</span></li>
+              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-600 shrink-0" /> <span>Automated dunning emails</span></li>
+              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-600 shrink-0" /> <span>Mid-project change orders</span></li>
+              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-600 shrink-0" /> <span>Remove watermarks</span></li>
+              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-600 shrink-0" /> <span>Profit and expense tracking</span></li>
             </ul>
           </div>
 
@@ -175,7 +175,7 @@ export default function PricingPage() {
           <p className="text-slate-600">Keep agreement details, signatures, and payment workflows in one place.</p>
         </div>
 
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
@@ -191,22 +191,22 @@ export default function PricingPage() {
                 <tr className="hover:bg-slate-50/50">
                   <td className="p-6 text-slate-700 font-medium">Digital signature workflow</td>
                   <td className="p-6 border-x border-slate-200 bg-blue-50/10 text-center"><CheckCircle2 className="w-6 h-6 text-emerald-500 mx-auto" /></td>
-                  <td className="p-6 text-center"><CheckCircle2 className="w-5 h-5 text-slate-400 mx-auto" /></td>
-                  <td className="p-6 text-center"><CheckCircle2 className="w-5 h-5 text-slate-400 mx-auto" /></td>
+                  <td className="p-6 text-center"><CheckCircle2 className="w-5 h-5 text-slate-600 mx-auto" /></td>
+                  <td className="p-6 text-center"><CheckCircle2 className="w-5 h-5 text-slate-600 mx-auto" /></td>
                   <td className="p-6 text-center"><X className="w-5 h-5 text-red-300 mx-auto" /></td>
                 </tr>
                 <tr className="hover:bg-slate-50/50">
                   <td className="p-6 text-slate-700 font-medium">Built-in Stripe Checkout</td>
                   <td className="p-6 border-x border-slate-200 bg-blue-50/10 text-center"><CheckCircle2 className="w-6 h-6 text-emerald-500 mx-auto" /></td>
                   <td className="p-6 text-center"><X className="w-5 h-5 text-red-300 mx-auto" /></td>
-                  <td className="p-6 text-center"><CheckCircle2 className="w-5 h-5 text-slate-400 mx-auto" /></td>
-                  <td className="p-6 text-center"><CheckCircle2 className="w-5 h-5 text-slate-400 mx-auto" /></td>
+                  <td className="p-6 text-center"><CheckCircle2 className="w-5 h-5 text-slate-600 mx-auto" /></td>
+                  <td className="p-6 text-center"><CheckCircle2 className="w-5 h-5 text-slate-600 mx-auto" /></td>
                 </tr>
                 <tr className="hover:bg-slate-50/50">
                   <td className="p-6 text-slate-700 font-medium">Automated Dunning (Late Emails)</td>
                   <td className="p-6 border-x border-slate-200 bg-blue-50/10 text-center"><CheckCircle2 className="w-6 h-6 text-emerald-500 mx-auto" /></td>
                   <td className="p-6 text-center"><X className="w-5 h-5 text-red-300 mx-auto" /></td>
-                  <td className="p-6 text-center"><CheckCircle2 className="w-5 h-5 text-slate-400 mx-auto" /></td>
+                  <td className="p-6 text-center"><CheckCircle2 className="w-5 h-5 text-slate-600 mx-auto" /></td>
                   <td className="p-6 text-center"><X className="w-5 h-5 text-red-300 mx-auto" /></td>
                 </tr>
                 <tr className="hover:bg-slate-50/50">

@@ -50,6 +50,7 @@ function UpgradeButton({ onClick }: { onClick: () => void }) {
 }
 
 export default function Dashboard() {
+  const [detailId, setDetailId] = useState<string | null>(null);
   const initialLoadRunning = useRef(false);
   const [sows, setSows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -333,10 +334,12 @@ export default function Dashboard() {
   const totalVolume = totalPaid > 0 ? totalPaid : 1;
   const expensePercentage = Math.min((totalExpenses / totalVolume) * 100, 100);
 
+  const detail = filteredSows.find(s => s.id === detailId) || filteredSows[0];
+
   if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-400 bg-gray-50">Loading Dashboard...</div>;
 
   return (
-    <div className="dashboard-workspace min-h-screen bg-[#F8FAFC] pb-32">
+    <div className="d4-dashboard dashboard-workspace min-h-screen bg-[#F8FAFC] pb-32">
 
       {/* Welcome Wizard Modal */}
       {showWelcomeWizard && <WelcomeWizard onComplete={() => setShowWelcomeWizard(false)} />}
@@ -376,6 +379,11 @@ export default function Dashboard() {
           <button type="button" aria-pressed={statusFilter === 'PAID'} onClick={() => setStatusFilter('PAID')} className="text-left text-sm text-gray-600 hover:text-blue-700">Paid records <span className="ml-2 font-semibold text-gray-950">{sows.filter(sow => String(sow.status).toLowerCase() === 'paid').length}</span></button>
           <button type="button" aria-pressed={statusFilter === 'ALL'} onClick={() => setStatusFilter('ALL')} className="text-left text-sm text-gray-600 hover:text-blue-700">All agreements <span className="ml-2 font-semibold text-gray-950">{sows.length}</span></button>
         </div>
+        <div className="d4-stripe-notice">
+          <div><h2 className="text-sm font-semibold text-slate-900">{stripeId ? 'Client payments' : 'Ready to collect a deposit?'}</h2><p className="mt-1 text-sm text-slate-600">{stripeId ? 'A Stripe account is linked. Manage eligibility and payout details in Stripe.' : 'Connect your own Stripe account when you want to accept client payments. You can draft first.'}</p></div>
+          <div className="w-full sm:w-auto shrink-0">{stripeId ? <a className="d4-secondary" href="https://connect.stripe.com/express_login" target="_blank" rel="noopener noreferrer">Open Stripe <ExternalLink size={15}/></a> : <ConnectStripeButton userId={userId}/>}</div>
+        </div>
+        <nav aria-label="Workspace resources" className="flex flex-wrap gap-3"><Link href="/templates" className="d4-secondary">Templates</Link><Link href="/settings" className="d4-secondary">Settings &amp; billing</Link><a href="mailto:support@microfreelancehub.com" className="d4-secondary">Help &amp; support</a></nav>
         <details className="border-b border-gray-200 pb-5">
           <summary className="dashboard-disclosure flex min-h-12 cursor-pointer items-center justify-between gap-3 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-800 hover:bg-gray-50"><span className="flex items-center gap-2"><Wallet size={18} /> Financial overview and Stripe connection</span><ChevronDown size={18} className="shrink-0" /></summary>
         <div className="mt-5 grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -510,11 +518,11 @@ export default function Dashboard() {
                  </div>
             </div>
 
-            <div className={filteredSows.length > 0 ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "block"}>
+            <div className="d4-workspace-grid"><div className={filteredSows.length > 0 ? "d4-agreement-list" : "block"}>
               {filteredSows.length === 0 ? (
                 <div className="text-center py-16 border-y border-gray-200">
                   <div className="bg-gray-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300"><FileText className="w-10 h-10" /></div>
-                  <h3 className="text-xl font-bold text-slate-900">No projects found</h3>
+                  <h3 className="text-xl font-bold text-slate-900">{searchQuery || statusFilter !== 'ALL' ? 'No matching agreements' : 'Your first agreement starts here.'}</h3>
                   <p className="text-slate-500 mt-2 max-w-xs mx-auto">
                       {searchQuery || statusFilter !== 'ALL' ? "No agreements match these filters." : "Your first agreement starts with a project and a clear scope."}
                   </p>
@@ -540,10 +548,10 @@ export default function Dashboard() {
                    return (
                    <div 
                       key={sow.id} 
-                      className={`group bg-white rounded-lg p-5 shadow-sm border relative flex flex-col justify-between min-h-[220px] ${selectedIds.includes(sow.id) ? 'border-blue-600 ring-1 ring-blue-600' : 'border-gray-200'}`}
+                      className={`d4-agreement-row group bg-white rounded-lg p-5 border relative flex flex-col justify-between ${selectedIds.includes(sow.id) ? 'border-blue-600 ring-1 ring-blue-600' : 'border-gray-200'}`}
                    >
                      
-                     <div className="flex justify-between items-start mb-6">
+                     <div className="flex justify-between items-start mb-3">
                         <div className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 ${statusConfig.color}`}>
                             <statusConfig.icon className="w-3 h-3" /> {statusConfig.label}
                         </div>
@@ -608,14 +616,14 @@ export default function Dashboard() {
                         </div>
                      </div>
 
-                     <div className="mb-4">
+                     <div className="mb-3">
                         <h3 className="font-bold text-lg text-slate-900 leading-snug group-hover:text-indigo-600 transition-colors line-clamp-2">{sow.title || 'Untitled Project'}</h3>
                         <p className="text-xs text-slate-500 mt-1 font-medium bg-slate-50 inline-block px-2 py-1 rounded">{sow.client_name || 'No Client'}</p>
                      </div>
 
                      {/* Send Invoice Button - Only show if not paid */}
                      {!isPaid && (
-                       <div className="mb-4 mt-4">
+                       <div className="mb-3 mt-3">
                          <button
                            onClick={(e) => handleSendInvoice(e, sow)}
                            disabled={sendingId === sow.id || invoiceSentIds.includes(sow.id)}
@@ -651,6 +659,7 @@ export default function Dashboard() {
                         <span className="text-lg font-bold text-slate-900">{formatMoney(sow.price || 0)}</span>
                         <Link href={`/sow/${sow.id}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-blue-700 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-800" aria-label={`Open ${sow.title || 'agreement'}`}>Open agreement <ArrowUpRight size={16} /></Link>
                      </div>
+                     <button type="button" className="d4-detail-toggle d4-secondary mt-3" aria-pressed={detail?.id === sow.id} onClick={() => setDetailId(sow.id)}>View details</button>
                      <div className="mt-3 grid grid-cols-2 gap-2">
                        <Link href={`/edit/${sow.id}`} className="dashboard-secondary-button"><Edit2 size={15} /> {isSigned || isPaid ? 'Change order' : 'Edit draft'}</Link>
                        <button className="dashboard-secondary-button" onClick={e => handleCopyPayLink(e, sow)} disabled={paymentLinkLoadingId === sow.id}><Link2 size={15} /> {copiedPayLinkId === sow.id ? 'Copied' : 'Copy link'}</button>
@@ -660,6 +669,18 @@ export default function Dashboard() {
               )}
             </div>
             
+            {detail && <aside className="d4-project-detail" aria-label="Selected agreement details">
+              <p className="d4-eyebrow">Selected agreement</p>
+              <h2 className="mt-3 text-xl font-semibold break-words">{detail.title || 'Untitled project'}</h2>
+              <p className="mt-2 text-sm text-slate-600 break-words">{detail.client_name || 'Client not set'}</p>
+              <dl className="my-6 space-y-4 text-sm"><div className="flex justify-between gap-3"><dt>Status</dt><dd className="font-semibold">{detail.status || 'Draft'}</dd></div><div className="flex justify-between gap-3"><dt>Agreement total</dt><dd className="font-semibold">{formatMoney(detail.price || 0)}</dd></div></dl>
+              <p className="text-sm leading-6 text-slate-600">{String(detail.status).toLowerCase() === 'draft' ? 'Review the scope and payment terms before sharing your client link.' : 'Open the agreement to review signatures, changes and the current payment details.'}</p>
+              <Link className="d4-primary mt-5 w-full" href={`/sow/${detail.id}`}>Open selected agreement</Link>
+              <Link className="d4-secondary mt-3 w-full" href={`/edit/${detail.id}`}>Review scope / changes</Link>
+              <p className="mt-5 text-xs leading-5 text-slate-600">Agreement totals are not payment receipts. Check the agreement for confirmed payment status.</p>
+            </aside>}
+            </div>
+
             {selectionMode && selectedIds.length > 0 && (
               <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 max-w-[calc(100%-2rem)] bg-slate-900 text-white px-6 py-3 rounded-lg shadow-2xl flex items-center gap-6 z-50 border border-white/10">
                 <span className="font-bold text-sm whitespace-nowrap">{selectedIds.length} selected</span>

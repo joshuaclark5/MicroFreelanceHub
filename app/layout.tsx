@@ -64,13 +64,13 @@ export default function RootLayout({
             <div className="max-w-7xl mx-auto text-center">
                 
                 {/* Brand */}
-                <div className="flex items-center justify-center gap-2 mb-6 opacity-50">
+                <div className="flex items-center justify-center gap-2 mb-6">
                     <div className="bg-black text-white w-6 h-6 flex items-center justify-center rounded-md font-bold text-xs">M</div>
-                    <span className="font-bold text-gray-900 text-sm">MicroFreelance</span>
+                    <span className="font-bold text-gray-900 text-sm">MicroFreelanceHub</span>
                 </div>
 
                 {/* The Legal Shield */}
-                <p className="text-[10px] text-gray-400 max-w-2xl mx-auto leading-relaxed mb-6">
+                <p className="text-[10px] text-gray-600 max-w-2xl mx-auto leading-relaxed mb-6">
                     <strong>DISCLAIMER:</strong> MicroFreelanceHub provides templates and software for informational purposes only. We are not a law firm and do not provide legal advice. Your use of this site and any documents generated is at your own risk. Disputes regarding payments or contracts are solely between the Client and the Service Provider. MicroFreelanceHub processes payments via Stripe Connect and does not hold funds.
                 </p>
 
@@ -82,7 +82,7 @@ export default function RootLayout({
                     <Link href="/partners" className="hover:text-black transition-colors">Partners</Link>
                 </div>
 
-                <p className="text-[10px] text-gray-300 mt-8">
+                <p className="text-[10px] text-gray-600 mt-8">
                     © {new Date().getFullYear()} MicroFreelanceHub. All rights reserved.
                 </p>
             </div>

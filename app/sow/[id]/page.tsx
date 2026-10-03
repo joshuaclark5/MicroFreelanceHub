@@ -285,13 +285,13 @@ export default function ViewContract({ params }: { params: { id: string } }) {
       )}
 
       <div className="max-w-5xl mx-auto mb-6 print:hidden">
-        <div data-testid="client-portal" className="border-b border-gray-200 bg-white text-gray-900">
+        <div data-testid="client-portal" className="rounded-xl border border-gray-200 bg-white text-gray-900 shadow-sm">
           <div className="px-4 py-6 sm:p-7 lg:p-8">
             <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
               <div className="max-w-2xl">
                 <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-normal text-gray-600">
                   <Lock className="w-3.5 h-3.5" />
-                  Secure client portal
+                  Client agreement
                 </div>
                 <h1 className="mt-4 text-2xl sm:text-3xl font-bold tracking-normal leading-tight break-words">
                   {cleanTitle(doc.title)}
@@ -369,7 +369,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
       </div>
 
       {/* 📄 CONTRACT PAPER */}
-      <div className="max-w-3xl mx-auto bg-white p-12 shadow-xl min-h-[1000px] print:min-h-0 print:shadow-none print:p-0 print:m-0 print:w-full print:max-w-none relative font-sans print:font-serif">
+      <div className="max-w-3xl mx-auto bg-white p-5 sm:p-10 shadow-sm min-h-[1000px] print:min-h-0 print:shadow-none print:p-0 print:m-0 print:w-full print:max-w-none relative font-sans print:font-serif">
         <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-600 to-indigo-600 print:hidden"></div>
 
         <div className="border-b-2 border-black pb-6 mb-8 flex flex-col sm:flex-row justify-between items-start gap-6 print:flex-row print:justify-between">
@@ -394,7 +394,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
             
             {/* Show Total if Split */}
             {!isAgreementOnly && dueNow !== doc.price && !isPaid && (
-                 <p className="text-xs text-gray-400 mt-1">Total Contract: {formatMoney(doc.price)}</p>
+                 <p className="text-xs text-gray-600 mt-1">Total Contract: {formatMoney(doc.price)}</p>
             )}
             <p className="text-sm text-gray-700 print:text-black"><strong>Client:</strong> {doc.client_name}</p>
             <p className="text-sm text-gray-700 print:text-black"><strong>Date:</strong> {new Date(doc.created_at).toLocaleDateString()}</p>
@@ -402,7 +402,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
         </div>
 
         <div className="prose max-w-none text-gray-800 leading-relaxed whitespace-pre-line mb-12 print:text-black print:text-sm print:leading-normal">
-          <h3 className="text-sm font-bold uppercase border-b border-gray-200 pb-2 mb-4 text-gray-400 print:text-black print:border-black">Deliverables & Scope</h3>
+          <h3 className="text-sm font-bold uppercase border-b border-gray-200 pb-2 mb-4 text-gray-600 print:text-black print:border-black">Deliverables & Scope</h3>
           {doc.deliverables}
         </div>
 
@@ -440,7 +440,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
                             <p className="text-xs text-gray-500">{doc.line_items.length} items • {formatMoney(doc.price)} Total</p>
                         </div>
                     </div>
-                    {showInvoice ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+                    {showInvoice ? <ChevronUp className="w-5 h-5 text-gray-600" /> : <ChevronDown className="w-5 h-5 text-gray-600" />}
                 </button>
 
                 {showInvoice && (
@@ -448,7 +448,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
                         <div className="space-y-3">
                             {doc.line_items.map((item: any, i: number) => (
                                 <div key={i} className="flex justify-between text-sm">
-                                    <span className="text-gray-600 flex-1">{item.description} <span className="text-gray-400 text-xs">x{item.quantity}</span></span>
+                                    <span className="text-gray-600 flex-1">{item.description} <span className="text-gray-600 text-xs">x{item.quantity}</span></span>
                                     <span className="font-medium text-gray-900">{formatMoney(item.amount * item.quantity)}</span>
                                 </div>
                             ))}
@@ -477,18 +477,18 @@ export default function ViewContract({ params }: { params: { id: string } }) {
                     ) : isFullySigned ? (
                         <PayContractButton disabled={paymentVerificationPending || dueNow <= 0} sowId={doc.id} price={dueNow} paymentType={doc.payment_type} label={dueLabel === 'Total Due' ? 'Pay Full Amount' : `Pay ${dueLabel}`} />
                     ) : (
-                        <button disabled className="w-full bg-gray-100 text-gray-400 font-bold py-4 rounded-xl cursor-not-allowed flex items-center justify-center gap-3 border border-gray-200">
+                        <button disabled className="w-full bg-gray-100 text-gray-600 font-bold py-4 rounded-xl cursor-not-allowed flex items-center justify-center gap-3 border border-gray-200">
                         <Lock className="w-4 h-4" /> 
                         Payment Locked (Awaiting Signatures)
                         </button>
                     )}
                     
                     <div className="text-center mt-4 space-y-2">
-                        <p className="text-xs text-gray-400 flex justify-center items-center gap-1">
+                        <p className="text-xs text-gray-600 flex justify-center items-center gap-1">
                         <Lock className="w-3 h-3" /> Secure Payment via Stripe Connect
                         </p>
                         {doc.payment_type === 'monthly' && (
-                            <p className="text-[10px] text-gray-400 max-w-md mx-auto">
+                            <p className="text-[10px] text-gray-600 max-w-md mx-auto">
                                 <strong>Billing Info:</strong> This subscription is managed directly between you and the Service Provider. To cancel or modify billing, check your email receipt for a management link or contact {isOwner ? 'the Client' : 'the Service Provider'} directly.
                             </p>
                         )}
@@ -498,9 +498,9 @@ export default function ViewContract({ params }: { params: { id: string } }) {
         </div>
         
         <div className="mt-8 text-center print:hidden opacity-50 hover:opacity-100 transition-opacity">
-          <Link href="/" className="text-[10px] text-gray-400 uppercase tracking-widest hover:text-black">Generated via MicroFreelanceHub</Link>
+          <Link href="/" className="text-[10px] text-gray-600 uppercase tracking-widest hover:text-black">Generated via MicroFreelanceHub</Link>
         </div>
-        <div className="hidden print:block fixed bottom-4 left-0 w-full text-center text-[8px] text-gray-400 uppercase tracking-widest">
+        <div className="hidden print:block fixed bottom-4 left-0 w-full text-center text-[8px] text-gray-600 uppercase tracking-widest">
             Secure Contract ID: {doc.id.slice(0, 8)} • MicroFreelanceHub
         </div>
       </div>
@@ -511,7 +511,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
           <div className="bg-white rounded-xl p-8 w-full max-w-md shadow-2xl animate-in zoom-in-95">
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold">Sign Contract</h2>
-                <button onClick={() => setShowSignModal(false)}><X className="w-5 h-5 text-gray-400" /></button>
+                <button onClick={() => setShowSignModal(false)}><X className="w-5 h-5 text-gray-600" /></button>
             </div>
             
             {/* ROLE TOGGLE */}

@@ -33,7 +33,7 @@ export default function AgreementStarter({ onComplete, onSkip }: {
   const labels = ['Project', 'Scope', 'Review'];
   const field = 'mt-2 w-full rounded-md border border-gray-300 bg-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-600';
 
-  return <section className="mx-auto max-w-3xl p-6 sm:p-10">
+  return <section className="d4-starter mx-auto max-w-5xl p-5 sm:p-10">
     <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 pb-5">
       <span className="flex items-center gap-2 text-sm font-semibold text-blue-700"><FileText size={18} /> New agreement</span>
       <button type="button" onClick={onSkip} className="text-sm font-medium text-gray-600 underline underline-offset-4">Open the editor instead</button>
@@ -41,7 +41,7 @@ export default function AgreementStarter({ onComplete, onSkip }: {
     <ol aria-label="Agreement progress" className="my-7 flex gap-5 text-sm">
       {labels.map((label, index) => <li key={label} aria-current={stage === index ? 'step' : undefined} className={stage === index ? 'font-semibold text-blue-700' : 'text-gray-500'}>{index + 1}. {label}</li>)}
     </ol>
-    <form onSubmit={event => {
+    <div className="d4-starter-grid"><form onSubmit={event => {
       event.preventDefault();
       trackAgreementEvent(stage === 0 ? 'agreement_started' : stage === 1 ? 'agreement_scope_completed' : 'agreement_editor_opened');
       stage < 2 ? setStage(stage + 1) : onComplete(brief);
@@ -73,6 +73,16 @@ export default function AgreementStarter({ onComplete, onSkip }: {
       </div>
       </fieldset>
     </form>
+    <aside aria-label="Live brief preview" className="d4-brief-preview">
+      <p className="d4-eyebrow">Your brief · preview</p>
+      <h2 className="mt-4 text-2xl font-semibold break-words">{brief.title || 'Your next project'}</h2>
+      <dl className="mt-6 space-y-5 text-sm">
+        <div><dt className="font-semibold">Included work</dt><dd className="mt-2 whitespace-pre-wrap break-words text-slate-600">{brief.scope || 'Add your deliverables and revision limits.'}</dd></div>
+        <div><dt className="font-semibold">Timeline</dt><dd className="mt-2 break-words text-slate-600">{brief.timing || 'Set expectations for the next milestone.'}</dd></div>
+        <div><dt className="font-semibold">Base price</dt><dd className="mt-2 text-slate-600">{brief.price ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(brief.price)) : 'Not set yet'}</dd></div>
+      </dl>
+      <p className="mt-6 border-t border-slate-200 pt-4 text-xs leading-5 text-slate-600">A live summary, not the final agreement. Review full terms and payment settings in the editor before saving.</p>
+    </aside></div>
     <p className="mt-8 border-t border-gray-200 pt-5 text-sm text-gray-500">Free to draft. No Stripe connection needed to preview. An account is required to save a client link; plan limits apply.</p>
   </section>;
 }
