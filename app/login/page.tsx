@@ -164,7 +164,9 @@ function LoginForm() {
     }
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      // Keep the existing recovery redirect destination; it forwards verified
+      // recovery callbacks to the dedicated screen without a new allowlist entry.
+      redirectTo: `${window.location.origin}/login`,
     });
 
     if (error) {
