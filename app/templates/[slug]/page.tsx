@@ -266,7 +266,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
         <div className="d4-template-top max-w-6xl mx-auto relative z-10 mt-8">
           
           {/* LEFT SIDE: Copy & CTA */}
-          <div>
+          <div className="d4-template-heading">
             <div className="flex items-center gap-3 mb-6">
               <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-white ${themeColors}`}>
                 {isEmail ? <Mail className="w-3.5 h-3.5" /> : isInvoice || isDepositAgreement ? <Receipt className="w-3.5 h-3.5" /> : isDemandLetter || isCeaseAndDesist ? <Scale className="w-3.5 h-3.5" /> : isServiceAgreement ? <Briefcase className="w-3.5 h-3.5" /> : isMaintenance ? <Wrench className="w-3.5 h-3.5" /> : isContractor ? <UserCheck className="w-3.5 h-3.5" /> : isSignOff ? <ClipboardCheck className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />}
@@ -308,22 +308,14 @@ export default async function TemplatePage({ params }: { params: { slug: string 
             </section>
           )}
 
-          {/* RIGHT SIDE: The Visual Preview Document (PRO TIER UPDATE) */}
-          <div className="d4-template-preview relative group">
+          <nav className="d4-reading-tabs" aria-label="Template sections"><a href="#template-document">Document preview</a><a href="#template-guidance">What to include</a><a href="#template-questions">Common questions</a></nav>
+          {/* Document preview */}
+          <div id="template-document" className="d4-template-preview relative group">
             
             {/* 🚀 FIXED: Height adjusted for mobile, added select-none */}
             <div className="relative bg-white text-gray-900 border border-gray-200 rounded-lg overflow-hidden flex flex-col h-[540px] md:h-[680px]">
               
-              {/* Fake App Bar */}
-              <div className="bg-slate-50 border-b border-slate-200 p-3 flex gap-2 items-center shrink-0">
-                <div className="w-3 h-3 rounded-full bg-red-400/80"></div>
-                <div className="w-3 h-3 rounded-full bg-yellow-400/80"></div>
-                <div className="w-3 h-3 rounded-full bg-green-400/80"></div>
-                <div className="mx-auto bg-white border border-slate-200 text-[10px] md:text-xs font-mono text-slate-600 px-4 py-1 rounded-md flex items-center gap-2 shadow-sm">
-                   <Lock className="w-3 h-3" /> DOCUMENT PREVIEW
-                </div>
-              </div>
-
+              <div className="d4-paper-caption"><span>Document preview</span><span>Template / Edit before sharing</span></div>
               {/* The Document Area - SCROLL LOCKED (overflow-hidden) */}
               <div tabIndex={0} aria-label="Template preview" className="p-6 md:p-10 text-sm leading-7 overflow-auto min-h-0 flex-1 max-w-none text-gray-700 whitespace-pre-wrap relative">
                  
@@ -370,7 +362,13 @@ export default async function TemplatePage({ params }: { params: { slug: string 
 
             </div>
           </div>
-
+          <aside id="template-guidance" className="d4-template-guide">
+            <h2 className="text-lg font-semibold">Make it yours.</h2>
+            <p className="mt-3 text-sm text-slate-600">Review the full template and adapt it to the work you actually agreed.</p>
+            <ul className="mt-5 divide-y divide-slate-200">{listItems.slice(0, 6).map((item: string, index: number) => <li key={index} className="py-3 text-sm text-slate-700">{item}</li>)}</ul>
+            <h3 className="mt-6 font-semibold">Before you send</h3><p className="mt-2 text-sm leading-6 text-slate-600">Check names, deliverables, dates and payment terms with your client. A business-document starting point, not legal advice.</p>
+            <Link className="d4-primary mt-5" href={ctaHref}>{primaryCta}</Link>
+          </aside>
         </div>
       </div>
 
@@ -535,7 +533,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
 
       {/* 🚀 FAQS */}
       <div className="max-w-4xl mx-auto px-4 py-16 border-t border-slate-100">
-        <h2 className="text-3xl font-bold text-slate-900 mb-8 text-center">Frequently Asked Questions</h2>
+        <h2 id="template-questions" className="text-3xl font-bold text-slate-900 mb-8 text-center">Frequently Asked Questions</h2>
         <div className="space-y-6">
           {faqs.map((faq: any, index: number) => (
             <div key={index} className="bg-slate-50 rounded-xl p-6 md:p-8 border border-slate-100">

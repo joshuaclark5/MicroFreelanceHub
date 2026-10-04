@@ -93,6 +93,7 @@ export default function HomePage() {
             {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
+        <div className="d4-home-mobile-links"><Link href="/templates">Templates</Link><Link href="/pricing">Pricing</Link><a href="#help">Help</a><Link href={user ? '/dashboard' : '/login?mode=signin'}>{user ? 'Workspace' : 'Sign in'}</Link></div>
         {isMenuOpen && (
           <div className="border-t border-slate-100 bg-white px-4 py-4 md:hidden">
             <div className="mx-auto flex max-w-7xl flex-col gap-3">
@@ -125,7 +126,7 @@ export default function HomePage() {
         )}
       </nav>
 
-      <section className="px-5 pt-8 pb-12 max-w-7xl mx-auto">
+      <section className="d4-home-hero px-5 pt-8 pb-12 max-w-7xl mx-auto">
         <div className="max-w-3xl mx-auto text-center">
           <p className="d4-eyebrow mb-3">Agreement software for freelancers &amp; service businesses</p>
           <h1 className="text-3xl sm:text-5xl font-semibold text-gray-950 leading-tight">Agree on the job.<br/>Approve the changes.<br/>Let clients pay.</h1>
@@ -138,7 +139,7 @@ export default function HomePage() {
         </div>
         <div className="mt-7"><AgreementExample /></div>
         {/* VISUAL FLOW GRAPHIC */}
-        <div className="mt-10 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 relative z-20">
+        <div className="d4-home-steps mt-10 max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 relative z-20">
            <div className="hidden md:block absolute top-1/2 left-1/6 right-1/6 h-1 bg-gradient-to-r from-slate-200 via-blue-300 to-emerald-300 -z-10 translate-y-2"></div>
 
            <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-lg flex flex-col items-center text-center  transition-transform">

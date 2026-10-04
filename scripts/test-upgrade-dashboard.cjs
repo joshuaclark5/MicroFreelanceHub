@@ -38,8 +38,9 @@ const docs = [
       assert.equal(await draft.getAttribute('aria-pressed'), 'true');
       await page.getByRole('heading', { name: 'Website agreement', exact: true, level: 3 }).waitFor();
       assert.equal(await page.getByRole('heading', { name: 'Brand agreement', exact: true, level: 3 }).count(), 0);
-      assert.equal(await page.locator('details').getAttribute('open'), null);
+      assert.equal(await page.locator('details').first().getAttribute('open'), null);
       assert.equal(await page.getByRole('link', { name: 'Open Website agreement', exact: true }).getAttribute('href'), '/sow/draft-fixture');
+      await page.locator('.d4-agreement-row').first().locator('summary').click();
       await page.getByRole('link', { name: 'Edit draft', exact: true }).waitFor();
       await page.getByRole('button', { name: 'Copy link', exact: true }).waitFor();
       const box = await page.getByRole('button', { name: 'Actions for Website agreement', exact: true }).boundingBox();

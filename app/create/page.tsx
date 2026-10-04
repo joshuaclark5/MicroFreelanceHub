@@ -585,15 +585,15 @@ If the Client cancels the project after work has begun, any deposit, completed w
 
   const renderHeader = () => (
     <div className="bg-white border-b border-gray-200 sticky top-0 z-30">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div className="d4-editor-header max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link href="/dashboard" aria-label="Back to dashboard" title="Back to dashboard" className="text-gray-600 hover:text-gray-900 transition-colors"><ArrowLeft className="w-5 h-5" /></Link>
-          <h1 className="text-lg font-bold text-gray-900">
+          <span className="d4-editor-title text-sm font-semibold text-gray-900">
             {step === 'select_mode' && 'Contract Editor'}
             {step === 'ai_input' && 'AI Assistant'}
             {step === 'questions' && 'AI Interview'}
             {step === 'final' && 'Contract Editor'}
-          </h1>
+          </span>
         </div>
         <div className="flex items-center gap-3">
             <button type="button" onClick={() => {
@@ -608,7 +608,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
             }} className="text-sm font-medium text-gray-600 underline underline-offset-4">New draft</button>
             {!isPro && projectCount >= 3 && <span className="hidden md:flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full border border-amber-200 cursor-pointer" onClick={() => setShowPricingModal(true)}><AlertCircle className="w-3 h-3" /> Free Limit Reached</span>}
             <div className="bg-slate-900 text-white w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg font-bold text-lg shadow-sm">M</div>
-            <span className="text-sm font-bold text-gray-900 hidden sm:block">MicroFreelanceHub</span>
+            <span className="d4-editor-wordmark text-sm font-bold text-gray-900">MicroFreelanceHub</span>
         </div>
       </div>
     </div>
@@ -624,10 +624,18 @@ If the Client cancels the project after work has begun, any deposit, completed w
         {!initialized ? <div role="status" className="py-16 text-center text-gray-600">Loading your agreement...</div> : initializationError ? <div role="alert" className="py-16 text-center text-red-700">We could not load the editor. Please refresh to try again.</div> : <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
 
           {/* STEP 0: MODE SELECTION */}
-          {step === 'select_mode' && <AgreementStarter onSkip={handleStartManual} onComplete={brief => {
+          {step === 'select_mode' && <AgreementStarter onSkip={brief => {
+            if (!brief.title && !brief.scope && !brief.price && !brief.client && !brief.email && !brief.timing && !brief.exclusions && !brief.revisions && brief.deposit === 'none') { handleStartManual(); return; }
             setManualPriceOverride(brief.price);
-            const scope = brief.scope + (brief.timing ? '\n\nTIMELINE\n' + brief.timing : '');
-            setFormData(prev => ({ ...prev, projectTitle: brief.title, deliverables: generateFullContract(brief.title, scope), description: brief.scope }));
+            setDepositType(brief.deposit);
+            const scope = brief.scope + (brief.revisions ? '\nIncluded revisions: ' + brief.revisions : '') + (brief.timing ? '\n\nTIMELINE\n' + brief.timing : '') + (brief.exclusions ? '\n\nEXCLUSIONS\n' + brief.exclusions : '');
+            setFormData(prev => ({ ...prev, projectTitle: brief.title, clientName: brief.client, clientEmail: brief.email, deliverables: generateFullContract(brief.title, scope), description: brief.scope }));
+            setStep('final');
+          }} onComplete={brief => {
+            setManualPriceOverride(brief.price);
+            setDepositType(brief.deposit);
+            const scope = brief.scope + (brief.revisions ? '\nIncluded revisions: ' + brief.revisions : '') + (brief.timing ? '\n\nTIMELINE\n' + brief.timing : '') + (brief.exclusions ? '\n\nEXCLUSIONS\n' + brief.exclusions : '');
+            setFormData(prev => ({ ...prev, projectTitle: brief.title, clientName: brief.client, clientEmail: brief.email, deliverables: generateFullContract(brief.title, scope), description: brief.scope }));
             setStep('final');
           }} />}
           {false && step === 'select_mode' && (

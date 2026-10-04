@@ -73,13 +73,13 @@ export default function PricingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-blue-100 pb-24">
+    <div className="d4-pricing min-h-screen bg-[#f6f8f7] font-sans text-slate-900 selection:bg-blue-100 pb-24">
       {/* NAVBAR */}
       <nav className="border-b border-gray-200 bg-white sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2">
             <div className="bg-slate-900 text-white w-8 h-8 flex items-center justify-center rounded-lg font-bold text-lg shadow-md">M</div>
-            <span className="font-bold text-xl tracking-tight text-slate-900">MicroFreelance</span>
+            <span className="font-semibold text-sm sm:text-base text-slate-900">MicroFreelanceHub</span>
           </Link>
           <div className="flex gap-4 items-center">
             {user ? (
@@ -93,11 +93,11 @@ export default function PricingPage() {
       </nav>
 
       {/* HEADER */}
-      <div className="max-w-3xl mx-auto text-center pt-20 pb-12 px-6">
-        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-900 mb-6">
+      <div className="max-w-6xl mx-auto pt-10 pb-8 px-5">
+        <h1 className="text-3xl md:text-4xl font-semibold tracking-normal text-slate-900 mb-6">
           A clearer way to start <span className="text-blue-600">client work.</span>
         </h1>
-        <p className="text-lg md:text-xl text-slate-600 leading-relaxed">
+        <p className="text-base text-slate-600 leading-relaxed">
           Choose the plan that helps you outline scope, pricing, approvals, timelines, signatures, and payment steps.
         </p>
       </div>
@@ -122,7 +122,7 @@ export default function PricingPage() {
           </div>
 
           {/* TIER 2: Starter (Highlighted) */}
-          <div className="bg-blue-50 rounded-xl p-8 border border-blue-200 shadow-sm relative overflow-hidden flex flex-col h-full transform md:-translate-y-4">
+          <div className="bg-blue-50 rounded-xl p-8 border border-blue-200 shadow-sm relative overflow-hidden flex flex-col h-full">
 
             <h3 className="text-2xl font-bold text-slate-950 mb-2">Starter</h3>
             <p className="text-slate-600 text-sm mb-6 h-10">For solo operators who need one live client link to collect deposits.</p>
@@ -176,7 +176,7 @@ export default function PricingPage() {
         </div>
 
         <div className="bg-white rounded-xl border border-slate-200 shadow-xl overflow-hidden">
-          <div className="overflow-x-auto">
+          <div tabIndex={0} role="region" aria-label="Plan feature comparison" className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200">

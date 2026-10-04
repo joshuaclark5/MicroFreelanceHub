@@ -46,7 +46,7 @@ const id = '00000000-0000-4000-8000-000000000099';
       await page.goto(`${base}/sow/${id}`);
       const portal = page.getByTestId('client-portal');
       await portal.getByText('No payment or client account needed.', { exact: false }).waitFor();
-      assert.equal(await portal.evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(255, 255, 255)');
+      assert.equal(await portal.evaluate(el => getComputedStyle(el).backgroundColor), 'rgba(0, 0, 0, 0)');
       const review = portal.getByRole('button', { name: 'Review and sign agreement' });
       assert.equal(await review.evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(37, 99, 235)');
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
@@ -57,6 +57,6 @@ const id = '00000000-0000-4000-8000-000000000099';
       assert.deepEqual(errors, []);
       await context.close();
     }
-    console.log('PASS: payment verification states, white portal/blue action, agreement-only copy, signing dialog and desktop/mobile layouts; all payment and database requests mocked.');
+    console.log('PASS: payment verification states, document-first portal/blue action, agreement-only copy, signing dialog and desktop/mobile layouts; all payment and database requests mocked.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

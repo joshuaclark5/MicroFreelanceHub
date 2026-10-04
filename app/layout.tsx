@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import './direction04.css';
 import FeedbackWidget from './components/FeedbackWidget';
 import { TrackingInitializer } from './components/TrackingInitializer';
 import Link from 'next/link';

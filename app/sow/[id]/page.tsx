@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -9,8 +9,10 @@ import {
   ArrowLeft, CheckCircle, Lock, X, Share2, Download, Edit3,
   MoreHorizontal, PenTool, AlertTriangle, Info, PieChart,
   CreditCard, ChevronDown, ChevronUp, Receipt, UserCheck, Smartphone, FileSignature, Bell, Loader2
-} from 'lucide-react'; 
+} from 'lucide-react';
 import PayContractButton from '../../components/PayContractButton';
+import { keepDialogFocus } from '../../lib/dialogFocus';
+import { changeOrderReference } from '../../lib/changeOrderDraft';
 import { agreementBalance } from '../../lib/agreementPayment';
 
 // 1. Clean Cursive Font
@@ -34,15 +36,20 @@ export default function ViewContract({ params }: { params: { id: string } }) {
   const [paymentVerificationPending, setPaymentVerificationPending] = useState(false);
   const [showInvoice, setShowInvoice] = useState(false);
   const [dunningActive, setDunningActive] = useState(false);
-  const [pausingDunning, setPausingDunning] = useState(false); 
+  const [pausingDunning, setPausingDunning] = useState(false);
 
   // Signing
   const [showSignModal, setShowSignModal] = useState(false);
+  const signingDialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    if (showSignModal) signingDialog.current?.showModal();
+    else signingDialog.current?.close();
+  }, [showSignModal]);
   const [signerName, setSignerName] = useState('');
   const [isSigning, setIsSigning] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [shareText, setShareText] = useState('Share');
-  
+
   // KIOSK MODE STATE
   const [signingRole, setSigningRole] = useState<'provider' | 'client'>('client');
 
@@ -132,6 +139,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
     }
   };
 
+  const changeReference = changeOrderReference(doc);
   const isOwner = currentUser?.id === doc?.user_id;
   const isFullySigned = doc?.signed_by && doc?.provider_sign;
   const isPaid = doc?.status === 'Paid';
@@ -140,7 +148,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
   // --- 💰 DYNAMIC PAYMENT CALCULATOR ---
   const getPaymentDetails = () => {
       if (!doc) return { amount: 0, label: 'Total' };
-      
+
       // 🆕 Agreement Only Check
       if (isAgreementOnly) {
           return { amount: 0, label: 'Agreement Only' };
@@ -177,26 +185,27 @@ export default function ViewContract({ params }: { params: { id: string } }) {
   const handleSign = async () => {
     if (!signerName) return alert("Please type your name.");
     setIsSigning(true);
-    
+
     const result = await signContract(params.id, signerName, signingRole);
-    
+
     if (result.success) {
       const newDoc = { ...doc };
-      if (signingRole === 'client') { newDoc.status = 'Signed'; newDoc.signed_by = signerName; } 
+      if (signingRole === 'client') { newDoc.status = 'Signed'; newDoc.signed_by = signerName; }
       else { newDoc.provider_sign = signerName; }
       setDoc(newDoc);
       setShowSignModal(false);
-      setSignerName(''); 
+      setSignerName('');
     } else { alert("Signing failed. Please try again."); }
     setIsSigning(false);
   };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-500">Loading Contract...</div>;
-  if (!doc) return <div className="min-h-screen flex items-center justify-center text-red-500">Contract not found.</div>;
+  if (!doc) return <main className="min-h-screen bg-[#f6f8f7] p-6 flex items-center justify-center"><section className="d4-surface max-w-lg"><h1 className="text-2xl font-semibold">Agreement unavailable</h1><p className="my-4 text-slate-600">This link may be unavailable or you may not have access. Ask the sender to check it, or retry if the connection failed.</p><button className="d4-primary" onClick={() => window.location.reload()}>Retry</button><Link className="d4-secondary ml-3" href="/">Home</Link></section></main>;
 
   return (
-    <div className="min-h-screen bg-slate-50 py-6 sm:py-8 px-4 print:bg-white print:p-0 print:m-0">
-      {paymentNotice && <p role="status" className="mx-auto mb-5 max-w-5xl rounded-md border border-gray-200 bg-white p-4 text-sm text-gray-700 print:hidden">{paymentNotice}</p>}
+    <div className="d4-portal min-h-screen bg-[#f6f8f7] py-6 sm:py-8 px-4 print:bg-white print:p-0 print:m-0">
+      <header className="d4-client-brand print:hidden"><Link href="/" className="d4-brand"><span>M</span>MicroFreelanceHub</Link><span>Client review</span></header>
+      {paymentNotice && <p role="status" className="mx-auto mb-5 max-w-5xl rounded-md border border-gray-200 bg-white p-4 text-sm text-gray-700 print:hidden">{paymentNotice} {paymentVerificationPending && <button className="underline font-semibold" onClick={() => window.location.reload()}>Refresh confirmation</button>}</p>}
 
       {dunningActive && (
         <div className="max-w-3xl mx-auto mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-sm print:hidden">
@@ -226,13 +235,23 @@ export default function ViewContract({ params }: { params: { id: string } }) {
         </div>
       )}
 
+      {changeReference && <section className="d4-change-client max-w-5xl mx-auto mb-6 print:hidden">
+        <div><p className="d4-eyebrow">Additional work / Client review</p><h1 className="mt-3 text-3xl font-semibold">One addition to your project.</h1><p className="mt-3 text-sm text-slate-600">Review this separate change order alongside the original agreement.</p></div>
+        <article className="d4-surface mt-6">
+          <span className="d4-status">{isFullySigned ? 'Both signatures recorded' : isClientSigned ? 'Client signed · Provider signature pending' : 'Awaiting client approval'}</span>
+          <h2 className="mt-4 text-xl font-semibold">{cleanTitle(doc.title)}</h2><p className="mt-3 whitespace-pre-wrap text-sm leading-6">{changeReference.scope}</p>
+          <dl className="d4-review-list"><div><dt>This addition / Agreement total</dt><dd>{formatMoney(doc.price)}</dd></div><div><dt>Timeline impact</dt><dd>{changeReference.timeline}</dd></div></dl>
+          <p className="mt-4 text-sm leading-6 text-slate-600">Signing this addition does not revise the original document and is not a payment receipt. The signature and payment statuses below belong only to this change order.</p>
+          <div className="mt-5 flex flex-wrap gap-3"><a className="d4-primary" href="#agreement-document">Review full change order</a><Link className="d4-secondary" href={`/sow/${changeReference.originalId}`}>Read original agreement</Link></div>
+        </article>
+      </section>}
       {/* 🖨️ HEADER */}
       <div className="max-w-3xl mx-auto mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 print:hidden relative">
         <div className="w-full sm:w-auto flex justify-between sm:justify-start items-center gap-4">
             <Link href="/dashboard" className="text-gray-500 hover:text-black font-semibold text-sm flex items-center gap-1">
             <ArrowLeft className="w-4 h-4" /> Back
             </Link>
-            
+
             {/* VISIBLE SHARE BUTTON */}
             <button onClick={handleShare} className="sm:hidden text-sm font-bold text-gray-600 flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-gray-200 shadow-sm">
                 <Share2 className="w-4 h-4" /> {shareText}
@@ -247,7 +266,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
 
             {/* Sign / Download Actions */}
             {!isFullySigned && !isPaid ? (
-                <button 
+                <button
                 onClick={() => setShowSignModal(true)}
                 className="flex-1 sm:flex-none px-6 py-2.5 bg-white text-blue-700 border border-blue-200 rounded-lg text-sm font-bold hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-colors flex items-center justify-center gap-2"
                 >
@@ -261,7 +280,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
 
             {/* More Menu */}
             <div className="relative">
-                <button onClick={() => setShowMenu(!showMenu)} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
+                <button aria-label="Agreement actions" aria-expanded={showMenu} onClick={() => setShowMenu(!showMenu)} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
                 <MoreHorizontal className="w-6 h-6 text-gray-700" />
                 </button>
                 {showMenu && (
@@ -285,7 +304,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
       )}
 
       <div className="max-w-5xl mx-auto mb-6 print:hidden">
-        <div data-testid="client-portal" className="rounded-xl border border-gray-200 bg-white text-gray-900 shadow-sm">
+        <div data-testid="client-portal" className="d4-client-summary rounded-xl border border-gray-200 bg-white text-gray-900 shadow-sm">
           <div className="px-4 py-6 sm:p-7 lg:p-8">
             <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
               <div className="max-w-2xl">
@@ -339,7 +358,8 @@ export default function ViewContract({ params }: { params: { id: string } }) {
               </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-3">
+            <p className="mt-5 text-sm text-slate-600">Read the scope, dates and payment terms before signing. A signature records agreement, not payment. <a href="#agreement-document" className="text-blue-700 underline">Read the full document</a></p>
+            <div className="d4-client-steps mt-6 grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm font-bold">Client signature</p>
@@ -360,7 +380,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
                   <CreditCard className="w-5 h-5 shrink-0 text-emerald-700" />
                 </div>
                 <p className="mt-1 text-sm text-gray-600">
-                  {isAgreementOnly ? 'No payment is attached to this agreement.' : isFullySigned ? 'Stripe payment is ready.' : 'Payment unlocks after signatures.'}
+                  {paymentVerificationPending ? 'Confirmation pending. Refresh before paying again.' : isAgreementOnly ? 'No payment is attached to this agreement.' : isFullySigned ? 'Signatures recorded. Payment availability is checked when you continue.' : 'Payment unlocks after signatures.'}
                 </p>
               </div>
             </div>
@@ -369,15 +389,15 @@ export default function ViewContract({ params }: { params: { id: string } }) {
       </div>
 
       {/* 📄 CONTRACT PAPER */}
-      <div className="max-w-3xl mx-auto bg-white p-5 sm:p-10 shadow-sm min-h-[1000px] print:min-h-0 print:shadow-none print:p-0 print:m-0 print:w-full print:max-w-none relative font-sans print:font-serif">
-        <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-600 to-indigo-600 print:hidden"></div>
+      <div id="agreement-document" className="d4-client-document max-w-3xl mx-auto bg-white p-5 sm:p-10 shadow-sm min-h-[1000px] print:min-h-0 print:shadow-none print:p-0 print:m-0 print:w-full print:max-w-none relative font-sans print:font-serif">
+
 
         <div className="border-b-2 border-black pb-6 mb-8 flex flex-col sm:flex-row justify-between items-start gap-6 print:flex-row print:justify-between">
           <div className="flex-1">
             <h1 className="text-3xl sm:text-4xl font-bold uppercase tracking-tight mb-2 leading-tight">{cleanTitle(doc.title)}</h1>
             <p className="text-gray-500 text-sm uppercase tracking-wider font-semibold print:text-black">Statement of Work</p>
           </div>
-          
+
           <div className="text-left sm:text-right print:text-right min-w-[200px]">
             {isAgreementOnly ? (
                 // 🆕 AGREEMENT ONLY BADGE
@@ -391,7 +411,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
                     <span className="text-xl font-bold">{formatMoney(dueNow)}</span>
                 </div>
             )}
-            
+
             {/* Show Total if Split */}
             {!isAgreementOnly && dueNow !== doc.price && !isPaid && (
                  <p className="text-xs text-gray-600 mt-1">Total Contract: {formatMoney(doc.price)}</p>
@@ -429,7 +449,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
         {/* 🧾 INVOICE ACCORDION (Hide if Agreement Only) */}
         {!isAgreementOnly && doc.line_items && doc.line_items.length > 0 && (
             <div className="mt-16 print:hidden">
-                <button 
+                <button
                     onClick={() => setShowInvoice(!showInvoice)}
                     className="w-full flex items-center justify-between bg-white border border-gray-200 p-4 rounded-xl hover:bg-gray-50 transition-colors shadow-sm"
                 >
@@ -467,7 +487,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
             {/* 🆕 AGREEMENT ONLY VIEW */}
             {isAgreementOnly ? (
                 <div className="w-full bg-gray-50 text-gray-600 font-bold py-4 rounded-xl flex items-center justify-center gap-2 border border-gray-200">
-                    <FileSignature className="w-5 h-5" /> 
+                    <FileSignature className="w-5 h-5" />
                     {isFullySigned ? 'Signed and Active' : 'Waiting for Signatures'}
                 </div>
             ) : (
@@ -478,11 +498,11 @@ export default function ViewContract({ params }: { params: { id: string } }) {
                         <PayContractButton disabled={paymentVerificationPending || dueNow <= 0} sowId={doc.id} price={dueNow} paymentType={doc.payment_type} label={dueLabel === 'Total Due' ? 'Pay Full Amount' : `Pay ${dueLabel}`} />
                     ) : (
                         <button disabled className="w-full bg-gray-100 text-gray-600 font-bold py-4 rounded-xl cursor-not-allowed flex items-center justify-center gap-3 border border-gray-200">
-                        <Lock className="w-4 h-4" /> 
+                        <Lock className="w-4 h-4" />
                         Payment Locked (Awaiting Signatures)
                         </button>
                     )}
-                    
+
                     <div className="text-center mt-4 space-y-2">
                         <p className="text-xs text-gray-600 flex justify-center items-center gap-1">
                         <Lock className="w-3 h-3" /> Secure Payment via Stripe Connect
@@ -496,8 +516,8 @@ export default function ViewContract({ params }: { params: { id: string } }) {
                 </>
             )}
         </div>
-        
-        <div className="mt-8 text-center print:hidden opacity-50 hover:opacity-100 transition-opacity">
+
+        <div className="mt-8 text-center print:hidden">
           <Link href="/" className="text-[10px] text-gray-600 uppercase tracking-widest hover:text-black">Generated via MicroFreelanceHub</Link>
         </div>
         <div className="hidden print:block fixed bottom-4 left-0 w-full text-center text-[8px] text-gray-600 uppercase tracking-widest">
@@ -507,25 +527,25 @@ export default function ViewContract({ params }: { params: { id: string } }) {
 
       {/* 📝 KIOSK MODE SIGNING MODAL */}
       {showSignModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 print:hidden">
+        <dialog onKeyDown={keepDialogFocus} ref={signingDialog} aria-labelledby="signing-title" onCancel={() => setShowSignModal(false)} className="d4-signing-dialog print:hidden">
           <div className="bg-white rounded-xl p-8 w-full max-w-md shadow-2xl animate-in zoom-in-95">
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold">Sign Contract</h2>
-                <button onClick={() => setShowSignModal(false)}><X className="w-5 h-5 text-gray-600" /></button>
+                <h2 id="signing-title" className="text-2xl font-bold">Sign Contract</h2>
+                <button aria-label="Close signing" onClick={() => setShowSignModal(false)}><X className="w-5 h-5 text-gray-600" /></button>
             </div>
-            
+
             {/* ROLE TOGGLE */}
             <div className="flex bg-gray-100 p-1 rounded-lg mb-6">
-                <button 
+                <button
                     onClick={() => setSigningRole('provider')}
-                    disabled={!!doc.provider_sign} 
+                    disabled={!!doc.provider_sign}
                     className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-bold transition-all ${signingRole === 'provider' ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:text-gray-700'} ${doc.provider_sign ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                     {doc.provider_sign && <CheckCircle className="w-3 h-3 text-green-500" />} Provider
                 </button>
-                <button 
+                <button
                     onClick={() => setSigningRole('client')}
-                    disabled={!!doc.signed_by} 
+                    disabled={!!doc.signed_by}
                     className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-bold transition-all ${signingRole === 'client' ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:text-gray-700'} ${doc.signed_by ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                     {doc.signed_by && <CheckCircle className="w-3 h-3 text-green-500" />} Client
@@ -556,10 +576,10 @@ export default function ViewContract({ params }: { params: { id: string } }) {
                     </p>
                 </div>
             )}
-            
-            <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Type Full Legal Name</label>
-            <input autoFocus type="text" placeholder="e.g. Jane Doe" className="w-full border-2 border-gray-200 p-3 rounded-lg mb-6 text-lg focus:border-black focus:outline-none" value={signerName} onChange={(e) => setSignerName(e.target.value)} />
-            
+
+            <label htmlFor="signer-name" className="block text-xs font-bold text-gray-700 uppercase mb-1">Type Full Legal Name</label>
+            <input id="signer-name" autoFocus type="text" placeholder="e.g. Jane Doe" className="w-full border-2 border-gray-200 p-3 rounded-lg mb-6 text-lg focus:border-black focus:outline-none" value={signerName} onChange={(e) => setSignerName(e.target.value)} />
+
             <div className="text-xs text-gray-500 mb-6 leading-relaxed">
                 By clicking <strong>Agree & Sign</strong>, I agree to be legally bound by this contract.
             </div>
@@ -569,7 +589,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
               <button onClick={handleSign} disabled={isSigning || !signerName} className="flex-1 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50">{isSigning ? 'Signing...' : 'Agree & Sign'}</button>
             </div>
           </div>
-        </div>
+        </dialog>
       )}
     </div>
   );

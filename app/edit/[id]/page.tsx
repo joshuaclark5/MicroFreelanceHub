@@ -11,6 +11,7 @@ import {
   Briefcase, DollarSign, CalendarClock, CalendarDays, FileSignature, Lock,
   Mail, Clock, CheckCircle, Ban, ChevronDown // Added for timeline
 } from 'lucide-react';
+import ChangeOrderStarter from '../../components/ChangeOrderStarter';
 import PricingModal from '../../components/PricingModal';
 import { AuthRequiredModal } from '../../components/modals/AuthRequiredModal';
 
@@ -55,6 +56,8 @@ function EditProjectContent() {
   const [paymentType, setPaymentType] = useState<'one_time' | 'monthly' | 'none'>('one_time');
   
   // 🛡️ Signature State
+  const [original, setOriginal] = useState<any>(null);
+  const [saveError, setSaveError] = useState('');
   const [hasSignatures, setHasSignatures] = useState(false);
   const [confirmUpdate, setConfirmUpdate] = useState(false); // Smart Button State
   const [dunningEnabled, setDunningEnabled] = useState(true);
@@ -180,6 +183,7 @@ function EditProjectContent() {
             description: '',
             dueDate: project.due_date ? new Date(project.due_date).toISOString().split('T')[0] : ''
         });
+        setOriginal(project);
         setDunningEnabled(project.dunning_enabled !== false);
         setPaymentType(project.payment_type || 'one_time');
 
@@ -329,6 +333,7 @@ function EditProjectContent() {
     }
 
     setSaving(true);
+    setSaveError('');
     
     // Prepare Line Items
     let finalLineItems = [...lineItems];
@@ -424,7 +429,7 @@ function EditProjectContent() {
         .eq('user_id', userId);
 
     if (!error) router.push('/dashboard');
-    else alert("Error updating: " + error.message);
+    else setSaveError('Your changes were not saved. Keep this page open and try again. ' + error.message);
     setSaving(false);
   };
 
@@ -432,14 +437,14 @@ function EditProjectContent() {
     <div className="bg-white border-b border-gray-200 sticky top-0 z-30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard" className="text-gray-400 hover:text-gray-900 transition-colors">
+          <Link href="/dashboard" aria-label="Back to agreements" className="text-gray-600 hover:text-gray-900 transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <h1 className="text-lg font-bold text-gray-900">Edit Contract</h1>
+          <span className="d4-change-header-label text-sm text-slate-600">Agreement editor</span>
         </div>
         <div className="flex items-center gap-3">
-            <div className="bg-black text-white w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg font-bold text-lg shadow-sm">M</div>
-            <span className="text-sm font-bold text-gray-900 hidden sm:block">MicroFreelance</span>
+            <div className="bg-slate-900 text-white w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg font-bold text-lg shadow-sm">M</div>
+            <span className="text-sm font-bold text-gray-900">MicroFreelanceHub</span>
         </div>
       </div>
     </div>
@@ -482,20 +487,37 @@ function EditProjectContent() {
   if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-500 font-medium">Loading project...</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="d4-change min-h-screen bg-[#f6f8f7]">
       <div className="absolute inset-0 h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-0"></div>
 
       {renderHeader()}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         
+        <p className="d4-eyebrow">Scope changes / Agreement review</p>
+        <h1 className="mt-3 text-3xl font-semibold">{hasSignatures ? 'Extra work deserves a clear agreement.' : 'Review your agreement.'}</h1>
+        <p className="mt-3 mb-6 text-sm text-slate-600">Keep scope, price and timing together. Approval and payment are separate steps.</p>
+        {original && hasSignatures && <ChangeOrderStarter original={original} />}
+        <h2 className="mt-8 text-xl font-semibold">{hasSignatures ? 'Or revise the existing agreement' : 'Edit your saved draft'}</h2>
+        <p className="mt-2 text-sm text-slate-600">{hasSignatures ? 'The editor below replaces this saved document after confirmation. Use the separate change order above to leave it unchanged.' : 'Review the scope, client details and payment settings before saving.'}</p>
+        {original && <section className="d4-change-comparison" aria-label="Original and revised agreement">
+          <article className="d4-surface"><p className="d4-eyebrow">Currently saved agreement</p><h2 className="mt-3 text-xl font-semibold">{original.title}</h2><p className="d4-status mt-3">{original.status || 'Draft'}{hasSignatures ? ' · Signatures on file' : ''}</p>
+            <dl className="d4-review-list"><div><dt>Saved total</dt><dd>${Number(original.price || 0).toFixed(2)}</dd></div><div><dt>Payment due date</dt><dd>{original.due_date || 'Not set'}</dd></div></dl>
+            <details className="mt-4"><summary className="text-sm text-blue-700 cursor-pointer">Read saved scope</summary><p className="mt-3 text-sm whitespace-pre-wrap break-words">{original.deliverables}</p></details>
+          </article>
+          <article className="d4-surface"><p className="d4-eyebrow">Proposed revision / Not saved</p><h2 className="mt-3 text-xl font-semibold">{formData.projectTitle || 'Untitled agreement'}</h2>
+            <dl className="d4-review-list"><div><dt>Revised total</dt><dd>${(paymentType === 'none' ? 0 : financials.grandTotal).toFixed(2)}</dd></div><div><dt>Change in total</dt><dd>${((paymentType === 'none' ? 0 : financials.grandTotal) - Number(original.price || 0)).toFixed(2)}</dd></div><div><dt>Revised payment due date</dt><dd>{formData.dueDate || 'Not set'}</dd></div></dl>
+            <p className="mt-4 text-sm leading-6 text-slate-600">Describe timeline changes in the scope below. Updating revises this agreement; it does not create a separately approved add-on or take payment.</p>
+          </article>
+        </section>}
+        {saveError && <div role="alert" className="d4-recovery mb-6">{saveError}</div>}
         {/* ⚠️ SIGNATURE WARNING BANNER */}
         {hasSignatures && (
             <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3 items-start animate-in slide-in-from-top-2">
                 <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                 <div>
-                    <h3 className="text-sm font-bold text-amber-800">Heads up: This contract has signatures.</h3>
-                    <p className="text-sm text-amber-700 mt-1">If you update it, all signatures will be removed and the status will reset to "Draft".</p>
+                    <h3 className="text-sm font-bold text-amber-800">Explicit re-approval required.</h3><Link href={`/sow/${projectId}`} target="_blank" className="text-sm text-amber-900 underline">Open current agreement to download (new tab)</Link>
+                    <p className="text-sm text-amber-700 mt-1">Updating replaces the saved terms, removes all signatures and resets this agreement to "Draft". Download the current agreement before proceeding if you need a copy. The client must review and sign again; existing payment receipts are not changed.</p>
                 </div>
             </div>
         )}
@@ -507,12 +529,12 @@ function EditProjectContent() {
               <div className="flex-1 p-8 md:p-10 border-r border-gray-200">
                 <form onSubmit={handleSubmit} className="space-y-6 h-full flex flex-col">
                   <div>
-                    <input type="text" required className="w-full px-0 py-2 text-3xl font-bold text-gray-900 border-none focus:ring-0 placeholder-gray-300" value={formData.projectTitle} onChange={(e) => setFormData({ ...formData, projectTitle: e.target.value })} placeholder="Untitled Agreement" />
+                    <input type="text" required className="w-full px-0 py-2 text-3xl font-bold text-gray-900 border-none focus:ring-0 placeholder-gray-300" value={formData.projectTitle} onChange={(e) => setFormData({ ...formData, projectTitle: e.target.value })} aria-label="Agreement title" placeholder="Untitled Agreement" />
                   </div>
 
                   <div className="flex items-center justify-between border-b border-gray-200 pb-4">
                     <div className="flex items-center gap-4">
-                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">EDIT MODE</span>
+                        <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">EDIT MODE</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <button type="button" onClick={() => isPro ? setShowAiRefiner(!showAiRefiner) : setShowPricingModal(true)} className={`text-sm font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${isPro ? 'text-indigo-600 hover:bg-indigo-50' : 'text-gray-500 hover:text-gray-900'}`}><Wand2 className="w-4 h-4" /> {isPro ? (showAiRefiner ? 'Close AI' : 'Use AI Assistant') : 'Unlock AI'}</button>
@@ -525,7 +547,7 @@ function EditProjectContent() {
 
                   {showAiRefiner && (
                       <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100 animate-in slide-in-from-top-2 flex gap-3 items-center">
-                        <input type="text" value={refineText} onChange={(e) => setRefineText(e.target.value)} placeholder="e.g. 'Add a $500 rush fee to the pricing section'" className="flex-1 px-4 py-2 rounded-lg border border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" onKeyDown={(e) => e.key === 'Enter' && handleRefine()} />
+                        <input type="text" aria-label="AI editing instructions" value={refineText} onChange={(e) => setRefineText(e.target.value)} placeholder="e.g. 'Add a $500 rush fee to the pricing section'" className="flex-1 px-4 py-2 rounded-lg border border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" onKeyDown={(e) => e.key === 'Enter' && handleRefine()} />
                         <button type="button" onClick={handleRefine} disabled={isRefining || !refineText} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-sm flex items-center gap-2">
                           {isRefining ? <><Loader2 className="w-4 h-4 animate-spin" /> Refining...</> : <><Sparkles className="w-4 h-4" /> Update</>}
                         </button>
@@ -540,16 +562,17 @@ function EditProjectContent() {
               <div className="w-full lg:w-[450px] bg-gray-50/50 p-8 md:p-10 flex flex-col h-full overflow-y-auto">
                   <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2"><CreditCard className="w-5 h-5"/> Contract Details</h3>
                   <div className="space-y-6 flex-1">
-                    <div><label className="block text-sm font-bold text-gray-700 mb-2">Client Name</label><input required type="text" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" value={formData.clientName} onChange={(e) => setFormData({...formData, clientName: e.target.value})} placeholder="e.g. John Smith" /></div>
+                    <div><label className="block text-sm font-bold text-gray-700 mb-2">Client Name</label><input required type="text" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" value={formData.clientName} onChange={(e) => setFormData({...formData, clientName: e.target.value})} aria-label="Client name" placeholder="e.g. John Smith" /></div>
 
-                    <div><label className="block text-sm font-bold text-gray-700 mb-2">Client Email</label><input required type="email" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" value={formData.clientEmail} onChange={(e) => setFormData({...formData, clientEmail: e.target.value})} placeholder="e.g. john@example.com" /></div>
+                    <div><label className="block text-sm font-bold text-gray-700 mb-2">Client Email</label><input required type="email" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" value={formData.clientEmail} onChange={(e) => setFormData({...formData, clientEmail: e.target.value})} aria-label="Client email" placeholder="e.g. john@example.com" /></div>
 
-                    <div><label className="block text-sm font-bold text-gray-700 mb-2">Payment Due Date</label><input type="date" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" value={formData.dueDate} onChange={(e) => setFormData({...formData, dueDate: e.target.value})} /></div>
+                    <div><label className="block text-sm font-bold text-gray-700 mb-2">Payment Due Date</label><input aria-label="Payment due date" type="date" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white" value={formData.dueDate} onChange={(e) => setFormData({...formData, dueDate: e.target.value})} /></div>
 
                     <div className="flex items-center justify-between bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
                       <div><label htmlFor="dunning-toggle" className="text-sm font-bold text-gray-700 cursor-pointer">Automated Late Reminders</label><p className="text-xs text-gray-500 mt-1">Send dunning emails if invoice is unpaid</p></div>
                       <button
                         id="dunning-toggle"
+                        role="switch" aria-checked={dunningEnabled}
                         type="button"
                         onClick={() => setDunningEnabled(!dunningEnabled)}
                         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${dunningEnabled ? 'bg-green-600' : 'bg-gray-300'}`}
@@ -612,7 +635,7 @@ function EditProjectContent() {
                                   <div className="w-20">
                                      <input type="number" className="w-full p-2 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:bg-white" placeholder="Price" value={newItem.amount} onChange={(e) => setNewItem({ ...newItem, amount: e.target.value })} />
                                   </div>
-                                  <button onClick={handleAddItem} className="p-2 bg-black text-white rounded-lg hover:bg-gray-800"><Plus className="w-4 h-4" /></button>
+                                  <button aria-label="Add invoice item" onClick={handleAddItem} className="p-2 bg-black text-white rounded-lg hover:bg-gray-800"><Plus className="w-4 h-4" /></button>
                                </div>
 
                                {/* Items List */}
@@ -620,20 +643,20 @@ function EditProjectContent() {
                                    <div className="space-y-2 mb-4">
                                        {lineItems.map((item) => (
                                            <div key={item.id} className="flex justify-between items-center text-sm bg-gray-50 p-2 rounded-lg border border-gray-100 group">
-                                                   <div className="flex-1"><span className="font-medium text-gray-900">{item.description}</span> <span className="text-gray-400 text-xs">x{item.quantity}</span></div>
+                                                   <div className="flex-1"><span className="font-medium text-gray-900">{item.description}</span> <span className="text-gray-600 text-xs">x{item.quantity}</span></div>
                                                    <div className="flex items-center gap-3">
                                                        <span className="font-mono font-bold">${(item.amount * item.quantity).toFixed(2)}</span>
-                                                       <button onClick={() => handleRemoveItem(item.id)} className="text-gray-300 hover:text-red-500"><X className="w-3 h-3" /></button>
+                                                       <button aria-label={`Remove ${item.description || 'invoice item'}`} onClick={() => handleRemoveItem(item.id)} className="text-gray-300 hover:text-red-500"><X className="w-3 h-3" /></button>
                                                    </div>
                                            </div>
                                        ))}
                                    </div>
                                ) : (
                                    <div className="mb-4">
-                                       <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Manual Total Price</label>
+                                       <label className="block text-[10px] font-bold text-gray-600 uppercase mb-1">Manual Total Price</label>
                                        <div className="relative">
                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
-                                           <input type="number" className="w-full pl-7 p-2 border border-gray-200 rounded-lg font-bold text-gray-900" placeholder="0.00" value={manualPriceOverride} onChange={(e) => setManualPriceOverride(e.target.value)} />
+                                           <input type="number" className="w-full pl-7 p-2 border border-gray-200 rounded-lg font-bold text-gray-900" placeholder="0.00" aria-label="Manual Total Price" value={manualPriceOverride} onChange={(e) => setManualPriceOverride(e.target.value)} />
                                        </div>
                                    </div>
                                )}
@@ -641,7 +664,7 @@ function EditProjectContent() {
 
                             <div className="animate-in fade-in slide-in-from-top-3">
                                 <label className="block text-sm font-bold text-gray-700 mb-2">Tax Rate (%)</label>
-                                <div className="relative"><input type="number" placeholder="0" className="w-full pl-4 pr-8 py-3 rounded-xl border border-gray-200 bg-white" value={formData.taxRate} onChange={(e) => setFormData({ ...formData, taxRate: e.target.value })} /><span className="absolute right-4 top-3.5 text-gray-500 font-bold">%</span></div>
+                                <div className="relative"><input type="number" placeholder="0" className="w-full pl-4 pr-8 py-3 rounded-xl border border-gray-200 bg-white" aria-label="Tax rate" value={formData.taxRate} onChange={(e) => setFormData({ ...formData, taxRate: e.target.value })} /><span className="absolute right-4 top-3.5 text-gray-500 font-bold">%</span></div>
                                 
                                 <div className="flex items-center gap-2 mt-4 select-none">
                                     <input type="checkbox" id="fee-toggle" checked={includeFee} onChange={(e) => setIncludeFee(e.target.checked)} className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer"/>
@@ -656,6 +679,7 @@ function EditProjectContent() {
                                     <div className="flex justify-between items-center mb-1">
                                         <label className="block text-sm font-bold text-gray-700">Split into Installments?</label>
                                         <button 
+                                            aria-label="Split into installments" role="switch" aria-checked={isSplit}
                                             onClick={() => { setIsSplit(!isSplit); setDepositType('none'); }}
                                             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isSplit ? 'bg-black' : 'bg-gray-200'}`}
                                         >
@@ -668,11 +692,11 @@ function EditProjectContent() {
                                             <div className="flex gap-4">
                                                 <div className="flex-1">
                                                     <label className="text-xs font-bold text-gray-500 uppercase">Payments</label>
-                                                    <input type="number" value={splitCount} onChange={(e) => setSplitCount(e.target.value)} className="w-full mt-1 px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black text-center" />
+                                                    <input type="number" aria-label="Number of payments" value={splitCount} onChange={(e) => setSplitCount(e.target.value)} className="w-full mt-1 px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black text-center" />
                                                 </div>
                                                 <div className="flex-1">
                                                     <label className="text-xs font-bold text-gray-500 uppercase">Every (Days)</label>
-                                                    <input type="number" value={splitFrequency} onChange={(e) => setSplitFrequency(e.target.value)} className="w-full mt-1 px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black text-center" />
+                                                    <input type="number" aria-label="Days between payments" value={splitFrequency} onChange={(e) => setSplitFrequency(e.target.value)} className="w-full mt-1 px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black text-center" />
                                                 </div>
                                             </div>
                                             <div className="text-xs text-center text-gray-500 font-medium">
@@ -688,7 +712,7 @@ function EditProjectContent() {
                                                 <button type="button" onClick={() => setDepositType('fixed')} className={`px-4 py-2 rounded-lg text-sm font-bold border transition-all ${depositType === 'fixed' ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}>Fixed $</button>
                                             </div>
                                             {depositType === 'fixed' && (
-                                                <div className="mt-2 relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span><input type="number" placeholder="500.00" className="w-full pl-7 px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black" value={fixedDepositAmount} onChange={(e) => setFixedDepositAmount(e.target.value)} /></div>
+                                                <div className="mt-2 relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span><input type="number" placeholder="500.00" className="w-full pl-7 px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-black" aria-label="Fixed deposit amount" value={fixedDepositAmount} onChange={(e) => setFixedDepositAmount(e.target.value)} /></div>
                                             )}
                                         </div>
                                     )}
@@ -697,7 +721,7 @@ function EditProjectContent() {
                                         <div>
                                             <label className="block text-sm font-bold text-gray-700 mb-2">Balance Due Date</label>
                                             <div className="relative">
-                                                <select 
+                                                <select aria-label="Balance due terms"
                                                     className="w-full appearance-none px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-black cursor-pointer text-sm font-medium"
                                                     value={paymentTerms}
                                                     onChange={(e) => setPaymentTerms(e.target.value as any)}
@@ -708,7 +732,7 @@ function EditProjectContent() {
                                                     <option value="net30">Net 30 (30 Days Later)</option>
                                                     <option value="net60">Net 60 (60 Days Later)</option>
                                                 </select>
-                                                <CalendarClock className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                                                <CalendarClock className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600 pointer-events-none" />
                                             </div>
                                         </div>
                                     )}
@@ -768,7 +792,7 @@ function EditProjectContent() {
                         >
                           {saving ? <><Loader2 className="w-5 h-5 animate-spin inline-block mr-2"/>Updating...</> : (confirmUpdate ? '⚠️ Reset Signatures & Update?' : 'Update Contract')}
                         </button>
-                      <p className="text-center text-xs text-gray-400 mt-4 leading-relaxed max-w-sm mx-auto">By clicking Update, you agree to the <Link href="/terms-of-service" className="underline hover:text-gray-600">Terms</Link>. You acknowledge that editing this document will require re-signing by all parties.</p>
+                      <p className="text-center text-xs text-gray-600 mt-4 leading-relaxed max-w-sm mx-auto">By clicking Update, you agree to the <Link href="/terms-of-service" className="underline hover:text-gray-600">Terms</Link>. You acknowledge that editing this document will require re-signing by all parties.</p>
                   </div>
               </div>
             </div>

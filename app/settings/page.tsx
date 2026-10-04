@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { User, Zap, Users, ChevronLeft, Mail, X, ArrowRight, Loader2, Trash2 } from 'lucide-react';
+import WorkspaceNav from '../components/WorkspaceNav';
+import ConnectStripeButton from '../components/ConnectStripeButton';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
@@ -12,6 +14,8 @@ type Billing = { plan: string; status: string; cycle: string; nextDate: string |
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
+  const [stripeId, setStripeId] = useState<string | null>(null);
+  const [paymentSetupLoaded, setPaymentSetupLoaded] = useState(false);
   const [fullName, setFullName] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [showTeamForm, setShowTeamForm] = useState(false);
@@ -70,11 +74,13 @@ export default function SettingsPage() {
         
         const { data: profile } = await supabase
           .from('profiles')
-          .select('full_name, company_name')
+          .select('full_name, company_name, stripe_account_id')
           .eq('id', user.id)
           .single();
           
         if (profile) {
+          setStripeId(profile.stripe_account_id || null);
+          setPaymentSetupLoaded(true);
           if (profile.full_name) setFullName(profile.full_name);
           if (profile.company_name) setCompanyName(profile.company_name);
         } else if (user.user_metadata?.full_name) {
@@ -214,20 +220,28 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="d4-settings d4-app-shell min-h-screen bg-[#f6f8f7]">
+      <WorkspaceNav active="settings" />
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-30 backdrop-blur-md bg-white/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center gap-2 hover:text-slate-600 transition-colors group">
-            <ChevronLeft className="w-5 h-5 text-gray-400 group-hover:text-slate-600 transition-colors" />
-            <span className="text-sm font-bold text-slate-900">Back to Dashboard</span>
-          </Link>
-          <h1 className="text-xl font-bold text-slate-900">Settings</h1>
-          <div className="w-32" /> {/* Spacer for centering */}
+      <header className="d4-settings-header"><Link className="d4-brand" href="/"><span>M</span>MicroFreelanceHub</Link><Link className="d4-secondary" href="/dashboard">Agreements</Link></header>
+      <div className="d4-settings-main max-w-6xl mx-auto px-4 sm:px-8 py-8">
+        <h1 className="text-3xl font-semibold">Settings &amp; billing</h1>
+        <p className="mt-2 text-slate-600">Client payments and your software subscription, clearly separated.</p>
+        <div className="d4-settings-overview">
+          <section className="d4-surface"><p className="d4-eyebrow">Client payments</p><h2 className="mt-3 text-xl font-semibold">Accept payments through Stripe</h2>
+            <p className="d4-status mt-4">{!paymentSetupLoaded ? 'Connection status unavailable' : stripeId ? 'Stripe account linked' : 'Stripe not connected'}</p>
+            <p className="my-4 text-sm leading-6 text-slate-600">Connect your own Stripe account to collect client payments. You can still draft agreements without connecting. A linked account does not confirm payment eligibility.</p>
+            {userId && paymentSetupLoaded && (stripeId ? <a className="d4-secondary" href="https://connect.stripe.com/express_login" target="_blank" rel="noopener noreferrer">Manage Stripe account</a> : <ConnectStripeButton userId={userId} />)}
+            {!paymentSetupLoaded && <button className="d4-secondary" onClick={() => window.location.reload()}>Retry connection status</button>}
+            <p className="mt-4 text-xs leading-5 text-slate-600">Eligibility, processing fees and payout timing depend on Stripe. Existing plan limits apply to collection.</p>
+          </section>
+          <section className="d4-surface"><p className="d4-eyebrow">Your subscription</p><h2 className="mt-3 text-xl font-semibold">{billingLoading ? 'Loading subscription…' : billing?.plan || 'Billing unavailable'}</h2>
+            <p className="my-4 text-sm leading-6 text-slate-600">Your MicroFreelanceHub plan is separate from money your clients pay you.</p>
+            <p className="d4-status">{billing?.status || (billingLoading ? 'Checking status' : 'Status unavailable')}</p>
+            {billingError && <p role="alert" className="mt-3 text-sm text-red-700">{billingError} <button className="underline" onClick={loadBilling}>Retry</button></p>}
+            <div className="mt-5 flex flex-wrap gap-3"><Link className="d4-secondary" href="/pricing">Compare plans</Link><button className="d4-primary" onClick={() => setActiveTab('billing')}>Subscription details</button></div>
+          </section>
         </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* SIDEBAR NAVIGATION (Desktop) */}
           <div className="hidden md:block">
@@ -315,11 +329,11 @@ export default function SettingsPage() {
                 {/* Avatar Section */}
                 <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
                   <div className="flex items-center gap-6">
-                    <div className={`w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center font-bold text-2xl shadow-lg shrink-0`}>
+                    <div className={`w-20 h-20 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-2xl shadow-lg shrink-0`}>
                       {getInitials(fullName)}
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Profile Avatar</p>
+                      <p className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-1">Profile Avatar</p>
                       <p className="text-slate-900 font-bold text-lg">{fullName || 'User'}</p>
                       <p className="text-slate-500 text-sm">Based on your first and last name</p>
                     </div>
@@ -329,10 +343,10 @@ export default function SettingsPage() {
                 {/* Form Section */}
                 <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm space-y-6">
                   <div>
-                    <label className="block text-sm font-bold text-slate-900 mb-2">Full Name</label>
+                    <label htmlFor="settings-full-name" className="block text-sm font-bold text-slate-900 mb-2">Full Name</label>
                     <input
                       type="text"
-                      value={fullName}
+                      id="settings-full-name" value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-slate-900 font-medium"
                       placeholder="Your full name"
@@ -341,10 +355,10 @@ export default function SettingsPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold text-slate-900 mb-2">Company Name</label>
+                    <label htmlFor="settings-company-name" className="block text-sm font-bold text-slate-900 mb-2">Company Name</label>
                     <input
                       type="text"
-                      value={companyName}
+                      id="settings-company-name" value={companyName}
                       onChange={(e) => setCompanyName(e.target.value)}
                       className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-slate-900 font-medium"
                       placeholder="Your company or brand name"
@@ -402,7 +416,7 @@ export default function SettingsPage() {
                 <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
                   <div className="space-y-6">
                     <div>
-                      <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Current Plan</p>
+                      <p className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Current Plan</p>
                       <h3 className="text-3xl font-bold text-slate-900">{billingLoading ? 'Loading...' : billing?.plan || 'Billing unavailable'}</h3>
                       {billingError && <p role="alert" className="text-red-700 text-sm mt-2">{billingError} <button onClick={loadBilling} className="underline">Retry</button></p>}
                       {billing?.status === 'No subscription' && <p className="text-slate-600 text-sm mt-2">No recurring subscription. <Link href="/pricing" className="underline">View plans</Link></p>}
@@ -410,15 +424,15 @@ export default function SettingsPage() {
 
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-6 border-t border-gray-100">
                       <div>
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Billing Cycle</p>
+                        <p className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-1">Billing Cycle</p>
                         <p className="text-slate-900 font-bold">{billing?.cycle || 'Unavailable'}</p>
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{billing?.cancelAtPeriodEnd ? 'Subscription Ends' : 'Next Billing Date'}</p>
+                        <p className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-1">{billing?.cancelAtPeriodEnd ? 'Subscription Ends' : 'Next Billing Date'}</p>
                         <p className="text-slate-900 font-bold">{billing?.nextDate ? new Date(billing.nextDate).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : billing?.status === 'No subscription' ? 'None' : 'Unavailable'}</p>
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Status</p>
+                        <p className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-1">Status</p>
                         <p className="text-slate-900 font-bold capitalize">
                           {billing?.status || 'Unavailable'}
                         </p>
@@ -497,20 +511,20 @@ export default function SettingsPage() {
                       <div className="flex items-center gap-2 mb-2">
                         <span className="px-3 py-1 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-md uppercase tracking-wider">Agency Plan Only</span>
                       </div>
-                      <h3 className="text-xl font-bold text-slate-900 mt-3">Team features are currently available for Agency plans.</h3>
+                      <h3 className="text-xl font-bold text-slate-900 mt-3">Team collaboration is not generally available.</h3>
                       <p className="text-slate-600 text-sm mt-3 leading-relaxed">
-                        Invite team members to collaborate on contracts, manage permissions, and streamline your workflow. This feature is exclusively available on our Agency plan and above.
+                        The team workspace is a planned feature. Joining the waitlist does not activate collaboration or change your plan.
                       </p>
                       <div className="mt-6 grid grid-cols-2 gap-4">
                         <div>
-                          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Coming Soon</p>
+                          <p className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Coming Soon</p>
                           <ul className="space-y-2 text-xs text-slate-600">
                             <li>✓ Invite team members</li>
                             <li>✓ Role-based permissions</li>
                           </ul>
                         </div>
                         <div>
-                          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">For Agencies</p>
+                          <p className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">For Agencies</p>
                           <ul className="space-y-2 text-xs text-slate-600">
                             <li>✓ Shared workspace</li>
                             <li>✓ Activity logs</li>
@@ -589,7 +603,7 @@ export default function SettingsPage() {
                 <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200">
                   <p className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">💡 Tip</p>
                   <p className="text-slate-700 text-sm font-medium">
-                    Start with the Starter or Pro plan and scale up to Agency when your team grows. Your data and preferences will carry over seamlessly.
+                    Compare current plan inclusions before changing your subscription. Waitlist registration is separate from billing.
                   </p>
                 </div>
               </div>
