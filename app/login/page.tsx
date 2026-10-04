@@ -27,6 +27,11 @@ function LoginForm() {
   const planName = plan === 'starter' ? 'Starter' : plan === 'pro' ? 'Professional' : 'Agency';
 
   useEffect(() => {
+    const hash = new URLSearchParams(window.location.hash.slice(1));
+    if (hash.get('type') === 'recovery' || searchParams.has('code')) {
+      window.location.replace('/reset-password' + window.location.search + window.location.hash);
+      return;
+    }
     if (mode === 'signin') {
       setAuthMode('signin');
     }
@@ -159,7 +164,7 @@ function LoginForm() {
     }
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/login`,
+      redirectTo: `${window.location.origin}/reset-password`,
     });
 
     if (error) {

@@ -1,8 +1,12 @@
 'use client';
 
 import Script from 'next/script';
+import { usePathname } from 'next/navigation';
 
 export default function GoogleAnalytics() {
+  const pathname = usePathname();
+  // Auth URLs may contain one-time codes. A continuation-page view is not a signup.
+  if (['/login', '/reset-password', '/signup-success'].includes(pathname)) return null;
   return (
     <>
       <Script

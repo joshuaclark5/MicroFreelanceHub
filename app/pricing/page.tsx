@@ -168,66 +168,16 @@ export default function PricingPage() {
         </div>
       </div>
 
-      {/* COMPARISON TABLE */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-slate-900 mb-4">Why switch to MicroFreelanceHub?</h2>
-          <p className="text-slate-600">Keep agreement details, signatures, and payment workflows in one place.</p>
+      {/* Explain our workflow without unsupported competitor claims. */}
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+        <h2 className="text-3xl font-bold text-slate-900 mb-4">Why switch to MicroFreelanceHub?</h2>
+        <p className="text-slate-600 mb-6">Keep agreement details, signatures, and payment workflows in one place.</p>
+        <div className="grid gap-5 md:grid-cols-3">
+          <div className="rounded-xl border border-slate-200 bg-white p-6"><h3 className="font-semibold text-slate-900">Define the work</h3><p className="mt-3 text-sm leading-6 text-slate-600">Start with scope, price and timing. Review the agreement before sharing.</p></div>
+          <div className="rounded-xl border border-slate-200 bg-white p-6"><h3 className="font-semibold text-slate-900">Review changes separately</h3><p className="mt-3 text-sm leading-6 text-slate-600">Describe additional work and its price in a separate change order referencing the original agreement.</p></div>
+          <div className="rounded-xl border border-slate-200 bg-white p-6"><h3 className="font-semibold text-slate-900">Keep payment steps clear</h3><p className="mt-3 text-sm leading-6 text-slate-600">Client payment uses your connected Stripe account. Eligibility, plan limits and processing fees apply.</p></div>
         </div>
-
-        <div className="bg-white rounded-xl border border-slate-200 shadow-xl overflow-hidden">
-          <div tabIndex={0} role="region" aria-label="Plan feature comparison" className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200">
-                  <th className="p-6 font-bold text-slate-900 w-1/3">Features</th>
-                  <th className="p-6 font-extrabold text-blue-600 border-x border-slate-200 bg-blue-50/30 w-1/6 text-center">MicroFreelance</th>
-                  <th className="p-6 font-bold text-slate-500 w-1/6 text-center">DocuSign</th>
-                  <th className="p-6 font-bold text-slate-500 w-1/6 text-center">HoneyBook</th>
-                  <th className="p-6 font-bold text-slate-500 w-1/6 text-center">QuickBooks</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                <tr className="hover:bg-slate-50/50">
-                  <td className="p-6 text-slate-700 font-medium">Digital signature workflow</td>
-                  <td className="p-6 border-x border-slate-200 bg-blue-50/10 text-center"><CheckCircle2 className="w-6 h-6 text-emerald-500 mx-auto" /></td>
-                  <td className="p-6 text-center"><CheckCircle2 className="w-5 h-5 text-slate-600 mx-auto" /></td>
-                  <td className="p-6 text-center"><CheckCircle2 className="w-5 h-5 text-slate-600 mx-auto" /></td>
-                  <td className="p-6 text-center"><X className="w-5 h-5 text-red-300 mx-auto" /></td>
-                </tr>
-                <tr className="hover:bg-slate-50/50">
-                  <td className="p-6 text-slate-700 font-medium">Built-in Stripe Checkout</td>
-                  <td className="p-6 border-x border-slate-200 bg-blue-50/10 text-center"><CheckCircle2 className="w-6 h-6 text-emerald-500 mx-auto" /></td>
-                  <td className="p-6 text-center"><X className="w-5 h-5 text-red-300 mx-auto" /></td>
-                  <td className="p-6 text-center"><CheckCircle2 className="w-5 h-5 text-slate-600 mx-auto" /></td>
-                  <td className="p-6 text-center"><CheckCircle2 className="w-5 h-5 text-slate-600 mx-auto" /></td>
-                </tr>
-                <tr className="hover:bg-slate-50/50">
-                  <td className="p-6 text-slate-700 font-medium">Automated Dunning (Late Emails)</td>
-                  <td className="p-6 border-x border-slate-200 bg-blue-50/10 text-center"><CheckCircle2 className="w-6 h-6 text-emerald-500 mx-auto" /></td>
-                  <td className="p-6 text-center"><X className="w-5 h-5 text-red-300 mx-auto" /></td>
-                  <td className="p-6 text-center"><CheckCircle2 className="w-5 h-5 text-slate-600 mx-auto" /></td>
-                  <td className="p-6 text-center"><X className="w-5 h-5 text-red-300 mx-auto" /></td>
-                </tr>
-                <tr className="hover:bg-slate-50/50">
-                  <td className="p-6 text-slate-700 font-medium">Deposit step before work begins</td>
-                  <td className="p-6 border-x border-slate-200 bg-blue-50/10 text-center"><CheckCircle2 className="w-6 h-6 text-emerald-500 mx-auto" /></td>
-                  <td className="p-6 text-center"><X className="w-5 h-5 text-red-300 mx-auto" /></td>
-                  <td className="p-6 text-center"><X className="w-5 h-5 text-red-300 mx-auto" /></td>
-                  <td className="p-6 text-center"><X className="w-5 h-5 text-red-300 mx-auto" /></td>
-                </tr>
-                <tr className="bg-slate-50">
-                  <td className="p-6 text-slate-900 font-bold">Average Monthly Cost</td>
-                  <td className="p-6 border-x border-slate-200 bg-blue-100/50 text-center font-extrabold text-blue-700">$9-$29/mo</td>
-                  <td className="p-6 text-center font-medium text-slate-500">$40/mo</td>
-                  <td className="p-6 text-center font-medium text-slate-500">$39/mo</td>
-                  <td className="p-6 text-center font-medium text-slate-500">$30/mo</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+      </section>
 
       {/* FINAL CTA */}
       <div className="max-w-4xl mx-auto text-center px-4">
@@ -236,7 +186,7 @@ export default function PricingPage() {
          </div>
          <h2 className="text-3xl font-bold text-slate-900 mb-6">Start with clearer project terms.</h2>
          <Link href="/login" className="inline-flex items-center gap-2 bg-slate-900 text-white font-bold px-8 py-4 rounded-full shadow-xl hover:bg-black transition-all hover:-translate-y-1">
-            Start Your Free Trial <ArrowRight className="w-5 h-5" />
+            Create your free account <ArrowRight className="w-5 h-5" />
          </Link>
       </div>
     </div>

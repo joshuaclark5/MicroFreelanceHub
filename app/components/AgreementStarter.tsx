@@ -86,7 +86,7 @@ export default function AgreementStarter({ onComplete, onSkip }: {
           </>}
           {stage === 1 && <>
             <label className="d4-field">What will you deliver?<textarea required maxLength={12000} rows={4} value={brief.scope} onChange={e => update('scope', e.target.value)} className={field} placeholder="Five pages, responsive desktop and mobile layouts." /></label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <label className="d4-field">Revision rounds<select value={brief.revisions} onChange={e => update('revisions', e.target.value)} className={field}><option value="">Not specified</option><option>1 round</option><option>2 rounds</option><option>3 rounds</option><option>No revisions</option></select></label>
               <label className="d4-field">Target completion<input maxLength={1000} value={brief.timing} onChange={e => update('timing', e.target.value)} className={field} placeholder="Date or milestone" /></label>
             </div>

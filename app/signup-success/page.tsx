@@ -1,4 +1,7 @@
 import Link from 'next/link';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { CheckCircle2, ArrowRight, FileText } from 'lucide-react';
 
 type Props = {
@@ -19,7 +22,13 @@ function prettyTemplate(slug?: string) {
     .join(' ');
 }
 
-export default function SignupSuccessPage({ searchParams }: Props) {
+export const metadata = { robots: { index: false, follow: false } };
+export const dynamic = 'force-dynamic';
+
+export default async function SignupSuccessPage({ searchParams }: Props) {
+  const supabase = createServerComponentClient({ cookies });
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login?mode=signin');
   const templateName = prettyTemplate(searchParams.template);
   const continueHref = searchParams.template ? `/templates/${searchParams.template}` : '/dashboard';
 
@@ -30,12 +39,12 @@ export default function SignupSuccessPage({ searchParams }: Props) {
           <CheckCircle2 className="h-9 w-9" />
         </div>
 
-        <p className="mb-3 text-xs font-bold uppercase tracking-wider text-emerald-700">Free account created</p>
+        <p className="mb-3 text-xs font-bold uppercase tracking-wider text-emerald-700">Signed in</p>
         <h1 className="text-3xl font-extrabold tracking-tight md:text-5xl">
-          Your MicroFreelanceHub account is ready.
+          Continue with your agreement.
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-slate-600">
-          You can now create contracts, save templates, collect signatures, and prepare client-ready deposit links.
+          Open your workspace to review your drafts. Plan limits and payment setup still apply.
         </p>
 
         {templateName && (
