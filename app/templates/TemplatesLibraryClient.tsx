@@ -163,7 +163,7 @@ export default function TemplatesLibraryClient({ templates, total }: { templates
                   <div className="rounded-lg bg-blue-50 p-3 text-blue-600">
                     <FileSignature className="h-5 w-5" />
                   </div>
-                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-slate-500">
+                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-slate-600">
                     {template.document_type || 'Template'}
                   </span>
                 </div>
