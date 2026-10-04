@@ -24,18 +24,18 @@
 .d4-dashboard .d4-stripe-notice { border:0; border-left:3px solid #2055d6; border-radius:0; background:#eaf0fc; padding:16px 20px; }
 .d4-dashboard .d4-workspace-grid { display:grid; grid-template-columns:minmax(0,1fr) 280px; gap:24px; }
 .d4-dashboard .d4-agreement-list { display:block; border:1px solid #dce3e0; min-width:0; }
-.d4-tablehead { display:grid; grid-template-columns:minmax(0,1fr) 90px 90px 80px; gap:12px; padding:12px 16px; font-size:10px; text-transform:uppercase; background:#edf1ee; color:#52615d; }
-.d4-dashboard .d4-agreement-row { display:grid; grid-template-columns:minmax(0,1fr) 90px 182px; gap:0 12px; padding:16px; border:0; border-top:1px solid #dce3e0; border-radius:0; }
+.d4-tablehead { display:grid; grid-template-columns:minmax(0,1fr) 90px 100px 80px; gap:12px; padding:12px 16px; font-size:10px; text-transform:uppercase; background:#edf1ee; color:#52615d; }
+.d4-dashboard .d4-agreement-row { display:grid; grid-template-columns:minmax(0,1fr) 90px 100px 80px; gap:0 12px; padding:16px; border:0; border-top:1px solid #dce3e0; border-radius:0; }
 .d4-dashboard .d4-agreement-row:has(.d4-detail-toggle[aria-pressed=true]) { background:#f0f5ff; box-shadow:inset 3px 0 #2055d6; }
 .d4-dashboard .d4-agreement-row > * { min-width:0; margin:0; }
 .d4-dashboard .d4-agreement-row > .d4-row-status { grid-column:2; grid-row:1; display:flex; align-items:center; gap:4px; }
 .d4-dashboard .d4-row-status > div:first-child { padding:4px 6px; font-size:10px; letter-spacing:0; }
 .d4-row-status .dashboard-icon-button { width:44px; height:44px; border:0; background:transparent; }
-.d4-row-status > div:last-child { position:absolute; right:12px; bottom:5px; }
+
 .d4-dashboard .d4-agreement-row > .d4-row-project { grid-column:1; grid-row:1; align-self:center; }
 .d4-row-project h3 { font-size:14px; font-weight:650; }
 .d4-row-project p { background:transparent; padding:0; font-size:12px; }
-.d4-row-open { grid-column:3; grid-row:1; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.d4-row-open { grid-column:3 / 5; grid-row:1; display:grid; grid-template-columns:100px 80px; align-items:center; gap:12px; }
 .d4-row-open > span { font-size:14px; }
 .d4-row-open > a { background:white; border:1px solid #b9c7c0; color:#182422; border-radius:5px; }
 .d4-row-open > a svg { display:none; }
@@ -102,7 +102,7 @@
  .d4-dashboard .d4-agreement-row { grid-template-columns:minmax(0,1fr) 100px; gap:10px; padding:16px 12px; }
  .d4-dashboard .d4-agreement-row > .d4-row-project { grid-column:1; grid-row:1; }
  .d4-dashboard .d4-agreement-row > .d4-row-status { grid-column:1; grid-row:2; }
- .d4-row-open { grid-column:2; grid-row:1/3; flex-direction:column; align-items:flex-end; }
+ .d4-row-open { grid-column:2; grid-row:1/3; display:flex; flex-direction:column; align-items:flex-end; }
  .d4-dashboard .d4-row-more { grid-column:1/-1; }
  .d4-dashboard .d4-project-detail { position:static; }
  .d4-app-shell > details { margin:20px 18px; }
@@ -206,7 +206,7 @@
  .d4-template .d4-trade { margin:24px 0; }
 }
 
-.d4-row-status > div:last-child { right:6px; bottom:0; }
+
 .d4-row-more summary,.d4-detail-toggle { min-height:44px; }
 .d4-stepbar button { min-height:44px; }
 .d4-settings-header > .d4-brand { visibility:hidden; }
@@ -256,4 +256,17 @@
 @media(max-width:760px) {
  .d4-dashboard .d4-metrics { grid-template-columns:minmax(0,.8fr) minmax(0,.8fr) minmax(0,1.4fr); }
  .d4-dashboard .d4-metrics > div:last-child strong { font-size:clamp(14px,4vw,20px); }
+}
+
+/* Account visibility and intentional row alignment; avoid positional status selectors. */
+.d4-row-open > span { text-align:right; overflow-wrap:anywhere; }
+.d4-row-project h3 { overflow-wrap:anywhere; }
+.d4-row-action-panel .dashboard-secondary-button { min-height:44px; }
+.d4-home-mobile-links > :is(a,button) { display:inline-flex; min-height:44px; align-items:center; justify-content:center; }
+.d4-home-mobile-links .d4-mobile-signup { border:1px solid #1d4ed8; border-radius:6px; padding:0 16px; color:#1d4ed8; font-weight:650; }
+@media(max-width:760px) {
+ .d4-home-mobile-links { padding:0 18px 4px; }
+ .d4-home-hero { padding-top:20px; padding-bottom:24px; }
+ .d4-home-hero h1 { font-size:28px; line-height:1.15; }
+ .d4-home-hero .mt-6 { margin-top:18px; }
 }

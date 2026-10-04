@@ -24,6 +24,13 @@ if(process.env.QA_AXE==='1'){await p.addScriptTag({path:'C:/Users/joshu/microfre
 results.push({screen:name,width,overflow,errors:[...errors],accessibility});}
  for(const [name,path] of [['home','/'],['pricing','/pricing'],['seo','/templates/web-development-contract'],['service-template','/templates/mobile-mechanic-contract-template']]){await p.goto(base+path);await snap(name);}
  await p.goto(base+'/dashboard');await p.getByRole('heading',{name:'Your agreements',exact:true}).waitFor();await snap('dashboard');
+ if(process.env.QA_POLISH==='1') {
+ const alignment=await p.evaluate(()=>Array.from(document.querySelectorAll('.d4-agreement-row')).map(row=>{const rect=s=>row.querySelector(s).getBoundingClientRect();const a=rect('.d4-row-project'),b=rect('.d4-row-status'),c=rect('.d4-row-open');return {overlap:a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top,openRight:c.right,menus:row.querySelectorAll('details').length,oldMenus:row.querySelectorAll('[aria-label^="Actions for"]').length};}));
+ assert.ok(alignment.every(r=>!r.overlap&&r.menus===1&&r.oldMenus===0),'Status must not overlap project; exactly one actions menu');
+ assert.ok(alignment.every(r=>Math.abs(r.openRight-alignment[0].openRight)<2),'Open actions align across rows');
+ const row=p.locator('.d4-agreement-row').first();await row.locator('summary').click();await row.getByRole('button',{name:'Duplicate',exact:true}).waitFor();await row.getByRole('button',{name:'Delete',exact:true}).waitFor();await snap('dashboard-actions');await row.locator('summary').click();
+ }
+
  await p.getByLabel('Search agreements or clients').fill('no matching fixture');await snap('no-results');
  empty=true;await p.reload();await p.getByRole('heading',{name:'Your first agreement starts here.',exact:true}).waitFor();await snap('empty');empty=false;
  if(process.env.QA_BASELINE!=='1'){unavailable=true;await p.goto(base+'/dashboard');await p.getByRole('alert').waitFor();await snap('dashboard-error');unavailable=false;}

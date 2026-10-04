@@ -62,6 +62,7 @@ export default function AgreementStarter({ onComplete, onSkip }: {
       <p role="status" className="text-xs text-slate-600">{storageState}</p>
       <button className="d4-secondary" type="button" onClick={() => dialog.current?.showModal()}>Preview</button>
     </div>
+    <p className="mt-4 text-sm text-slate-600">Draft and preview before creating an account. Saving requires an account; paid features and account limits are shown before checkout. <a href="/pricing" target="_blank" rel="noopener noreferrer" className="text-blue-700 underline">View plans</a></p>
     <ol aria-label="Agreement progress" className="d4-stepbar">
       {labels.map((label, index) => <li key={label} aria-current={stage === index ? 'step' : undefined}><button type="button" disabled={index > stage} onClick={() => advance(index)}>{index + 1} {label}</button></li>)}
     </ol>

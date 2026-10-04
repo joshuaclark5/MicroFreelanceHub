@@ -43,9 +43,9 @@ const docs = [
       await page.locator('.d4-agreement-row').first().locator('summary').click();
       await page.getByRole('link', { name: 'Edit draft', exact: true }).waitFor();
       await page.getByRole('button', { name: 'Copy link', exact: true }).waitFor();
-      const box = await page.getByRole('button', { name: 'Actions for Website agreement', exact: true }).boundingBox();
+      const box = await page.locator('.d4-agreement-row').first().locator('summary').boundingBox();
       assert.ok(box.width >= 44 && box.height >= 44, 'Actions must have a visible touch target');
-      await page.getByRole('button', { name: 'Actions for Website agreement', exact: true }).click();
+      assert.equal(await page.locator('.d4-agreement-row').first().locator('details').count(), 1, 'Exactly one secondary actions menu');
       assert.equal(await page.getByRole('button', { name: 'Mark Paid', exact: true }).count(), 0);
       await draft.click();
       await page.getByRole('link', { name: 'Open Website agreement', exact: true }).focus();

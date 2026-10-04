@@ -40,6 +40,12 @@ export default function HomePage() {
     checkUser();
   }, [supabase]);
 
+  const signOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) { window.alert('Could not sign out. Please try again.'); return; }
+    setUser(null);
+  };
+
   return (
     <div className="d4-home min-h-screen bg-white text-gray-900 font-sans selection:bg-emerald-100 [&_*]:tracking-normal">
 
@@ -67,7 +73,7 @@ export default function HomePage() {
                 href="/dashboard"
                 className="bg-slate-900 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-slate-800 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
               >
-                Dashboard <ArrowRight className="w-4 h-4" />
+                My dashboard <ArrowRight className="w-4 h-4" />
               </Link>
             ) : (
               <>
@@ -75,13 +81,14 @@ export default function HomePage() {
                   Log in
                 </Link>
                 <Link
-                  href="/create"
+                  href="/login"
                   className="bg-blue-600 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg"
                 >
-                  Start an agreement
+                  Sign up
                 </Link>
               </>
             )}
+            {user && <details className="relative"><summary className="cursor-pointer text-sm font-semibold">Account</summary><div className="absolute right-0 top-8 w-48 rounded-lg border border-slate-200 bg-white p-3 shadow-sm"><Link href="/settings" className="block py-2 text-sm">Settings &amp; billing</Link><button type="button" className="py-2 text-sm" onClick={signOut}>Sign out</button></div></details>}
           </div>
           <button
             type="button"
@@ -93,7 +100,7 @@ export default function HomePage() {
             {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
-        <div className="d4-home-mobile-links"><Link href="/templates">Templates</Link><Link href="/pricing">Pricing</Link><a href="#help">Help</a><Link href={user ? '/dashboard' : '/login?mode=signin'}>{user ? 'Workspace' : 'Sign in'}</Link></div>
+        <div className="d4-home-mobile-links"><Link href="/pricing">Pricing</Link>{user ? <><Link href="/dashboard">My dashboard</Link><button type="button" onClick={signOut}>Sign out</button></> : <><Link href="/login?mode=signin">Log in</Link><Link href="/login" className="d4-mobile-signup">Sign up</Link></>}</div>
         {isMenuOpen && (
           <div className="border-t border-slate-100 bg-white px-4 py-4 md:hidden">
             <div className="mx-auto flex max-w-7xl flex-col gap-3">
@@ -108,9 +115,7 @@ export default function HomePage() {
                 Templates
               </Link>
               {user ? (
-                <Link href="/dashboard" className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-bold text-white">
-                  Dashboard
-                </Link>
+                <div className="grid gap-3"><Link href="/dashboard" className="d4-primary">My dashboard</Link><Link href="/settings" className="d4-secondary">Account &amp; billing</Link><button type="button" className="d4-secondary" onClick={signOut}>Sign out</button></div>
               ) : (
                 <div className="grid grid-cols-2 gap-3 pt-1">
                   <Link href="/login?mode=signin" className="rounded-lg border border-slate-200 px-3 py-2 text-center text-sm font-bold text-slate-700">

@@ -25,11 +25,7 @@
   :is(.d4-home,.d4-editor,.d4-template) :is(a,button,input,textarea,select,summary):focus-visible { outline: 3px solid #2563eb; outline-offset: 3px; }
   .d4-editor textarea { line-height: 1.8; }
   .d4-home :is(.shadow-xl,.shadow-lg) { box-shadow: none; }
-  @media(min-width:1280px) {
-    .d4-agreement-row { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px 20px; }
-    .d4-agreement-row > :first-child { grid-column:1 / -1; }
-    .d4-agreement-row > * { min-width:0; margin-top:0; margin-bottom:0; }
-  }
+
 }
 
 @layer components {
@@ -56,12 +52,6 @@
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
-@media(min-width:1280px) {
-  .d4-dashboard .d4-agreement-row { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px 20px; }
-  .d4-dashboard .d4-agreement-row > * { min-width:0; margin-top:0; margin-bottom:0; }
-  .d4-dashboard .d4-agreement-row > :first-child { grid-column:1 / -1; }
-  .d4-dashboard .d4-agreement-row > .border-t { border:0; padding-top:0; }
-}
 
 .hide-scrollbar::-webkit-scrollbar {
   display: none;

@@ -387,12 +387,10 @@ export default function Dashboard() {
           <div><span>Signed agreements</span><strong>{sows.filter(s => s.status === 'Signed').length}</strong></div>
           <div><span>Recorded outstanding balance</span><strong>{sows.some(s => s.payment_type !== 'none' && !displayBalance(s)) ? 'Unavailable' : formatMoney(sows.reduce((sum, s) => sum + (s.payment_type === 'none' ? 0 : (displayBalance(s)?.remaining || 0) / 100), 0))}</strong></div>
         </div>
-        <div className="d4-stripe-notice">
+        {!stripeId && sows.some(s => s.payment_type !== 'none') && <div className="d4-stripe-notice">
           <div><h2 className="text-sm font-semibold text-slate-900">{stripeId ? 'Client payments' : 'Ready to collect a deposit?'}</h2><p className="mt-1 text-sm text-slate-600">{stripeId ? 'A Stripe account is linked. Manage eligibility and payout details in Stripe.' : 'Connect your own Stripe account when you want to accept client payments. You can draft first.'}</p></div>
           <div className="w-full sm:w-auto shrink-0">{stripeId ? <a className="d4-secondary" href="https://connect.stripe.com/express_login" target="_blank" rel="noopener noreferrer">Open Stripe <ExternalLink size={15}/></a> : <ConnectStripeButton userId={userId}/>}</div>
-        </div>
-
-
+        </div>}
 
         <div className="dashboard-filters flex flex-wrap gap-3 border-b border-gray-200 pb-5" role="group" aria-label="Agreement filters">
           <button type="button" aria-label={`Draft agreements ${sows.filter(sow => String(sow.status).toLowerCase() === 'draft').length}`} aria-pressed={statusFilter === 'DRAFT'} onClick={() => setStatusFilter('DRAFT')} className="text-left text-sm text-gray-600 hover:text-blue-700">Drafts <span className="ml-2 font-semibold text-gray-950">{sows.filter(sow => String(sow.status).toLowerCase() === 'draft').length}</span></button>
@@ -494,65 +492,8 @@ export default function Dashboard() {
                         <div className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 ${statusConfig.color}`}>
                             <statusConfig.icon className="w-3 h-3" /> {statusConfig.label}
                         </div>
-                        <div className="relative z-20">
-                          {selectionMode ? (
-                            <input
-                              type="checkbox"
-                              aria-label={`Select ${sow.title || 'agreement'}`}
-                              checked={selectedIds.includes(sow.id)}
-                              onChange={(e) => { e.stopPropagation(); toggleSelect(sow.id); }}
-                              onClick={(e) => e.stopPropagation()}
-                              className="w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer"
-                            />
-                          ) : (
-                            <button
-                              aria-label={`Actions for ${sow.title || 'agreement'}`}
-                              aria-expanded={openMenuId === sow.id}
-                              onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === sow.id ? null : sow.id); }}
-                              title="More agreement actions"
-                              className="dashboard-icon-button"
-                            >
-                              <MoreVertical className="w-4 h-4" />
-                            </button>
-                          )}
-                          {openMenuId === sow.id && (
-                             <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 animate-in fade-in zoom-in-95 origin-top-right">
+                        {selectionMode && <input type="checkbox" aria-label={`Select ${sow.title || 'agreement'}`} checked={selectedIds.includes(sow.id)} onChange={() => toggleSelect(sow.id)} className="h-5 w-5" />}
 
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); handleCopyPayLink(e, sow); }}
-                                    disabled={paymentLinkLoadingId === sow.id}
-                                    className="w-full text-left px-4 py-2.5 text-xs font-bold text-blue-600 hover:bg-blue-50 flex items-center justify-between disabled:opacity-60"
-                                >
-                                    <span className="flex items-center gap-2">
-                                      {copiedPayLinkId === sow.id ? <CheckCircle className="w-3.5 h-3.5" /> : paymentLinkLoadingId === sow.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Wallet className="w-3.5 h-3.5" />}
-                                      {copiedPayLinkId === sow.id ? 'Copied!' : paymentLinkLoadingId === sow.id ? 'Copying...' : 'Copy Client Link'}
-                                    </span>
-                                </button>
-
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); router.push(`/edit/${sow.id}`); }}
-                                    className="w-full text-left px-4 py-2.5 text-xs font-bold text-amber-600 hover:bg-amber-50 flex items-center justify-between"
-                                >
-                                    <span className="flex items-center gap-2"><FileWarning className="w-3.5 h-3.5" /> Change Order</span>
-                                    {isSigned && <span className="text-[9px] bg-amber-100 px-1.5 py-0.5 rounded">Resign Req.</span>}
-                                </button>
-
-                                <button onClick={(e) => { e.stopPropagation(); router.push(`/edit/${sow.id}`); }} className="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-50 flex items-center gap-2">
-                                    <Edit2 className="w-3.5 h-3.5" /> Edit Details
-                                </button>
-
-                                <button disabled={processing} onClick={(e) => { e.stopPropagation(); handleDuplicate(sow); }} className="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-50 flex items-center gap-2 disabled:opacity-50">
-                                    <Copy className="w-3.5 h-3.5" /> Duplicate
-                                </button>
-
-                                <div className="h-px bg-gray-100 my-1"></div>
-
-                                <button onClick={(e) => { e.stopPropagation(); handleDelete(sow.id); }} className="w-full text-left px-4 py-2.5 text-xs font-bold text-red-600 hover:bg-red-50 flex items-center gap-2">
-                                    <Trash2 className="w-3.5 h-3.5" /> Delete
-                                </button>
-                             </div>
-                          )}
-                        </div>
                      </div>
 
                      <div className="d4-row-project">
@@ -601,6 +542,8 @@ export default function Dashboard() {
 
                        <Link href={`/edit/${sow.id}`} className="dashboard-secondary-button"><Edit2 size={15} /> {isSigned || isPaid ? 'Change order' : 'Edit draft'}</Link>
                        <button className="dashboard-secondary-button" onClick={e => handleCopyPayLink(e, sow)} disabled={paymentLinkLoadingId === sow.id}><Link2 size={15} /> {copiedPayLinkId === sow.id ? 'Copied' : 'Copy link'}</button>
+                     <button disabled={processing} className="dashboard-secondary-button" onClick={(e) => { e.stopPropagation(); handleDuplicate(sow); }}><Copy size={15} /> Duplicate</button>
+                       <button disabled={processing} className="dashboard-secondary-button text-red-700" onClick={(e) => { e.stopPropagation(); handleDelete(sow.id); }}><Trash2 size={15} /> Delete</button>
                      </div></details></div>
                    </div>
                 )})
