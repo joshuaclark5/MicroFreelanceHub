@@ -253,9 +253,18 @@
 .d4-change-client { max-width:860px; }
 .d4-change-client > article { max-width:650px; }
 
+.d4-dashboard .d4-metrics { gap:12px; padding:0; border:0; align-items:stretch; }
+.d4-dashboard .d4-metrics > div { min-width:0; padding:18px 20px; border:1px solid #dce3e0; border-radius:10px; background:#fff; display:flex; flex-direction:column; justify-content:space-between; gap:12px; }
+.d4-dashboard .d4-metrics span { font-size:13px; line-height:1.4; color:#475569; }
+.d4-dashboard .d4-metrics strong { margin:0; font-size:28px; line-height:1.1; font-weight:650; font-variant-numeric:tabular-nums; color:#0f172a; }
+.d4-dashboard .d4-metrics > div:last-child strong { font-size:22px; }
 @media(max-width:760px) {
- .d4-dashboard .d4-metrics { grid-template-columns:minmax(0,.8fr) minmax(0,.8fr) minmax(0,1.4fr); }
- .d4-dashboard .d4-metrics > div:last-child strong { font-size:clamp(14px,4vw,20px); }
+ .d4-dashboard .d4-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); padding:0; gap:10px; }
+ .d4-dashboard .d4-metrics > div { padding:16px; }
+ .d4-dashboard .d4-metrics > div:not(:last-child) span { min-height:37px; }
+ .d4-dashboard .d4-metrics > div:last-child { grid-column:1 / -1; flex-direction:row; align-items:center; gap:16px; background:#f8fafc; }
+ .d4-dashboard .d4-metrics > div:last-child span { max-width:55%; }
+ .d4-dashboard .d4-metrics > div:last-child strong { text-align:right; font-size:18px; }
 }
 
 /* Account visibility and intentional row alignment; avoid positional status selectors. */
