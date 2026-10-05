@@ -1,5 +1,7 @@
 'use client';
 
+import { templateLibrarySummary } from '../lib/templateLibrarySummary';
+
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { ArrowRight, Briefcase, FileSignature, Receipt, Search, Wrench } from 'lucide-react';
@@ -172,7 +174,7 @@ export default function TemplatesLibraryClient({ templates, total }: { templates
                   {getDisplayTitle(template)}
                 </h2>
                 <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-slate-600">
-                  {template.ai_summary || 'Open this template, customize the project details, and send one client-ready link.'}
+                  {templateLibrarySummary(template.ai_summary)}
                 </p>
 
                 <div className="mt-auto flex items-center gap-2 pt-6 text-sm font-extrabold text-slate-900 group-hover:text-blue-600">
