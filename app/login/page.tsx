@@ -262,7 +262,7 @@ function LoginForm() {
                     <div className="w-full border-t border-slate-200" />
                 </div>
                 <div className="relative flex justify-center">
-                    <span className="bg-white px-3 text-xs font-bold uppercase tracking-wider text-slate-400">or use email</span>
+                    <span className="bg-white px-3 text-xs font-bold uppercase tracking-wider text-slate-600">or use email</span>
                 </div>
             </div>
 
@@ -322,7 +322,7 @@ function LoginForm() {
             </div>
         </div>
         
-        <p className="text-center text-xs text-slate-400">
+        <p className="text-center text-xs text-slate-600">
             By clicking continue, you agree to our <Link href="/terms-of-service" className="underline hover:text-slate-600">Terms</Link> and <Link href="/privacy-policy" className="underline hover:text-slate-600">Privacy Policy</Link>.
         </p>
     </div>
