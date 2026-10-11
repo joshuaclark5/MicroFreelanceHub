@@ -46,6 +46,8 @@ async function check(options = {}) {
   const filled = await check({ metadata: { signup_landing_page: '/create', signup_lead_source: 'partner' } });
   assert.equal(filled.row.lead_source, 'partner');
   assert.equal(filled.sessions[0].metadata.landing_page, '/create');
+  const referred = await check({ metadata: { signup_landing_page: '/templates/tennis-coach-contract-template', signup_lead_source: 'referrer:www.google.com' } });
+  assert.equal(referred.sessions[0].subscription_data.metadata.lead_source, 'referrer:www.google.com');
   const invalid = await check({ body: { landingPage: '/sow/private', leadSource: 'private@example.test' } });
   assert.equal(invalid.sessions[0].metadata.lead_source, '');
   assert.equal(invalid.sessions[0].metadata.landing_page, '');

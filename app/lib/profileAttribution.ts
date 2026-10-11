@@ -4,7 +4,9 @@ export function sanitizeAttribution(landing: unknown, source: unknown) {
   const publicPath = /^\/(?:$|(?:templates|profession|articles)(?:\/[a-z0-9-]+)?$|tools\/[a-z0-9-]+$|(?:create|pricing|partners)$)/.test(path);
   return {
     signup_landing_page: publicPath && path.length <= 240 ? path : null,
-    lead_source: typeof source === 'string' && /^[a-z0-9][a-z0-9:_-]{0,99}$/i.test(source) ? source : null,
+    lead_source: typeof source === 'string' && source.length <= 100 &&
+      (/^[a-z0-9][a-z0-9:_-]{0,99}$/i.test(source) ||
+       /^referrer:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,63}$/.test(source)) ? source : null,
   };
 }
 

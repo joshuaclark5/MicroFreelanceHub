@@ -23,6 +23,7 @@ export default function PrivacyPolicyPage() {
           <ul className="list-disc pl-5 mt-2 space-y-1">
             <li>Names, email addresses, and contact data.</li>
             <li>Credentials (passwords and security information) for authentication.</li>
+            <li>The first public page you visit and a campaign label or referring website domain, when available. We store these in your browser and associate them with your account when you sign up, to understand which sources lead to signups and subscriptions. This attribution does not store referring-page paths, search terms, or private agreement URLs. When the source is unavailable, we record it as unknown.</li>
           </ul>
         </section>
 
