@@ -114,6 +114,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const staticRoutes: MetadataRoute.Sitemap = [
+    { url: `${baseUrl}/quote-follow-up`, lastModified: new Date('2026-10-12'), changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${baseUrl}/quote-follow-up/guide`, lastModified: new Date('2026-10-12'), changeFrequency: 'monthly', priority: 0.7 },
     { url: baseUrl, lastModified: new Date(), changeFrequency: 'daily', priority: 1.0 },
     { url: `${baseUrl}/tools/client-message-generator`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.95 },
     { url: `${baseUrl}/tools/late-payment-reply-generator`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },

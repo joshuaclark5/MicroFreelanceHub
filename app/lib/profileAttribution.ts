@@ -1,7 +1,7 @@
 export function sanitizeAttribution(landing: unknown, source: unknown) {
   const path = typeof landing === 'string' ? landing.split(/[?#]/)[0] : '';
   // Private document routes and arbitrary query text must never become acquisition data.
-  const publicPath = /^\/(?:$|(?:templates|profession|articles)(?:\/[a-z0-9-]+)?$|tools\/[a-z0-9-]+$|(?:create|pricing|partners)$)/.test(path);
+  const publicPath = /^\/(?:$|(?:templates|profession|articles)(?:\/[a-z0-9-]+)?$|quote-follow-up(?:\/guide)?$|tools\/[a-z0-9-]+$|(?:create|pricing|partners)$)/.test(path);
   return {
     signup_landing_page: publicPath && path.length <= 240 ? path : null,
     lead_source: typeof source === 'string' && source.length <= 100 &&

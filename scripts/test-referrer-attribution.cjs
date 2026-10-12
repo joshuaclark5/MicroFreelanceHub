@@ -12,6 +12,9 @@ function visit(url, referrer = '', initial = {}) {
   return Object.fromEntries(values);
 }
 const home = 'https://www.microfreelancehub.com';
+assert.equal(visit(home+'/quote-follow-up','https://google.com').landing_page,'/quote-follow-up');
+assert.equal(visit(home+'/quote-follow-up/guide','https://google.com').landing_page,'/quote-follow-up/guide');
+assert.equal(visit(home+'/quote-follow-up/workspace','https://google.com').landing_page,undefined);
 const google = visit(home+'/templates/tennis-coach-contract-template', 'https://www.google.com/search?q=private');
 assert.equal(google.marketing_source, 'referrer:google.com');
 assert.equal(google.landing_page, '/templates/tennis-coach-contract-template');
@@ -30,5 +33,7 @@ assert.equal(visit(home+'/?source=late','https://bing.com',{landing_page:'/prici
 const exportsObject={};
 vm.runInNewContext(ts.transpileModule(fs.readFileSync('app/lib/profileAttribution.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports:exportsObject});
 assert.equal(exportsObject.sanitizeAttribution('/pricing','referrer:google.com').lead_source,'referrer:google.com');
+assert.equal(exportsObject.sanitizeAttribution('/quote-follow-up','unknown').signup_landing_page,'/quote-follow-up');
+assert.equal(exportsObject.sanitizeAttribution('/quote-follow-up/workspace','unknown').signup_landing_page,null);
 assert.equal(exportsObject.sanitizeAttribution('/pricing','referrer:google.com/private?q=secret').lead_source,null);
 console.log('PASS: referral host only, campaign priority, unknown source frozen, internal/private paths excluded, legacy and server validation.');

@@ -545,6 +545,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
       </div>
 
       <div className="max-w-7xl mx-auto px-4 pb-20">
+          {/parking.*(strip|mark)|strip.*parking/i.test(`${params.slug} ${doc.job_title || ''}`) && <aside className="mb-8 rounded-xl border border-slate-200 p-6"><h2 className="text-xl font-bold text-slate-900">Following up on an unanswered estimate?</h2><p className="my-3 text-slate-700">Organize your open estimates, prepare a follow-up and record the customer’s response.</p><Link href="/quote-follow-up" className="font-semibold text-blue-700 underline">Try the free estimate follow-up tool →</Link></aside>}
           <RelatedRoles currentSlug={params.slug} jobTitle={doc.job_title} />
       </div>
 

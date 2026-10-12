@@ -15,7 +15,7 @@ export function initializeTracking() {
     return;
   }
   const path = window.location.pathname;
-  if (!/^\/(?:$|(?:templates|profession|articles)(?:\/[a-z0-9-]+)?$|tools\/[a-z0-9-]+$|(?:create|pricing|partners)$)/.test(path)) return;
+  if (!/^\/(?:$|(?:templates|profession|articles)(?:\/[a-z0-9-]+)?$|quote-follow-up(?:\/guide)?$|tools\/[a-z0-9-]+$|(?:create|pricing|partners)$)/.test(path)) return;
 
   let marketingSource = null;
   if (urlParams.has('source')) {
