@@ -81,6 +81,7 @@ export default function RootLayout({
                     <Link href="/privacy-policy" className="hover:text-black transition-colors">Privacy Policy</Link>
                     <Link href="/disclaimer" className="hover:text-black transition-colors">Full Disclaimer</Link>
                     <Link href="/partners" className="hover:text-black transition-colors">Partners</Link>
+                    <Link href="/challenge" className="hover:text-black transition-colors">Free Client-Ready Challenge</Link>
                 </div>
 
                 <p className="text-[10px] text-gray-600 mt-8">
