@@ -1,21 +1,39 @@
 'use client';
-import {useState} from 'react';
-const fields = [
- ['Project label', 'Example: Five-page website'],
- ['Deliverables and acceptance criteria', 'List pages, features, file formats and what the client will review.'],
- ['Revision rounds and exclusions', 'Define one round, how many are included, and what is outside scope.'],
- ['Client inputs', 'Who supplies copy, images, access and approvals? By when?'],
- ['Milestones, reviewer and payment timing', 'Stage → deliverable → review date → agreed amount. Check the total.'],
- ['Change-request reply', 'Acknowledge the request, explain the scope difference, offer a separate estimate or the original scope.'],
-];
-function track(name:'challenge_brief_download'|'challenge_brief_copy'){
+import {useEffect,useState} from 'react';
+import {briefFields as fields,examples} from './examples';
+import {briefText,reviewEmail,reviewPrompts} from './brief-utils';
+import {parseBackup,BriefBackup} from './backup';
+const storageKey='mfh-client-ready-brief-v1';
+function track(name:string){
  if(navigator.doNotTrack==='1'||(navigator as Navigator & {globalPrivacyControl?:boolean}).globalPrivacyControl)return;
- const g=(window as Window & {gtag?:(...args:unknown[])=>void}).gtag;
- if(g)g('event',name,{event_category:'client_ready_challenge'});
+ (window as Window & {gtag?:(...args:unknown[])=>void}).gtag?.('event',name,{event_category:'client_ready_challenge'});
+}
+function saveFile(text:string,name:string,type='text/plain;charset=utf-8'){
+ const url=URL.createObjectURL(new Blob([text],{type}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 export default function Worksheet(){
- const [values,setValues]=useState<string[]>(fields.map(()=>''));const [status,setStatus]=useState('');
- const text=()=>`CLIENT-READY PROJECT BRIEF\nMicroFreelanceHub • https://www.microfreelancehub.com/challenge\n\n${fields.map(([label],i)=>`${label.toUpperCase()}\n${values[i].trim()||'[To complete]'}`).join('\n\n')}\n\nReview this brief with your client before using it. Educational starting point, not legal advice.`;
- function download(){const url=URL.createObjectURL(new Blob([text()],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='client-ready-project-brief.txt';a.click();URL.revokeObjectURL(url);track('challenge_brief_download');setStatus('Your brief was downloaded. Keep a copy before leaving this page.');}
- return <div className="worksheet"><div className="field-grid">{fields.map(([label,hint],i)=><label key={label} htmlFor={`brief-${i}`}><span>{label}</span><textarea id={`brief-${i}`} value={values[i]} placeholder={hint} maxLength={5000} onChange={e=>setValues(values.map((v,n)=>n===i?e.target.value:v))}/></label>)}</div><div className="worksheet-actions"><button className="button" onClick={download}>Download my brief</button><button className="secondary" onClick={async()=>{try{await navigator.clipboard.writeText(text());track('challenge_brief_copy');setStatus('Brief copied. Paste it into your own document or agreement draft.');}catch{setStatus('Copy is unavailable in this browser. Use Download my brief instead.');}}}>Copy my brief</button><span>{values.filter(v=>v.trim()).length} of 6 sections started</span></div><p aria-live="polite" role="status">{status}</p></div>;
+ const[example,setExample]=useState('website');const[replace,setReplace]=useState(false);
+ const[values,setValues]=useState<string[]>(fields.map(()=>''));const[reviewed,setReviewed]=useState<boolean[]>(fields.map(()=>false));const[status,setStatus]=useState('');
+ const[persist,setPersist]=useState(false);const[loaded,setLoaded]=useState(false);const[restore,setRestore]=useState<BriefBackup|null>(null);const[reset,setReset]=useState(false);
+ useEffect(()=>{try{const raw=localStorage.getItem(storageKey);if(raw){const v=parseBackup(raw);setValues(v.values);setReviewed(v.reviewed);setPersist(true);setStatus('Restored your saved brief from this browser.');}}catch{setStatus('Saved data could not be restored. Start fresh or import a valid backup.');}setLoaded(true);},[]);
+ useEffect(()=>{if(!loaded)return;try{if(persist)localStorage.setItem(storageKey,JSON.stringify({version:1,values,reviewed}));else localStorage.removeItem(storageKey);}catch{setStatus('Browser saving is unavailable. Download a backup to keep your work.');}},[values,reviewed,persist,loaded]);
+ function applyBackup(v:BriefBackup){setValues(v.values);setReviewed(fields.map(()=>false));setRestore(null);setReplace(false);setStatus('Backup restored. Recheck the six review prompts before sharing.');}
+ async function importBackup(file:File|undefined){if(!file)return;try{if(file.size>200000)throw new Error('large');const v=parseBackup(await file.text());if(values.some(x=>x.trim())){setRestore(v);setStatus('Backup is valid. Confirm below before replacing your current text.');}else applyBackup(v);}catch{setStatus('Invalid backup. Your current text has not been changed.');}}
+ const filled=values.filter(v=>v.trim()).length;
+ const checked=reviewed.filter((v,i)=>v&&values[i].trim()).length;
+ const ready=filled===6&&checked===6;
+ function edit(i:number,value:string){setValues(v=>v.map((x,j)=>i===j?value:x));setReviewed(v=>v.map((x,j)=>i===j?false:x));setReplace(false);}
+ function loadExample(){if(values.some(v=>v.trim())&&!replace){setReplace(true);return;}setValues([...examples[example].values]);setReviewed(fields.map(()=>false));setReplace(false);setStatus('Fictional example loaded. Adapt the scope, prices and dates to your project.');}
+ async function copy(text:string,event:string){try{await navigator.clipboard.writeText(text);track(event);setStatus('Copied. Review the text and replace any remaining bracketed prompts before sending.');}catch{setStatus('Clipboard is unavailable. Use the download button instead.');}}
+ return <div className="worksheet" aria-busy={!loaded}>
+  <nav className="brief-jumps" aria-label="Brief builder steps"><a href="#brief-fields">1. Edit my brief</a><a href="#brief-output">2. Review and download</a><a href="#brief-recovery">3. Keep a copy</a></nav>
+  <div className="example-picker"><label htmlFor="brief-example">Start with a fictional example<select aria-label="Start with a fictional example" id="brief-example" value={example} onChange={e=>{setExample(e.target.value);setReplace(false);}}>{Object.entries(examples).map(([key,item])=><option key={key} value={key}>{item.label}</option>)}</select></label><button className="secondary" onClick={loadExample}>{replace?'Replace my current text with this example':'Load example'}</button>{replace&&<button className="secondary" onClick={()=>setReplace(false)}>Keep my text</button>}<p className="fine">Examples are practice material, not recommended prices. Or fill in the blank fields yourself.</p></div>
+  <p className="brief-progress" role="status">{filled} of 6 sections filled · {checked} of 6 self-review checks complete</p>
+  <div id="brief-fields" className="field-grid">{fields.map(([label,hint],i)=><div key={label}><label htmlFor={`brief-${i}`}><span>{label}</span></label><textarea aria-label={label} id={`brief-${i}`} value={values[i]} placeholder={hint} maxLength={5000} onChange={e=>edit(i,e.target.value)}/><label className="brief-check"><input type="checkbox" checked={reviewed[i]} disabled={!values[i].trim()} onChange={e=>setReviewed(v=>v.map((x,j)=>i===j?e.target.checked:x))}/>{reviewPrompts[i]}</label></div>)}</div>
+  <div className="brief-result"><h3>{ready?'Ready for a client conversation.':'Make it specific, then review it.'}</h3><p>{ready?'You have a draft brief and a discussion email. Review both with your client before agreeing to the work.':'Fill the six sections and use the checks to catch missing details. You can download an unfinished draft at any time; it will flag what still needs review.'}</p><p className="fine">These are self-review prompts, not an automated quality score or legal review.</p></div>
+  <div id="brief-output" className="worksheet-actions"><button className="button" onClick={()=>{saveFile(briefText(values,reviewed),'client-ready-project-brief.txt');track('challenge_brief_download');setStatus('Brief downloaded. Keep it with your project records.');}}>Download my brief</button><button className="secondary" onClick={()=>copy(briefText(values,reviewed),'challenge_brief_copy')}>Copy my brief</button></div>
+  <details className="brief-email"><summary>Preview my client discussion email</summary><p className="fine">Nothing is sent automatically. Replace [client name] and [Your name], check the details, then send it yourself.</p><pre>{reviewEmail(values,reviewed)}</pre><div className="worksheet-actions"><button className="secondary" onClick={()=>copy(reviewEmail(values,reviewed),'challenge_email_copy')}>Copy discussion email</button><button className="secondary" onClick={()=>saveFile(reviewEmail(values,reviewed),'client-discussion-email.txt')}>Download discussion email</button></div></details>
+  <div id="brief-recovery" className="recovery-panel"><h3>Keep your work for tomorrow.</h3><label className="brief-check"><input type="checkbox" checked={persist} onChange={e=>setPersist(e.target.checked)}/>Save this brief in this browser on this device</label><p className="fine">Optional. Anyone using this browser may see saved text. Turning this off removes the saved copy, but keeps the current page. We do not receive your brief. A downloaded backup can be restored on another device.</p><div className="recovery-controls"><button className="secondary" onClick={()=>{saveFile(JSON.stringify({version:1,values,reviewed},null,2),'client-ready-backup.json','application/json');setStatus('Backup downloaded. Keep it private and use Restore a backup to reopen it.');}}>Download backup</button><label>Restore a backup<input aria-label="Restore a backup" type="file" accept=".json,application/json" onChange={e=>{void importBackup(e.target.files?.[0]);e.target.value='';}}/></label></div>{restore&&<div className="recovery-controls"><button className="secondary" onClick={()=>applyBackup(restore)}>Replace my text with this backup</button><button className="secondary" onClick={()=>{setRestore(null);setStatus('Restore cancelled. Your text is unchanged.');}}>Cancel restore</button></div>}<div className="recovery-controls"><button className="secondary" onClick={()=>{if(!reset){setReset(true);return;}setValues(fields.map(()=>''));setReviewed(fields.map(()=>false));setRestore(null);setReset(false);setReplace(false);setStatus('Blank brief ready. Previously downloaded copies are unchanged.');}}>{reset?'Confirm: start a blank brief':'Start another project'}</button>{reset&&<button className="secondary" onClick={()=>setReset(false)}>Keep this project</button>}</div></div>
+  <p aria-live="polite" role="status">{status}</p>
+ </div>;
 }
