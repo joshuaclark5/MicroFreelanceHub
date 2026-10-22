@@ -33,6 +33,11 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Free challenge signups</h2>
+          <p>If you sign up for the Client-Ready Challenge, we store your name, email, signup time, consent version and email-delivery status in Supabase, and use Resend to send the access instructions you request. This does not create a paid subscription or enroll you in marketing emails. We retain this record to manage access and avoid duplicate welcome emails until you request deletion. A keyed hash of the connection address is used for short-lived signup rate limits; old attempt records are removed during subsequent signup processing. Challenge worksheet text is not submitted with your signup.</p>
+          <p>For signup questions or a deletion request, email <a href="mailto:joshuastevenclark@gmail.com">joshuastevenclark@gmail.com</a>.</p>
+        </section>
+        <section>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">4. Contact Us</h2>
           <p>If you have questions about this policy, please contact us via our support channels.</p>
         </section>
