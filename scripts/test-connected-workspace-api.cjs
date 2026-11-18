@@ -35,7 +35,7 @@ const specs = {
   agreements: { fields:['project_id','agreement_id'], valid:{project_id:related,agreement_id:related}, required:['project_id','agreement_id'] },
 };
 const methods = ['GET','POST','PATCH','DELETE'];
-const columns = entity => ['id',...specs[entity].fields,'created_at','updated_at'].join(',');
+const columns = entity => ['id',...specs[entity].fields,'created_at','updated_at','version'].join(',');
 const unavailable = 'Workspace unavailable. Your unsaved details are still in this form. Please retry.';
 function fixture(options = {}) {
   const state = {user:{id:owner}, ...options};
@@ -52,10 +52,11 @@ function fixture(options = {}) {
       if(state.fromThrows) throw Error('private table detail');
       const query = {table, operation:'select', filters:[], projection:null};
       const q = {};
-      for(const operation of ['select','insert','update','delete','eq','order','limit']) q[operation] = (...args) => {
+      for(const operation of ['select','insert','update','delete','eq','gt','order','limit']) q[operation] = (...args) => {
         calls.push([operation,...args]);
         if(operation==='select') query.projection=args[0];
         if(['insert','update','delete'].includes(operation)) {query.operation=operation;query.values=args[0];}
+        if(operation==='limit')query.limit=args[0];
         if(operation==='eq')query.filters.push(args);
         return q;
       };
@@ -63,16 +64,16 @@ function fixture(options = {}) {
         calls.push(['execute',plain(query)]);
         if(state.dbThrows)throw Error('private database password');
         if(state.dbError)return {data:state.dataOnError ? {id} : null,error:state.dbError};
-        if(Object.hasOwn(state,'data'))return {data:state.data,error:null};
+        if(Object.hasOwn(state,'data'))return {data:Array.isArray(state.data)?state.data.slice(0,query.limit):state.data,count:Object.hasOwn(state,'count')?state.count:(state.data?.length||0),error:null};
         // Model row visibility at the SDK boundary, not PostgreSQL/RLS enforcement.
         const rowOwner = state.rowOwner || state.user?.id;
         const visible = !query.filters.some(([key,value]) => (key==='owner_id'||key==='user_id') && value!==rowOwner);
         const exists = !state.notFound && visible;
         const entity=table.replace('workspace_','');
-        const row={id,...(specs[entity]?.valid||{title:'Agreement',client_name:'Client'}),created_at:'2026-11-18T00:00:00Z',updated_at:'2026-11-18T00:00:00Z',owner_id:rowOwner,user_id:rowOwner,private_secret:'must not select'};
+        const row={id,version:1,...(specs[entity]?.valid||{title:'Agreement',client_name:'Client'}),created_at:'2026-11-18T00:00:00Z',updated_at:'2026-11-18T00:00:00Z',owner_id:rowOwner,user_id:rowOwner,private_secret:'must not select'};
         if(query.values)Object.assign(row,plain(query.values));
         const projected=Object.fromEntries(query.projection.split(',').map(key=>[key,row[key]]));
-        return {data:query.operation==='select' ? (exists?[projected]:[]) : (exists?projected:null),error:null};
+        return {count:exists?1:0,data:query.operation==='select' ? (exists?[projected]:[]) : (exists?projected:null),error:null};
       }
       q.single=()=>{calls.push(['single']);return result();};
       q.maybeSingle=()=>{calls.push(['maybeSingle']);return result();};
@@ -94,7 +95,7 @@ function fixture(options = {}) {
     '../../../lib/connectedWorkspace':validator,
   });
   return {state,calls,handlers,async invoke(method,entity='clients',opts={}) {
-    const headers = new Map(Object.entries({origin:'https://fixture.invalid','content-type':'application/json',...opts.headers}));
+    const headers = new Map(Object.entries({origin:'https://fixture.invalid','content-type':'application/json','x-workspace-owner':state.user?.id||owner,'if-match':'1',...opts.headers}));
     const body=Object.hasOwn(opts,'body')?opts.body:method==='DELETE'?{}:specs[entity]?.valid;
     const url='https://fixture.invalid/api/workspace/'+entity+(Object.hasOwn(opts,'query')?opts.query:'?id='+id);
     const result=await handlers[method]({method,url,headers:{get:key=>headers.get(key)??null},text:async()=>{
@@ -109,7 +110,7 @@ const tests=[];
 function test(name,fn){tests.push({name,fn});}
 function denied(result,status,message) {
   assert.equal(result.status,status);
-  assert.deepEqual(Object.keys(result.body),['error'],'No successful records/flags on a failure');
+  assert.ok(Object.keys(result.body).every(k=>['error','code'].includes(k)),'No successful records/flags on a failure');
   assert.equal(typeof result.body.error,'string');
   if(message)assert.equal(result.body.error,message);
   assert.ok(!/private|password|token|23514|42501|victim/i.test(result.body.error.replace('private, no-store','')),'No private provider details');
@@ -129,12 +130,12 @@ for(const [entity,spec] of Object.entries(specs)) {
       const r=await f.invoke(method,entity);
       assert.equal(r.status,method==='POST'?201:200);
       const expected=[['from','workspace_'+entity]];
-      if(method==='GET')expected.push(['select',columns(entity)],['eq','owner_id',userId],['order',entity==='stages'?'position':'created_at',{ascending:entity==='stages'}],['limit',1001]);
+      if(method==='GET')expected.push(['select',columns(entity),{count:'exact'}],['eq','owner_id',userId],['order','id',{ascending:true}],['limit',200]);
       if(method==='POST')expected.push(['insert',{...spec.valid,owner_id:userId}],['select',columns(entity)],['single']);
-      if(method==='PATCH')expected.push(['update',spec.valid],['eq','owner_id',userId],['eq','id',id],['select',columns(entity)],['maybeSingle']);
-      if(method==='DELETE')expected.push(['delete'],['eq','owner_id',userId],['eq','id',id],['select','id'],['maybeSingle']);
+      if(method==='PATCH')expected.push(['update',spec.valid],['eq','owner_id',userId],['eq','id',id],['eq','version',1],['select',columns(entity)],['maybeSingle']);
+      if(method==='DELETE')expected.push(['delete'],['eq','owner_id',userId],['eq','id',id],['eq','version',1],['select','id'],['maybeSingle']);
       assert.deepEqual(trace(f),expected);
-      assert.deepEqual(Object.keys(r.body).sort(),method==='GET'?['records','truncated']:['record']);
+      assert.deepEqual(Object.keys(r.body).sort(),method==='GET'?['complete','consistency','hasMore','nextCursor','ownerId','records','truncated']:['ownerId','record']);
       const row=method==='GET'?r.body.records[0]:r.body.record;
       assert.deepEqual(Object.keys(row),method==='DELETE'?['id']:columns(entity).split(','));
       assert.equal(f.calls.filter(c=>c[0]==='getUser').length,1);
@@ -152,7 +153,7 @@ for(const [entity,spec] of Object.entries(specs)) {
     const f=fixture();assert.equal((await f.invoke('POST',entity,{body:required})).status,201);
     for(const key of spec.fields)assert.equal((await f.invoke('PATCH',entity,{body:{[key]:spec.valid[key]}})).status,200);
   });
-  for(const injected of ['owner_id','user_id','id','created_at','updated_at','is_pro','role','membership','membership_id','organization_id','entitlement','subscription_id','__proto__','constructor','prototype','unknown'])for(const method of ['POST','PATCH'])test(entity+' '+method+' rejects '+injected,async()=>{
+  for(const injected of ['version','owner_id','user_id','id','created_at','updated_at','is_pro','role','membership','membership_id','organization_id','entitlement','subscription_id','__proto__','constructor','prototype','unknown'])for(const method of ['POST','PATCH'])test(entity+' '+method+' rejects '+injected,async()=>{
     const body={...spec.valid,[injected]:injected==='__proto__'?{owner_id:other}:'victim'};
     const f=fixture();denied(await f.invoke(method,entity,{body}),400);noDB(f);
   });
@@ -178,16 +179,16 @@ for(const [entity,spec] of Object.entries(specs)) {
   });
   for(const method of ['GET','PATCH','DELETE'])for(const options of [{rowOwner:other},{notFound:true}])test(entity+' '+method+' foreign/missing '+JSON.stringify(options),async()=>{
     const f=fixture(options),r=await f.invoke(method,entity);
-    if(method==='GET')assert.deepEqual(r.body,{records:[],truncated:false});else denied(r,404);
+    if(method==='GET')assert.deepEqual(r.body,{ownerId:owner,records:[],truncated:false,hasMore:false,nextCursor:null,complete:true,consistency:'live-id-traversal'});else denied(r,409);
     assert.ok(f.calls.some(c=>c[0]==='eq'&&c[1]==='owner_id'&&c[2]===owner));
   });
-  test(entity+' POST missing database result is failure',async()=>denied(await fixture({data:null}).invoke('POST',entity),404));
+  test(entity+' POST missing database result is failure',async()=>denied(await fixture({data:null}).invoke('POST',entity),409));
   for(const n of [0,1000,1001])test(entity+' GET bounded results '+n,async()=>{
     const records=Array.from({length:n},(_,i)=>({id:String(i)}));
     const r=await fixture({data:records}).invoke('GET',entity);
-    assert.equal(r.body.records.length,Math.min(n,1000));assert.equal(r.body.truncated,n>1000);
+    assert.equal(r.body.records.length,Math.min(n,200));assert.equal(r.body.truncated,n>200);
   });
-  test(entity+' GET null data normalizes empty',async()=>assert.deepEqual((await fixture({data:null}).invoke('GET',entity)).body,{records:[],truncated:false}));
+  test(entity+' GET null data normalizes empty',async()=>assert.deepEqual((await fixture({data:null}).invoke('GET',entity)).body,{ownerId:owner,records:[],truncated:false,hasMore:false,nextCursor:null,complete:true,consistency:'live-id-traversal'}));
   for(const key of spec.fields) {
     const bad=key.endsWith('_id')?[null,undefined,'',other+'/path',1,{},'g'.repeat(36),id+'\n']:
       key==='position'?[-1,1000,1.5,'1',null,true,NaN,Infinity]:
@@ -280,21 +281,32 @@ for(const entity of ['clients','projects','tasks'])test(entity+' optional empty 
 for(const n of [0,1,1000,1001])test('available-agreements exact own projection and truncation '+n,async()=>{
   const f=fixture({data:Array.from({length:n},()=>({id,title:'Agreement',client_name:'Client'}))});
   const r=await f.invoke('GET','available-agreements');assert.equal(r.status,200);
-  assert.deepEqual(trace(f),[['from','sow_documents'],['select','id,title,client_name'],['eq','user_id',owner],['order','created_at',{ascending:false}],['limit',1001]]);
-  assert.equal(r.body.records.length,Math.min(n,1000));assert.equal(r.body.truncated,n>1000);
+  assert.deepEqual(trace(f),[['from','sow_documents'],['select','id,title,client_name',{count:'exact'}],['eq','user_id',owner],['order','id',{ascending:true}],['limit',200]]);
+  assert.equal(r.body.records.length,Math.min(n,200));assert.equal(r.body.truncated,n>200);
 });
 for(const method of ['POST','PATCH','DELETE'])test('available-agreements read only '+method,async()=>{
   const f=fixture();denied(await f.invoke(method,'available-agreements'),404);noDB(f);
 });
 for(const [options,status] of [[{user:null},401],[{authError:Error('private')},401],[{authThrows:true},503],[{dbThrows:true},503],[{dbError:{code:'42501',message:'private'}},503]])test('available-agreements failure '+JSON.stringify(options),async()=>denied(await fixture(options).invoke('GET','available-agreements'),status));
 test('available-agreements null data and foreign row',async()=>{
-  for(const options of [{data:null},{rowOwner:other}])assert.deepEqual((await fixture(options).invoke('GET','available-agreements')).body,{records:[],truncated:false});
+  for(const options of [{data:null},{rowOwner:other}])assert.deepEqual((await fixture(options).invoke('GET','available-agreements')).body,{ownerId:owner,records:[],truncated:false,hasMore:false,nextCursor:null,complete:true,consistency:'live-id-traversal'});
 });
 test('task next action returns earliest open without mutation',()=>{
   const tasks=[{title:'Undated',status:'open'},{title:'Closed early',status:'done',due_date:'2020-01-01'},{title:'Later',status:'open',due_date:'2027-01-01'},{title:'First',status:'open',due_date:'2026-01-01'}];
   const before=plain(tasks);assert.equal(validator.taskNextAction(tasks).title,'First');assert.deepEqual(tasks,before);
   assert.equal(validator.taskNextAction([]),null);assert.equal(validator.taskNextAction([{title:'Done',status:'done'}]),null);
 });
+for(const method of methods)test(method+' mismatched owner stops before database',async()=>{const f=fixture();const r=await f.invoke(method,'clients',{headers:{'x-workspace-owner':other}});denied(r,409);assert.equal(r.body.code,'account_changed');noDB(f);});
+for(const method of ['POST','PATCH','DELETE'])test(method+' requires owner continuity',async()=>{const f=fixture();denied(await f.invoke(method,'clients',{headers:{'x-workspace-owner':null}}),409);noDB(f);});
+for(const method of ['PATCH','DELETE'])for(const version of [null,'','0','-1','1.1','2147483647','1e2'])test(method+' invalid version '+version,async()=>{const f=fixture();denied(await f.invoke(method,'clients',{headers:{'if-match':version}}),428);noDB(f);});
+for(const count of [null,undefined,-1,0,1.5])test('unverified page count '+count,async()=>{const f=fixture({data:[{id}],count});denied(await f.invoke('GET'),503);});
+for(const query of ['?limit=0','?limit=201','?limit=-1','?limit=1e2','?after=not-uuid'])test('invalid page '+query,async()=>{const f=fixture();denied(await f.invoke('GET','clients',{query}),400);noDB(f);});
+test('session identity only no record query',async()=>{const f=fixture();assert.deepEqual((await f.invoke('GET','session')).body,{ownerId:owner});noDB(f);});
+test('cursor uses immutable scoped id order',async()=>{const f=fixture();assert.equal((await f.invoke('GET','clients',{query:'?after='+id+'&limit=2'})).status,200);assert.ok(f.calls.some(c=>c[0]==='gt'&&c[1]==='id'&&c[2]===id));});
+
+
+test('provider cap below requested page is not complete',async()=>{const f=fixture({data:[{id}],count:1005});const r=await f.invoke('GET');assert.equal(r.status,200);assert.equal(r.body.complete,false);assert.equal(r.body.nextCursor,id);});
+test('nonempty count with empty response fails closed',async()=>denied(await fixture({data:[],count:2}).invoke('GET'),503));
 (async()=>{
   const results=[];
   for(const {name,fn} of tests) {

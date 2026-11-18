@@ -10,10 +10,12 @@ const root = path.resolve(__dirname,'..');
 const out = path.resolve(process.env.WORKSPACE_PROOF_DIR || path.join(root,'..'));
 const migrationPath = path.join(root,'supabase/migrations/20261118000000_connected_workspace.sql');
 const migration = fs.readFileSync(migrationPath,'utf8');
+const continuityPath=path.join(root,'supabase/migrations/20261118040000_workspace_continuity.sql');
+const continuity=fs.readFileSync(continuityPath,'utf8');
 const tables = ['clients','stages','projects','tasks','agreements'];
 const A = '00000000-0000-4000-8000-000000000001';
 const B = '00000000-0000-4000-8000-000000000002';
-const report = {startedAt:new Date().toISOString(),migration:path.relative(root,migrationPath),migrationSha256:createHash('sha256').update(migration).digest('hex'),engine:'PGlite / embedded PostgreSQL',offline:true,fictionalFixturesOnly:true,checks:[],limitations:[
+const report = {startedAt:new Date().toISOString(),migration:path.relative(root,migrationPath),migrationSha256:createHash('sha256').update(migration).digest('hex'),engine:'PGlite / embedded PostgreSQL',continuitySha256:createHash('sha256').update(continuity).digest('hex'),offline:true,fictionalFixturesOnly:true,checks:[],limitations:[
   'Original sow_documents CREATE TABLE and deployed grants are absent from repository: minimal fictional baseline, not production compatibility proof.',
   'No team/member schema is fabricated. API owner/member/team payload rejection is covered separately by the parent.',
   'SQL non-superuser role tests do not prove Supabase JWT verification or HTTP endpoints.'
@@ -100,6 +102,26 @@ async function snapshot() {
     rows[key][name]=await as('authenticated',uid,()=>insert(name,{...payload(name,uid,rows[key]),...(name==='agreements'?{agreement_id:sows[key]}:{})}));
     assert.equal(rows[key][name].owner_id,uid);
   });
+  // Upgrade existing populated rows, not only an empty-schema migration.
+  await db.exec(continuity);
+  await check('upgrade backfills version one for existing rows',async()=>{for(const name of tables)assert.equal((await q('select count(*)::int n from '+table(name)+' where version=1')).rows[0].n,2);});
+  for(const name of tables) {
+    await check(name+' CAS stale update/delete and server-managed version',()=>isolated(()=>as('authenticated',A,async()=>{
+      const id=rows.a[name].id;
+      const first=await q('update '+table(name)+' set updated_at=now() where id=$1 and version=1 returning version',[id]);assert.equal(first.rows[0].version,2);
+      assert.equal((await q('update '+table(name)+' set updated_at=now() where id=$1 and version=1 returning id',[id])).rows.length,0);
+      assert.equal((await q('delete from '+table(name)+' where id=$1 and version=1 returning id',[id])).rows.length,0);
+      await denied(()=>q('update '+table(name)+' set version=1 where id=$1',[id]),'P0001');
+      await denied(()=>insert(name,{...payload(name),version:4}),'P0001');
+    })));
+  }
+  await check('1005 tied-date rows traverse by immutable id across pages without omissions',()=>isolated(()=>as('authenticated',A,async()=>{
+    await q("insert into public.workspace_clients(owner_id,name,created_at) select $1,'Page fixture','2026-01-01' from generate_series(1,1005)",[A]);
+    const expected=(await q('select id from public.workspace_clients order by id')).rows.map(r=>r.id);
+    let after='00000000-0000-0000-0000-000000000000';const seen=[];
+    for(let i=0;i<20;i++){const page=(await q('select id from public.workspace_clients where id>$1 order by id limit 200',[after])).rows;if(!page.length)break;seen.push(...page.map(r=>r.id));after=page.at(-1).id;}
+    assert.deepEqual(seen,expected);assert.equal(new Set(seen).size,1006);
+  })));
   for(const name of tables) {
     await check('owner reads only own '+name,()=>as('authenticated',A,async()=>{
       const found=(await q('select * from '+table(name))).rows;assert.equal(found.length,1);assert.equal(found[0].id,rows.a[name].id);
@@ -108,7 +130,7 @@ async function snapshot() {
       const field=name==='agreements'?'project_id':name==='tasks'?'title':'name';
       const value=name==='agreements'?rows.a.projects.id:'Owner updated '+name;
       const updated=(await q('update '+table(name)+' set '+field+"=$1,updated_at='2000-01-01' where id=$2 returning *",[value,rows.a[name].id])).rows;
-      assert.equal(updated.length,1);assert.equal(updated[0][field],value);assert.ok(new Date(updated[0].updated_at)>=new Date(rows.a[name].updated_at));assert.ok(new Date(updated[0].updated_at).getFullYear()>2000);
+      assert.equal(updated.length,1);assert.equal(updated[0].version,2);assert.equal(updated[0][field],value);assert.ok(new Date(updated[0].updated_at)>=new Date(rows.a[name].updated_at));assert.ok(new Date(updated[0].updated_at).getFullYear()>2000);
     }));
     for(const op of ['select','update','delete'])await check('foreign '+op+' sees zero '+name,()=>as('authenticated',B,async()=>{
       const sql=op==='select'?'select * from '+table(name)+' where id=$1':op==='delete'?'delete from '+table(name)+' where id=$1 returning id':'update '+table(name)+' set updated_at=now() where id=$1 returning id';
@@ -168,6 +190,13 @@ async function snapshot() {
       finally {await db.exec('rollback');}
     }
     assert.deepEqual(await snapshot(),beforeReview);
+  });
+  await check('fresh migration chain installs versions and guards',async()=>{
+    const fresh=new PGlite();try{
+      await fresh.exec("create role anon; create role authenticated; create schema auth; create table auth.users(id uuid primary key); create function auth.uid() returns uuid language sql as 'select null::uuid'; create table public.sow_documents(id uuid primary key,user_id uuid not null references auth.users(id));");
+      await fresh.exec(migration);await fresh.exec(continuity);
+      assert.equal((await fresh.query("select count(*)::int n from information_schema.columns where table_name like 'workspace_%' and column_name='version'")).rows[0].n,5);
+    }finally{await fresh.close();}
   });
   const before=await snapshot();await db.close();db=null;db=new PGlite(report.databaseDirectory);
   await check('file-backed close/reopen preserves all rows and updated values',async()=>{assert.deepEqual(await snapshot(),before);return {closedAndReopened:true,tables:tables.length,databaseDirectory:report.databaseDirectory};});
