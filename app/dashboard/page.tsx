@@ -12,6 +12,7 @@ import {
   FileWarning, Link2, Mail, Loader2, Settings, ChevronDown
 } from 'lucide-react';
 import WorkspaceNav from '../components/WorkspaceNav';
+import ConnectedAgreementGroups from '../components/ConnectedAgreementGroups';
 import ConnectStripeButton from '../components/ConnectStripeButton';
 import PricingModal from '../components/PricingModal';
 import AddExpenseModal from '../components/AddExpenseModal';
@@ -462,10 +463,11 @@ export default function Dashboard() {
                  </div>
             </div>)}
 
+            <ConnectedAgreementGroups />
             {sows.length > 0 && <section className="rounded-lg border border-gray-200 bg-white p-4" aria-label="Client project overview">
-              <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-end gap-4"><div className="min-w-0 w-full sm:w-auto sm:flex-1"><label htmlFor="client-project-filter" className="block text-sm font-semibold text-slate-900">Client projects</label><select id="client-project-filter" value={clientFilter} onChange={event => { setClientFilter(event.target.value); setSelectedIds([]); }} className="mt-2 min-h-11 w-full max-w-full rounded-lg border border-gray-300 bg-white px-3 text-sm"><option value="">All recorded clients ({clientNames.length})</option>{clientNames.map(name => <option key={name} value={name}>{name}</option>)}</select></div>
+              <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-end gap-4"><div className="min-w-0 w-full sm:w-auto sm:flex-1"><label htmlFor="client-project-filter" className="block text-sm font-semibold text-slate-900">Legacy agreement names</label><select id="client-project-filter" value={clientFilter} onChange={event => { setClientFilter(event.target.value); setSelectedIds([]); }} className="mt-2 min-h-11 w-full max-w-full rounded-lg border border-gray-300 bg-white px-3 text-sm"><option value="">All recorded names ({clientNames.length})</option>{clientNames.map(name => <option key={name} value={name}>{name}</option>)}</select></div>
               <button type="button" aria-pressed={groupByClient} onClick={() => setGroupByClient(value => !value)} className="d4-secondary">{groupByClient ? 'Show newest first' : 'Group by client'}</button></div>
-              <p className="mt-3 text-xs leading-5 text-slate-600">Groups use client names recorded on your saved agreements, not a separate client directory. Matching names may refer to different people.</p>
+              <p className="mt-3 text-xs leading-5 text-slate-600">Legacy groups use recorded agreement names, not verified client identities. Connected client projects above use explicitly saved relationships. Matching names may refer to different people.</p>
               <p role="status" className="mt-2 text-sm text-slate-700">{filteredSows.length} of {sows.length} agreements shown</p>
             </section>}
 
