@@ -132,7 +132,7 @@
 .public-challenge.challenge .hero-card{color:var(--pub-ink)}
 .public-challenge.challenge .hero-card :is(.pill,b,p){color:#435b4d}
 .public-design :is(a,button):is(.bg-blue-600,.bg-blue-700,.bg-blue-800,.bg-slate-900){color:#fff}
-.public-design.public-comparison > div:first-child a.bg-blue-600,.public-design.public-profession > .bg-slate-900 a.bg-blue-500{background:#194d41;color:#fff}
+.public-design.public-comparison > div:first-child :is(a,button).bg-blue-600,.public-design.public-profession > .bg-slate-900 a.bg-blue-500{background:#194d41;color:#fff}
 .public-design.public-comparison .opacity-80{opacity:1}
 .public-design.public-comparison .bg-blue-500{background:#194d41;color:#fff}
 .public-design.public-profession .text-slate-400{color:#596b61}
