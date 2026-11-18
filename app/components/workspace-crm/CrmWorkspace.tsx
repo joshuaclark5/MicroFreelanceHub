@@ -2,7 +2,7 @@
 import {useEffect,useRef,useState} from 'react';
 import Link from 'next/link';
 import WorkspaceNav from '../WorkspaceNav';
-import {crmCurrencies,crmStages,crmMoney,parseCrmAmount,csvHeaders,Opportunity,Activity} from '../../lib/workspaceCrm';
+import {crmCurrencies,crmStages,crmMoney,crmDecimal,parseCrmAmount,csvHeaders,Opportunity,Activity} from '../../lib/workspaceCrm';
 import './crm.css';
 type Data={actorId:string;records:Opportunity[];clients:{id:string;name:string}[];clientsTruncated:boolean;next:string|null};
 type Preview={records:Record<string,unknown>[];errors:{row:number;message:string}[];total:number};
@@ -25,7 +25,7 @@ export default function CrmWorkspace(){
  await load();if(selected&&b.record.id===selected.id)await timeline(b.record);
  }catch(e){setError((e as Error).message);}finally{flight.current=false;setBusy(false);}}
  function save(){try{const record={clientId:draft.clientId,title:draft.title.trim(),stage:draft.stage,amountMinor:parseCrmAmount(draft.amount,draft.currency),currency:draft.currency,expectedClose:draft.expectedClose||null,followUp:draft.followUp||null,reason:draft.reason};void send({action:editing?'edit':'create',operationId:crypto.randomUUID(),expectedActorId:actor.current,...(editing?{id:editing.id,expectedVersion:editing.version}:{}),record});}catch(e){setError((e as Error).message);}}
- function editRow(row:Opportunity){setEditing(row);setDraft({clientId:row.client_id,title:row.title,stage:row.stage,amount:row.amount_minor===null?'':String(row.amount_minor/(row.currency==='JPY'?1:row.currency==='KWD'?1000:100)),currency:row.currency,expectedClose:row.expected_close||'',followUp:row.follow_up||'',reason:row.reason});titleRef.current?.focus();}
+ function editRow(row:Opportunity){setEditing(row);setDraft({clientId:row.client_id,title:row.title,stage:row.stage,amount:row.amount_minor===null?'':crmDecimal(row.amount_minor,row.currency),currency:row.currency,expectedClose:row.expected_close||'',followUp:row.follow_up||'',reason:row.reason});titleRef.current?.focus();}
  async function previewCsv(){if(flight.current)return;flight.current=true;setBusy(true);setError('');setPreview(null);try{const r=await fetch('/api/workspace-crm',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'preview',expectedActorId:actor.current,csv})}),b=await r.json();if(!r.ok)throw Error(b.error);if(b.actorId!==actor.current)throw Error('Account changed.');setPreview(b.preview);}catch(e){setError((e as Error).message);}finally{flight.current=false;setBusy(false);}}
  function download(text:string,name:string){const url=URL.createObjectURL(new Blob([text],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=name;a.click();URL.revokeObjectURL(url);}
  async function exportCsv(){setBusy(true);setError('');try{const p=params();p.set('mode','export');const r=await fetch('/api/workspace-crm?'+p,{cache:'no-store'});if(!r.ok){const b=await r.json();throw Error(b.error);}download(await r.text(),'opportunities.csv');}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
