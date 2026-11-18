@@ -41,7 +41,7 @@ export default function Scheduling(){
  }
  const disabled=busy||!data;
  return <div className="editorial-shell"><WorkspaceNav active="scheduling"/><div className="editorial-main">
- <header className="editorial-header"><div><p className="editorial-eyebrow">YOUR WORKSPACE / SCHEDULING</p><h1>A little planning.<br/><em>A better conversation.</em></h1><p>Set your hours, prepare your questions and keep private booking records in one place.</p></div><a className="primary-action" href="#availability">Set your availability ↗</a></header>
+ <header className="editorial-header"><div><p className="editorial-eyebrow">YOUR WORKSPACE / SCHEDULING</p><h1>A little planning.<br/><em>A better conversation.</em></h1><p>Set your hours, prepare your questions and keep private booking records in one place.</p></div><a className="primary-action" href="#availability">Set your availability ↗︎</a></header>
  <p className="quiet-note">Private MFH bookings only. External calendars are not checked, and no emails or invitations are sent. Public booking links are not available yet.</p>
  <details><summary>About availability and intake versions</summary><p>Use weekly, same-day windows for 15–240 minute appointments. To change hours or timezone, disable the old rule and create a replacement. Existing booking times stay unchanged. Published question sets are saved versions; create a new version to change them.</p></details>
   {error&&<p role="alert" className="rounded border border-red-700 bg-red-50 p-3">{error}</p>}
