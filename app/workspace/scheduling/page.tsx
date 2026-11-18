@@ -28,6 +28,7 @@ export default function Scheduling(){
   try{
    const res=await fetch('/api/workspace-scheduling',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...payload,operationId:pending.current.id})});const result=await res.json();
    if(!res.ok){if(res.status<500)pending.current=null;throw Error(result.error||'Unable to save.');}
+   if(!result.record?.id)throw Error('Save outcome is unconfirmed. Retry the unchanged action; your draft is preserved.');
    pending.current=null;setStatus('Saved in MFH. No email, reminder, or calendar invitation was sent.');await refresh();
   }catch(e){setError(e instanceof Error?e.message:'Connection failed. Retry the unchanged action; your draft is preserved.');}finally{setBusy(false);}
  }
