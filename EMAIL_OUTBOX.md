@@ -1,0 +1,55 @@
+# Transactional email candidate (wave5)
+
+Local readiness implementation, not an enabled service. No provider calls, sender verification, config changes, customer data, remote migrations or email sends were performed. Existing manual invitation generation and acceptance remain unchanged. No marketing automation is imported or enabled.
+
+## UI / HTTP seam
+
+Cookie-authenticated Node route: **/api/workspace/email**. Every response is private/no-store/no-referrer. POST requires exact same Origin, JSON, <=4096 characters and closed fields. Auth uses getUser; expectedActorId is only an account-continuity precondition.
+
+GET ?expectedActorId=<current user UUID>[&after=<UUID>] returns:
+- actorId, records (100 maximum), hasMore, nextCursor. Traverse all pages before claiming a complete list; live UUID traversal, not a cross-page snapshot.
+- readiness: enqueueConfigured, sendConfigured, workerScheduled:false. Configuration presence is not provider permission or verified sender proof. No worker is scheduled by this slice.
+- records: id, template, aggregateId, workspaceId, recipient, status, attempts, nextAttemptAt, cancelRequested, createdAt, version. No ciphertext/hash/provider ID/raw invite token.
+- Only creator's records visible; team invite records additionally require current owner/admin permission for that invitation role. Removed/demoted members lose visibility immediately on the next read.
+
+POST common fields: action, expectedActorId, operationId (UUID; retain across retry).
+- enqueueInvitation: inviteId, token (original 43-character manual token), consented:true, consentVersion:"transactional-email.v1". Recipient comes only from the authorized existing DB invitation; request cannot override it. Current owner or admin permitted for member invites; admin invitations require owner. Both original issuer and enqueue actor must retain authority. SHA256 must match existing invitation. Never regenerate a token to enqueue.
+- enqueueReminder: bookingId, recipient (one validated email), consented:true, consentVersion:"transactional-email.v1". Current verified solo booking owner only; confirmed future bookings only. Existing booking schema has no email-specific recipient consent field: this is explicit host attestation of permission for this one-time recipient, not proof of recipient opt-in. UI must say "I have permission to email this recipient about this booking" and show the exact recipient. Never infer email permission from the intake consent field.
+- cancel: id. operationId is syntax-validated but cancel is inherently monotonic/idempotent, not another enqueue receipt. Does not revoke the invitation/cancel the booking. If sending already began, cancellation cannot recall email; cancelRequested remains visible and delivery/unknown state is preserved.
+
+Enqueue returns HTTP202 {actorId,record,notice}; **queued does not mean sent**. Cancel returns200. Invalid400, unauthenticated401, permission403, account/operation/aggregate conflict409, admission429, missing config/unavailable503. On uncertain response reload status and retry only the SAME operation/payload; never create a replacement operation blindly. One template per invitation/booking is a deliberate durable unique business limit, including canceled/failed/unknown records. No resend endpoint.
+
+UI labels: queued "Queued—not sent"; leased "Preparing"; sending "Sending—outcome pending"; retry "Provider rate limited—retry pending"; accepted "Provider accepted—not delivery confirmation"; delivered "Provider reports delivered"; bounced "Provider reports bounced"; unknown "Delivery unknown—review required; do not resend"; failed "Not sent / provider rejected"; canceled "Canceled before send". An accepted/delivered row with cancelRequested is NOT canceled/recall success.
+
+## Runtime and operator gates (not configured here)
+
+Server-only enqueue requires EMAIL_OUTBOX_ENQUEUE_ENABLED=true, existing NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY, EMAIL_OUTBOX_ACTIVE_KEY_ID and EMAIL_OUTBOX_KEYS_JSON. Keyring maps key IDs to base64 32-byte AES keys. All environment names are documentation, not a request to paste secrets into chat. No NEXT_PUBLIC encryption/provider secrets.
+
+Dispatch requires a separate explicit EMAIL_OUTBOX_SEND_ENABLED=true plus existing RESEND_API_KEY, EMAIL_OUTBOX_FROM (single bare verified sender address), EMAIL_OUTBOX_SITE_ORIGIN (approved HTTPS origin), and valid keyring. Reuses fixed https://api.resend.com/emails POST Authorization/Bearer, JSON from/to/subject/text and Idempotency-Key contract evidenced by existing app/api/partners/apply and app/api/challenge/signup. It does NOT reuse marketing sender, recipients, cron or outreach consent. Operator must independently verify domain/sender permissions, delivery retrieval permission, authorized test recipient, cost/quota, privacy and release authorization before activation.
+
+Server library dispatchEmailOnce(db, env, fetcher) in app/lib/server/emailWorker.ts claims at most one job, reauthorizes immediately before beginning and performs at most one provider POST. No public worker route, cron, interval or import-time execution exists. Operator runner deployment/wiring is deliberately not provided or enabled. Injected fetch supports entirely mocked tests. No actual provider credentials were read.
+
+## Custody / lifecycle
+
+Invitation secret encrypted with AES-256-GCM, random96-bit nonce,128-bit tag; AAD binds protocol/purpose + actor/operation/invitation. The DB sees only SHA256 and envelope; safe receipt hash excludes randomized ciphertext, so identical retry is stable. Runtime secret logs must remain disabled (request body/APM/SQL parameter capture included). Route errors redact provider/SQL exceptions.
+
+Rotation: provision new key with new ID, retain old decryption keys, switch active ID for new enqueues, drain or explicitly cancel old-key pending rows, verify zero ciphertext under old key, then retire key subject to encrypted-backup retention/recovery. Do not retire while queued/leased/retry rows reference it. Missing old key fails closed before send and durably quarantines the leased job as failed, clearing ciphertext. No automatic key migration or key storage in SQL. Tokens are cleared when canceled, accepted, failed or unknown; metadata/consent receipt is retained. Provider necessarily receives invite token in transactional body, so provider retention/access also requires review. Token never appears in a URL.
+
+DB: additive migration20261118100000. FORCE RLS, no anon/authenticated direct table grants, explicitly revoked PUBLIC execute, authenticated safe snapshot/cancel only. Enqueue/worker/reconcile are service_role-only SECURITY DEFINER seams with pinned search_path and current DB authorization. Trusted server service credential is intentionally high-trust; do not expose it or grant these RPCs to authenticated. Existing booking/team schemas/policies untouched.
+
+Queue: actor20/hour enqueue cap; durable unique aggregate; global one claimed job/second;60-second lease; max5 actual attempts. Only definite429 rejection retries, exponential backoff (minimum120 seconds after first attempt) and bounded Retry-After up to24 hours, plus0–29 seconds jitter. Provider Retry-After beyond24 hours stops for review rather than retrying before the requested time. Leased crash can reclaim; decrypt/tamper/missing-key failure is fenced to failed before send and is not reclaimed; sending crash, timeout,5xx,408,409, malformed success or lost finish becomes unknown and is never automatically resent. Provider idempotency uses persistent outbox UUID but is NOT relied on after unknown outcome or provider retention expiry.
+
+Claim and begin cancel invalid pending invites (revoked/accepted/expired/issuer or sender role lost), unverified actor, canceled/past bookings or withdrawn job consent. Current authorization is checked under domain locks immediately before setting sending. Network send is not atomic with DB permission changes: revocation after begin may race an already-started request. Such effects cannot be recalled, and cancellation is never falsely labeled delivered prevention.
+
+reconcileEmail fetches recorded Resend ID and checks returned ID, exact recipient and sender before mapping last_event delivered/bounced. Accepted is NOT delivered; caller/browser cannot supply evidence through HTTP. No webhook endpoint. Unknown without recorded provider ID remains manual review forever (no automatic lookup-by-idempotency API assumption, no resend); recovery tooling to bind independently verified lost IDs is deferred. Bounce/open/click chronology beyond terminal delivered/bounced is not a full event ledger; read-only current last_event may miss a prior delivery event. No invented delivery.
+
+## Verification / deployment limits
+
+Run node scripts/test-email-outbox-api.cjs (actual transpiled handler, Node crypto, worker and Resend adapter, injected mocks only). Run node scripts/test-email-outbox-db.cjs (disposable file-backed PGlite, real ordered prerequisite SQL, fictional auth, grants/RLS/lease/idempotency/persistence). Evidence defaults ../evidence-email. PGlite is one embedded backend, not independent-connection PostgreSQL contention or real JWT/PostgREST. No production-ready/build/provider claim from unit tests.
+
+Local verification receipt: 12 API/crypto/provider/worker groups PASS; 16 file-backed SQL groups PASS; explicit targeted TypeScript --noEmit --incremental false PASS. Full-project TypeScript and offline-fixture optimized build attempted, blocked by concurrently unfinished parent-owned app/workspace/connections/page.tsx import of ../../components/workspace-connections/ConnectionsWorkspace. Build log: ../evidence-email/build-check/build.log. Parent must rerun integrated types/build after its UI is complete. SQL claim alias ambiguity found by independent test child was corrected and full DB suite rerun successfully. No lint or production-ready claim.
+
+Before release: independent security review, intended Supabase catalog/function owner/default-grants audit, backup+restore rehearsal and authorized staging migration; two-account real cookie/JWT/PostgREST tests, independent-backend enqueue/revoke/claim races, authorized provider sandbox evidence and operator runner review. Rollback: disable enqueue/send switches and stop runner FIRST; preserve outbox/operation history and keys for review rather than dropping tables/resending. No remote migration/rollback was executed.
+
+## Review correction receipt
+Deadline, freshness and authority predicates now use wall clock, including a second email lease check after domain locks. Provider waits beyond24 hours fail closed for manual review without an early retry. Email pre-send custody failure uses service-only lease-fenced quarantine, clears ciphertext and cannot mutate sending/unknown jobs or block the queue indefinitely. No resend recovery is invented; failed invitation requires explicit new invitation if desired. Regression tests cover old transaction expiry and queue progression. Independent-backend lock wait proof remains a separate staging gate.

@@ -19,21 +19,6 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
     setStep(step + 1);
   };
 
-  const handleStripeConnect = () => {
-    const clientId = process.env.NEXT_PUBLIC_STRIPE_CLIENT_ID;
-    const redirectUri = `${window.location.origin}/api/stripe/callback`;
-
-    if (!clientId) {
-      alert("Missing Stripe Client ID");
-      return;
-    }
-
-    localStorage.setItem('fromWelcomeWizard', 'true');
-
-    const stripeUrl = `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=${clientId}&scope=read_write&redirect_uri=${redirectUri}`;
-    window.location.href = stripeUrl;
-  };
-
   const handleComplete = async () => {
     setIsProcessing(true);
     try {
@@ -262,10 +247,10 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
           {step === 2 && (
             <div className="space-y-3">
               <button
-                onClick={handleStripeConnect}
+                disabled
                 className="w-full px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-lg rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30"
               >
-                <CreditCard className="w-5 h-5" /> Connect Bank/Stripe
+                <CreditCard className="w-5 h-5" /> Stripe connection unavailable
               </button>
               <button
                 onClick={handleNext}
@@ -274,7 +259,7 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
                 Continue without Stripe
               </button>
               <p className="text-center text-xs text-indigo-300 italic">
-                Connecting Stripe allows us to automatically attach secure payment links and terms to your agreements once both parties sign.
+                New Stripe connections are temporarily unavailable. Continue setup without changing existing connection records.
               </p>
               <div className="flex gap-3 mt-4">
                 <button

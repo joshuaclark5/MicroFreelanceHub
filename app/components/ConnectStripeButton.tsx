@@ -3,27 +3,17 @@
 import React from 'react';
 
 export default function ConnectStripeButton({ userId }: { userId: string }) {
-  const handleConnect = () => {
-    const clientId = process.env.NEXT_PUBLIC_STRIPE_CLIENT_ID;
-    const redirectUri = `${window.location.origin}/api/stripe/callback`;
-
-    if (!clientId) {
-      alert("Missing Stripe Client ID");
-      return;
-    }
-
-    const stripeUrl = `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=${clientId}&scope=read_write&redirect_uri=${redirectUri}&state=${userId}`;
-    window.location.href = stripeUrl;
-  };
-
   if (!userId) return null;
 
+  // No OAuth URL or click handler until a reviewed, session-bound flow replaces the legacy callback.
   return (
-    <button 
-      onClick={handleConnect} 
-      className="d4-primary w-full"
-    >
-      Connect Stripe
-    </button>
+    <div>
+      <button type="button" disabled className="d4-primary w-full">
+        Stripe connection unavailable
+      </button>
+      <p className="mt-2 text-sm">
+        New Stripe connections are temporarily unavailable. Existing connection records are unchanged.
+      </p>
+    </div>
   );
 }
