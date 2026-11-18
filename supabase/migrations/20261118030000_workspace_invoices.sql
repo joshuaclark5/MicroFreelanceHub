@@ -1,5 +1,7 @@
 -- Local additive candidate. No legacy invoice/payment objects are changed.
 begin;
+-- Composite FK prevents concurrent project/client reassignment write skew.
+alter table public.workspace_projects add constraint workspace_invoice_project_client_key unique(id,client_id,owner_id);
 create table public.workspace_invoice_drafts (
  id uuid primary key default gen_random_uuid(), owner_id uuid not null references auth.users(id),
  client_id uuid not null, project_id uuid, document jsonb not null, total_minor bigint not null check(total_minor between 0 and 100000000000),
@@ -7,14 +9,14 @@ create table public.workspace_invoice_drafts (
  number bigint, snapshot jsonb, created_at timestamptz not null default now(),
  unique(id,owner_id), unique(owner_id,number),
  foreign key(client_id,owner_id) references public.workspace_clients(id,owner_id),
- foreign key(project_id,owner_id) references public.workspace_projects(id,owner_id),
+ foreign key(project_id,client_id,owner_id) references public.workspace_projects(id,client_id,owner_id),
  check ((status='draft' and number is null and snapshot is null) or (status<>'draft' and number is not null and snapshot is not null))
 );
 create table public.workspace_invoice_schedules (
  id uuid primary key default gen_random_uuid(), owner_id uuid not null references auth.users(id), client_id uuid not null, project_id uuid,
  document jsonb not null, frequency text not null check(frequency in ('weekly','monthly')), anchor date not null,
  paused boolean not null default false, version integer not null default 1,
- unique(id,owner_id), foreign key(client_id,owner_id) references public.workspace_clients(id,owner_id), foreign key(project_id,owner_id) references public.workspace_projects(id,owner_id)
+ unique(id,owner_id), foreign key(client_id,owner_id) references public.workspace_clients(id,owner_id), foreign key(project_id,client_id,owner_id) references public.workspace_projects(id,client_id,owner_id)
 );
 create table public.workspace_invoice_occurrences (
  owner_id uuid not null references auth.users(id), schedule_id uuid not null, occurrence date not null, invoice_id uuid not null,

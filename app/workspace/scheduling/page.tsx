@@ -9,7 +9,7 @@ const time=(m:number)=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60)
 const minute=(s:string)=>Number(s.slice(0,2))*60+Number(s.slice(3));
 export default function Scheduling(){
  const [data,setData]=useState<SchedulingData|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[status,setStatus]=useState('');
- const actor=useRef(''), pending=useRef<{key:string;id:string}|null>(null);
+ const actor=useRef(''), pending=useRef<{key:string;id:string;body:Record<string,unknown>}|null>(null);
  const [rule,setRule]=useState({title:'Consultation',timezone:'America/New_York',weekday:1,startMinute:540,endMinute:1020,duration:30,buffer:0,noticeHours:24,horizonDays:60,dailyCap:8});
  const [title,setTitle]=useState('Consultation intake'),[consent,setConsent]=useState('These answers are stored privately in the owner’s MFH workspace. No reminders or calendar invitations are sent.'),[fields,setFields]=useState<IntakeField[]>([{id:'q1',label:'What would you like to discuss?',required:true}]);
  const [ruleId,setRuleId]=useState(''),[intakeId,setIntakeId]=useState(''),[date,setDate]=useState(''),[at,setAt]=useState('09:00'),[slots,setSlots]=useState<string[]>([]),[selected,setSelected]=useState(''),[attendee,setAttendee]=useState(''),[answers,setAnswers]=useState<Record<string,string>>({}),[consented,setConsented]=useState(false);
@@ -24,7 +24,7 @@ export default function Scheduling(){
   if(busy||!data)return;setBusy(true);setError('');setStatus('');
   const payload={...body,expectedActorId:actor.current};const key=JSON.stringify(payload);
   if(pending.current&&pending.current.key!==key){setError('The previous result is unknown. Retry the unchanged action before making a different change.');setBusy(false);return;}
-  if(!pending.current)pending.current={key,id:crypto.randomUUID()};
+  if(!pending.current)pending.current={key,id:crypto.randomUUID(),body};
   try{
    const res=await fetch('/api/workspace-scheduling',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...payload,operationId:pending.current.id})});const result=await res.json();
    if(!res.ok){if(res.status<500)pending.current=null;throw Error(result.error||'Unable to save.');}
@@ -45,6 +45,7 @@ export default function Scheduling(){
   <p className="text-sm">Weekly same-day windows; 15–240 minute appointments. Publish a new immutable intake version for changes. Disable a rule and create a replacement to change its timezone or hours; existing booking instants stay unchanged.</p>
   {error&&<p role="alert" className="rounded border border-red-700 bg-red-50 p-3">{error}</p>}
   {status&&<p role="status" className="rounded bg-green-50 p-3">{status}</p>}
+  {pending.current&&<button className={button} disabled={disabled} onClick={()=>pending.current&&void mutate(pending.current.body)}>Retry same operation</button>}
   <button className={button} disabled={busy} onClick={()=>refresh().then(()=>setError('')).catch(e=>setError(e.message))}>Refresh records (keep draft)</button>
   {!data&&!error&&<p role="status">Loading private scheduling records…</p>}
   {data?.truncated&&<p role="alert">Showing the latest 500 records in each section. Older records are not shown. This bounded view is not a complete export.</p>}

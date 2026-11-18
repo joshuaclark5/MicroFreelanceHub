@@ -10,13 +10,13 @@ export async function GET(request:Request){
  const {data:{user},error:authError}=await db.auth.getUser();
  if(authError||!user)return reply({error:'Sign in required. Your draft is preserved.'},401);
  let range;try{range=timeRange(new URL(request.url).searchParams);}catch(e){return reply({error:(e as Error).message},400);}
- let query=db.from('workspace_time_entries').select('*').eq('owner_id',user.id).gte('started_at',range.from).lt('started_at',range.to).not('stopped_at','is',null).order('started_at',{ascending:false}).order('id').limit(1001);
+ let query=db.from('workspace_time_entries').select('*',{count:'exact'}).eq('owner_id',user.id).gte('started_at',range.from).lt('started_at',range.to).not('stopped_at','is',null).order('started_at',{ascending:false}).order('id').limit(1001);
  if(range.projectId)query=query.eq('project_id',range.projectId);
  if(range.billable!==null)query=query.eq('billable',range.billable==='true');
- const [entries,projects,running]=await Promise.all([query,db.from('workspace_projects').select('id,name,status').eq('owner_id',user.id).order('name').limit(1001),db.from('workspace_time_entries').select('*').eq('owner_id',user.id).is('stopped_at',null).maybeSingle()]);
+ const [entries,projects,running]=await Promise.all([query,db.from('workspace_projects').select('id,name,status',{count:'exact'}).eq('owner_id',user.id).order('name').limit(1001),db.from('workspace_time_entries').select('*').eq('owner_id',user.id).is('stopped_at',null).maybeSingle()]);
  if(entries.error||projects.error||running.error)throw Error('read');
- const truncated=(entries.data||[]).length>1000,rows=(entries.data||[]).slice(0,1000) as TimeEntry[];
- return reply({actorId:user.id,records:rows,projects:(projects.data||[]).slice(0,1000),projectsTruncated:(projects.data||[]).length>1000,running:running.data,serverNow:new Date().toISOString(),truncated,totals:truncated?null:timeTotals(rows),range});
+ const truncated=entries.count===null||entries.count===undefined||entries.count>(entries.data||[]).length||entries.count>1000,rows=(entries.data||[]).slice(0,1000) as TimeEntry[];
+ return reply({actorId:user.id,records:rows,projects:(projects.data||[]).slice(0,1000),projectsTruncated:projects.count===null||projects.count===undefined||projects.count>(projects.data||[]).length||projects.count>1000,running:running.data,serverNow:new Date().toISOString(),truncated,totals:truncated?null:timeTotals(rows),range});
  }catch{return reply({error:'Time workspace unavailable. Your draft is preserved; retry loading.'},503);}
 }
 export async function POST(request:Request){
