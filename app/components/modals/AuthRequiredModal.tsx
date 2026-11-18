@@ -43,10 +43,10 @@ export function AuthRequiredModal({ open, onOpenChange }: AuthRequiredModalProps
           Create an account to save your draft and create a client link.
           Connect Stripe when you are ready to accept payments.
         </p>
-        <Link href="/login" className="mt-6 flex items-center justify-center gap-2 rounded-md bg-emerald-700 px-5 py-3 font-semibold text-white hover:bg-emerald-800">
+        <Link href="/login?returnTo=%2Fcreate%3Fmode%3Deditor%26recover%3D1" className="mt-6 flex items-center justify-center gap-2 rounded-md bg-emerald-700 px-5 py-3 font-semibold text-white hover:bg-emerald-800">
           Continue Free <ArrowRight size={18} />
         </Link>
-        <Link href="/login?mode=signin" className="mt-4 block text-center text-sm font-medium text-gray-700 underline underline-offset-4">Already have an account? Sign in</Link>
+        <Link href="/login?mode=signin&returnTo=%2Fcreate%3Fmode%3Deditor%26recover%3D1" className="mt-4 block text-center text-sm font-medium text-gray-700 underline underline-offset-4">Already have an account? Sign in</Link>
         <button type="button" onClick={() => onOpenChange(false)} className="mt-5 w-full py-2 text-sm text-gray-500">Keep editing</button>
       </div>
     </dialog>

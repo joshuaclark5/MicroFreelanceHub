@@ -78,6 +78,8 @@ export default function ClientMessageGenerator({
   const [context, setContext] = useState(exampleContext[initialScenario]);
   const [message, setMessage] = useState(defaultMessages[initialScenario]);
   const [isLoading, setIsLoading] = useState(false);
+  const [toolError, setToolError] = useState('');
+  const [copyError, setCopyError] = useState('');
   const [copied, setCopied] = useState(false);
   const [email, setEmail] = useState('');
   const [emailCaptured, setEmailCaptured] = useState(false);
@@ -94,6 +96,8 @@ export default function ClientMessageGenerator({
 
   const generateMessage = async () => {
     setIsLoading(true);
+    setToolError('');
+    setCopyError('');
     setCopied(false);
 
     try {
@@ -103,18 +107,23 @@ export default function ClientMessageGenerator({
         body: JSON.stringify({ scenario, tone, context }),
       });
       const data = await response.json();
-      setMessage(data.message || defaultMessages[scenario]);
+      if (!response.ok || typeof data.message !== 'string' || !data.message.trim()) throw new Error('Generation failed');
+      setMessage(data.message);
     } catch {
-      setMessage(defaultMessages[scenario]);
+      setToolError('We could not generate a reply. Your current draft and situation details are unchanged. Try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   const copyMessage = async () => {
-    await navigator.clipboard.writeText(message);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setCopyError('');
+    setCopied(false);
+    try {
+      await navigator.clipboard.writeText(message);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch { setCopyError('Copy failed. Select the draft text and copy it manually, or try again.'); }
   };
 
   const captureEmail = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -158,6 +167,7 @@ export default function ClientMessageGenerator({
                   <button
                     key={item.value}
                     type="button"
+                    disabled={isLoading}
                     onClick={() => changeScenario(item.value)}
                     className={`rounded-xl border px-3 py-3 text-left text-sm transition-all ${
                       scenario === item.value
@@ -195,6 +205,7 @@ export default function ClientMessageGenerator({
                 Situation details
               </label>
               <textarea
+                disabled={isLoading}
                 id="client-context"
                 rows={7}
                 value={context}
@@ -232,6 +243,8 @@ export default function ClientMessageGenerator({
             </button>
           </div>
 
+          {toolError && <p role="alert" className="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-800">{toolError}</p>}
+          {copyError && <p role="alert" className="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-800">{copyError}</p>}
           <div className="min-h-[320px] flex-1 rounded-2xl border border-slate-200 bg-slate-50 p-5">
             <pre className="whitespace-pre-wrap font-sans text-base leading-relaxed text-slate-800">{message}</pre>
           </div>

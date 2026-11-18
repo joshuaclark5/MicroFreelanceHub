@@ -17,6 +17,7 @@ import PricingModal from '../components/PricingModal';
 import AddExpenseModal from '../components/AddExpenseModal';
 import ExpenseHistoryModal from '../components/ExpenseHistoryModal';
 import WelcomeWizard from '../components/WelcomeWizard';
+import { ownedAgreements, clientGroup, projectNextAction } from '../lib/projectOverview';
 import { agreementBalance } from '../lib/agreementPayment';
 
 const displayBalance = (doc: any) => { try { return agreementBalance(doc); } catch { return null; } };
@@ -65,6 +66,8 @@ export default function Dashboard() {
   // Selection & Filtering
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [clientFilter, setClientFilter] = useState('');
+  const [groupByClient, setGroupByClient] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'DRAFT' | 'SIGNED' | 'PAID'>('ALL');
 
@@ -97,14 +100,16 @@ export default function Dashboard() {
 
   const refreshData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return [];
+      if (!user) { setSows([]); setTotalExpenses(0); router.replace('/login?mode=signin&returnTo=%2Fdashboard'); return []; }
 
       const { data: sowData, error: sowError } = await supabase.from('sow_documents').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
       if (sowError) throw new Error('Your agreements could not be loaded. Your saved work has not been changed.');
-      if (sowData) setSows(sowData);
+      const ownerRecords = ownedAgreements(sowData || [], user.id);
+      setSows(ownerRecords);
+      setTotalExpenses(0);
 
-      if (sowData && sowData.length > 0) {
-          const projectIds = sowData.map(s => s.id);
+      if (ownerRecords.length > 0) {
+          const projectIds = ownerRecords.map(s => s.id);
           const { data: expenseData } = await supabase.from('expenses').select('amount').in('project_id', projectIds);
           if (expenseData) {
               const total = expenseData.reduce((sum, item) => sum + (item.amount || 0), 0);
@@ -112,7 +117,7 @@ export default function Dashboard() {
           }
       }
 
-      return sowData || [];
+      return ownerRecords;
   };
 
   useEffect(() => {
@@ -121,7 +126,7 @@ export default function Dashboard() {
       initialLoadRunning.current = true;
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user) { router.push('/login?mode=signin'); return; }
+        if (!user) { router.push('/login?mode=signin&returnTo=%2Fdashboard'); return; }
         setUserEmail(user.email || '');
         setUserId(user.id);
 
@@ -196,7 +201,7 @@ export default function Dashboard() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this project?')) return;
-    const { error } = await supabase.from('sow_documents').delete().eq('id', id);
+    const { error } = await supabase.from('sow_documents').delete().eq('id', id).eq('user_id', userId);
     if (!error) setSows(sows.filter((s) => s.id !== id));
   };
 
@@ -222,7 +227,7 @@ export default function Dashboard() {
   const handleBulkDelete = async () => {
     if (!confirm(`Delete ${selectedIds.length} projects?`)) return;
     setProcessing(true);
-    const { error } = await supabase.from('sow_documents').delete().in('id', selectedIds);
+    const { error } = await supabase.from('sow_documents').delete().in('id', selectedIds).eq('user_id', userId);
     if (!error) {
       setSows(sows.filter((s) => !selectedIds.includes(s.id)));
       setSelectedIds([]); setSelectionMode(false);
@@ -323,7 +328,9 @@ export default function Dashboard() {
   };
 
   // --- FILTERING LOGIC ---
+  const clientNames = Array.from(new Set(sows.map(clientGroup))).sort((a, b) => a.localeCompare(b));
   const filteredSows = sows.filter(s => {
+      if (clientFilter && clientGroup(s) !== clientFilter) return false;
       const matchesSearch = (s.title?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
                             (s.client_name?.toLowerCase() || '').includes(searchQuery.toLowerCase());
 
@@ -333,6 +340,8 @@ export default function Dashboard() {
       if (statusFilter === 'DRAFT') return matchesSearch && (s.status === 'Draft' || !s.status);
       return matchesSearch;
   });
+
+  const visibleSows = groupByClient ? [...filteredSows].sort((a, b) => clientGroup(a).localeCompare(clientGroup(b))) : filteredSows;
 
   const totalPaid = sows.filter(s => s.status === 'Paid').reduce((acc, curr) => acc + (curr.price || 0), 0);
   const profit = totalPaid - totalExpenses;
@@ -453,20 +462,27 @@ export default function Dashboard() {
                  </div>
             </div>)}
 
+            {sows.length > 0 && <section className="rounded-lg border border-gray-200 bg-white p-4" aria-label="Client project overview">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-end gap-4"><div className="min-w-0 w-full sm:w-auto sm:flex-1"><label htmlFor="client-project-filter" className="block text-sm font-semibold text-slate-900">Client projects</label><select id="client-project-filter" value={clientFilter} onChange={event => { setClientFilter(event.target.value); setSelectedIds([]); }} className="mt-2 min-h-11 w-full max-w-full rounded-lg border border-gray-300 bg-white px-3 text-sm"><option value="">All recorded clients ({clientNames.length})</option>{clientNames.map(name => <option key={name} value={name}>{name}</option>)}</select></div>
+              <button type="button" aria-pressed={groupByClient} onClick={() => setGroupByClient(value => !value)} className="d4-secondary">{groupByClient ? 'Show newest first' : 'Group by client'}</button></div>
+              <p className="mt-3 text-xs leading-5 text-slate-600">Groups use client names recorded on your saved agreements, not a separate client directory. Matching names may refer to different people.</p>
+              <p role="status" className="mt-2 text-sm text-slate-700">{filteredSows.length} of {sows.length} agreements shown</p>
+            </section>}
+
             <div className={filteredSows.length ? "d4-workspace-grid" : "d4-empty-workspace"}><div className={filteredSows.length > 0 ? "d4-agreement-list" : "block"}>
               {filteredSows.length > 0 && <div className="d4-tablehead"><span>Project / client</span><span>Status</span><span>Total</span><span>Actions</span></div>}
               {filteredSows.length === 0 ? (
-                <div className={searchQuery || statusFilter !== 'ALL' ? "d4-surface py-12" : "d4-first-project"}>
+                <div className={searchQuery || clientFilter || statusFilter !== 'ALL' ? "d4-surface py-12" : "d4-first-project"}>
                   <section className="d4-surface">
-                    <p className="d4-eyebrow">{searchQuery || statusFilter !== 'ALL' ? 'Search results' : 'Your workspace'}</p>
-                    <h3 className="mt-3 text-2xl font-semibold">{searchQuery || statusFilter !== 'ALL' ? 'No matching agreements' : 'Your first agreement starts here.'}</h3>
-                    <p className="mt-3 text-sm text-slate-600 leading-6">{searchQuery || statusFilter !== 'ALL' ? 'Try a different project or client name, or clear the filters.' : 'Bring one real project. Start with the work, price and timeline. Review the document before sharing anything.'}</p>
-                    {searchQuery || statusFilter !== 'ALL' ? <button className="d4-secondary mt-5" onClick={() => { setSearchQuery(''); setStatusFilter('ALL'); }}>Clear filters</button> : <div className="mt-6 flex flex-col items-start gap-3"><Link className="d4-primary" href="/create">Create my first agreement</Link><Link className="d4-secondary" href="/templates">Choose a template</Link></div>}
+                    <p className="d4-eyebrow">{searchQuery || clientFilter || statusFilter !== 'ALL' ? 'Search results' : 'Your workspace'}</p>
+                    <h3 className="mt-3 text-2xl font-semibold">{searchQuery || clientFilter || statusFilter !== 'ALL' ? 'No matching agreements' : 'Your first agreement starts here.'}</h3>
+                    <p className="mt-3 text-sm text-slate-600 leading-6">{searchQuery || clientFilter || statusFilter !== 'ALL' ? 'Try a different project or client name, or clear the filters.' : 'Bring one real project. Start with the work, price and timeline. Review the document before sharing anything.'}</p>
+                    {searchQuery || clientFilter || statusFilter !== 'ALL' ? <button className="d4-secondary mt-5" onClick={() => { setSearchQuery(''); setClientFilter(''); setStatusFilter('ALL'); }}>Clear filters</button> : <div className="mt-6 flex flex-col items-start gap-3"><Link className="d4-primary" href="/create">Create my first agreement</Link><Link className="d4-secondary" href="/templates">Choose a template</Link></div>}
                   </section>
-                  {!searchQuery && statusFilter === 'ALL' && <section className="p-5"><h2 className="text-xl font-semibold">Three clear steps</h2><ol className="d4-first-steps"><li>1. Define the scope</li><li>2. Review and save</li><li>3. Share when ready</li></ol><p className="mt-5 text-sm leading-6 text-slate-600">Stripe setup is optional until you want payment collection. Your payment connection and subscription settings are available in Settings.</p><Link className="inline-block mt-4 text-sm text-blue-700 underline" href="/settings">Settings &amp; payment setup</Link></section>}
+                  {!searchQuery && !clientFilter && statusFilter === 'ALL' && <section className="p-5"><h2 className="text-xl font-semibold">Three clear steps</h2><ol className="d4-first-steps"><li>1. Define the scope</li><li>2. Review and save</li><li>3. Share when ready</li></ol><p className="mt-5 text-sm leading-6 text-slate-600">Stripe setup is optional until you want payment collection. Your payment connection and subscription settings are available in Settings.</p><Link className="inline-block mt-4 text-sm text-blue-700 underline" href="/settings">Settings &amp; payment setup</Link></section>}
                 </div>
               ) : (
-                filteredSows.map((sow) => {
+                visibleSows.map((sow, index) => {
                    const isMonthly = sow.payment_type === 'monthly';
                    const isPaid = sow.status === 'Paid';
                    const isSigned = sow.status === 'Signed'; // Check if signed but unpaid
@@ -483,8 +499,9 @@ export default function Dashboard() {
                    }
 
                    return (
+                   <div key={sow.id}>
+                   {groupByClient && (index === 0 || clientGroup(visibleSows[index - 1]) !== clientGroup(sow)) && <h3 className="border-b border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-950 break-words">{clientGroup(sow)}</h3>}
                    <div
-                      key={sow.id}
                       className={`d4-agreement-row group bg-white relative ${selectedIds.includes(sow.id) ? 'border-blue-600 ring-1 ring-blue-600' : 'border-gray-200'}`}
                    >
 
@@ -498,7 +515,7 @@ export default function Dashboard() {
 
                      <div className="d4-row-project">
                         <h3 className="font-bold text-lg text-slate-900 leading-snug group-hover:text-indigo-600 transition-colors line-clamp-2">{sow.title || 'Untitled Project'}</h3>
-                        <p className="text-xs text-slate-500 mt-1 font-medium bg-slate-50 inline-block px-2 py-1 rounded">{sow.client_name || 'No Client'}</p>
+                        <p className="text-xs text-slate-500 mt-1 font-medium bg-slate-50 inline-block max-w-full break-all px-2 py-1 rounded">{sow.client_name || 'No Client'}</p>
                      </div>
 
                      <div className="d4-row-open">
@@ -545,7 +562,7 @@ export default function Dashboard() {
                      <button disabled={processing} className="dashboard-secondary-button" onClick={(e) => { e.stopPropagation(); handleDuplicate(sow); }}><Copy size={15} /> Duplicate</button>
                        <button disabled={processing} className="dashboard-secondary-button text-red-700" onClick={(e) => { e.stopPropagation(); handleDelete(sow.id); }}><Trash2 size={15} /> Delete</button>
                      </div></details></div>
-                   </div>
+                   </div></div>
                 )})
               )}
             </div>
@@ -555,8 +572,9 @@ export default function Dashboard() {
               <h2 className="mt-3 text-xl font-semibold break-words">{detail.title || 'Untitled project'}</h2>
               <p className="mt-2 text-sm text-slate-600 break-words">{detail.client_name || 'Client not set'}</p>
               <dl className="my-6 space-y-4 text-sm"><div className="flex justify-between gap-3"><dt>Status</dt><dd className="font-semibold">{detail.status || 'Draft'}</dd></div><div className="flex justify-between gap-3"><dt>Agreement total</dt><dd className="font-semibold">{formatMoney(detail.price || 0)}</dd></div><div className="flex justify-between gap-3"><dt>Recorded paid</dt><dd>{displayBalance(detail) ? formatMoney(displayBalance(detail)!.received / 100) : 'Unavailable'}</dd></div><div className="flex justify-between gap-3"><dt>Remaining</dt><dd>{detail.payment_type === 'none' ? 'No online payment' : displayBalance(detail) ? formatMoney(displayBalance(detail)!.remaining / 100) : 'Unavailable'}</dd></div></dl>
-              <p className="text-sm leading-6 text-slate-600">{String(detail.status).toLowerCase() === 'draft' ? 'Review the scope and payment terms before sharing your client link.' : 'Open the agreement to review signatures, changes and the current payment details.'}</p>
-              <Link className="d4-primary mt-5 w-full" href={`/sow/${detail.id}`}>Open selected agreement</Link>
+              <p className="d4-eyebrow">Next action</p><p className="mt-2 text-sm leading-6 text-slate-600">{projectNextAction(detail).detail}</p>
+              <Link className="d4-primary mt-4 w-full" href={projectNextAction(detail).href}>{projectNextAction(detail).label}</Link>
+              <Link className="d4-secondary mt-3 w-full" href={`/sow/${detail.id}`}>Open selected agreement</Link>
               <Link className="d4-secondary mt-3 w-full" href={`/edit/${detail.id}`}>Review scope / changes</Link>
               <p className="mt-5 text-xs leading-5 text-slate-600">Agreement totals are not payment receipts. Check the agreement for confirmed payment status.</p>
             </aside>}
