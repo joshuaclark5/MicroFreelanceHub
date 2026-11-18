@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { ownedStripeCustomer } from '../../../lib/stripeCustomerOwnership';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
@@ -35,8 +36,8 @@ const PLAN_PRICES = {
 export async function POST(request: Request) {
   try {
     const auth = createRouteHandlerClient({ cookies });
-    const { data: { user: authenticatedUser } } = await auth.auth.getUser();
-    if (!authenticatedUser) return NextResponse.json({ error: 'Sign in to choose a plan.' }, { status: 401 });
+    const { data: { user: authenticatedUser }, error: authError } = await auth.auth.getUser();
+    if (authError || !authenticatedUser) return NextResponse.json({ error: 'Sign in to choose a plan.' }, { status: 401 });
     const { plan, userId, landingPage, leadSource } = await request.json();
     if (userId !== authenticatedUser.id) return NextResponse.json({ error: 'Account mismatch.' }, { status: 403 });
 
@@ -75,7 +76,12 @@ export async function POST(request: Request) {
 
     let stripeCustomerId = profile?.stripe_customer_id;
 
-    if (!stripeCustomerId) {
+    if (stripeCustomerId != null) {
+      if (!await ownedStripeCustomer(stripe, stripeCustomerId, authenticatedUser.id)) {
+        return NextResponse.json({ error: 'Unable to verify billing account. Please contact support.' }, { status: 403 });
+      }
+    } else {
+      // Only an absent association creates a customer; invalid/legacy IDs never do.
       // Create a new Stripe customer
       const customer = await stripe.customers.create({
         email: user.email,
@@ -143,7 +149,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ url: session.url });
   } catch (err: any) {
-    console.error('Plan Checkout Error:', err);
+    console.error('Plan Checkout Error');
     return NextResponse.json({ error: 'Unable to start checkout. Please try again.' }, { status: 500 });
   }
 }

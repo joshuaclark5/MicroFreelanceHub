@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { ownedStripeCustomer } from '../../../lib/stripeCustomerOwnership';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
@@ -37,6 +38,11 @@ export async function POST(request: Request) {
       );
     }
 
+    // Both Manage Billing and Cancel Subscription enter through this portal.
+    if (!await ownedStripeCustomer(stripe, profile.stripe_customer_id, user.id)) {
+      return NextResponse.json({ error: 'Unable to verify billing account. Please contact support.' }, { status: 403 });
+    }
+
     // Create billing portal session
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: profile.stripe_customer_id,
@@ -45,7 +51,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ url: portalSession.url });
   } catch (err: any) {
-    console.error('Billing Portal Error:', err);
+    console.error('Billing Portal Error');
     return NextResponse.json({ error: 'Unable to open billing portal.' }, { status: 500 });
   }
 }

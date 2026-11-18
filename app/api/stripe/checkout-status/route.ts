@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import Stripe from 'stripe';
 import { subscriptionReceipt } from '../../../lib/subscriptionReceipt';
+import { ownedStripeCustomer } from '../../../lib/stripeCustomerOwnership';
 export const dynamic = 'force-dynamic';
 const reply = (data: unknown, status = 200) => NextResponse.json(data, { status, headers: { 'Cache-Control': 'private, no-store' } });
 export async function GET(request: Request) {
@@ -24,8 +25,8 @@ export async function GET(request: Request) {
         session.mode !== 'subscription' || typeof session.customer !== 'string' || typeof session.subscription !== 'string') return reply({ state: 'unavailable' });
     // Profile billing columns are user-modifiable in the source schema. Verify the
     // Stripe customer independently, not just metadata copied by checkout creation.
-    const customer = await stripe.customers.retrieve(session.customer);
-    if (customer.deleted || !('metadata' in customer) || customer.metadata?.supabase_id !== user.id) return reply({ state: 'unavailable' });
+    const customer = await ownedStripeCustomer(stripe, session.customer, user.id);
+    if (!customer) return reply({ state: 'unavailable' });
     const subscription = await stripe.subscriptions.retrieve(session.subscription);
     return reply(subscriptionReceipt(session, subscription, profile, user.id, customer));
   } catch {

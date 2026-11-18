@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { ownedStripeCustomer } from '../../../lib/stripeCustomerOwnership';
 import { cookies } from 'next/headers';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import Stripe from 'stripe';
@@ -19,6 +20,9 @@ export async function GET() {
     if (!profile?.stripe_customer_id) return NextResponse.json(free);
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+    if (!await ownedStripeCustomer(stripe, profile.stripe_customer_id, user.id)) {
+      return NextResponse.json({ error: 'Unable to verify billing account. Please contact support.' }, { status: 403 });
+    }
     const subscriptions = await stripe.subscriptions.list({ customer: profile.stripe_customer_id, status: 'all', limit: 100, expand: ['data.items.data.price.product'] });
     const subscription = subscriptions.data.find(s => !['canceled', 'incomplete_expired'].includes(s.status));
     if (!subscription) return NextResponse.json(free);

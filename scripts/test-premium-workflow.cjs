@@ -41,7 +41,8 @@ let state={ user:{id:'owner'}, profile, session, sub }, calls=[];
 class StripeFixture { constructor(){this.checkout={sessions:{retrieve:async id=>{calls.push(['session',id]);if(state.fail)throw Error('provider down');return state.session;}}};this.customers={retrieve:async id=>{calls.push(['customer',id]);return state.customer||customer;}};this.subscriptions={retrieve:async id=>{calls.push(['subscription',id]);return state.sub;}};} }
 const supabase={auth:{getUser:async()=>({data:{user:state.user},error:null})},from:table=>{calls.push(['table',table]);const q={select:()=>q,eq:(key,value)=>{calls.push(['eq',key,value]);return q;},maybeSingle:async()=>({data:state.profile,error:state.profileError})};return q;}};
 const next={NextResponse:{json:(data,init)=>({data,...init}),redirect:url=>({location:url.toString()})}};
-const route=load('app/api/stripe/checkout-status/route.ts', {'next/server':next,'next/headers':{cookies:()=>({})},'@supabase/auth-helpers-nextjs':{createRouteHandlerClient:()=>supabase},stripe:{default:StripeFixture},'../../../lib/subscriptionReceipt':{subscriptionReceipt}});
+const ownership=load('app/lib/stripeCustomerOwnership.ts', {'server-only':{}});
+const route=load('app/api/stripe/checkout-status/route.ts', {'../../../lib/stripeCustomerOwnership':ownership,'next/server':next,'next/headers':{cookies:()=>({})},'@supabase/auth-helpers-nextjs':{createRouteHandlerClient:()=>supabase},stripe:{default:StripeFixture},'../../../lib/subscriptionReceipt':{subscriptionReceipt}});
 (async()=>{
 const request=()=>new Request('https://fixture.test/api/stripe/checkout-status?session_id=cs_test_fixture');
 let result=await route.GET(request());assert.equal(result.data.state,'confirmed');assert.ok(calls.some(c=>c[0]==='eq'&&c[1]==='id'&&c[2]==='owner'));assert.match(result.headers['Cache-Control'],/no-store/);
