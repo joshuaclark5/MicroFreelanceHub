@@ -1,3 +1,4 @@
+import Navbar from '../components/Navbar';
 import React from 'react';
 
 export const metadata = {
@@ -7,7 +8,9 @@ export const metadata = {
 
 export default function TermsPage() {
   return (
-    <div className="public-design public-legal max-w-4xl mx-auto px-6 py-16 bg-white min-h-screen">
+    <>
+      <Navbar />
+      <div className="public-design public-legal max-w-4xl mx-auto px-6 py-16 bg-white min-h-screen">
       <div className="mb-10 border-b border-gray-200 pb-6">
         <h1 className="text-4xl font-extrabold text-gray-900 mb-4">Terms of Service</h1>
         <p className="text-gray-500">Last Updated: {new Date().toLocaleDateString()}</p>
@@ -101,5 +104,6 @@ export default function TermsPage() {
 
       </div>
     </div>
+    </>
   );
 }

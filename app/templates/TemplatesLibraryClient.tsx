@@ -1,5 +1,6 @@
 'use client';
 
+import Navbar from '../components/Navbar';
 import { templateLibrarySummary } from '../lib/templateLibrarySummary';
 
 import Link from 'next/link';
@@ -80,7 +81,9 @@ export default function TemplatesLibraryClient({ templates, total }: { templates
   const filteredTemplates = results.templates;
 
   return (
-    <main className="public-design public-library min-h-screen bg-slate-50 text-slate-900">
+    <>
+      <Navbar />
+      <main className="public-design public-library min-h-screen bg-slate-50 text-slate-900">
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
@@ -197,5 +200,6 @@ export default function TemplatesLibraryClient({ templates, total }: { templates
         </nav>
       </section>
     </main>
+    </>
   );
 }

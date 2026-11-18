@@ -1,3 +1,4 @@
+import Navbar from '../../components/Navbar';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, MessageSquareText } from 'lucide-react';
@@ -58,7 +59,9 @@ export default function ToolScenarioPage({ params }: { params: { slug: string } 
   const page = pages[params.slug as ToolSlug] || pages['late-payment-reply-generator'];
 
   return (
-    <main className="public-design public-tools min-h-screen bg-slate-50 text-slate-900">
+    <>
+      <Navbar />
+      <main className="public-design public-tools min-h-screen bg-slate-50 text-slate-900">
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2">
@@ -104,5 +107,6 @@ export default function ToolScenarioPage({ params }: { params: { slug: string } 
         </div>
       </section>
     </main>
+    </>
   );
 }

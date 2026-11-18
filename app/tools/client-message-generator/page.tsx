@@ -1,3 +1,4 @@
+import Navbar from '../../components/Navbar';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, CheckCircle2, MessageSquareText, Search, ShieldCheck } from 'lucide-react';
@@ -21,7 +22,9 @@ export const metadata: Metadata = {
 
 export default function ClientMessageGeneratorPage() {
   return (
-    <main className="public-design public-tools min-h-screen bg-slate-50 text-slate-900">
+    <>
+      <Navbar />
+      <main className="public-design public-tools min-h-screen bg-slate-50 text-slate-900">
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -128,5 +131,6 @@ export default function ClientMessageGeneratorPage() {
         </section>
       </section>
     </main>
+    </>
   );
 }

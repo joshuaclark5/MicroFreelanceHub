@@ -923,7 +923,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
                               <p className="text-slate-400 text-xs mt-1 max-w-[200px]">This contract collects signatures but requires no payment through MicroFreelance.</p>
                           </div>
                       ) : (
-                          <div className="bg-slate-900 text-white p-6 rounded-2xl shadow-lg mb-6 animate-in zoom-in-95">
+                          <div className="d4-money-summary bg-slate-900 text-white p-6 rounded-2xl shadow-lg mb-6 animate-in zoom-in-95">
                             <div className="flex justify-between items-center mb-1"><span className="text-slate-400 text-sm font-medium">Subtotal</span><span className="text-slate-300 font-bold">${financials.subtotal.toFixed(2)}</span></div>
                             
                             {parseFloat(formData.taxRate) > 0 && (<div className="flex justify-between items-center mb-1 pb-1 border-b border-slate-800/50"><span className="text-slate-400 text-sm font-medium">Tax ({formData.taxRate}%)</span><span className="text-slate-300 font-bold">+${financials.taxAmount.toFixed(2)}</span></div>)}

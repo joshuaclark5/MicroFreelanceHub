@@ -1,3 +1,4 @@
+import Navbar from '../../components/Navbar';
 import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
@@ -161,7 +162,9 @@ export default async function ProfessionHubPage({ params }: { params: { slug: st
   };
 
   return (
-    <div className="public-design public-profession min-h-screen bg-slate-50 font-sans pb-24">
+    <>
+      <Navbar />
+      <div className="public-design public-profession min-h-screen bg-slate-50 font-sans pb-24">
       
       {/* 🚀 BREADCRUMBS */}
       <div className="bg-slate-900 pt-6 px-4 md:px-8">
@@ -352,5 +355,6 @@ export default async function ProfessionHubPage({ params }: { params: { slug: st
 
       </div>
     </div>
+    </>
   );
 }

@@ -1,3 +1,4 @@
+import Navbar from '../components/Navbar';
 import React from 'react';
 
 export const metadata = {
@@ -7,7 +8,9 @@ export const metadata = {
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="public-design public-legal max-w-3xl mx-auto px-4 py-12">
+    <>
+      <Navbar />
+      <div className="public-design public-legal max-w-3xl mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>
       <p className="text-gray-600 mb-8">Last Updated: {new Date().toLocaleDateString()}</p>
 
@@ -43,5 +46,6 @@ export default function PrivacyPolicyPage() {
         </section>
       </div>
     </div>
+    </>
   );
 }

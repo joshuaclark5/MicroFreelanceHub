@@ -1,3 +1,4 @@
+import Navbar from '../../components/Navbar';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -53,7 +54,9 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
   };
 
   return (
-    <article className="public-design public-editorial min-h-screen bg-white text-slate-900">
+    <>
+      <Navbar />
+      <article className="public-design public-editorial min-h-screen bg-white text-slate-900">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
 
       <header className="border-b border-slate-200 bg-slate-950 px-6 py-16 text-white md:py-20">
@@ -123,5 +126,6 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
         </aside>
       </div>
     </article>
+    </>
   );
 }

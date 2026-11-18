@@ -1,3 +1,4 @@
+import Navbar from '../components/Navbar';
 import QuizComponent from './../components/QuizComponent';
 
 export const metadata = {
@@ -27,7 +28,9 @@ export const metadata = {
 
 export default function HairQuizPage() {
   return (
-    <main className="public-design public-quiz min-h-screen bg-slate-50 flex flex-col items-center justify-center py-20 px-4">
+    <>
+<Navbar />
+<main className="public-design public-quiz min-h-screen bg-slate-50 flex flex-col items-center justify-center py-20 px-4">
       <div className="max-w-xl w-full text-center mb-10">
         <h1 className="text-3xl font-serif font-bold text-slate-900">
           Curly Hair Routine Diagnostic
@@ -37,6 +40,6 @@ export default function HairQuizPage() {
         </p>
       </div>
       <QuizComponent />
-    </main>
+    </main></>
   );
 }

@@ -41,9 +41,20 @@ export default function ViewContract({ params }: { params: { id: string } }) {
   // Signing
   const [showSignModal, setShowSignModal] = useState(false);
   const signingDialog = useRef<HTMLDialogElement>(null);
+  const signingTrigger = useRef<HTMLElement | null>(null);
+  const openSigning = () => {
+    signingTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setShowSignModal(true);
+  };
   useEffect(() => {
-    if (showSignModal) signingDialog.current?.showModal();
-    else signingDialog.current?.close();
+    if (!showSignModal) return;
+    const dialog = signingDialog.current;
+    dialog?.showModal();
+    dialog?.querySelector<HTMLInputElement>('#signer-name')?.focus();
+    return () => {
+      dialog?.close();
+      signingTrigger.current?.focus();
+    };
   }, [showSignModal]);
   const [signerName, setSignerName] = useState('');
   const [isSigning, setIsSigning] = useState(false);
@@ -186,17 +197,21 @@ export default function ViewContract({ params }: { params: { id: string } }) {
     if (!signerName) return alert("Please type your name.");
     setIsSigning(true);
 
-    const result = await signContract(params.id, signerName, signingRole);
-
-    if (result.success) {
-      const newDoc = { ...doc };
-      if (signingRole === 'client') { newDoc.status = 'Signed'; newDoc.signed_by = signerName; }
-      else { newDoc.provider_sign = signerName; }
-      setDoc(newDoc);
-      setShowSignModal(false);
-      setSignerName('');
-    } else { alert("Signing failed. Please try again."); }
-    setIsSigning(false);
+    try {
+      const result = await signContract(params.id, signerName, signingRole);
+      if (result.success) {
+        const newDoc = { ...doc };
+        if (signingRole === 'client') { newDoc.status = 'Signed'; newDoc.signed_by = signerName; }
+        else { newDoc.provider_sign = signerName; }
+        setDoc(newDoc);
+        setShowSignModal(false);
+        setSignerName('');
+      } else { alert("Signing failed. Please try again."); }
+    } catch {
+      alert("Signing failed. Please try again.");
+    } finally {
+      setIsSigning(false);
+    }
   };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-500">Loading Contract...</div>;
@@ -267,7 +282,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
             {/* Sign / Download Actions */}
             {!isFullySigned && !isPaid ? (
                 <button
-                onClick={() => setShowSignModal(true)}
+                onClick={openSigning}
                 className="flex-1 sm:flex-none px-6 py-2.5 bg-white text-blue-700 border border-blue-200 rounded-lg text-sm font-bold hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-colors flex items-center justify-center gap-2"
                 >
                 <PenTool className="w-4 h-4" /> Sign Contract
@@ -280,7 +295,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
 
             {/* More Menu */}
             <div className="relative">
-                <button aria-label="Agreement actions" aria-expanded={showMenu} onClick={() => setShowMenu(!showMenu)} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
+                <button aria-label="Agreement actions" aria-expanded={showMenu} onClick={() => setShowMenu(!showMenu)} className="relative z-50 p-2 hover:bg-gray-200 rounded-full transition-colors">
                 <MoreHorizontal className="w-6 h-6 text-gray-700" />
                 </button>
                 {showMenu && (
@@ -478,7 +493,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
                     </button>
                   ) : isAgreementOnly ? (
                     <button
-                      onClick={() => !isFullySigned && setShowSignModal(true)}
+                      onClick={() => !isFullySigned && openSigning()}
                       disabled={isFullySigned}
                       className="w-full min-h-12 rounded-lg bg-blue-600 px-4 py-3 text-sm font-bold text-white hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:bg-gray-200 disabled:text-gray-600 flex items-center justify-center gap-2"
                     >
@@ -488,7 +503,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
                     <PayContractButton disabled={paymentVerificationPending || dueNow <= 0} sowId={doc.id} price={dueNow} paymentType={doc.payment_type} label={dueLabel === 'Total Due' ? 'Pay Full Amount' : `Pay ${dueLabel}`} />
                   ) : (
                     <button
-                      onClick={() => setShowSignModal(true)}
+                      onClick={openSigning}
                       className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white hover:bg-blue-700 flex items-center justify-center gap-2"
                     >
                       <PenTool className="w-4 h-4" /> Sign to unlock payment
@@ -539,7 +554,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
             </div>
 
             {/* ROLE TOGGLE */}
-            <div className="flex bg-gray-100 p-1 rounded-lg mb-6">
+            {isOwner && <div className="flex bg-gray-100 p-1 rounded-lg mb-6">
                 <button
                     onClick={() => setSigningRole('provider')}
                     disabled={!!doc.provider_sign}
@@ -554,7 +569,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
                 >
                     {doc.signed_by && <CheckCircle className="w-3 h-3 text-green-500" />} Client
                 </button>
-            </div>
+            </div>}
 
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
                 <p className="text-xs font-bold text-gray-500 uppercase mb-1">Signing As</p>

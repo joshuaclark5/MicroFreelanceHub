@@ -395,6 +395,9 @@
  .d4-client-layout { display:block; margin:0; max-width:none; }
  .d4-client-layout .d4-client-document { border:0; padding:0; border-radius:0; }
 }
+.d4-money-summary > div { gap:12px; min-width:0; }
+.d4-money-summary :is(span,div) { overflow-wrap:anywhere; min-width:0; }
+@media(max-width:640px) { .d4-money-summary > .flex { display:grid; grid-template-columns:minmax(0,1fr); gap:8px; } .d4-money-summary .text-right { text-align:left; } }
 .d4-sign-button:disabled,.d4-payment-button:disabled{background:#66776c;cursor:not-allowed;opacity:.65}
 .d4-dashboard .d4-row-open>a{background:#fff;color:#194d41;border-color:#b9c7c0}
 .d4-settings button.bg-blue-50{background:#e7eddf;color:#194d41;border-color:#194d41}

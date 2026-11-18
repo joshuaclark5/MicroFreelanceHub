@@ -1,3 +1,4 @@
+import Navbar from '../../components/Navbar';
 import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -57,7 +58,9 @@ export default async function AlternativePage({ params }: { params: { slug: stri
   ];
 
   return (
-    <div className="public-design public-comparison min-h-screen bg-slate-50 font-sans text-slate-900 pb-20">
+    <>
+      <Navbar />
+      <div className="public-design public-comparison min-h-screen bg-slate-50 font-sans text-slate-900 pb-20">
       
       {/* HEADER */}
       <div className="bg-slate-900 text-white py-20 px-4 text-center">
@@ -151,5 +154,6 @@ export default async function AlternativePage({ params }: { params: { slug: stri
       </div>
 
     </div>
+    </>
   );
 }

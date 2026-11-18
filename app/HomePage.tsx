@@ -134,7 +134,7 @@ export default function HomePage() {
       <section className="d4-home-hero px-5 pt-8 pb-12 max-w-7xl mx-auto">
         <div className="mfh-hero-copy max-w-3xl mx-auto text-center">
           <p className="d4-eyebrow mb-3">Agreement software for freelancers &amp; service businesses</p>
-          <h1 className="text-3xl sm:text-5xl font-semibold text-gray-950 leading-tight">Agree on the job.<br/>Approve the changes.<br/>Let clients pay.</h1>
+          <h1 className="text-3xl sm:text-5xl font-semibold text-gray-950 leading-tight">Agree on the job.<br/>Approve the changes.<br/><em>Let clients pay.</em></h1>
           <p className="mt-4 text-base sm:text-lg text-gray-600 leading-relaxed">Create an agreement, collect signatures and accept payments through your connected Stripe account—all from one client link.</p>
           <div className="mt-6 flex flex-col sm:flex-row justify-center items-stretch sm:items-center gap-3">
             <Link href="/create" className="d4-primary">Start my agreement <ArrowRight size={18}/></Link>
