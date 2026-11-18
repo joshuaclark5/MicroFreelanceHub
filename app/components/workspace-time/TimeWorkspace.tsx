@@ -44,7 +44,7 @@ export default function TimeWorkspace(){
  }
  function editRow(row:TimeEntry){setEditing(row);setDraft({projectId:row.project_id,description:row.description,startedAt:new Date(row.started_at).toISOString().slice(0,19),seconds:String(row.seconds),billable:row.billable,rateMinor:String(row.rate_minor),currency:row.currency});document.getElementById('time-description')?.focus();}
  const blocked=busy||loading||!data||accountChanged||uncertain;
- return <div className="time-workspace"><nav aria-label="Workspace"><Link href="/workspace/projects">Projects</Link> / Time</nav>
+ return <div className="time-workspace"><nav aria-label="Suite sections" className="flex flex-wrap gap-3 text-sm underline"><a href="/workspace/clients">Clients</a><a href="/workspace/projects">Projects</a><a href="/workspace/time">Time</a><a href="/workspace/scheduling">Scheduling</a><a href="/workspace/invoices">Invoices</a><a href="/dashboard">Agreements</a></nav>
  <header><p className="time-eyebrow">SOLO WORKSPACE</p><h1>Time & timesheets</h1><p>Track work, review your week, keep the details. Owner-only records; self-approval is not independent review.</p></header>
  {error&&<div role="alert" className="time-error">{error} Your form has not been cleared. <a href="/login" target="_blank" rel="noreferrer">Sign in in a new tab</a></div>}
  {notice&&<p role="status">{notice}</p>}

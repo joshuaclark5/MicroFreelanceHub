@@ -38,6 +38,7 @@ export default function Scheduling(){
  }
  const disabled=busy||!data;
  return <div className="mx-auto max-w-5xl p-3 sm:p-6 text-slate-900 space-y-6">
+  <nav aria-label="Suite sections" className="flex flex-wrap gap-3 text-sm underline"><a href="/workspace/clients">Clients</a><a href="/workspace/projects">Projects</a><a href="/workspace/time">Time</a><a href="/workspace/scheduling">Scheduling</a><a href="/workspace/invoices">Invoices</a><a href="/dashboard">Agreements</a></nav>
   <h1 className="text-2xl font-bold">Local scheduling &amp; intake</h1>
   <p>Owner-managed <strong>MFH bookings only</strong>. External calendars are not checked. No emails, reminders, or invitations are sent. Intake answers are owner-only; there is no public booking link.</p>
   <p className="text-sm">Weekly same-day windows; 15–240 minute appointments. Publish a new immutable intake version for changes. Disable a rule and create a replacement to change its timezone or hours; existing booking instants stay unchanged.</p>
