@@ -6,15 +6,6 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { persistFirstTouch, sanitizeAttribution } from '../../../lib/profileAttribution';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16' as any,
-});
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 const PLAN_PRICES = {
   starter: {
     name: 'Starter',
@@ -49,6 +40,16 @@ export async function POST(request: Request) {
     if (!userId) {
       return NextResponse.json({ error: 'User ID required' }, { status: 400 });
     }
+
+    // Initialize providers inside the failure boundary, after authentication.
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      apiVersion: '2023-10-16' as any,
+    });
+
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
 
     // Get user's email from Supabase
     const { data: { user }, error: userError } = await supabase.auth.admin.getUserById(userId);

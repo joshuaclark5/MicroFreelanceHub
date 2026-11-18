@@ -7,12 +7,11 @@ import Stripe from 'stripe';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const cookieStore = cookies();
-  const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
-  const { data: { user }, error } = await supabase.auth.getUser();
-  if (error || !user) return NextResponse.json({ error: 'Sign in required' }, { status: 401 });
-
   try {
+    const cookieStore = cookies();
+    const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error || !user) return NextResponse.json({ error: 'Sign in required' }, { status: 401 });
     const { data: profile, error: profileError } = await supabase.from('profiles')
       .select('stripe_customer_id').eq('id', user.id).maybeSingle();
     if (profileError) throw profileError;

@@ -3,14 +3,14 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const ts = require('typescript');
-function load(file, mocks = {}) {
+function load(file, mocks = {}, env = {}) {
   const exports = {};
   vm.runInNewContext(ts.transpileModule(fs.readFileSync(file, 'utf8'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
   }).outputText, { exports, require: name => {
     if (!Object.hasOwn(mocks, name)) throw Error('Unexpected dependency: ' + name);
     return mocks[name];
-  }, URL, process: { env: { NEXT_PUBLIC_BASE_URL: 'https://fixture.invalid', STRIPE_SECRET_KEY: 'fictional-not-a-key' } }, console: { error() {} } });
+  }, URL, process: { env: { NEXT_PUBLIC_BASE_URL: 'https://fixture.invalid', STRIPE_SECRET_KEY: 'fictional-not-a-key', NEXT_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:9', SUPABASE_SERVICE_ROLE_KEY: 'fixture-service', ...env } }, console: { error() {} } });
   return exports;
 }
 const ownership = load('app/lib/stripeCustomerOwnership.ts', {'server-only': {}});
@@ -28,8 +28,8 @@ function fixture(options = {}) {
   const record = (name, value) => calls.push({name, value});
   const db = {
     auth: {
-      getUser: async () => ({data: {user: state.user}, error: state.authError}),
-      admin: {getUserById: async id => { assert.equal(id, 'owner'); return {data: {user: state.user}}; }},
+      getUser: async () => { if (state.authThrows) throw Error('private auth details'); return {data: {user: state.user}, error: state.authError}; },
+      admin: {getUserById: async id => { assert.equal(id, 'owner'); return {data: {user: state.user}, error: state.adminError}; }},
     },
     from(table) {
       assert.equal(table, 'profiles');
@@ -39,7 +39,7 @@ function fixture(options = {}) {
         maybeSingle: async () => ({data: state.profile, error: state.profileError}),
         single: async () => ({data: state.profile, error: state.profileError}),
         upsert: async (row, config) => {
-          record('profile.upsert', row);
+          record('profile.upsert', row); if (state.attributionError) return {error: Error('private attribution details')};
           assert.ok(!('is_pro' in row) && !('subscription_id' in row));
           if (state.saveError && row.stripe_customer_id) return {error: Error('private db error')};
           if (!state.profile) state.profile = {...row};
@@ -53,39 +53,46 @@ function fixture(options = {}) {
   };
   const subscription = {id: 'sub_fixture', customer: own.id, status: 'active', metadata: {userId: 'owner', plan: 'pro'}, cancel_at_period_end: false, items: {data: [{current_period_end: 1900000000, price: {product: {name: 'Professional'}, recurring: {interval: 'month', interval_count: 1}}}]}};
   class Stripe {
+    constructor(key) { if (!key) throw Error('Missing Stripe key'); }
     customers = {
       retrieve: async id => { record('customer.retrieve', id); if (state.providerError) throw Error('private provider token/customer details'); return state.customer; },
-      create: async args => { record('customer.create', args); state.customer = {id: 'cus_new', metadata: args.metadata}; return state.customer; },
+      create: async args => { record('customer.create', args); if (state.failAt === 'customer.create') throw Error('private provider details'); state.customer = {id: 'cus_new', metadata: args.metadata}; return state.customer; },
       update: async () => { throw Error('Must never claim or edit a customer'); },
     };
     subscriptions = {
-      list: async args => { record('subscription.list', args); return {data: state.noSubscriptions ? [] : [subscription]}; },
-      retrieve: async id => { record('subscription.retrieve', id); return subscription; },
+      list: async args => { record('subscription.list', args); if (state.failAt === 'subscription.list') throw Error('private provider details'); return {data: state.noSubscriptions ? [] : [subscription]}; },
+      retrieve: async id => { record('subscription.retrieve', id); if (state.failAt === 'subscription.retrieve') throw Error('private provider details'); return subscription; },
       update: async () => { throw Error('No direct cancellation or entitlement mutation'); },
       cancel: async () => { throw Error('Cancellation remains portal-only'); },
     };
     checkout = {sessions: {
-      create: async args => { record('checkout.create', args); return {url: 'https://checkout.fixture.invalid'}; },
-      retrieve: async id => { record('checkout.retrieve', id); return {id, customer: state.profile.stripe_customer_id, subscription: 'sub_fixture', client_reference_id: 'owner', mode: 'subscription', status: 'complete', payment_status: 'paid', metadata: {plan: 'pro'}}; },
+      create: async args => { record('checkout.create', args); if (state.failAt === 'checkout.create') throw Error('private provider details'); return {url: 'https://checkout.fixture.invalid'}; },
+      retrieve: async id => { record('checkout.retrieve', id); if (state.failAt === 'checkout.retrieve') throw Error('private provider details'); return {id, customer: state.profile.stripe_customer_id, subscription: 'sub_fixture', client_reference_id: 'owner', mode: 'subscription', status: 'complete', payment_status: 'paid', metadata: {plan: 'pro'}}; },
     }};
-    billingPortal = {sessions: {create: async args => { record('portal.create', args); return {url: 'https://portal.fixture.invalid'}; }}};
+    billingPortal = {sessions: {create: async args => { record('portal.create', args); if (state.failAt === 'portal.create') throw Error('private provider details'); return {url: 'https://portal.fixture.invalid'}; }}};
   }
   const mocks = {
     'server-only': {}, 'next/server': {NextResponse: {json: (body, init = {}) => ({body, status: init.status || 200, headers: init.headers})}},
     'next/headers': {cookies: () => ({})}, stripe: {default: Stripe},
-    '@supabase/supabase-js': {createClient: () => db},
+    '@supabase/supabase-js': {createClient: (url, key) => { if (!url || !key) throw Error('Missing Supabase config'); return db; }},
     '@supabase/auth-helpers-nextjs': {createRouteHandlerClient: () => db, createServerComponentClient: () => db},
     '../../../lib/stripeCustomerOwnership': ownership, '../../lib/stripeCustomerOwnership': ownership,
     '../../../lib/profileAttribution': attribution, '../../../lib/subscriptionReceipt': receipt,
   };
-  const handlers = {
-    checkout: load('app/api/stripe/checkout-plan/route.ts', mocks).POST,
-    portal: load('app/api/stripe/create-portal/route.ts', mocks).POST,
-    list: load('app/api/stripe/subscription/route.ts', mocks).GET,
-    receipt: load('app/api/stripe/checkout-status/route.ts', mocks).GET,
-    toolkit: load('app/challenge/toolkit/access.ts', mocks).toolkitAccess,
+  const paths = {
+    checkout: ['app/api/stripe/checkout-plan/route.ts', 'POST'],
+    portal: ['app/api/stripe/create-portal/route.ts', 'POST'],
+    list: ['app/api/stripe/subscription/route.ts', 'GET'],
+    receipt: ['app/api/stripe/checkout-status/route.ts', 'GET'],
+    toolkit: ['app/challenge/toolkit/access.ts', 'toolkitAccess'],
   };
-  return {state, calls, invoke: (name, body = {}) => handlers[name]({url: 'https://fixture.invalid/api/stripe/checkout-status?session_id=cs_fixture', json: async () => ({userId: 'owner', plan: 'pro', ...body})})};
+  const handlers = {};
+  return {state, calls, invoke: (name, body = {}) => {
+    // Load only the requested real module, then reuse it across repeat requests.
+    const [file, method] = paths[name];
+    handlers[name] ||= load(file, mocks, state.env)[method];
+    return handlers[name]({url: 'https://fixture.invalid/api/stripe/checkout-status?session_id=cs_fixture', json: async () => ({userId: 'owner', plan: 'pro', ...body})});
+  }};
 }
 const downstream = calls => calls.filter(c => ['checkout.create', 'portal.create', 'subscription.list', 'subscription.retrieve', 'customer.create'].includes(c.name));
 (async () => {
@@ -174,6 +181,74 @@ const downstream = calls => calls.filter(c => ['checkout.create', 'portal.create
   assert.equal((await empty.invoke('list')).body.canCancel, false);
   assert.equal((await empty.invoke('portal', {userId: 'victim', customer: 'cus_victim'})).status, 200);
   assert.equal(empty.calls.find(c => c.name === 'portal.create').value.customer, own.id, 'Portal/cancel ignores body association');
+  // Independent review: all handler error exits, absent associations, minimal output.
+  const names = ['checkout', 'portal', 'list', 'receipt', 'toolkit'];
+  const failureStatus = {checkout:500, portal:500, list:502, receipt:502};
+  function unavailable(name, result) {
+    if (name === 'toolkit') assert.equal(result, 'unavailable');
+    else { assert.equal(result.status, failureStatus[name], name); assert.ok(!JSON.stringify(result.body).includes('private')); }
+  }
+  for (const name of names) {
+    const f = fixture({authThrows:true});
+    unavailable(name, await f.invoke(name));
+    assert.equal(f.calls.length, 0);
+    cases++;
+  }
+  for (const name of names) {
+    const f = fixture({profileError:Error('private database details')});
+    const result = await f.invoke(name);
+    if(name==='portal') assert.equal(result.status,404); else unavailable(name,result);
+    assert.equal(downstream(f.calls).length,0);
+    cases++;
+  }
+  for (const name of names) {
+    const f=fixture({env:{STRIPE_SECRET_KEY:undefined}});
+    unavailable(name,await f.invoke(name));
+    assert.equal(downstream(f.calls).length,0);
+    cases++;
+  }
+  for (const name of ['checkout','portal']) for (const variable of ['NEXT_PUBLIC_SUPABASE_URL','SUPABASE_SERVICE_ROLE_KEY']) {
+    const f=fixture({env:{[variable]:undefined}});
+    unavailable(name,await f.invoke(name));
+    assert.equal(downstream(f.calls).length,0);
+    cases++;
+  }
+  for (const [name,failAt] of [['checkout','customer.create'],['checkout','checkout.create'],['portal','portal.create'],['list','subscription.list'],['receipt','checkout.retrieve'],['receipt','subscription.retrieve'],['toolkit','subscription.list']]) {
+    const f=fixture({failAt,...(failAt==='customer.create'?{profile:null}:{})});
+    unavailable(name,await f.invoke(name));
+    if(failAt==='customer.create') assert.ok(!f.calls.some(c=>c.name==='checkout.create'||(c.name==='profile.upsert'&&c.value.stripe_customer_id)));
+    if(failAt==='checkout.retrieve') assert.ok(!f.calls.some(c=>c.name==='customer.retrieve'||c.name==='subscription.retrieve'));
+    cases++;
+  }
+  for (const option of [{adminError:Error('private admin details')},{attributionError:true}]) {
+    const f=fixture(option), result=await f.invoke('checkout');
+    assert.equal(result.status,option.adminError?404:500);
+    assert.equal(downstream(f.calls).length,0); cases++;
+  }
+  for (const profile of [null,{stripe_customer_id:null},{}]) for(const name of ['portal','list','receipt','toolkit']) {
+    const f=fixture({profile}),result=await f.invoke(name);
+    if(name==='portal')assert.equal(result.status,404);
+    if(name==='list'){assert.equal(result.body.plan,'Free');assert.equal(result.body.canManage,false);}
+    if(name==='receipt')assert.equal(result.body.state,'unavailable');
+    if(name==='toolkit')assert.equal(result,'upgrade');
+    assert.equal(f.calls.length,0);cases++;
+  }
+  for(const badId of ['cus_wrong/path',123,{id:own.id},'cus_'+ 'a'.repeat(241)]) for(const name of names) {
+    const f=fixture({profile:{stripe_customer_id:badId}}),result=await f.invoke(name);
+    if(name==='toolkit')assert.equal(result,'unavailable');
+    else if(name==='receipt')assert.equal(result.body.state,'unavailable');
+    else assert.equal(result.status,403);
+    assert.equal(downstream(f.calls).length,0);
+    assert.ok(!f.calls.some(c=>c.name==='customer.retrieve')); cases++;
+  }
+  for(const name of ['list','receipt']) {
+    const f=fixture(),result=await f.invoke(name);
+    const expected=name==='list'?['canCancel','canManage','cancelAtPeriodEnd','cycle','nextDate','plan','status']:['plan','state'];
+    assert.equal(Object.keys(result.body).sort().join(','),expected.sort().join(','));
+    for(const secret of ['cus_fixture','sub_fixture','same@fixture.invalid','supabase_id','userId'])assert.ok(!JSON.stringify(result.body).includes(secret));
+    cases++;
+  }
+
   // Cancellation is deliberately not a new endpoint: both UI buttons use this same gate.
   const settings = fs.readFileSync('app/settings/page.tsx', 'utf8');
   assert.ok(settings.slice(settings.indexOf('const handleCancelSubscription')).includes("fetch('/api/stripe/create-portal'"));
