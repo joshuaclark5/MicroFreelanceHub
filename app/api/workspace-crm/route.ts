@@ -8,7 +8,8 @@ const validId=(v:string)=>/^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(v)
 export async function GET(request:Request){try{
  const cookieStore=cookies(),db=createRouteHandlerClient({cookies:()=>cookieStore});const {data:{user},error}=await db.auth.getUser();if(error||!user)return reply({error:'Sign in required. Your draft is preserved.'},401);
  const p=new URL(request.url).searchParams,mode=p.get('mode')||'list';
- if([...p.keys()].some(k=>!['mode','after','stage','q','id'].includes(k)||p.getAll(k).length!==1)||!['list','export','activity'].includes(mode))return reply({error:'Unsupported filter.'},400);
+ if([...p.keys()].some(k=>!['mode','after','stage','q','id','expectedActorId'].includes(k)||p.getAll(k).length!==1)||!['list','export','activity'].includes(mode))return reply({error:'Unsupported filter.'},400);
+ const expectedActor=p.get('expectedActorId');if(expectedActor&&expectedActor!==user.id)return reply({error:'Account changed. Return to the original account.'},409);if(mode==='export'&&!expectedActor)return reply({error:'Reload the original account before exporting.'},409);
  const after=p.get('after'),stage=p.get('stage'),search=p.get('q')||'',id=p.get('id');
  if(after&&!validId(after)||stage&&!crmStages.includes(stage as typeof crmStages[number])||search.length>100||/[%,_\\]/.test(search)||id&&!validId(id))return reply({error:'Invalid filter.'},400);
  if(mode==='activity'){
@@ -19,9 +20,10 @@ export async function GET(request:Request){try{
  if(id||mode==='export'&&after)return reply({error:'Unsupported filter combination.'},400);
  let query=db.from('workspace_crm_opportunities').select('id,client_id,title,stage,amount_minor,currency,expected_close,follow_up,reason,version,updated_at',{count:'exact'}).eq('owner_id',user.id).order('id').limit(mode==='export'?10001:101);
  if(after)query=query.gt('id',after);if(stage)query=query.eq('stage',stage);if(search)query=query.ilike('title','%'+search+'%');
- const r=await query;if(r.error)throw r.error;const rows=r.data||[];const complete=r.count!=null&&r.count<=rows.length;
+ const r=await query;if(r.error)throw r.error;const rows=r.data||[];const complete=Number.isSafeInteger(r.count)&&r.count===rows.length;
  if(mode==='export'){
  if(!complete||rows.length>10000)return reply({error:'Export exceeds the complete 10,000-row limit or completeness could not be verified. Narrow the stage/title filter; no partial file was generated.'},409);
+ const current=await db.auth.getUser();if(current.error||current.data.user?.id!==user.id)return reply({error:'Account changed. No file was created.'},409);
  return new Response(exportCrm(rows),{headers:{'Content-Type':'text/csv; charset=utf-8','Content-Disposition':'attachment; filename="opportunities.csv"','Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});
  }
  // Do not silently end pagination if a backend row cap is lower than the requested page.
