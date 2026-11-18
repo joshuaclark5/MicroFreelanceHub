@@ -48,7 +48,7 @@ const assertSafe=x=>{for(const k of ['token_hash','token_ciphertext','provider_i
  intake=await scheduling('publish',{title:'Fixture intake',consent:'Fixture consent',fields:[{id:'q1',label:'Question',required:true}]});
  await check('forced RLS, closed table grants and fixed function search paths',async()=>{
   await admin();const t=(await q("select relrowsecurity,relforcerowsecurity from pg_class where relname in ('workspace_email_outbox','workspace_email_rate')")).rows;assert.equal(t.length,2);assert.ok(t.every(x=>x.relrowsecurity&&x.relforcerowsecurity));
-  const f=(await q("select proname,prosecdef,proconfig from pg_proc where proname like 'workspace_email_%'")).rows;assert.equal(f.length,10);assert.ok(f.every(x=>x.proconfig.includes('search_path=pg_catalog, public')));assert.ok(f.filter(x=>x.proname!=='workspace_email_safe').every(x=>x.prosecdef));
+  const f=(await q("select proname,prosecdef,proconfig from pg_proc where proname like 'workspace_email_%'")).rows;assert.equal(f.length,11);assert.ok(f.every(x=>x.proconfig.includes('search_path=pg_catalog, public')));assert.ok(f.filter(x=>x.proname!=='workspace_email_safe').every(x=>x.prosecdef));
   for(const name of ['anon','authenticated','service_role']){await actor(A,name);for(const table of ['workspace_email_outbox','workspace_email_rate'])for(const statement of ['select * from '+table,'insert into '+table+' default values','delete from '+table,'update '+table+' set '+(table.endsWith('rate')?'next_at=next_at':'status=status')])await deny(()=>q(statement));}
   await actor(A);await deny(()=>q("insert into workspace_email_rate values(true,now()) on conflict(id) do update set next_at=now()"));
  });
