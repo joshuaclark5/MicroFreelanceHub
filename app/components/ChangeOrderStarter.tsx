@@ -26,7 +26,7 @@ export default function ChangeOrderStarter({ original }: { original: any }) {
       }
     }}>
       <p className="d4-eyebrow">Extra work / Separate approval</p>
-      <h2 className="mt-3 text-2xl font-semibold">Create a separate change order.</h2>
+      <h2 className="mt-3 text-2xl font-semibold">More work. A separate decision.</h2>
       <p className="mt-3 text-sm leading-6 text-slate-600">Keep the original agreement intact. Describe only the added work, its price and the effect on timing.</p>
       <label className="d4-field">Added scope<textarea required maxLength={12000} rows={3} className="d4-change-input" value={scope} onChange={e => setScope(e.target.value)} placeholder="Add a booking page and connect the supplied scheduling link." /></label>
       <div className="grid grid-cols-2 gap-3"><label className="d4-field">Additional fee (USD)<input required type="number" min="0" step="0.01" className="d4-change-input" value={amount} onChange={e => setAmount(e.target.value)} /></label><label className="d4-field">Timeline impact<input required maxLength={1000} className="d4-change-input" value={timeline} onChange={e => setTimeline(e.target.value)} placeholder="+2 business days" /></label></div>

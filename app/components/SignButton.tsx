@@ -57,7 +57,7 @@ export default function SignButton({ sowId, initialStatus }: { sowId: string, in
     <button
       onClick={handleSign}
       disabled={loading}
-      className={`w-full py-4 px-6 rounded-lg font-bold text-white text-lg shadow-lg transition-all transform hover:-translate-y-1 ${
+      className={`d4-sign-button w-full py-3 px-5 rounded-lg font-semibold text-white text-sm transition-colors ${
         loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 hover:shadow-xl'
       }`}
     >

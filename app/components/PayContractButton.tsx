@@ -66,7 +66,7 @@ export default function PayContractButton({
     <button 
       onClick={handlePay}
       disabled={loading}
-      className={`w-full font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-lg text-white ${
+      className={`d4-payment-button w-full font-semibold px-4 py-3 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm text-white ${
         isSubscription 
           ? 'bg-indigo-600 hover:bg-indigo-700' 
           : 'bg-emerald-600 hover:bg-emerald-700'

@@ -523,7 +523,7 @@ function EditProjectContent() {
         )}
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="flex flex-col lg:flex-row h-full">
+            <div className="d4-direct-editor flex flex-col lg:flex-row h-full">
               
               {/* MAIN EDITOR COLUMN */}
               <div className="flex-1 p-8 md:p-10 border-r border-gray-200">

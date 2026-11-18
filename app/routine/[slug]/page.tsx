@@ -26,7 +26,7 @@ export default function RoutinePage({ params }: { params: { slug: string } }) {
   if (!data) return notFound();
 
   return (
-    <main className="min-h-screen bg-slate-50 py-12">
+    <main className="public-design public-routine min-h-screen bg-slate-50 py-12">
       <div className="max-w-3xl mx-auto px-4 space-y-8">
         
         {/* Identity Section */}

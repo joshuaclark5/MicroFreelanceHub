@@ -49,7 +49,7 @@ export default function PasswordReset() {
     } catch { setError('Connection interrupted. Please try again.'); }
     finally { setBusy(false); }
   }
-  return <main className="min-h-screen bg-slate-50 px-5 py-12 text-slate-900"><section className="mx-auto max-w-md rounded-xl border border-slate-200 bg-white p-6 sm:p-8">
+  return <main className="public-design public-auth public-recovery min-h-screen bg-slate-50 px-5 py-12 text-slate-900"><section className="mx-auto max-w-md rounded-xl border border-slate-200 bg-white p-6 sm:p-8">
     <Link href="/" className="font-semibold">MicroFreelanceHub</Link><h1 className="mt-6 text-2xl font-semibold">Reset your password</h1>
     {state === 'checking' && <p role="status" className="mt-4">Checking your reset link…</p>}
     {state === 'invalid' && <div role="alert" className="mt-4"><p>This reset link is missing, expired or invalid. Request a new link from the sign-in page.</p><Link href="/login?mode=signin" className="d4-primary mt-5">Return to sign in</Link></div>}

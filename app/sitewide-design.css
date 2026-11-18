@@ -1,0 +1,57 @@
+/* Shared visual foundations. Financial/status semantics and document print styles remain explicit. */
+:root{--mfh-ink:#182a29;--mfh-muted:#53625b;--mfh-paper:#fbfcfa;--mfh-green:#194d41;--mfh-sage:#e7eddf;--mfh-line:#dce5d5}
+body{background:var(--mfh-paper);color:var(--mfh-ink)}
+:where(a,button,input,textarea,select,summary):focus-visible{outline:3px solid #205ed8;outline-offset:4px}
+:where(input,textarea,select){accent-color:var(--mfh-green)}
+.d4-primary{min-height:48px;background:var(--mfh-green);border-color:var(--mfh-green);border-radius:8px}
+.d4-primary:hover{background:#123e34;border-color:#123e34}
+.d4-secondary{min-height:48px;border-color:#cbd8cf;color:var(--mfh-green);border-radius:8px}
+.d4-secondary:hover{background:#eaf1e9;border-color:#6f8c78}
+.d4-tab{min-height:44px;border-color:#cbd8cf;border-radius:8px}
+.d4-tab[aria-pressed=true]{background:#eaf1e9;color:#194d41;border-color:#194d41}
+.d4-eyebrow{color:#406751;letter-spacing:.1em}
+.d4-home{background:var(--mfh-paper)}
+.d4-home>nav{background:#fbfcfaf5;border-color:var(--mfh-line)}
+.d4-home>nav>div:first-child{height:88px;max-width:1240px}
+.d4-home-mobile-links{display:none}
+.d4-home-hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:48px;max-width:1240px;padding:76px 32px 52px;background:none;align-items:center}
+.d4-home-hero>.mfh-hero-copy{margin:0;text-align:left;min-width:0}
+.d4-home-hero h1{font-size:clamp(42px,4.25vw,62px);font-weight:500;line-height:1.08;letter-spacing:-.045em}
+.d4-home-hero>.mfh-hero-copy>p{color:var(--mfh-muted);line-height:1.75}
+.d4-home-hero>.mfh-hero-copy>.d4-eyebrow{color:#406751;font-size:11px;letter-spacing:.1em;margin-bottom:24px}
+.mfh-hero-copy>div{justify-content:flex-start;flex-wrap:wrap}
+.mfh-hero-copy>div>a:last-child{border:1px solid #cbd8cf;border-radius:8px;min-height:48px;color:#194d41;text-decoration:none;padding:12px 18px}
+.mfh-hero-example{min-width:0;margin:0;padding:22px;background:radial-gradient(ellipse at top right,#f5f8c9aa,transparent 65%),var(--mfh-sage);border:1px solid var(--mfh-line);border-radius:22px;box-shadow:0 24px 65px -42px #526b42}
+.mfh-hero-example .d4-example{border:0;background:transparent;overflow:visible;box-shadow:none}
+.mfh-hero-example .d4-example-bar{padding:0 0 18px;background:transparent;border:0;font-size:10px;color:#53684e}
+.mfh-hero-example .d4-example>div[role=group]{padding:0 0 16px}
+.mfh-hero-example .d4-example-grid{display:block;background:#fff;border:1px solid #dbe1d7;border-radius:12px;overflow:hidden;box-shadow:0 15px 25px -15px #324d3e44}
+.mfh-hero-example .d4-example-grid>div{padding:24px}
+.mfh-hero-example h2{font:400 30px/1.2 Georgia,serif;letter-spacing:-.025em}
+.mfh-hero-example .d4-example-grid dl{margin-top:20px}
+.mfh-hero-example .d4-example-grid aside{padding:20px 24px;border:0;border-top:1px solid #e4e9df;background:#f3f6f0;display:grid;grid-template-columns:1fr 1fr;gap:10px 16px}
+.mfh-hero-example aside>p:first-child{grid-column:1/-1}
+.mfh-hero-example aside>p:nth-child(2){font-weight:500;margin:0}
+.mfh-hero-example aside>p:nth-child(3){grid-column:2;grid-row:2/4;margin:0;font-size:12px}
+.mfh-hero-example aside>div{margin:0;font-size:12px}
+.mfh-hero-example aside>a,.mfh-hero-example aside>p:last-child{grid-column:1/-1}
+.mfh-hero-example aside>p:last-child{margin:0;font-size:10px}
+.d4-home-steps{grid-column:1/-1;max-width:none;width:100%;margin:8px 0 0;border-block:1px solid var(--mfh-line)}
+.d4-home-steps>div:not(.absolute){padding:24px 0}
+.d4-home .rounded-2xl{border-radius:14px}
+.d4-home>section:not(.d4-home-hero) h2{font-weight:500;letter-spacing:-.03em}
+.d4-home :is(.bg-blue-600,.bg-blue-700){background:#194d41}
+.d4-home :is(.text-blue-600,.text-blue-700){color:#194d41}
+.d4-home :is(.bg-slate-50,.bg-blue-50){background:#eff3eb}
+.d4-home .bg-slate-900{background:#0f172a}
+body>footer{background:#f3f6ef;border-color:var(--mfh-line)}
+body>footer p{line-height:1.8}
+@media(max-width:1100px){.d4-home>nav .hidden.md\:flex{display:none}.d4-home>nav button.md\:hidden{display:block}.d4-home>nav>div.md\:hidden{display:block}.d4-home-hero{gap:28px;padding:48px 26px}.d4-home-hero h1{font-size:45px}}
+@media(max-width:760px){.d4-home>nav>div:first-child{height:73px}.d4-home-hero{display:block;padding:38px 21px 28px}.d4-home-hero h1{font-size:47px;letter-spacing:-.045em}.d4-home-hero>.mfh-hero-copy>p{font-size:15px}.d4-home-hero>.mfh-hero-copy>p:last-child{font-size:12px;margin:16px 0 28px}.mfh-hero-copy>div{flex-direction:column;align-items:stretch}.mfh-hero-example{padding:18px 15px;border-radius:16px}.mfh-hero-example .d4-example-grid>div{padding:20px}.mfh-hero-example .d4-example-grid aside{padding:18px}.mfh-hero-example h2{font-size:26px}.d4-home-steps{margin-top:30px}.d4-home-steps>div:not(.absolute){padding:18px 0}.d4-home-hero>.mfh-hero-copy>.d4-eyebrow{font-size:10px}}
+@media(max-width:350px){.d4-home-hero{padding-inline:16px}.d4-home-hero h1{font-size:40px}.d4-home>nav a[aria-label] span{font-size:13px}.mfh-hero-example{padding:14px 11px}.mfh-hero-example .d4-example-grid>div{padding:16px}.mfh-hero-example aside>p:nth-child(3){grid-column:1/-1;grid-row:auto}.mfh-hero-example aside>div{grid-column:1/-1}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+@media print{body{background:white}.mfh-hero-example{box-shadow:none}}
+.mfh-public-nav{background:#fbfcfa;border-color:#dce5d5}.mfh-public-nav>.container{max-width:1240px;min-height:56px}.mfh-public-nav a,.mfh-public-nav button{min-height:44px;align-items:center}.mfh-public-nav>.container>.hidden{align-items:center;font-size:13px}.mfh-public-nav .bg-black{background:#194d41}.mfh-public-nav .d4-brand{display:flex}
+.mfh-checkout,.mfh-payment-return{background:#eff3eb;color:#182a29;padding:48px 20px}.mfh-checkout>div,.mfh-payment-return>div{border:1px solid #dce5d5;border-radius:18px;background:white;padding:36px;box-shadow:0 18px 50px -40px #194d41}.mfh-payment-return h1{font-family:Georgia,serif;font-weight:400}.mfh-payment-return .text-blue-700,.mfh-payment-return .text-blue-600{color:#194d41}.mfh-payment-return .bg-blue-600{background:#194d41}
+@media(max-width:1100px){.mfh-public-nav .hidden.md\:flex{display:none}.mfh-public-nav .md\:hidden{display:flex}}
+@media(max-width:600px){.mfh-payment-return>div,.mfh-checkout>div{padding:24px}.mfh-public-nav .d4-brand{font-size:14px}}

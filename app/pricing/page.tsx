@@ -63,7 +63,7 @@ export default function PricingPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="public-design public-pricing min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600 mb-4"></div>
           <p className="text-slate-600">Loading pricing...</p>
@@ -73,7 +73,7 @@ export default function PricingPage() {
   }
 
   return (
-    <div className="d4-pricing min-h-screen bg-[#f6f8f7] font-sans text-slate-900 selection:bg-blue-100 pb-24">
+    <div className="public-design public-pricing d4-pricing min-h-screen bg-[#f6f8f7] font-sans text-slate-900 selection:bg-blue-100 pb-24">
       {/* NAVBAR */}
       <nav className="border-b border-gray-200 bg-white sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center">

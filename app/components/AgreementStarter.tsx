@@ -63,10 +63,12 @@ export default function AgreementStarter({ onComplete, onSkip }: {
       <button className="d4-secondary" type="button" onClick={() => dialog.current?.showModal()}>Preview</button>
     </div>
     <p className="mt-4 text-sm text-slate-600">Draft and preview before creating an account. Saving requires an account; paid features and account limits are shown before checkout. <a href="/pricing" target="_blank" rel="noopener noreferrer" className="text-blue-700 underline">View plans</a></p>
+    <div className="d4-draft-heading"><p className="d4-eyebrow">Agreement editor</p><h2>Your next project,<br /><em>clearly outlined.</em></h2></div>
+    <div className="d4-starter-grid">
+      <div className="d4-guided-card">
     <ol aria-label="Agreement progress" className="d4-stepbar">
       {labels.map((label, index) => <li key={label} aria-current={stage === index ? 'step' : undefined}><button type="button" disabled={index > stage} onClick={() => advance(index)}>{index + 1} {label}</button></li>)}
     </ol>
-    <div className="d4-starter-grid">
       <form onSubmit={event => {
         event.preventDefault();
         if (stage === 0) trackAgreementEvent('agreement_started');
@@ -109,6 +111,7 @@ export default function AgreementStarter({ onComplete, onSkip }: {
           </div>
         </fieldset>
       </form>
+      </div>
       <aside aria-label="Live brief preview" className="d4-paper-wrap"><div className="d4-paper-caption"><span>Document preview</span><span>Draft</span></div>{document}</aside>
     </div>
     <dialog onKeyDown={keepDialogFocus} ref={dialog} className="d4-preview-dialog"><div className="mb-4 flex justify-between items-center gap-3"><h2 className="font-semibold">Document preview</h2><button className="d4-secondary" onClick={() => dialog.current?.close()}>Close</button></div>{document}</dialog>

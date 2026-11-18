@@ -71,7 +71,7 @@ function CheckoutLogic() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="mfh-checkout min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600 mb-4"></div>
           <p className="text-slate-600">Preparing your checkout...</p>
@@ -82,7 +82,7 @@ function CheckoutLogic() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="mfh-checkout min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center max-w-md">
           <h1 className="text-2xl font-bold text-slate-900 mb-4">Checkout Error</h1>
           <p className="text-slate-600 mb-6">{error}</p>
@@ -101,7 +101,7 @@ function CheckoutLogic() {
 export default function CheckoutPlanPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="mfh-checkout min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600 mb-4"></div>
           <p className="text-slate-600">Loading secure checkout...</p>

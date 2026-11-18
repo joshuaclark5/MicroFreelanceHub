@@ -37,7 +37,7 @@ const partnerBenefits = [
 
 export default function PartnersPage() {
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
+    <main className="public-design public-partners min-h-screen bg-slate-50 text-slate-900">
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-20">
           <div>

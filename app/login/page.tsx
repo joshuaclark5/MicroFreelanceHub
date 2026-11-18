@@ -184,7 +184,7 @@ function LoginForm() {
 
         {/* Logo at top of card */}
         <div className="flex justify-center">
-          <Image src="/icon.svg" alt="MicroFreelanceHub" width={64} height={64} />
+          <Link href="/" className="d4-brand"><span aria-hidden="true">M</span>MicroFreelanceHub</Link>
         </div>
 
         <div className="text-center">
@@ -331,7 +331,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4 sm:p-6">
+    <div className="public-design public-auth min-h-screen bg-white flex flex-col items-center justify-center p-4 sm:p-6">
       {/* Back to Home Link */}
       <div className="absolute top-6 right-6 sm:top-8 sm:right-8">
          <Link href="/" className="text-sm font-semibold text-slate-500 hover:text-slate-900 transition-colors">

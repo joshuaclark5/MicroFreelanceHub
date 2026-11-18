@@ -28,15 +28,19 @@ useEffect(() => {
   };
 
   return (
-    <nav className="w-full border-b border-gray-200 bg-white py-4">
+    <nav aria-label="Main navigation" className="mfh-public-nav w-full border-b border-gray-200 bg-white py-4">
       <div className="container mx-auto flex items-center justify-between px-4">
         {/* Logo */}
-        <Link href="/" className="text-xl font-bold text-gray-900">
-          MicroFreelanceHub
+        <Link href="/" className="d4-brand">
+          <span aria-hidden="true">M</span>MicroFreelanceHub
         </Link>
 
         {/* Right Side Buttons */}
         <div className="hidden gap-4 md:flex">
+          <Link href="/templates" className="text-gray-600 hover:text-black mt-2">Templates</Link>
+          <Link href="/pricing" className="text-gray-600 hover:text-black mt-2">Pricing</Link>
+          <a href="mailto:support@microfreelancehub.com" className="text-gray-600 hover:text-black mt-2">Help</a>
+          {userEmail && <Link href="/settings" className="text-gray-600 hover:text-black mt-2">Settings</Link>}
           <Link href="/articles" className="text-gray-600 hover:text-black mt-2">
             Articles
           </Link>
@@ -68,7 +72,8 @@ useEffect(() => {
         </div>
         <button
           type="button"
-          aria-label="Open navigation menu"
+          aria-label={isMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+          aria-expanded={isMenuOpen}
           onClick={() => setIsMenuOpen((open) => !open)}
           className="rounded-md border border-gray-200 p-2 text-gray-700 md:hidden"
         >
@@ -77,6 +82,10 @@ useEffect(() => {
       </div>
       {isMenuOpen && (
         <div className="container mx-auto flex flex-col gap-3 px-4 pt-4 md:hidden">
+          <Link href="/templates" className="p-3">Templates</Link>
+          <Link href="/pricing" className="p-3">Pricing</Link>
+          <a href="mailto:support@microfreelancehub.com" className="p-3">Help</a>
+          {userEmail && <Link href="/settings" className="p-3">Settings</Link>}
           <Link href="/articles" className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
             Articles
           </Link>

@@ -132,7 +132,7 @@ export default function HomePage() {
       </nav>
 
       <section className="d4-home-hero px-5 pt-8 pb-12 max-w-7xl mx-auto">
-        <div className="max-w-3xl mx-auto text-center">
+        <div className="mfh-hero-copy max-w-3xl mx-auto text-center">
           <p className="d4-eyebrow mb-3">Agreement software for freelancers &amp; service businesses</p>
           <h1 className="text-3xl sm:text-5xl font-semibold text-gray-950 leading-tight">Agree on the job.<br/>Approve the changes.<br/>Let clients pay.</h1>
           <p className="mt-4 text-base sm:text-lg text-gray-600 leading-relaxed">Create an agreement, collect signatures and accept payments through your connected Stripe account—all from one client link.</p>
@@ -142,7 +142,7 @@ export default function HomePage() {
           </div>
           <p className="mt-3 text-xs sm:text-sm text-slate-600">Free to draft. Create an account to save. <Link href="/pricing" className="underline underline-offset-2">Compare plan limits and payment features</Link>.</p>
         </div>
-        <div className="mt-7"><AgreementExample /></div>
+        <div className="mfh-hero-example mt-7"><AgreementExample /></div>
         {/* VISUAL FLOW GRAPHIC */}
         <div className="d4-home-steps mt-10 max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 relative z-20">
            <div className="hidden md:block absolute top-1/2 left-1/6 right-1/6 h-1 bg-gradient-to-r from-slate-200 via-blue-300 to-emerald-300 -z-10 translate-y-2"></div>

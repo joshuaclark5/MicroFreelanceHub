@@ -27,7 +27,7 @@ export const metadata = {
 
 export default function HairQuizPage() {
   return (
-    <main className="min-h-screen bg-slate-50 flex flex-col items-center justify-center py-20 px-4">
+    <main className="public-design public-quiz min-h-screen bg-slate-50 flex flex-col items-center justify-center py-20 px-4">
       <div className="max-w-xl w-full text-center mb-10">
         <h1 className="text-3xl font-serif font-bold text-slate-900">
           Curly Hair Routine Diagnostic

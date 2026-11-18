@@ -225,7 +225,7 @@ export default function SettingsPage() {
       {/* Header */}
       <header className="d4-settings-header"><Link className="d4-brand" href="/"><span>M</span>MicroFreelanceHub</Link><Link className="d4-secondary" href="/dashboard">Agreements</Link></header>
       <div className="d4-settings-main max-w-6xl mx-auto px-4 sm:px-8 py-8">
-        <h1 className="text-3xl font-semibold">Settings &amp; billing</h1>
+        <p className="d4-eyebrow">Settings &amp; billing</p><h1 className="d4-page-title">One workspace.<br /><em>Two different payment needs.</em></h1>
         <p className="mt-2 text-slate-600">Client payments and your software subscription, clearly separated.</p>
         <div className="d4-settings-overview">
           <section className="d4-surface"><p className="d4-eyebrow">Client payments</p><h2 className="mt-3 text-xl font-semibold">Accept payments through Stripe</h2>

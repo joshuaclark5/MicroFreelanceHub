@@ -20,7 +20,7 @@ export default function PaymentSuccessPage({ searchParams }: Props) {
   const plan = planLabel(searchParams.plan);
 
   return (
-    <div className="min-h-screen bg-slate-950 px-6 py-16 text-white">
+    <div className="mfh-payment-return min-h-screen bg-slate-950 px-6 py-16 text-white">
       <div className="mx-auto max-w-2xl rounded-3xl border border-white/10 bg-white p-8 text-center text-slate-900 shadow-2xl">
         <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
           <CreditCard className="h-9 w-9" />

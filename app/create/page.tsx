@@ -692,7 +692,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
 
           {/* STEP 3 (FINAL): EDITOR */}
           {step === 'final' && (
-            <div className="flex flex-col lg:flex-row h-full animate-in fade-in zoom-in duration-300">
+            <div className="d4-direct-editor flex flex-col lg:flex-row h-full animate-in fade-in zoom-in duration-300">
               
               {/* MAIN EDITOR COLUMN */}
               <div className="flex-1 min-w-0 p-4 sm:p-8 md:p-10 border-r border-gray-200">

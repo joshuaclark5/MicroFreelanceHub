@@ -53,7 +53,7 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
   };
 
   return (
-    <article className="min-h-screen bg-white text-slate-900">
+    <article className="public-design public-editorial min-h-screen bg-white text-slate-900">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
 
       <header className="border-b border-slate-200 bg-slate-950 px-6 py-16 text-white md:py-20">

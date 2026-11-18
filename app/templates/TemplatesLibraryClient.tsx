@@ -80,13 +80,13 @@ export default function TemplatesLibraryClient({ templates, total }: { templates
   const filteredTemplates = results.templates;
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
+    <main className="public-design public-library min-h-screen bg-slate-50 text-slate-900">
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
-              <Link href="/" className="text-sm font-bold text-blue-600 hover:text-blue-700">
-                MicroFreelanceHub
+              <Link href="/" className="d4-brand">
+                <span aria-hidden="true">M</span>MicroFreelanceHub
               </Link>
               <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-slate-950 md:text-5xl">
                 Template Library
@@ -112,12 +112,12 @@ export default function TemplatesLibraryClient({ templates, total }: { templates
                 value={query}
                 aria-label="Search templates"
                 onChange={(event) => { setQuery(event.target.value); setPage(1); }}
-                placeholder="Search by trade, service, document type, or keyword"
+                placeholder="Search templates"
                 className="h-13 w-full rounded-xl border border-slate-200 bg-white py-4 pl-12 pr-4 text-base font-semibold outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
               />
             </label>
 
-            <div className="flex gap-2 overflow-x-auto pb-1">
+            <div className="flex flex-wrap gap-2 pb-1">
               {filters.map((filter) => {
                 const Icon = filter.icon;
                 const selected = activeFilter === filter.value;

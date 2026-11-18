@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 
 export default function ClientMessageGeneratorPage() {
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
+    <main className="public-design public-tools min-h-screen bg-slate-50 text-slate-900">
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -29,7 +29,7 @@ export default function ClientMessageGeneratorPage() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-lg font-bold text-white shadow-md">
                 M
               </div>
-              <span className="text-xl font-bold tracking-tight text-slate-900">MicroFreelance</span>
+              <span className="text-xl font-bold tracking-tight text-slate-900">MicroFreelanceHub</span>
             </Link>
             <div className="flex items-center gap-3">
               <Link href="/articles" className="text-sm font-bold text-slate-600 hover:text-slate-900">

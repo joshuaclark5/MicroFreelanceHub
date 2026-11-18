@@ -38,7 +38,7 @@ export default function TesterPage() {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div className="public-design public-auth public-tester" style={{ padding: '20px' }}>
       <h1>E2E Tester Login</h1>
       <form onSubmit={handleLogin}>
         <div style={{ marginBottom: '10px' }}>

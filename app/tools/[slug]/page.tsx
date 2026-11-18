@@ -58,14 +58,14 @@ export default function ToolScenarioPage({ params }: { params: { slug: string } 
   const page = pages[params.slug as ToolSlug] || pages['late-payment-reply-generator'];
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
+    <main className="public-design public-tools min-h-screen bg-slate-50 text-slate-900">
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-lg font-bold text-white shadow-md">
               M
             </div>
-            <span className="text-xl font-bold tracking-tight text-slate-900">MicroFreelance</span>
+            <span className="text-xl font-bold tracking-tight text-slate-900">MicroFreelanceHub</span>
           </Link>
           <Link href="/tools/client-message-generator" className="text-sm font-bold text-blue-600 hover:text-blue-700">
             All reply tools

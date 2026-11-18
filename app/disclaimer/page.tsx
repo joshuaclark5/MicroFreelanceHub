@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export default function Disclaimer() {
   return (
-    <div className="min-h-screen bg-gray-50 py-20 px-4">
+    <div className="public-design public-legal public-disclaimer min-h-screen bg-gray-50 py-20 px-4">
       <div className="max-w-3xl mx-auto bg-white p-10 rounded-xl shadow-sm border border-gray-100">
         <h1 className="text-3xl font-bold mb-6">Legal Disclaimer</h1>
         

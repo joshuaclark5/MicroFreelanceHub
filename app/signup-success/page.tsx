@@ -33,7 +33,7 @@ export default async function SignupSuccessPage({ searchParams }: Props) {
   const continueHref = searchParams.template ? `/templates/${searchParams.template}` : '/dashboard';
 
   return (
-    <div className="min-h-screen bg-slate-50 px-6 py-16 text-slate-900">
+    <div className="public-design public-auth public-confirmation min-h-screen bg-slate-50 px-6 py-16 text-slate-900">
       <div className="mx-auto max-w-2xl rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm">
         <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
           <CheckCircle2 className="h-9 w-9" />

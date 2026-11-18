@@ -17,7 +17,7 @@ export default function ArticlesPage() {
   const sortedArticles = [...articles].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 
   return (
-    <div className="min-h-screen bg-white text-slate-900">
+    <div className="public-design public-articles min-h-screen bg-white text-slate-900">
       <section className="border-b border-slate-200 bg-slate-950 px-6 py-20 text-white">
         <div className="mx-auto max-w-5xl">
           <Link href="/" className="mb-8 inline-flex items-center text-sm font-bold text-slate-300 hover:text-white">

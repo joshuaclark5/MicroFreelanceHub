@@ -245,7 +245,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
   };
 
   return (
-    <div className="d4-template min-h-screen bg-white font-sans text-slate-900 pb-20">
+    <div className="public-design public-template d4-template min-h-screen bg-white font-sans text-slate-900 pb-20">
       
       <nav aria-label="Site navigation" className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 bg-white px-5 py-4">
         <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold"><span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-lg font-bold text-white">M</span>MicroFreelanceHub</Link>
