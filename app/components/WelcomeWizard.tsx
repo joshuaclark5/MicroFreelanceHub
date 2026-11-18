@@ -141,8 +141,8 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
                   <div className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-semibold text-white">Mega-Easy Taxes</p>
-                      <p className="text-sm text-indigo-200">At the end of the year, Stripe automatically sends your 1099 for all invoices processed here.</p>
+                      <p className="font-semibold text-white">Tax Records</p>
+                      <p className="text-sm text-indigo-200">Keep your payment records for tax preparation. Tax forms and obligations depend on your circumstances and provider eligibility.</p>
                     </div>
                   </div>
                 </div>
@@ -164,7 +164,7 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
               <div>
                 <h2 className="text-3xl font-bold text-white mb-2">Connect Your Bank</h2>
                 <p className="text-indigo-100 mb-8">
-                  To get paid instantly from your clients, we need to connect your bank account via Stripe.
+                  New Stripe connections are unavailable while connection security is reviewed. You can continue setup without connecting a bank account.
                 </p>
               </div>
 
@@ -172,8 +172,8 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
                 <div className="flex items-start gap-3">
                   <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-semibold text-white">Instant Payouts</p>
-                    <p className="text-sm text-indigo-200">Get paid the same day your clients pay you</p>
+                    <p className="font-semibold text-white">Payout Timing</p>
+                    <p className="text-sm text-indigo-200">Payout availability and timing depend on your payment provider and account eligibility.</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">

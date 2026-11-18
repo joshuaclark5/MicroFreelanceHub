@@ -6,7 +6,7 @@ export async function dispatchEmailOnce(db:EmailRpc,env:NodeJS.ProcessEnv=proces
  // No endpoint, scheduler or import-time work. Explicit operator activation gates even claims.
  const config=emailProviderConfig(env),ring=emailKeyring(env);
  const claimed=await rpc(db,'workspace_email_claim');if(!claimed)return {status:'idle'};
- // Validate/decrypt before begin. Missing historical key leaves lease recoverable; never sends garbage.
+ // Validate/decrypt before begin. Missing historical key quarantines the fenced lease as failed; never sends garbage.
  let token:string|undefined;
  try { if(claimed.template==='team-invitation.v1'){
   token=openEmailToken(claimed.token_ciphertext,[claimed.actor_id,claimed.operation_id,claimed.aggregate_id].join(':'),ring);
