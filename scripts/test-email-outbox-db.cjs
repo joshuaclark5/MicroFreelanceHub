@@ -128,6 +128,14 @@ const assertSafe=x=>{for(const k of ['token_hash','token_ciphertext','provider_i
   await admin();assert.equal((await q('select token_ciphertext from workspace_email_outbox where id=$1',[r.id])).rows[0].token_ciphertext,null);
   const j=await invitation(),other=await enqueue(invitationArgs(j));await admin();await db.exec("update workspace_email_rate set next_at=clock_timestamp()-interval '1 second'");await service();const next=await call('claim');assert.equal(next.id,other.id);
  });
+ await check('wall expired invitation with live lease cancels dispatch in old transaction',async()=>{
+  await isolate();const i=await invitation(),r=await enqueue(invitationArgs(i)),l=await lease(r.id);await admin();await q("update team_invites set expires_at=clock_timestamp()+interval '150 milliseconds' where id=$1",[i.inviteId]);await service();await db.exec('begin');await new Promise(resolve=>setTimeout(resolve,300));assert.equal(await call('begin',[r.id,l.lease_id]),null);await db.exec('commit');assert.equal((await row(r.id)).status,'canceled');
+ });
+ await check('quarantine rejects unauthorized wrong expired sending and unknown claims',async()=>{
+  await isolate();const i=await invitation(),r=await enqueue(invitationArgs(i)),l=await lease(r.id);
+  for(const role of ['anon','authenticated']){await actor(A,role);await deny(()=>call('quarantine',[r.id,l.lease_id]));}await service();await deny(()=>call('quarantine',[r.id,randomUUID()]),'40001');assert.equal((await row(r.id)).status,'leased');await admin();await q("update workspace_email_outbox set lease_until=clock_timestamp()-interval '1 second' where id=$1",[r.id]);await service();await deny(()=>call('quarantine',[r.id,l.lease_id]),'40001');
+  const live=await lease(r.id);assert.equal((await call('begin',[r.id,live.lease_id])).status,'sending');await deny(()=>call('quarantine',[r.id,live.lease_id]),'40001');assert.equal((await row(r.id)).status,'sending');await service();await call('finish',[r.id,live.lease_id,'unknown',null,60]);await deny(()=>call('quarantine',[r.id,live.lease_id]),'40001');assert.equal((await row(r.id)).status,'unknown');
+ });
  report.passed=report.failures.length===0;
  }catch(e){report.failures.push({name:'setup or harness',message:e.message,stack:e.stack});console.error(e);}
  finally{report.passed=report.failures.length===0;report.passedGroups=report.checks.length;fs.writeFileSync(path.join(out,'db-results.json'),JSON.stringify(report,null,2));if(db)await db.close();console.log((report.passed?'PASS':'FAIL')+' '+report.checks.length+' database groups; '+report.failures.length+' failures; evidence '+path.join(out,'db-results.json'));if(!report.passed)process.exitCode=1;}
