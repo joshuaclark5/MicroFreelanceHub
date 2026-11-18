@@ -31,7 +31,7 @@ export default function CrmWorkspace(){
  async function exportCsv(){setBusy(true);setError('');try{const p=params();p.set('mode','export');const r=await fetch('/api/workspace-crm?'+p,{cache:'no-store'});if(!r.ok){const b=await r.json();throw Error(b.error);}download(await r.text(),'opportunities.csv');}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
  const disabled=busy||loading||!data||!!pending;
  const change=(key:keyof ReturnType<typeof blank>,v:string)=>setDraft(d=>({...d,[key]:v}));
- return <div className="d4-shell crm-shell"><WorkspaceNav active="workspace"/><main className="crm-main">
+ return <div className="d4-shell crm-shell"><WorkspaceNav active="crm"/><main className="crm-main">
  <header className="crm-top"><Link href="/workspace/clients">Your workspace / Clients</Link><span>OWNER WORKSPACE</span></header>
  <section className="crm-hero"><p className="crm-eyebrow">RELATIONSHIPS, WITH INTENTION</p><h1>A little clarity.<br/><em>A better next conversation.</em></h1><p>Keep opportunities, thoughtful notes and your next follow-up together.</p><div className="crm-hero-foot"><span>Private to your account</span><span>Opportunity values are not revenue</span></div></section>
  <div className="crm-heading"><div><p className="crm-eyebrow">YOUR OPPORTUNITIES</p><h2>Make room for what’s next.</h2></div><button type="button" onClick={()=>void load()} disabled={busy}>Reload saved opportunities</button></div>

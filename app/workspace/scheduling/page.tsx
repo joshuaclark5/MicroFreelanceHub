@@ -47,7 +47,7 @@ export default function Scheduling(){
   {error&&<p role="alert" className="rounded border border-red-700 bg-red-50 p-3">{error}</p>}
   {status&&<p role="status" className="rounded bg-green-50 p-3">{status}</p>}
   {pending.current&&<button className={button} disabled={disabled} onClick={()=>pending.current&&void mutate(pending.current.body)}>Retry same operation</button>}
-  <button className={button} disabled={busy} onClick={()=>refresh().then(()=>setError('')).catch(e=>setError(e.message))}>Refresh records (keep draft)</button>
+  <button disabled={busy} onClick={()=>refresh().then(()=>setError('')).catch(e=>setError(e.message))}>Refresh records (keep draft)</button>
   {!data&&!error&&<p role="status">Loading private scheduling records…</p>}
   {data?.truncated&&<p role="alert">Showing the latest 500 records in each section. Older records are not shown. This bounded view is not a complete export.</p>}
   <div className="grid gap-6 lg:grid-cols-2">
