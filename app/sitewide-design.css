@@ -50,6 +50,23 @@ body>footer p{line-height:1.8}
 @media(max-width:1100px){.d4-home>nav .hidden.md\:flex{display:none}.d4-home>nav button.md\:hidden{display:block}.d4-home>nav>div.md\:hidden{display:block}.d4-home-hero{gap:28px;padding:48px 26px}.d4-home-hero h1{font-size:45px}}
 @media(max-width:760px){.d4-home>nav>div:first-child{height:73px}.d4-home-hero{display:block;padding:38px 21px 28px}.d4-home-hero h1{font-size:47px;letter-spacing:-.045em}.d4-home-hero>.mfh-hero-copy>p{font-size:15px}.d4-home-hero>.mfh-hero-copy>p:last-child{font-size:12px;margin:16px 0 28px}.mfh-hero-copy>div{flex-direction:column;align-items:stretch}.mfh-hero-example{padding:18px 15px;border-radius:16px}.mfh-hero-example .d4-example-grid>div{padding:20px}.mfh-hero-example .d4-example-grid aside{padding:18px}.mfh-hero-example h2{font-size:26px}.d4-home-steps{margin-top:30px}.d4-home-steps>div:not(.absolute){padding:18px 0}.d4-home-hero>.mfh-hero-copy>.d4-eyebrow{font-size:10px}}
 @media(max-width:350px){.d4-home-hero{padding-inline:16px}.d4-home-hero h1{font-size:40px}.d4-home>nav a[aria-label] span{font-size:13px}.mfh-hero-example{padding:14px 11px}.mfh-hero-example .d4-example-grid>div{padding:16px}.mfh-hero-example aside>p:nth-child(3){grid-column:1/-1;grid-row:auto}.mfh-hero-example aside>div{grid-column:1/-1}}
+/* Center the single-column introduction, not the document, forms or reading copy.
+   Keep each existing headline sentence on one line at ordinary phone sizes. */
+@media(max-width:1000px){
+ .d4-home-hero{grid-template-columns:minmax(0,1fr);gap:32px;align-items:start}
+ .d4-home-hero>.mfh-hero-copy{width:100%;max-width:640px;margin-inline:auto;text-align:center}
+ .d4-home-hero h1{font-size:clamp(30px,8.2vw,52px);line-height:1.12;letter-spacing:-.04em}
+ .d4-home-hero>.mfh-hero-copy>p{max-width:44ch;margin-inline:auto;text-wrap:pretty}
+ .d4-home-hero>.mfh-hero-copy>p:not(.d4-eyebrow):not(:last-child){font-size:15px}
+ .d4-home-hero>.mfh-hero-copy>.d4-eyebrow{max-width:46ch;margin-bottom:20px;text-wrap:balance}
+ .d4-home-hero>.mfh-hero-copy>p:last-child{max-width:48ch;margin-inline:auto}
+ .mfh-hero-copy>div{justify-content:center}
+ .mfh-hero-example{width:100%;max-width:680px;margin:0 auto}
+}
+@media(max-width:760px){
+ .mfh-hero-copy>div{max-width:360px;margin-inline:auto}
+ .mfh-hero-example{margin-top:32px}
+}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 @media print{body{background:white}.mfh-hero-example{box-shadow:none}}
 .mfh-public-nav{background:#fbfcfa;border-color:#dce5d5}.mfh-public-nav>.container{max-width:1240px;min-height:56px}.mfh-public-nav a,.mfh-public-nav button{min-height:44px;align-items:center}.mfh-public-nav>.container>.hidden{align-items:center;font-size:13px}.mfh-public-nav .bg-black{background:#194d41}.mfh-public-nav .d4-brand{display:flex}
