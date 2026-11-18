@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { SchedulingData, IntakeField, localInstants, slotLabel } from '../../lib/workspaceScheduling';
-const control='w-full rounded border border-slate-400 p-2 text-slate-950 bg-white';
+const control='min-w-0 max-w-full w-full rounded border border-slate-400 p-2 text-slate-950 bg-white';
 const button='rounded bg-slate-900 px-4 py-3 text-white disabled:opacity-50';
 const section='rounded-xl border border-slate-300 bg-white p-4 space-y-4';
 const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -38,7 +38,7 @@ export default function Scheduling(){
   }catch(e){setSlots([]);setError((e as Error).message);}
  }
  const disabled=busy||!data;
- return <div className="mx-auto max-w-5xl p-3 sm:p-6 text-slate-900 space-y-6">
+ return <div className="mx-auto max-w-5xl min-w-0 break-words p-3 sm:p-6 text-slate-900 space-y-6">
   <nav aria-label="Suite sections" className="flex flex-wrap gap-3 text-sm underline"><a href="/workspace/clients">Clients</a><a href="/workspace/projects">Projects</a><a href="/workspace/time">Time</a><a href="/workspace/scheduling">Scheduling</a><a href="/workspace/invoices">Invoices</a><a href="/dashboard">Agreements</a></nav>
   <h1 className="text-2xl font-bold">Local scheduling &amp; intake</h1>
   <p>Owner-managed <strong>MFH bookings only</strong>. External calendars are not checked. No emails, reminders, or invitations are sent. Intake answers are owner-only; there is no public booking link.</p>
@@ -55,7 +55,7 @@ export default function Scheduling(){
     <label className="block">Event title<input className={control} required maxLength={100} value={rule.title} onChange={e=>setRule({...rule,title:e.target.value})}/></label>
     <label className="block">Host IANA timezone<input className={control} required value={rule.timezone} onChange={e=>setRule({...rule,timezone:e.target.value})}/></label>
     <label className="block">Weekday<select className={control} value={rule.weekday} onChange={e=>setRule({...rule,weekday:Number(e.target.value)})}>{days.map((d,i)=><option key={d} value={i}>{d}</option>)}</select></label>
-    <div className="grid grid-cols-2 gap-3">{(['startMinute','endMinute'] as const).map(k=><label key={k}>{k==='startMinute'?'Window starts':'Window ends'}<input className={control} type="time" required value={time(rule[k])} onChange={e=>setRule({...rule,[k]:minute(e.target.value)})}/></label>)}</div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{(['startMinute','endMinute'] as const).map(k=><label key={k}>{k==='startMinute'?'Window starts':'Window ends'}<input className={control} type="time" required value={time(rule[k])} onChange={e=>setRule({...rule,[k]:minute(e.target.value)})}/></label>)}</div>
     {([['duration','Duration (minutes)',15,240],['buffer','Buffer before & after (minutes)',0,120],['noticeHours','Minimum notice (hours)',0,720],['horizonDays','Booking horizon (days)',1,180],['dailyCap','Host daily cap',1,50]] as const).map(([k,label,min,max])=><label className="block" key={k}>{label}<input className={control} type="number" required min={min} max={max} value={rule[k]} onChange={e=>setRule({...rule,[k]:Number(e.target.value)})}/></label>)}
     <button className={button} disabled={disabled}>Create availability</button>
    </form>
