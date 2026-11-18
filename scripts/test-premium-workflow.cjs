@@ -11,11 +11,15 @@ function load(path, mocks = {}) {
 const { safeReturnTo } = load('app/lib/authReturn.ts');
 for (const bad of ['https://evil.test', '//evil.test', '/%2fevil.test', '/%5cevil.test', '/a%0d%0aLocation:evil', '/login', '/auth/callback', '/api/stripe/checkout-plan', '/a/../login', 'javascript:alert(1)', '/%', '/a' + String.fromCharCode(92) + 'evil']) assert.equal(safeReturnTo(bad), null, bad);
 for (const good of ['/dashboard', '/create?mode=editor&recover=1', '/payment-success?session_id=cs_test_a', '/sow/fixture#signature']) assert.equal(safeReturnTo(good), good);
-const { subscriptionReceipt } = load('app/lib/subscriptionReceipt.ts');
+const { subscriptionReceipt: actualReceipt } = load('app/lib/subscriptionReceipt.ts');
+const customer={id:'cus_fixture',metadata:{supabase_id:'owner'}};
+const subscriptionReceipt=(a,b,c,d,e=customer)=>actualReceipt(a,b,c,d,e);
 const session = { id: 'cs_test_fixture', mode: 'subscription', client_reference_id: 'owner', customer: 'cus_fixture', subscription: 'sub_fixture', status: 'complete', payment_status: 'paid', metadata: { plan: 'pro' } };
 const sub = { id: 'sub_fixture', customer: 'cus_fixture', status: 'active', metadata: { userId: 'owner', plan: 'pro' } };
 const profile = { stripe_customer_id: 'cus_fixture', subscription_id: 'sub_fixture', is_pro: true };
 assert.equal(subscriptionReceipt(session, sub, profile, 'owner').state, 'confirmed');
+for (const plan of ['__proto__', 'constructor', 'toString']) assert.equal(subscriptionReceipt({...session,metadata:{plan}},{...sub,metadata:{userId:'owner',plan}},profile,'owner').state,'unavailable');
+for (const payment_status of ['unpaid','no_payment_required']) assert.notEqual(subscriptionReceipt({...session,payment_status},sub,profile,'owner').state,'confirmed');
 for (const patch of [{client_reference_id:'other'}, {customer:'cus_other'}, {mode:'payment'}, {subscription:'sub_other'}, {metadata:{plan:'invented'}}]) assert.equal(subscriptionReceipt({...session,...patch},sub,profile,'owner').state,'unavailable');
 for (const patch of [{status:'open'}, {payment_status:'unpaid'}]) assert.equal(subscriptionReceipt({...session,...patch},sub,profile,'owner').state,'pending');
 for (const status of ['trialing','past_due','canceled','unpaid','incomplete']) assert.notEqual(subscriptionReceipt(session,{...sub,status},profile,'owner').state,'confirmed');
@@ -34,7 +38,7 @@ assert.equal(overview.projectNextAction({id:'one',status:'Signed',provider_sign:
 assert.match(overview.projectNextAction({id:'one',status:'Signed',provider_sign:'Owner',signed_by:'Client',price:100,payment_received_cents:5000}).detail,/partial payment/);
 assert.match(overview.projectNextAction({id:'one',status:'Signed',provider_sign:'Owner',signed_by:'Client',price:'bad'}).detail,/need review/);
 let state={ user:{id:'owner'}, profile, session, sub }, calls=[];
-class StripeFixture { constructor(){this.checkout={sessions:{retrieve:async id=>{calls.push(['session',id]);if(state.fail)throw Error('provider down');return state.session;}}};this.subscriptions={retrieve:async id=>{calls.push(['subscription',id]);return state.sub;}};} }
+class StripeFixture { constructor(){this.checkout={sessions:{retrieve:async id=>{calls.push(['session',id]);if(state.fail)throw Error('provider down');return state.session;}}};this.customers={retrieve:async id=>{calls.push(['customer',id]);return state.customer||customer;}};this.subscriptions={retrieve:async id=>{calls.push(['subscription',id]);return state.sub;}};} }
 const supabase={auth:{getUser:async()=>({data:{user:state.user},error:null})},from:table=>{calls.push(['table',table]);const q={select:()=>q,eq:(key,value)=>{calls.push(['eq',key,value]);return q;},maybeSingle:async()=>({data:state.profile,error:state.profileError})};return q;}};
 const next={NextResponse:{json:(data,init)=>({data,...init}),redirect:url=>({location:url.toString()})}};
 const route=load('app/api/stripe/checkout-status/route.ts', {'next/server':next,'next/headers':{cookies:()=>({})},'@supabase/auth-helpers-nextjs':{createRouteHandlerClient:()=>supabase},stripe:{default:StripeFixture},'../../../lib/subscriptionReceipt':{subscriptionReceipt}});
@@ -46,6 +50,13 @@ state.session=session;state.user=null;calls=[];result=await route.GET(request())
 state.user={id:'owner'};calls=[];result=await route.GET(new Request('https://fixture.test/api/stripe/checkout-status?plan=pro'));assert.equal(result.status,400);assert.equal(calls.length,0);
 state.fail=true;result=await route.GET(request());assert.equal(result.status,502);assert.equal(result.data.state,'unavailable');state.fail=false;
 state.profileError=Error('database unavailable');result=await route.GET(request());assert.equal(result.status,502);state.profileError=null;
+state.customer={...customer,metadata:{supabase_id:'victim'}};calls=[];result=await route.GET(request());assert.equal(result.data.state,'unavailable');assert.ok(!calls.some(c=>c[0]==='subscription'));state.customer=null;
+assert.equal(actualReceipt(session,sub,profile,'owner',{...customer,metadata:{supabase_id:'victim'}}).state,'unavailable');
+assert.equal(actualReceipt(session,sub,profile,'owner',{...customer,deleted:true}).state,'unavailable');
+assert.equal(actualReceipt(session,sub,profile,'owner',undefined).state,'unavailable');
+for(const bad of ['/%61pi/stripe/checkout-plan','/%6cogin','/%2561pi/x','/a/%2e%2e/%61uth/callback','/x%2fy','/LOGIN'])assert.equal(safeReturnTo(bad),null,bad);
+assert.equal(safeReturnTo('/create?name=A%2BB&returnTo=%2Fdashboard'),'/create?name=A%2BB&returnTo=%2Fdashboard');
+assert.equal(overview.projectNextAction({id:'one',status:'Paid',provider_sign:'Owner',signed_by:'Client',price:100,payment_received_cents:0}).label,'Review payment details');
 let authState={user:{id:'owner'},exchangeError:null};let attribution=0;
 const callback=load('app/auth/callback/route.ts', {'next/server':next,'next/headers':{cookies:()=>({})},'@supabase/auth-helpers-nextjs':{createRouteHandlerClient:()=>({auth:{getUser:async()=>({data:{user:authState.user}}),exchangeCodeForSession:async()=>({error:authState.exchangeError})}})},'@supabase/supabase-js':{createClient:()=>({})},'../../lib/profileAttribution':{persistFirstTouch:async()=>attribution++},'../../lib/authReturn':{safeReturnTo}});
 const cb=search=>callback.GET(new Request('https://fixture.test/auth/callback?'+search));

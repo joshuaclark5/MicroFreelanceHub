@@ -13,7 +13,8 @@ export function projectNextAction(document: any) {
   if (!document.signed_by) return { label: 'Review client approval', detail: 'Client signature is not recorded yet.', href: '/sow/' + id };
   if (document.payment_type === 'none') return { label: 'Review signed agreement', detail: 'No online payment is requested.', href: '/sow/' + id };
   try {
-    const balance = agreementBalance(document);
+    // A legacy editable status must never manufacture a paid balance here.
+    const balance = agreementBalance({ ...document, status: undefined });
     if (balance.remaining > 0) return { label: 'Review payment details', detail: balance.received > 0 ? 'A partial payment is recorded. Review the remaining balance.' : 'Review the payment request and current status.', href: '/sow/' + id };
     return { label: 'Review payment record', detail: 'Check the agreement for confirmed payment details.', href: '/sow/' + id };
   } catch {

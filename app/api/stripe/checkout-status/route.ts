@@ -21,9 +21,13 @@ export async function GET(request: Request) {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     // Never retrieve or disclose another customer's subscription.
     if (session.client_reference_id !== user.id || session.customer !== profile.stripe_customer_id ||
-        session.mode !== 'subscription' || typeof session.subscription !== 'string') return reply({ state: 'unavailable' });
+        session.mode !== 'subscription' || typeof session.customer !== 'string' || typeof session.subscription !== 'string') return reply({ state: 'unavailable' });
+    // Profile billing columns are user-modifiable in the source schema. Verify the
+    // Stripe customer independently, not just metadata copied by checkout creation.
+    const customer = await stripe.customers.retrieve(session.customer);
+    if (customer.deleted || !('metadata' in customer) || customer.metadata?.supabase_id !== user.id) return reply({ state: 'unavailable' });
     const subscription = await stripe.subscriptions.retrieve(session.subscription);
-    return reply(subscriptionReceipt(session, subscription, profile, user.id));
+    return reply(subscriptionReceipt(session, subscription, profile, user.id, customer));
   } catch {
     return reply({ state: 'unavailable' }, 502);
   }

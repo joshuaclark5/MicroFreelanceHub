@@ -42,6 +42,8 @@ interface LineItem {
 
 function CreateProjectContent() {
   const skipDraftSave = useRef(false);
+  const draftOwner = useRef<string | null>(null);
+  const preserveStoredDraft = useRef(false);
   const [draftNotice, setDraftNotice] = useState('');
   const [initialized, setInitialized] = useState(false);
   const [initializationError, setInitializationError] = useState(false);
@@ -207,6 +209,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
     let requestedTemplate = false;
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser();
+      draftOwner.current = user?.id || null;
       if (user) {
         setUserId(user.id);
         const [profileRes, countRes] = await Promise.all([
@@ -328,8 +331,16 @@ If the Client cancels the project after work has begun, any deposit, completed w
     init().then(() => {
       if (requestedTemplate) return;
       try {
-        const draft = parseEditorDraft(sessionStorage.getItem(DRAFT_KEY));
-        if (!draft) { if (searchParams.get('recover') === '1') setDraftNotice('No recoverable draft was found in this tab. Return to the original tab if your email link opened elsewhere. Browser drafts expire after 24 hours.'); return; }
+        const raw = sessionStorage.getItem(DRAFT_KEY);
+        const handoff = Number(sessionStorage.getItem('mfh-draft-auth-handoff'));
+        const allowAnonymous = searchParams.get('recover') === '1' && handoff > 0 && Date.now() - handoff >= 0 && Date.now() - handoff <= 86400000;
+        const draft = parseEditorDraft(raw, Date.now(), draftOwner.current, allowAnonymous);
+        preserveStoredDraft.current = Boolean(raw && !draft);
+        if (draft && draftOwner.current && allowAnonymous) {
+          sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ ...JSON.parse(raw!), ownerId: draftOwner.current }));
+          sessionStorage.removeItem('mfh-draft-auth-handoff');
+        }
+        if (!draft) { if (raw || searchParams.get('recover') === '1') setDraftNotice('No recoverable draft was found in this tab for this account. Stored work has not been replaced. Return to the original tab or account; browser drafts expire after 24 hours. Use New draft only when ready to replace it.'); return; }
         setDraftNotice('Your draft is restored in this tab. Review it, then save to your account.');
         setFormData(draft.formData);
         setLineItems(draft.lineItems);
@@ -351,9 +362,9 @@ If the Client cancels the project after work has begun, any deposit, completed w
   useEffect(() => {
     if (!initialized || step !== 'final') return;
     const timer = window.setTimeout(() => {
-      if (skipDraftSave.current) return;
+      if (skipDraftSave.current || preserveStoredDraft.current) return;
       try {
-        sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ version: 1, savedAt: Date.now(), draft: {
+        sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ version: 1, ownerId: draftOwner.current, savedAt: Date.now(), draft: {
           formData, lineItems, manualPriceOverride, includeFee, depositType, fixedDepositAmount,
           paymentTerms, isSplit, splitCount, splitFrequency, paymentType, dunningEnabled,
         } }));
@@ -494,6 +505,11 @@ If the Client cancels the project after work has begun, any deposit, completed w
     trackAgreementEvent('agreement_save_requested');
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
+    if (preserveStoredDraft.current || (draftOwner.current && user?.id !== draftOwner.current)) {
+      setDraftNotice('This tab contains a draft from another account or an unavailable recovery. Nothing was saved or replaced. Return to the original account, or copy your work before choosing New draft.');
+      setLoading(false);
+      return;
+    }
 
     let finalLineItems = [...lineItems];
     if (finalLineItems.length === 0 && financials.subtotal > 0 && paymentType !== 'none') {
@@ -517,10 +533,11 @@ If the Client cancels the project after work has begun, any deposit, completed w
     if (!user) {
       setLoading(false); 
       try {
-        sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ version: 1, savedAt: Date.now(), draft: {
+        sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ version: 1, ownerId: draftOwner.current, savedAt: Date.now(), draft: {
           formData, lineItems, manualPriceOverride, includeFee, depositType, fixedDepositAmount,
           paymentTerms, isSplit, splitCount, splitFrequency, paymentType, dunningEnabled,
         } }));
+        sessionStorage.setItem('mfh-draft-auth-handoff', String(Date.now()));
       } catch {
         setDraftNotice('Your draft could not be stored in this browser. Keep this tab open and copy your work before signing in.');
         return;
@@ -563,6 +580,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
       try {
         sessionStorage.removeItem('mfh-agreement-brief-v1');
         sessionStorage.removeItem(DRAFT_KEY);
+        sessionStorage.removeItem('mfh-draft-auth-handoff');
       } catch { /* Optional local draft cache. */ }
       router.push('/dashboard');
     }
@@ -588,6 +606,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
                 skipDraftSave.current = true;
                 try {
                   sessionStorage.removeItem(DRAFT_KEY);
+                  sessionStorage.removeItem('mfh-draft-auth-handoff');
                   sessionStorage.removeItem('mfh-agreement-brief-v1');
                 } catch { /* Browser storage may be unavailable. */ }
                 window.location.assign('/create');

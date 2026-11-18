@@ -14,11 +14,13 @@ export type EditorDraft = {
   dunningEnabled: boolean;
 };
 
-export function parseEditorDraft(raw: string | null, now = Date.now()): EditorDraft | null {
+export function parseEditorDraft(raw: string | null, now = Date.now(), ownerId: string | null = null, allowAnonymous = false): EditorDraft | null {
   try {
     const envelope = JSON.parse(raw || 'null');
     if (!envelope || envelope.version !== 1 || !Number.isFinite(envelope.savedAt) ||
         now - envelope.savedAt < 0 || now - envelope.savedAt > 86400000) return null;
+    if (envelope.ownerId != null && envelope.ownerId !== ownerId) return null;
+    if (envelope.ownerId == null && ownerId && !allowAnonymous) return null;
     const draft = envelope.draft;
     if (!draft || !draft.formData ||
         !['clientName', 'clientEmail', 'projectTitle', 'taxRate', 'deliverables', 'description', 'dueDate'].every(key => typeof draft.formData[key] === 'string' && draft.formData[key].length <= 100000) ||
