@@ -220,8 +220,9 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold text-indigo-200 mb-2">Your Name</label>
+                  <label htmlFor="welcome-name" className="block text-sm font-semibold text-indigo-200 mb-2">Your Name</label>
                   <input
+                    id="welcome-name"
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -231,10 +232,11 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-indigo-200 mb-2">
+                  <label htmlFor="welcome-business-name" className="block text-sm font-semibold text-indigo-200 mb-2">
                     Business Name or Job Title
                   </label>
                   <input
+                    id="welcome-business-name"
                     type="text"
                     value={businessName}
                     onChange={(e) => setBusinessName(e.target.value)}
