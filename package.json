@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "test:welcome-wizard-labels": "node scripts/test-welcome-wizard-labels.cjs",
+    "test:login-labels": "node scripts/test-login-labels.cjs",
     "outreach:preview": "node scripts/outreach-pilot.mjs --limit=10",
     "outreach:send": "node scripts/outreach-pilot.mjs --send --limit=10 --stagger-min=3 --stagger-max=7",
     "outreach:followups:preview": "node scripts/outreach-pilot.mjs --followups --limit=5",

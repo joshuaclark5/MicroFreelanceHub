@@ -269,7 +269,9 @@ function LoginForm() {
             <form onSubmit={handleEmailAuth} className="space-y-3">
                 <div className="relative">
                     <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <label className="sr-only" htmlFor="auth-email">Email address</label>
                     <input
+                        id="auth-email"
                         type="email"
                         required
                         autoComplete="email"
@@ -282,7 +284,11 @@ function LoginForm() {
 
                 <div className="relative">
                     <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <label className="sr-only" htmlFor="auth-password">
+                        {authMode === 'signin' ? 'Password' : 'Create password'}
+                    </label>
                     <input
+                        id="auth-password"
                         type="password"
                         required
                         minLength={8}
