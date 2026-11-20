@@ -11,6 +11,7 @@ function load(file, imports) {
   return exports;
 }
 const helper = load('app/lib/profileAttribution.ts', {});
+const ownership = load('app/lib/stripeCustomerOwnership.ts', {'server-only': {}});
 async function check(options = {}) {
   let row = options.row ? { ...options.row } : null;
   const sessions = [], customers = [], writes = [];
@@ -24,10 +25,10 @@ async function check(options = {}) {
   };
   const { POST } = load('app/api/stripe/checkout-plan/route.ts', {
     'next/server': { NextResponse: { json: (body, init = {}) => ({ body, status: init.status || 200 }) } },
-    stripe: { default: class { constructor() { this.customers = { create: async value => { customers.push(value); return { id: 'cus_mock' }; } }; this.checkout = { sessions: { create: async value => { sessions.push(value); return { url: 'https://example.test/checkout' }; } } }; } } },
+    stripe: { default: class { constructor() { this.customers = { retrieve: async id => ({id, metadata: {supabase_id: 'owner'}}), create: async value => { customers.push(value); return { id: 'cus_mock' }; } }; this.checkout = { sessions: { create: async value => { sessions.push(value); return { url: 'https://example.test/checkout' }; } } }; } } },
     '@supabase/supabase-js': { createClient: () => db },
     '@supabase/auth-helpers-nextjs': { createRouteHandlerClient: () => ({ auth: { getUser: async () => ({ data: { user: options.unauthorized ? null : { id: 'owner' } } }) } }) },
-    'next/headers': { cookies: () => {} }, '../../../lib/profileAttribution': helper,
+    'next/headers': { cookies: () => {} }, '../../../lib/profileAttribution': helper, '../../../lib/stripeCustomerOwnership': ownership,
   });
   const result = await POST({ json: async () => ({ plan: 'pro', userId: 'owner', landingPage: '/pricing?email=secret', leadSource: 'later', ...options.body }) });
   return { result, row, sessions, customers, writes };

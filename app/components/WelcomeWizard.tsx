@@ -19,21 +19,6 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
     setStep(step + 1);
   };
 
-  const handleStripeConnect = () => {
-    const clientId = process.env.NEXT_PUBLIC_STRIPE_CLIENT_ID;
-    const redirectUri = `${window.location.origin}/api/stripe/callback`;
-
-    if (!clientId) {
-      alert("Missing Stripe Client ID");
-      return;
-    }
-
-    localStorage.setItem('fromWelcomeWizard', 'true');
-
-    const stripeUrl = `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=${clientId}&scope=read_write&redirect_uri=${redirectUri}`;
-    window.location.href = stripeUrl;
-  };
-
   const handleComplete = async () => {
     setIsProcessing(true);
     try {
@@ -156,8 +141,8 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
                   <div className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-semibold text-white">Mega-Easy Taxes</p>
-                      <p className="text-sm text-indigo-200">At the end of the year, Stripe automatically sends your 1099 for all invoices processed here.</p>
+                      <p className="font-semibold text-white">Tax Records</p>
+                      <p className="text-sm text-indigo-200">Keep your payment records for tax preparation. Tax forms and obligations depend on your circumstances and provider eligibility.</p>
                     </div>
                   </div>
                 </div>
@@ -179,7 +164,7 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
               <div>
                 <h2 className="text-3xl font-bold text-white mb-2">Connect Your Bank</h2>
                 <p className="text-indigo-100 mb-8">
-                  To get paid instantly from your clients, we need to connect your bank account via Stripe.
+                  New Stripe connections are unavailable while connection security is reviewed. You can continue setup without connecting a bank account.
                 </p>
               </div>
 
@@ -187,8 +172,8 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
                 <div className="flex items-start gap-3">
                   <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-semibold text-white">Instant Payouts</p>
-                    <p className="text-sm text-indigo-200">Get paid the same day your clients pay you</p>
+                    <p className="font-semibold text-white">Payout Timing</p>
+                    <p className="text-sm text-indigo-200">Payout availability and timing depend on your payment provider and account eligibility.</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -264,10 +249,10 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
           {step === 2 && (
             <div className="space-y-3">
               <button
-                onClick={handleStripeConnect}
+                disabled
                 className="w-full px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-lg rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30"
               >
-                <CreditCard className="w-5 h-5" /> Connect Bank/Stripe
+                <CreditCard className="w-5 h-5" /> Stripe connection unavailable
               </button>
               <button
                 onClick={handleNext}
@@ -276,7 +261,7 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
                 Continue without Stripe
               </button>
               <p className="text-center text-xs text-indigo-300 italic">
-                Connecting Stripe allows us to automatically attach secure payment links and terms to your agreements once both parties sign.
+                New Stripe connections are temporarily unavailable. Continue setup without changing existing connection records.
               </p>
               <div className="flex gap-3 mt-4">
                 <button

@@ -2,10 +2,12 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { safeReturnTo } from '../../lib/authReturn';
 import { persistFirstTouch } from '../../lib/profileAttribution';
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
+  const returnTo = safeReturnTo(requestUrl.searchParams.get('returnTo'));
   const code = requestUrl.searchParams.get('code');
   const plan = requestUrl.searchParams.get('plan');
   const template = requestUrl.searchParams.get('template');
@@ -20,14 +22,15 @@ export async function GET(request: Request) {
 
   // Exchange auth code for session
   if (code) {
-    await supabase.auth.exchangeCodeForSession(code);
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) return NextResponse.redirect(new URL('/login?' + new URLSearchParams({ mode: 'signin', ...(returnTo ? { returnTo } : {}) }), request.url));
   }
 
   // Save lead tracking data to profiles table if provided
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.redirect(new URL('/login?' + new URLSearchParams({ mode: 'signin', ...(returnTo ? { returnTo } : {}) }), request.url));
   }
 
   try {
@@ -52,6 +55,8 @@ export async function GET(request: Request) {
     if (lead_source) checkoutParams.set('lead_source', lead_source);
     return NextResponse.redirect(new URL(`/checkout-plan?${checkoutParams.toString()}`, request.url));
   }
+
+  if (returnTo) return NextResponse.redirect(new URL(returnTo, request.url));
 
   // Free-account conversion page for analytics segmentation.
   return NextResponse.redirect(new URL(`/signup-success?${successParams.toString()}`, request.url));

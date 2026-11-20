@@ -18,9 +18,6 @@ export default function SettingsPage() {
   const [paymentSetupLoaded, setPaymentSetupLoaded] = useState(false);
   const [fullName, setFullName] = useState('');
   const [companyName, setCompanyName] = useState('');
-  const [showTeamForm, setShowTeamForm] = useState(false);
-  const [teamEmail, setTeamEmail] = useState('');
-  const [teamEmailSubmitted, setTeamEmailSubmitted] = useState(false);
 
   const [userId, setUserId] = useState<string | null>(null);
   const [billing, setBilling] = useState<Billing | null>(null);
@@ -203,19 +200,6 @@ export default function SettingsPage() {
       console.error('Error opening billing portal:', err);
       alert('An error occurred. Please try again.');
       setIsCanceling(false);
-    }
-  };
-
-  const handleTeamEmailSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (teamEmail.trim()) {
-      console.log('Team waitlist email:', teamEmail);
-      setTeamEmailSubmitted(true);
-      setTimeout(() => {
-        setShowTeamForm(false);
-        setTeamEmailSubmitted(false);
-        setTeamEmail('');
-      }, 2000);
     }
   };
 
@@ -501,7 +485,7 @@ export default function SettingsPage() {
                 {/* Header */}
                 <div>
                   <h2 className="text-2xl font-bold text-slate-900">Team Management</h2>
-                  <p className="text-slate-500 text-sm mt-1">Collaborate with your team (Agency plan feature).</p>
+                  <p className="text-slate-500 text-sm mt-1">Team workspace availability.</p>
                 </div>
 
                 {/* Locked Feature Card */}
@@ -509,15 +493,15 @@ export default function SettingsPage() {
                   <div className="flex flex-col sm:flex-row sm:items-center gap-6">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="px-3 py-1 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-md uppercase tracking-wider">Agency Plan Only</span>
+                        <span className="px-3 py-1 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-md uppercase tracking-wider">Planned feature</span>
                       </div>
                       <h3 className="text-xl font-bold text-slate-900 mt-3">Team collaboration is not generally available.</h3>
                       <p className="text-slate-600 text-sm mt-3 leading-relaxed">
-                        The team workspace is a planned feature. Joining the waitlist does not activate collaboration or change your plan.
+                        The team workspace is planned, not available to activate. No release date or plan entitlement is confirmed.
                       </p>
                       <div className="mt-6 grid grid-cols-2 gap-4">
                         <div>
-                          <p className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Coming Soon</p>
+                          <p className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Planned capabilities</p>
                           <ul className="space-y-2 text-xs text-slate-600">
                             <li>✓ Invite team members</li>
                             <li>✓ Role-based permissions</li>
@@ -538,72 +522,13 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                {/* Add Team Member - Fake Door */}
-                <div className="bg-indigo-50 rounded-2xl p-8 border border-indigo-200">
-                  <div className="space-y-4">
-                    <h3 className="font-bold text-lg text-indigo-900">Ready to expand your team?</h3>
-                    <p className="text-indigo-800 text-sm">
-                      If you're interested in team collaboration, join our Agency waitlist to get early access to this powerful feature.
-                    </p>
-                    <button
-                      onClick={() => setShowTeamForm(!showTeamForm)}
-                      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-bold text-sm transition-all shadow-lg hover:shadow-indigo-600/20 active:scale-95 flex items-center justify-center gap-2"
-                    >
-                      <Users className="w-4 h-4" />
-                      {showTeamForm ? 'Cancel' : 'Add Team Member'}
-                    </button>
-                  </div>
-
-                  {/* Team Waitlist Form - Inline */}
-                  {showTeamForm && (
-                    <div className="mt-6 pt-6 border-t border-indigo-200 space-y-4 animate-in fade-in slide-in-from-top-2">
-                      <div>
-                        <p className="text-xs font-bold text-indigo-900 uppercase tracking-widest mb-3">📧 Team features are currently in closed beta</p>
-                        <p className="text-indigo-800 text-sm mb-4 font-medium">Join the Agency waitlist to get early access and be among the first to use team features.</p>
-                      </div>
-
-                      <form onSubmit={handleTeamEmailSubmit} className="space-y-3">
-                        <div>
-                          <label htmlFor="team-email" className="block text-xs font-bold text-indigo-900 mb-2">
-                            Email Address
-                          </label>
-                          <input
-                            id="team-email"
-                            type="email"
-                            value={teamEmail}
-                            onChange={(e) => setTeamEmail(e.target.value)}
-                            placeholder="your@email.com"
-                            className="w-full px-4 py-2.5 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-all text-slate-900 font-medium"
-                            required
-                          />
-                        </div>
-
-                        {teamEmailSubmitted && (
-                          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-center animate-in fade-in">
-                            <p className="text-emerald-700 text-sm font-bold">✓ You've been added to the Agency waitlist!</p>
-                            <p className="text-emerald-600 text-xs mt-1">We'll notify you as soon as teams become available.</p>
-                          </div>
-                        )}
-
-                        {!teamEmailSubmitted && (
-                          <button
-                            type="submit"
-                            className="w-full bg-indigo-900 hover:bg-indigo-950 text-white px-4 py-2.5 rounded-lg font-bold text-sm transition-all active:scale-95 flex items-center justify-center gap-2"
-                          >
-                            <Mail className="w-4 h-4" />
-                            Join Agency Waitlist
-                          </button>
-                        )}
-                      </form>
-                    </div>
-                  )}
-                </div>
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6"><h3 className="text-lg font-semibold text-slate-900">Waitlist registration is unavailable</h3><p className="mt-3 text-sm leading-6 text-slate-700">We are not collecting team waitlist emails here. No registration has been saved, and no notification is scheduled. Your current plan has not changed.</p><Link href="/dashboard" className="d4-secondary mt-4">Return to your agreements</Link></div>
 
                 {/* Info Box */}
                 <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200">
                   <p className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">💡 Tip</p>
                   <p className="text-slate-700 text-sm font-medium">
-                    Compare current plan inclusions before changing your subscription. Waitlist registration is separate from billing.
+                    Compare currently available plan inclusions before changing your subscription. Do not upgrade for planned team features.
                   </p>
                 </div>
               </div>
