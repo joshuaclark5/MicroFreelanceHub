@@ -1,7 +1,7 @@
 'use strict';
 const {spawnSync}=require('node:child_process'),fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const root=path.resolve(__dirname,'..'),out=path.resolve(process.env.WAVE5_PROOF_DIR||path.join(root,'..','verification'));fs.mkdirSync(out,{recursive:true});
-const env={...process.env,NEXT_FONT_GOOGLE_MOCKED_RESPONSES:path.resolve(root,'../font-fixture.cjs'),NEXT_PUBLIC_SUPABASE_URL:'http://127.0.0.1:9',NEXT_PUBLIC_SUPABASE_ANON_KEY:'fixture-anon',SUPABASE_SERVICE_ROLE_KEY:'fixture-service',STRIPE_SECRET_KEY:'sk_test_fixture',NEXT_PUBLIC_BASE_URL:'http://127.0.0.1:3072',WORKSPACE_PROOF_DIR:out};
+const env={...process.env,NEXT_FONT_GOOGLE_MOCKED_RESPONSES:process.env.NEXT_FONT_GOOGLE_MOCKED_RESPONSES||path.resolve(root,'../font-fixture.cjs'),NEXT_PUBLIC_SUPABASE_URL:'http://127.0.0.1:9',NEXT_PUBLIC_SUPABASE_ANON_KEY:'fixture-anon',SUPABASE_SERVICE_ROLE_KEY:'fixture-service',STRIPE_SECRET_KEY:'sk_test_fixture',NEXT_PUBLIC_BASE_URL:'http://127.0.0.1:3072',WORKSPACE_PROOF_DIR:out};
 const sha=spawnSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).stdout.trim();
 const report={sha,startedAt:new Date().toISOString(),environment:'local fictional configuration; no live provider calls',deployableBuild:false,results:[]};
 const commands=[['types-before',['node_modules/typescript/bin/tsc','--noEmit','--incremental','false']],['foundation-api',['scripts/test-connected-workspace-api.cjs','--proof='+path.join(out,'foundation-api.json')]],['foundation-db',['scripts/test-connected-workspace-db.cjs']],['premium',['scripts/test-premium-workflow.cjs']],['payments',['scripts/test-agreement-payments.cjs']],['billing',['scripts/test-billing-ownership.cjs']]];
