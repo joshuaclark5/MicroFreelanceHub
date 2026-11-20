@@ -2,6 +2,8 @@
 
 2026-11-18. **Local source containment only; release remains blocked.** This addresses the assigned A1/A2 and debug portion of A6 from ../audit/RELEASE-READINESS-AUDIT.md. No deployment, live configuration, existing database, provider, email, spending, push or commit was performed.
 
+2026-11-19 follow-up: a read-only production catalog check found broad `profiles` grants that permit authenticated users to write billing/Pro fields. The candidate now includes an additive privilege-restriction migration and a fictional PGlite grant regression check. It is not applied to production; real staging REST tests and backup/restore rehearsal are still release gates. Do not treat this code change as live containment.
+
 ## Exact changes
 
 - app/api/stripe/callback/route.ts: GET always returns HTTP 503 with error stripe_connect_unavailable and Cache-Control: no-store. No request parsing, OAuth exchange, Stripe/Supabase SDK initialization, secret reads, redirects or database operations. force-dynamic prevents a static availability response. Existing profile bindings are neither replaced nor cleared. Other HTTP methods remain handled by the framework, with no custom side-effectful handler.

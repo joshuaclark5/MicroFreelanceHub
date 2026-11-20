@@ -28,7 +28,7 @@ export default function WelcomeWizard({ onComplete }: WelcomeWizardProps) {
 
       const { error } = await supabase.from('profiles').update({
         full_name: name,
-        business_name: businessName,
+        company_name: businessName,
         has_completed_onboarding: true,
       }).eq('id', user.id);
 

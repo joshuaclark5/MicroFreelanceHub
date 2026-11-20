@@ -42,3 +42,9 @@ Before a normal billing rollout, approve the legacy missing-metadata support imp
 ## Acceptance
 
 All tests use fictional mocked providers, not real secrets, billing data or transactions. Parent independent review of exact commit/patch is mandatory before any push/publication. No live integration, production RLS, entitlement lifecycle or paid-offer launch certification is claimed. A production paid-plan expansion remains blocked on the restrictions and business decisions above.
+
+## Follow-up: live catalog finding and local mitigation (2026-11-19)
+
+An authorized read-only inspection of the production catalog found that `profiles` has `company_name` (not `business_name`) and that `anon`/`authenticated` have broad profile write grants, including updates to billing/entitlement fields. The integrated candidate now writes onboarding business names to `company_name` and adds `20261118110000_restrict_profile_billing_client_writes.sql` to keep Pro/Stripe fields server-owned while allowing the existing name/company/onboarding edits. The local PGlite schema harness models the old permissive grants and checks the revised column privileges.
+
+This is source-only mitigation. The migration has not been applied to production or a real staging database; real authenticated REST denial tests, signup/profile-trigger verification, webhook/admin-write verification, and a recoverable backup/restore rehearsal remain mandatory before release. This does not resolve other profile writers, Connect lifecycle, billing entitlement lifecycle, or the containment items above.

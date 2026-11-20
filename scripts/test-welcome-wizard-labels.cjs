@@ -42,6 +42,9 @@ function visit(node) {
 
 visit(sourceFile);
 
+assert.match(source, /company_name:\s*businessName/, 'Onboarding must use the existing profiles.company_name field');
+assert.doesNotMatch(source, /business_name\s*:/, 'Onboarding must not write a nonexistent profiles.business_name field');
+
 for (const labelText of ['Your Name', 'Business Name or Job Title']) {
   const matches = labelsByText.get(labelText) || [];
   assert.equal(matches.length, 1, `Expected exactly one label: ${labelText}`);
