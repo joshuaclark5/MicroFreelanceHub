@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { DRAFT_KEY, parseEditorDraft } from '../lib/agreementDraft';
+import { DRAFT_KEY } from '../lib/agreementDraft';
 import { createChangeOrderDraft } from '../lib/changeOrderDraft';
 
 export default function ChangeOrderStarter({ original }: { original: any }) {
@@ -16,8 +16,8 @@ export default function ChangeOrderStarter({ original }: { original: any }) {
       event.preventDefault(); setError('');
       try {
         const draft = createChangeOrderDraft(original, { scope, amount, timeline });
-        if (parseEditorDraft(sessionStorage.getItem(DRAFT_KEY)) && !confirm('Replace the unsaved editor draft in this tab with this change order? Cancel to keep the current draft.')) return;
-        sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ version: 1, savedAt: Date.now(), draft }));
+        if (sessionStorage.getItem(DRAFT_KEY) && !confirm('Replace the unsaved editor draft in this tab with this change order? Cancel to keep the current draft.')) return;
+        sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ version: 1, ownerId: original.user_id, savedAt: Date.now(), draft }));
         // Template selection must not override this deliberate separate-document handoff.
         localStorage.removeItem('pending_template');
         router.push('/create?mode=editor');

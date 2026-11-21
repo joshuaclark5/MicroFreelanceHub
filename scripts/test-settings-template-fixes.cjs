@@ -26,19 +26,21 @@ const auth = { auth: { getUser: async () => ({ data: { user: signedIn ? { id: 'c
     assert.equal(id, 'current-user');
     return { maybeSingle: async () => ({ data: { stripe_customer_id: customer } }) };
   } }) }) };
+const ownership = load('app/lib/stripeCustomerOwnership.ts', {'server-only': {}});
 class Stripe {
+  customers = {retrieve: async id => ({id, metadata: {supabase_id: 'current-user'}})};
   subscriptions = { list: async () => { if (fail) throw Error('provider failure'); return { data: records }; } };
 }
 const { GET } = load('app/api/stripe/subscription/route.ts', {
   'next/server': { NextResponse: { json: (body, options) => ({ body, status: options?.status || 200 }) } },
   'next/headers': { cookies: () => ({}) },
-  '@supabase/auth-helpers-nextjs': { createRouteHandlerClient: () => auth }, stripe: Stripe,
+  '@supabase/auth-helpers-nextjs': { createRouteHandlerClient: () => auth }, stripe: Stripe, '../../../lib/stripeCustomerOwnership': ownership,
 });
 (async () => {
   assert.equal((await GET()).body.plan, 'Free');
   signedIn = false;
   assert.equal((await GET()).status, 401);
-  signedIn = true; customer = 'test-customer';
+  signedIn = true; customer = 'cus_test_customer';
   records = [{ status: 'trialing', metadata: {}, cancel_at_period_end: false, items: { data: [{ current_period_end: 1900000000, price: { product: { name: 'Professional' }, recurring: { interval: 'month', interval_count: 1 } } }] } }];
   assert.equal((await GET()).body.plan, 'Professional');
   assert.equal((await GET()).body.status, 'trialing');

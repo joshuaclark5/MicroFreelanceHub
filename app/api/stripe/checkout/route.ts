@@ -3,10 +3,7 @@ import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { agreementBalance } from '../../../lib/agreementPayment';
 import { createHash } from 'node:crypto';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16' as any,
-});
+import { getStripeSecretKey } from '../../../lib/stripeRuntime';
 
 // We need the Service Role Key to look up the freelancer's Stripe ID securely
 const supabase = createClient(
@@ -16,6 +13,7 @@ const supabase = createClient(
 
 export async function POST(request: Request) {
   try {
+    const stripe = new Stripe(getStripeSecretKey(), { apiVersion: '2023-10-16' as any });
     // 1. Get SOW ID & Optional Amount from Frontend
     const { sowId } = await request.json();
     if (typeof sowId !== 'string' || !/^[0-9a-f-]{36}$/i.test(sowId)) {

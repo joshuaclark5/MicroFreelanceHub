@@ -39,3 +39,11 @@ navigator.globalPrivacyControl = false;
 trackAgreementEvent('agreement_started');
 assert.equal(JSON.stringify(events), JSON.stringify([['event', 'agreement_started', { event_category: 'agreement_workflow' }]]));
 console.log('PASS: draft validation, expiry, corruption recovery, analytics privacy flags and fixed event payload');
+
+const owned=JSON.stringify({version:1,savedAt:now,ownerId:'owner',draft});
+assert.ok(parseEditorDraft(owned,now,'owner'));
+assert.equal(parseEditorDraft(owned,now,'other',true),null);
+assert.equal(parseEditorDraft(owned,now,null,true),null);
+assert.equal(parseEditorDraft(serialize(),now,'owner'),null);
+assert.ok(parseEditorDraft(serialize(),now,'owner',true));
+console.log('PASS: owner binding, anonymous explicit handoff, wrong-user fail closed');

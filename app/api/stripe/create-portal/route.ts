@@ -1,17 +1,10 @@
 import { NextResponse } from 'next/server';
+import { ownedStripeCustomer } from '../../../lib/stripeCustomerOwnership';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16' as any,
-});
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { getStripeSecretKey } from '../../../lib/stripeRuntime';
 
 export async function POST(request: Request) {
   try {
@@ -22,6 +15,16 @@ export async function POST(request: Request) {
     if (userError || !user) {
       return NextResponse.json({ error: 'Sign in required' }, { status: 401 });
     }
+
+    // Initialize providers inside the failure boundary, after authentication.
+    const stripe = new Stripe(getStripeSecretKey(), {
+      apiVersion: '2023-10-16' as any,
+    });
+
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
 
     // Get user's Stripe customer ID
     const { data: profile, error: profileError } = await supabase
@@ -37,6 +40,11 @@ export async function POST(request: Request) {
       );
     }
 
+    // Both Manage Billing and Cancel Subscription enter through this portal.
+    if (!await ownedStripeCustomer(stripe, profile.stripe_customer_id, user.id)) {
+      return NextResponse.json({ error: 'Unable to verify billing account. Please contact support.' }, { status: 403 });
+    }
+
     // Create billing portal session
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: profile.stripe_customer_id,
@@ -45,7 +53,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ url: portalSession.url });
   } catch (err: any) {
-    console.error('Billing Portal Error:', err);
+    console.error('Billing Portal Error');
     return NextResponse.json({ error: 'Unable to open billing portal.' }, { status: 500 });
   }
 }

@@ -7,6 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { CheckCircle2, ArrowRight, LockKeyhole, Mail } from 'lucide-react';
 import { getTrackedData, getAuthAttribution } from '../lib/trackingClient';
+import { safeReturnTo } from '../lib/authReturn';
 import { sanitizeAttribution } from '../lib/profileAttribution';
 
 function LoginForm() {
@@ -19,6 +20,7 @@ function LoginForm() {
   const supabase = createClientComponentClient();
   const searchParams = useSearchParams();
 
+  const returnTo = safeReturnTo(searchParams.get('returnTo'));
   const templateSlug = searchParams.get('template');
   const plan = searchParams.get('plan') as 'starter' | 'pro' | 'agency' | null;
   const mode = searchParams.get('mode');
@@ -42,18 +44,21 @@ function LoginForm() {
     : null;
 
   useEffect(() => {
+    try {
     if (templateSlug) {
       localStorage.setItem('pending_template', templateSlug);
     }
     if (plan) {
       localStorage.setItem('pending_plan', plan);
     }
+    } catch { /* Storage is optional for authentication. */ }
   }, [templateSlug, plan]);
 
   const handleGoogleLogin = async () => {
     const currentDomain = typeof window !== 'undefined' ? window.location.origin : '';
 
     const redirectUrl = new URL(`${currentDomain}/auth/callback`);
+    if (returnTo) redirectUrl.searchParams.set('returnTo', returnTo);
     if (templateSlug) {
       redirectUrl.searchParams.set('template', templateSlug);
     }
@@ -92,6 +97,7 @@ function LoginForm() {
 
   const getPostAuthPath = () => {
     const params = new URLSearchParams();
+    if (returnTo) params.set('returnTo', returnTo);
     const attribution = getAuthAttribution(landingPageParam, leadSourceParam);
     if (templateSlug) params.set('template', templateSlug);
     if (attribution.landing_page) params.set('landing_page', attribution.landing_page);
@@ -108,6 +114,7 @@ function LoginForm() {
 
     try {
       const callbackUrl = new URL('/auth/callback', window.location.origin);
+      if (returnTo) callbackUrl.searchParams.set('returnTo', returnTo);
       const attribution = getAuthAttribution(landingPageParam, leadSourceParam);
       if (plan) callbackUrl.searchParams.set('plan', plan);
       if (templateSlug) callbackUrl.searchParams.set('template', templateSlug);
@@ -234,6 +241,7 @@ function LoginForm() {
             )}
         </div>
 
+        {returnTo?.startsWith('/create') && <p className="rounded-xl bg-emerald-50 p-4 text-sm text-emerald-900">After signing in, return to your draft to review and save it. Browser drafts stay in this tab for up to 24 hours; email links opened in another tab may not recover them.</p>}
         {message && (
           <div className={`p-4 rounded-xl text-sm font-medium flex items-start gap-3 ${
               isSuccess ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'
@@ -269,7 +277,9 @@ function LoginForm() {
             <form onSubmit={handleEmailAuth} className="space-y-3">
                 <div className="relative">
                     <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <label className="sr-only" htmlFor="auth-email">Email address</label>
                     <input
+                        id="auth-email"
                         type="email"
                         required
                         autoComplete="email"
@@ -282,7 +292,11 @@ function LoginForm() {
 
                 <div className="relative">
                     <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <label className="sr-only" htmlFor="auth-password">
+                        {authMode === 'signin' ? 'Password' : 'Create password'}
+                    </label>
                     <input
+                        id="auth-password"
                         type="password"
                         required
                         minLength={8}

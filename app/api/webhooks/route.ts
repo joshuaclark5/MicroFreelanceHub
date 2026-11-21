@@ -3,11 +3,7 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { recordAgreementPayment } from '../../lib/recordAgreementPayment';
-
-// Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16' as any,
-});
+import { getStripeSecretKey } from '../../lib/stripeRuntime';
 
 // Initialize Supabase Admin (Service Role) - CRITICAL for Webhooks
 const supabaseAdmin = createClient(
@@ -19,6 +15,12 @@ const supabaseAdmin = createClient(
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
 export async function POST(req: Request) {
+  let stripe: Stripe;
+  try {
+    stripe = new Stripe(getStripeSecretKey(), { apiVersion: '2023-10-16' as any });
+  } catch {
+    return NextResponse.json({ error: 'Payment processing is unavailable.' }, { status: 503, headers: { 'Cache-Control': 'no-store' } });
+  }
   const body = await req.text();
   const signature = headers().get('stripe-signature')!;
 

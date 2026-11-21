@@ -42,6 +42,9 @@ interface LineItem {
 
 function CreateProjectContent() {
   const skipDraftSave = useRef(false);
+  const draftOwner = useRef<string | null>(null);
+  const preserveStoredDraft = useRef(false);
+  const [draftNotice, setDraftNotice] = useState('');
   const [initialized, setInitialized] = useState(false);
   const [initializationError, setInitializationError] = useState(false);
   const [formData, setFormData] = useState({
@@ -206,6 +209,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
     let requestedTemplate = false;
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser();
+      draftOwner.current = user?.id || null;
       if (user) {
         setUserId(user.id);
         const [profileRes, countRes] = await Promise.all([
@@ -218,7 +222,8 @@ If the Client cancels the project after work has begun, any deposit, completed w
 
       // Load Template
       const urlSlug = searchParams.get('template');
-      const localSlug = localStorage.getItem('pending_template');
+      let localSlug: string | null = null;
+      try { if (searchParams.get('recover') !== '1') localSlug = localStorage.getItem('pending_template'); } catch { /* Optional template cache. */ }
       const slug = urlSlug || localSlug;
       requestedTemplate = Boolean(slug);
 
@@ -267,7 +272,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
 
         if (seoDoc) {
              if (!isSow && (isEmailTemplate(seoDoc.document_type, slug) || isChecklistTemplate(seoDoc.document_type, slug))) {
-                 localStorage.removeItem('pending_template');
+                 try { localStorage.removeItem('pending_template'); } catch { /* Optional template cache. */ }
                  router.replace(`/templates/${slug}#template-content`);
                  setLoading(false);
                  return;
@@ -315,7 +320,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
              setStep('final'); 
         }
 
-        if (localSlug) localStorage.removeItem('pending_template');
+        try { if (localSlug) localStorage.removeItem('pending_template'); } catch { /* Optional template cache. */ }
         setLoading(false);
       } else {
         const content = generateFullContract("Project", "- Deliverable 1\n- Deliverable 2");
@@ -326,8 +331,17 @@ If the Client cancels the project after work has begun, any deposit, completed w
     init().then(() => {
       if (requestedTemplate) return;
       try {
-        const draft = parseEditorDraft(sessionStorage.getItem(DRAFT_KEY));
-        if (!draft) return;
+        const raw = sessionStorage.getItem(DRAFT_KEY);
+        const handoff = Number(sessionStorage.getItem('mfh-draft-auth-handoff'));
+        const allowAnonymous = searchParams.get('recover') === '1' && handoff > 0 && Date.now() - handoff >= 0 && Date.now() - handoff <= 86400000;
+        const draft = parseEditorDraft(raw, Date.now(), draftOwner.current, allowAnonymous);
+        preserveStoredDraft.current = Boolean(raw && !draft);
+        if (draft && draftOwner.current && allowAnonymous) {
+          sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ ...JSON.parse(raw!), ownerId: draftOwner.current }));
+          sessionStorage.removeItem('mfh-draft-auth-handoff');
+        }
+        if (!draft) { if (raw || searchParams.get('recover') === '1') setDraftNotice('No recoverable draft was found in this tab for this account. Stored work has not been replaced. Return to the original tab or account; browser drafts expire after 24 hours. Use New draft only when ready to replace it.'); return; }
+        setDraftNotice('Your draft is restored in this tab. Review it, then save to your account.');
         setFormData(draft.formData);
         setLineItems(draft.lineItems);
         setManualPriceOverride(draft.manualPriceOverride);
@@ -341,20 +355,20 @@ If the Client cancels the project after work has begun, any deposit, completed w
         setPaymentType(draft.paymentType);
         setDunningEnabled(draft.dunningEnabled);
         setStep('final');
-      } catch { /* Browser storage is optional. */ }
+      } catch { setDraftNotice('Browser storage is unavailable. Keep this tab open and copy your work before leaving.'); }
     }).catch(() => setInitializationError(true)).finally(() => setInitialized(true));
   }, [supabase, searchParams]);
 
   useEffect(() => {
     if (!initialized || step !== 'final') return;
     const timer = window.setTimeout(() => {
-      if (skipDraftSave.current) return;
+      if (skipDraftSave.current || preserveStoredDraft.current) return;
       try {
-        sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ version: 1, savedAt: Date.now(), draft: {
+        sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ version: 1, ownerId: draftOwner.current, savedAt: Date.now(), draft: {
           formData, lineItems, manualPriceOverride, includeFee, depositType, fixedDepositAmount,
           paymentTerms, isSplit, splitCount, splitFrequency, paymentType, dunningEnabled,
         } }));
-      } catch { /* Editing remains available when storage is blocked or full. */ }
+      } catch { setDraftNotice('Browser storage is unavailable. Keep this tab open and copy your work before leaving.'); }
     }, 250);
     return () => window.clearTimeout(timer);
   }, [initialized, step, formData, lineItems, manualPriceOverride, includeFee, depositType, fixedDepositAmount, paymentTerms, isSplit, splitCount, splitFrequency, paymentType, dunningEnabled]);
@@ -491,6 +505,11 @@ If the Client cancels the project after work has begun, any deposit, completed w
     trackAgreementEvent('agreement_save_requested');
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
+    if (preserveStoredDraft.current || (draftOwner.current && user?.id !== draftOwner.current)) {
+      setDraftNotice('This tab contains a draft from another account or an unavailable recovery. Nothing was saved or replaced. Return to the original account, or copy your work before choosing New draft.');
+      setLoading(false);
+      return;
+    }
 
     let finalLineItems = [...lineItems];
     if (finalLineItems.length === 0 && financials.subtotal > 0 && paymentType !== 'none') {
@@ -513,31 +532,16 @@ If the Client cancels the project after work has begun, any deposit, completed w
 
     if (!user) {
       setLoading(false); 
-      localStorage.setItem('pendingSOW', JSON.stringify({
-        version: 2,
-        id: crypto.randomUUID(),
-        saved_at: Date.now(),
-        client_name: formData.clientName,
-        client_data: { name: formData.clientName, email: formData.clientEmail },
-        title: formData.projectTitle,
-        price: paymentType === 'none' ? 0 : financials.grandTotal,
-        line_items: finalLineItems, 
-        tax_rate: formData.taxRate,
-        deliverables: formData.deliverables,
-        status: 'Draft',
-        payment_type: paymentType,
-        deposit_amount: financials.depositAmount,
-        due_date: formData.dueDate || null,
-        dunning_enabled: dunningEnabled,
-        payment_schedule_structured: {
-          type: isSplit ? 'split' : depositType,
-          depositAmount: isSplit ? financials.splitAmount : financials.depositAmount,
-          remainingAmount: financials.grandTotal - (isSplit ? financials.splitAmount : financials.depositAmount),
-          paymentTerms,
-          splitCount: isSplit ? splitCount : null,
-          splitFrequency: isSplit ? splitFrequency : null,
-        },
-      }));
+      try {
+        sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ version: 1, ownerId: draftOwner.current, savedAt: Date.now(), draft: {
+          formData, lineItems, manualPriceOverride, includeFee, depositType, fixedDepositAmount,
+          paymentTerms, isSplit, splitCount, splitFrequency, paymentType, dunningEnabled,
+        } }));
+        sessionStorage.setItem('mfh-draft-auth-handoff', String(Date.now()));
+      } catch {
+        setDraftNotice('Your draft could not be stored in this browser. Keep this tab open and copy your work before signing in.');
+        return;
+      }
       setShowAuthModal(true);
       return;
     }
@@ -576,6 +580,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
       try {
         sessionStorage.removeItem('mfh-agreement-brief-v1');
         sessionStorage.removeItem(DRAFT_KEY);
+        sessionStorage.removeItem('mfh-draft-auth-handoff');
       } catch { /* Optional local draft cache. */ }
       router.push('/dashboard');
     }
@@ -601,6 +606,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
                 skipDraftSave.current = true;
                 try {
                   sessionStorage.removeItem(DRAFT_KEY);
+                  sessionStorage.removeItem('mfh-draft-auth-handoff');
                   sessionStorage.removeItem('mfh-agreement-brief-v1');
                 } catch { /* Browser storage may be unavailable. */ }
                 window.location.assign('/create');
@@ -621,6 +627,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
       {renderHeader()}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+        {draftNotice && <p role="status" className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">{draftNotice}</p>}
         {!initialized ? <div role="status" className="py-16 text-center text-gray-600">Loading your agreement...</div> : initializationError ? <div role="alert" className="py-16 text-center text-red-700">We could not load the editor. Please refresh to try again.</div> : <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
 
           {/* STEP 0: MODE SELECTION */}

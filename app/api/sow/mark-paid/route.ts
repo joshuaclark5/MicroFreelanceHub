@@ -2,12 +2,13 @@ import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { recordAgreementPayment } from '../../../lib/recordAgreementPayment';
+import { getStripeSecretKey } from '../../../lib/stripeRuntime';
 
 const database = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, { auth: { persistSession: false } });
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2023-10-16' as any });
 
 export async function POST(request: Request) {
   try {
+    const stripe = new Stripe(getStripeSecretKey(), { apiVersion: '2023-10-16' as any });
     const { sowId, sessionId } = await request.json();
     if (typeof sowId !== 'string' || typeof sessionId !== 'string' || !sessionId.startsWith('cs_')) {
       return NextResponse.json({ error: 'A Stripe confirmation is required.' }, { status: 400 });

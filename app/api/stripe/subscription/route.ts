@@ -1,24 +1,28 @@
 import { NextResponse } from 'next/server';
+import { ownedStripeCustomer } from '../../../lib/stripeCustomerOwnership';
 import { cookies } from 'next/headers';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import Stripe from 'stripe';
+import { getStripeSecretKey } from '../../../lib/stripeRuntime';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const cookieStore = cookies();
-  const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
-  const { data: { user }, error } = await supabase.auth.getUser();
-  if (error || !user) return NextResponse.json({ error: 'Sign in required' }, { status: 401 });
-
   try {
+    const cookieStore = cookies();
+    const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error || !user) return NextResponse.json({ error: 'Sign in required' }, { status: 401 });
     const { data: profile, error: profileError } = await supabase.from('profiles')
       .select('stripe_customer_id').eq('id', user.id).maybeSingle();
     if (profileError) throw profileError;
     const free = { plan: 'Free', status: 'No subscription', cycle: 'None', nextDate: null, cancelAtPeriodEnd: false, canCancel: false, canManage: !!profile?.stripe_customer_id };
     if (!profile?.stripe_customer_id) return NextResponse.json(free);
 
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+    const stripe = new Stripe(getStripeSecretKey());
+    if (!await ownedStripeCustomer(stripe, profile.stripe_customer_id, user.id)) {
+      return NextResponse.json({ error: 'Unable to verify billing account. Please contact support.' }, { status: 403 });
+    }
     const subscriptions = await stripe.subscriptions.list({ customer: profile.stripe_customer_id, status: 'all', limit: 100, expand: ['data.items.data.price.product'] });
     const subscription = subscriptions.data.find(s => !['canceled', 'incomplete_expired'].includes(s.status));
     if (!subscription) return NextResponse.json(free);
