@@ -287,7 +287,7 @@ export default function Dashboard() {
 
       if (invoiceError) {
         console.error('Invoice email error:', invoiceError);
-        alert('Failed to send invoice email. Please try again.');
+        alert('We could not confirm whether the invoice email was delivered. Check with the client before trying again to avoid sending a duplicate. You can copy and share the payment link instead.');
         setSendingId(null);
         return;
       }
@@ -299,7 +299,7 @@ export default function Dashboard() {
       console.log('✅ Invoice sent successfully to', clientEmail);
     } catch (err) {
       console.error('Send invoice error:', err);
-      alert('An error occurred while sending the invoice.');
+      alert('We could not confirm whether the invoice email was delivered. Check with the client before trying again to avoid sending a duplicate. You can copy and share the payment link instead.');
     } finally {
       setSendingId(null);
     }
