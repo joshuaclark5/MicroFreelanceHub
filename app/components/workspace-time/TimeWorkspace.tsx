@@ -12,8 +12,8 @@ const blank=():Draft=>({projectId:'',description:'',startedAt:localDateTime(new 
 const duration=formatDuration;
 export default function TimeWorkspace(){
  const [data,setData]=useState<Data|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState(''),[notice,setNotice]=useState(''),[busy,setBusy]=useState(false);
- const [draft,setDraft]=useState<Draft>(blank),[editing,setEditing]=useState<TimeEntry|null>(null),[mode,setMode]=useState('manual');
- const [from,setFrom]=useState(()=>new Date().toISOString().slice(0,10)),[days,setDays]=useState('7'),[project,setProject]=useState(''),[billable,setBillable]=useState('');
+ const [draft,setDraft]=useState<Draft>(()=>({...blank(),startedAt:''})),[editing,setEditing]=useState<TimeEntry|null>(null),[mode,setMode]=useState('manual');
+ const [from,setFrom]=useState(''),[days,setDays]=useState('7'),[project,setProject]=useState(''),[billable,setBillable]=useState(''),[timezone,setTimezone]=useState('Detecting timezone'),[ready,setReady]=useState(false);
  const actor=useRef<string|null>(null),pending=useRef<Record<string,unknown>|null>(null),[uncertain,setUncertain]=useState(false),[accountChanged,setAccountChanged]=useState(false);
  const anchor=useRef({server:0,mono:0}),[elapsed,setElapsed]=useState(0),sequence=useRef(0);
  const load=useCallback(async()=>{
@@ -25,7 +25,9 @@ export default function TimeWorkspace(){
  actor.current=result.actorId;setAccountChanged(false);anchor.current={server:Date.parse(result.serverNow),mono:performance.now()};setData(result);
  }catch(e){if(seq===sequence.current){setData(null);setError((e as Error).message);}}finally{if(seq===sequence.current)setLoading(false);}
  },[from,days,project,billable]);
- useEffect(()=>{void load();},[load]);
+ // Keep SSR and the first browser render identical across timezones and midnight.
+ useEffect(()=>{setDraft(blank());setFrom(new Date().toISOString().slice(0,10));setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);setReady(true);},[]);
+ useEffect(()=>{if(ready)void load();},[ready,load]);
  useEffect(()=>{const tick=()=>{if(data?.running)setElapsed(Math.max(0,Math.floor((anchor.current.server+performance.now()-anchor.current.mono-Date.parse(data.running.started_at))/1000)));};tick();const id=setInterval(tick,1000);return()=>clearInterval(id);},[data]);
  function change(key:keyof Draft,value:string|boolean){setDraft(d=>({...d,[key]:value}));}
  async function send(payload:Record<string,unknown>){
@@ -60,7 +62,7 @@ export default function TimeWorkspace(){
  {data&&!data.projects.some(p=>p.status==='active')&&<p>Create or reopen a project before adding time. <Link href="/workspace/projects">Open projects</Link></p>}
  {data?.projectsTruncated&&<p role="status">The project list is incomplete or its completeness could not be verified (up to 1,000 shown).</p>}
  <label htmlFor="time-description">Description</label><textarea id="time-description" value={draft.description} maxLength={2000} onChange={e=>change('description',e.target.value)}/>
- {(editing||mode==='manual')&&<><label>Start time<input type="datetime-local" step="1" required value={draft.startedAt} onChange={e=>change('startedAt',e.target.value.length===16?e.target.value+':00':e.target.value)}/></label><p className="fine-print">Your timezone: {Intl.DateTimeFormat().resolvedOptions().timeZone}. Saved as an exact UTC instant. During a repeated daylight-saving hour, a new entry uses the earlier occurrence.</p><div className="time-duration"><label>Hours<input type="number" min="0" max="744" step="1" required value={draft.hours} onChange={e=>change('hours',e.target.value)}/></label><label>Minutes<input type="number" min="0" max="59" step="1" required value={draft.minutes} onChange={e=>change('minutes',e.target.value)}/></label></div>{draft.remainder>0&&<p className="fine-print">The saved {draft.remainder} remaining seconds are preserved when you edit.</p>}</>}
+ {(editing||mode==='manual')&&<><label>Start time<input type="datetime-local" step="1" required value={draft.startedAt} onChange={e=>change('startedAt',e.target.value.length===16?e.target.value+':00':e.target.value)}/></label><p className="fine-print">Your timezone: {timezone}. Saved as an exact UTC instant. During a repeated daylight-saving hour, a new entry uses the earlier occurrence.</p><div className="time-duration"><label>Hours<input type="number" min="0" max="744" step="1" required value={draft.hours} onChange={e=>change('hours',e.target.value)}/></label><label>Minutes<input type="number" min="0" max="59" step="1" required value={draft.minutes} onChange={e=>change('minutes',e.target.value)}/></label></div>{draft.remainder>0&&<p className="fine-print">The saved {draft.remainder} remaining seconds are preserved when you edit.</p>}</>}
  <label className="time-check"><input type="checkbox" checked={draft.billable} onChange={e=>change('billable',e.target.checked)}/> Billable</label>
  <label>Hourly rate ({draft.currency})<input type="text" inputMode="decimal" required value={draft.rateMajor} disabled={!!editing} onChange={e=>change('rateMajor',e.target.value)}/></label>
  <label>Currency<select aria-label="Currency" value={draft.currency} disabled={!!editing} onChange={e=>change('currency',e.target.value)}>{currencies.map(c=><option key={c}>{c}</option>)}</select></label>
