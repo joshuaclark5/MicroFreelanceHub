@@ -28,7 +28,7 @@ async function check(options = {}) {
     stripe: { default: class { constructor() { this.customers = { retrieve: async id => ({id, metadata: {supabase_id: 'owner'}}), create: async value => { customers.push(value); return { id: 'cus_mock' }; } }; this.checkout = { sessions: { create: async value => { sessions.push(value); return { url: 'https://example.test/checkout' }; } } }; } } },
     '@supabase/supabase-js': { createClient: () => db },
     '@supabase/auth-helpers-nextjs': { createRouteHandlerClient: () => ({ auth: { getUser: async () => ({ data: { user: options.unauthorized ? null : { id: 'owner' } } }) } }) },
-    'next/headers': { cookies: () => {} }, '../../../lib/profileAttribution': helper, '../../../lib/stripeCustomerOwnership': ownership,
+    'next/headers': { cookies: () => {} }, '../../../lib/profileAttribution': helper, '../../../lib/stripeCustomerOwnership': ownership, '../../../lib/stripeRuntime': { getStripeSecretKey: () => 'sk_test_fixture' },
   });
   const result = await POST({ json: async () => ({ plan: 'pro', userId: 'owner', landingPage: '/pricing?email=secret', leadSource: 'later', ...options.body }) });
   return { result, row, sessions, customers, writes };

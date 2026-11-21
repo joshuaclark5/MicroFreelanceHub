@@ -78,6 +78,7 @@ function fixture(options = {}) {
     '@supabase/auth-helpers-nextjs': {createRouteHandlerClient: () => db, createServerComponentClient: () => db},
     '../../../lib/stripeCustomerOwnership': ownership, '../../lib/stripeCustomerOwnership': ownership,
     '../../../lib/profileAttribution': attribution, '../../../lib/subscriptionReceipt': receipt,
+    '../../../lib/stripeRuntime': {getStripeSecretKey: () => { const env=state.env || {}; const key=Object.hasOwn(env,'STRIPE_SECRET_KEY') ? env.STRIPE_SECRET_KEY : 'sk_test_fixture'; if(!key) throw Error('Missing fixture key'); return key; }}, '../../lib/stripeRuntime': {getStripeSecretKey: () => { const env=state.env || {}; const key=Object.hasOwn(env,'STRIPE_SECRET_KEY') ? env.STRIPE_SECRET_KEY : 'sk_test_fixture'; if(!key) throw Error('Missing fixture key'); return key; }},
   };
   const paths = {
     checkout: ['app/api/stripe/checkout-plan/route.ts', 'POST'],

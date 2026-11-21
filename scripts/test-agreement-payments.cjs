@@ -58,6 +58,8 @@ const imports = {
   '../../../lib/agreementPayment': payment,
   '../../../lib/recordAgreementPayment': record,
   '../../lib/recordAgreementPayment': record,
+  '../../../lib/stripeRuntime': { getStripeSecretKey: () => 'sk_test_fixture' },
+  '../../lib/stripeRuntime': { getStripeSecretKey: () => 'sk_test_fixture' },
 };
 const checkout = load('app/api/stripe/checkout/route.ts', imports);
 const confirm = load('app/api/sow/mark-paid/route.ts', imports);

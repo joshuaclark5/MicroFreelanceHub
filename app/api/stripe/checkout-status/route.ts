@@ -4,6 +4,7 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import Stripe from 'stripe';
 import { subscriptionReceipt } from '../../../lib/subscriptionReceipt';
 import { ownedStripeCustomer } from '../../../lib/stripeCustomerOwnership';
+import { getStripeSecretKey } from '../../../lib/stripeRuntime';
 export const dynamic = 'force-dynamic';
 const reply = (data: unknown, status = 200) => NextResponse.json(data, { status, headers: { 'Cache-Control': 'private, no-store' } });
 export async function GET(request: Request) {
@@ -18,7 +19,7 @@ export async function GET(request: Request) {
       .select('stripe_customer_id, subscription_id, is_pro').eq('id', user.id).maybeSingle();
     if (profileError) throw profileError;
     if (!profile?.stripe_customer_id) return reply({ state: 'unavailable' });
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+    const stripe = new Stripe(getStripeSecretKey());
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     // Never retrieve or disclose another customer's subscription.
     if (session.client_reference_id !== user.id || session.customer !== profile.stripe_customer_id ||

@@ -3,6 +3,7 @@ import { ownedStripeCustomer } from '../../../lib/stripeCustomerOwnership';
 import { cookies } from 'next/headers';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import Stripe from 'stripe';
+import { getStripeSecretKey } from '../../../lib/stripeRuntime';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,7 +19,7 @@ export async function GET() {
     const free = { plan: 'Free', status: 'No subscription', cycle: 'None', nextDate: null, cancelAtPeriodEnd: false, canCancel: false, canManage: !!profile?.stripe_customer_id };
     if (!profile?.stripe_customer_id) return NextResponse.json(free);
 
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+    const stripe = new Stripe(getStripeSecretKey());
     if (!await ownedStripeCustomer(stripe, profile.stripe_customer_id, user.id)) {
       return NextResponse.json({ error: 'Unable to verify billing account. Please contact support.' }, { status: 403 });
     }
