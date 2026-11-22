@@ -25,7 +25,7 @@ export default function SupportHandoff({ request }: { request?: {topic: SupportT
       setFeedback('Draft copied. Paste it into your email app, review it and send when ready. Nothing has been sent yet.');
     } catch {
       if (request !== revision.current) return;
-      setFeedback('Copy is unavailable. Select the preview below and copy it manually, or use Open email draft. Nothing has been sent.');
+      setFeedback('Copy is unavailable. Select the preview below and copy it manually, then paste it into your email service. Nothing has been sent.');
     }
   }
   return <section className="mt-10 rounded-2xl bg-emerald-50 p-6 sm:p-7" aria-labelledby="human-support">
@@ -40,8 +40,9 @@ export default function SupportHandoff({ request }: { request?: {topic: SupportT
     <textarea ref={detailsInput} id="support-details" aria-describedby="support-privacy" value={details} onChange={e => {revision.current++; setDetails(e.target.value); setFeedback('');}} maxLength={1500} rows={5} placeholder="For example: In Time tracking, I tried saving an entry but saw an error. I have not created another entry." className="w-full rounded-xl border border-slate-300 p-3"/>
     <p className="my-2 text-sm text-slate-600">{details.length}/1500 characters. Review and redact before sending.</p>
     <details className="my-4 rounded-xl border border-emerald-200 bg-white p-4"><summary className="cursor-pointer font-semibold">Review email draft</summary><p className="my-3 font-semibold">{draft.subject}</p><pre className="whitespace-pre-wrap break-words font-sans text-sm leading-6">{draft.body}</pre></details>
+    {!draft.canOpenEmail && <p role="status" className="my-3 text-sm leading-6">This draft is too long for a reliable email link. Use Copy draft, or select the full preview and paste it into your email service. Your details have not been shortened.</p>}
     <div className="flex flex-wrap gap-3">
-      <a href={draft.href} onClick={() => { revision.current++; setFeedback('Your email app may open a draft. Review it and press Send there. Opening this link does not confirm delivery.'); }} className="rounded-xl bg-emerald-900 px-4 py-3 font-semibold text-white">Open email draft</a>
+      {draft.canOpenEmail && <a href={draft.href} onClick={() => { revision.current++; setFeedback('Your email app may open a draft. Review it and press Send there. Opening this link does not confirm delivery.'); }} className="rounded-xl bg-emerald-900 px-4 py-3 font-semibold text-white">Open email draft</a>}
       <button type="button" onClick={() => void copy()} className="rounded-xl border border-emerald-900 px-4 py-3 font-semibold text-emerald-900">Copy draft</button>
       <button type="button" onClick={() => {revision.current++; setDetails(''); setTopic('Something else'); setFeedback('Draft cleared from this form. Any copy in your clipboard or email app is unchanged.');}} className="px-4 py-3 text-emerald-900 underline">Clear draft</button>
     </div>

@@ -107,3 +107,7 @@ One accepted at-job: 789b6f79-ade2-469d-b0a6-992fd5e5ef65, first run 2026-11-22T
 ## Run 15 checkpoint
 - Added contextual reviewed-answer to human-email handoff, preserving unsent details and excluding search/URL/account data. Reports is now an explicit email topic. Focused tests, separate TypeScript, configured production build, responsive public browser tests and fresh SEO comparison passed (1515 existing URLs retained).
 - Initial bare build lacked Stripe configuration; retried successfully with the existing helper/private environment. Publisher readiness still timed out before acceptance; no release/request ID. QA server stopped, no coding children; unrelated changes preserved. Continue this job only before cutoff.
+
+## Run 16 checkpoint
+- Long support drafts now use full-content copy/manual preview instead of an oversized email link; short drafts retain the email action. Focused boundary/Unicode tests, TypeScript, configured production build, responsive public/report browser checks and fresh SEO diff passed (1515 existing URLs preserved).
+- Publisher readiness timed out before acceptance; local only, no request ID. QA server stopped; no coding workers started. Unrelated changes preserved. Continue this same bounded job before cutoff; full product/integration/device/AI ledger remains open.

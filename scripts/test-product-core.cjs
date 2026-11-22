@@ -99,3 +99,19 @@ console.log('PASS support draft malformed Unicode and emoji truncation');
 for (const [id,topic] of [['account-access','Account access'],['report-export','Reports'],['uncertain-time-save','Time tracking'],['integrations','Integrations'],['untrusted?token=private','Something else'],['__proto__','Something else']]) assert.equal(handoff.answerSupportTopic(id),topic);
 assert.equal(handoff.supportDraft('Reports','Existing details').subject,'MicroFreelanceHub help: Reports');
 console.log('PASS reviewed answer handoff topics and unknown/prototype fallback');
+
+assert.equal(handoff.supportDraft('Reports','Short question').canOpenEmail,true);
+for (const content of ['&'.repeat(700), '\u{1F600}'.repeat(700), '\u4E2D'.repeat(700)]) {
+ const longDraft=handoff.supportDraft('Reports',content);
+ assert.equal(longDraft.canOpenEmail,false);
+ assert.ok(longDraft.body.includes(content));
+ assert.ok(new URL(longDraft.href).searchParams.get('body').includes(content));
+}
+console.log('PASS encoded mailto length guard preserves complete multilingual drafts');
+
+const baseLength=handoff.supportDraft('Reports','').href.length;
+const encodedRoom=2000-baseLength;
+const boundaryDetails='&'.repeat(Math.floor(encodedRoom/3))+'x'.repeat(encodedRoom%3);
+assert.equal(handoff.supportDraft('Reports',boundaryDetails).href.length,2000);
+assert.equal(handoff.supportDraft('Reports',boundaryDetails).canOpenEmail,true);
+assert.equal(handoff.supportDraft('Reports',boundaryDetails+'x').canOpenEmail,false);
