@@ -75,3 +75,7 @@ One accepted at-job: 789b6f79-ade2-469d-b0a6-992fd5e5ef65, first run 2026-11-22T
 - Current scheduled publisher context is unbound; original owner session readiness still times out. No accepted request or live release. No authority bypass.
 - Job history reports delivery failed because no previous channel resolved. Scheduled tool cannot update delivery; record results here and in automation history, do not guess a recipient. No coding workers started; local QA server stopped.
 - Remaining ledger and integration gates stay open. Rearm only this same job before 13:40Z.
+
+## Run 8 checkpoint
+- Report period shortcuts implemented and verified locally: inclusive UTC This month / Last month / Last 30 days, retaining custom dates and bounded metrics. Date fixtures, report API tests, TypeScript, production build, 28 report browser surfaces and public-route regressions passed. Fresh SEO diff preserves all 1515 live URLs.
+- Publisher readiness for the original session still times out before acceptance. No request ID, publication, integration change, spending or native-device claim. QA server stopped; no coding workers. Preserve unrelated files; continue broader ledger in the same job before cutoff.

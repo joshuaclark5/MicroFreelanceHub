@@ -1,5 +1,20 @@
 // Recorded workspace summaries only: no payment, revenue, aging or profitability inference.
 export type ReportKind = 'invoices' | 'time';
+export type ReportPeriod = 'month' | 'previous-month' | '30-days';
+// Inclusive calendar dates, calculated in UTC rather than the device timezone.
+export function reportPeriod(period:ReportPeriod, now=new Date()){
+ if(!Number.isFinite(now.getTime()))throw Error('Current date unavailable.');
+ const today=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate()));
+ let start=new Date(today),end=new Date(today);
+ if(period==='month')start.setUTCDate(1);
+ else if(period==='previous-month'){end.setUTCDate(0);start=new Date(end);start.setUTCDate(1);}
+ else if(period==='30-days')start.setUTCDate(start.getUTCDate()-29);
+ else throw Error('Unknown report period.');
+ const from=start.toISOString().slice(0,10),to=end.toISOString().slice(0,10);
+ // Keep shortcuts within the same supported range as manually selected dates.
+ reportInput(new URLSearchParams({from,to}));
+ return {from,to};
+}
 export type ReportRow = {id:string; date:string; status:string; currency:string; amountMinor:string|null; seconds:number|null; billable:boolean|null; label:string; projectId:string|null};
 export type ReportGroup = {currency:string; status:string; billable:boolean|null; count:number; amountMinor:string|null; seconds:number|null};
 export const reportTables = {invoices:'workspace_invoice_drafts',time:'workspace_time_entries'} as const;
