@@ -14,3 +14,8 @@ assert.equal(findSupportAnswers('').length,supportAnswers.length);
 assert.equal(findSupportAnswers('invoice'+' '.repeat(193)+'zzzz').length,findSupportAnswers('invoice').length);
 assert.equal(findSupportAnswers('<script>alert(1)</script>').length,0);
 console.log('PASS support topics, stable IDs, aliases, Unicode, unknown fallback and bounded input');
+
+for (const query of ['How do I reset my password?', 'please recover my password', '??? do I reset my password?']) assert.ok(findSupportAnswers(query).some(x=>x.id==='account-access'), query);
+for (const query of ['how do I', '???', 'reset password unicorn', 'not password']) assert.equal(findSupportAnswers(query).length,0,query);
+assert.equal(findSupportAnswers('How do I reset my password?', 'Billing').length,0);
+console.log('PASS natural questions, unknown subjects, punctuation, negation and topic boundaries');

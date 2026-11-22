@@ -12,13 +12,18 @@ export const supportAnswers = [
 
 export const supportTopics = ['All topics', 'Getting started', 'Account access', 'Scheduling', 'Billing', 'Troubleshooting'] as const;
 export type SupportTopic = typeof supportTopics[number];
-const aliases: Record<string, string> = { login:'account', signin:'account', password:'password', appointments:'booking', appointment:'booking', invoice:'invoices', payments:'payment', retry:'save', failed:'save', failure:'save' };
+const aliases: Record<string, string> = { reset:'recovery', recover:'recovery', login:'account', signin:'account', password:'password', appointments:'booking', appointment:'booking', invoice:'invoices', payments:'payment', retry:'save', failed:'save', failure:'save' };
 function tokens(value: string): string[] {
  return value.toLowerCase().normalize('NFKC').replace(/sign[ -]in/g, 'signin').match(/[\p{L}\p{N}]+/gu) || [];
 }
+// Ignore question scaffolding, never substantive unknown terms or negation.
+const questionWords = new Set(['how', 'do', 'does', 'i', 'my', 'the', 'a', 'an', 'can', 'where', 'is', 'are', 'what', 'to', 'please']);
 function canonical(token: string) { return aliases[token] || token; }
 export function findSupportAnswers(query: string, topic: SupportTopic = 'All topics') {
- const terms = tokens(query.slice(0, 200)).map(canonical);
+ const rawTerms = tokens(query.slice(0, 200));
+ const terms = rawTerms.filter(term => !questionWords.has(term)).map(canonical);
+ // A nonempty question without a subject is not a match for every answer.
+ if (query.trim() && terms.length === 0) return [];
  return supportAnswers.filter(answer => {
   if (topic !== 'All topics' && answer.topic !== topic) return false;
   const haystack = tokens(answer.q + ' ' + answer.a).map(canonical);
