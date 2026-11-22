@@ -29,7 +29,28 @@ export function manualTime(actor:string,operationId:string,projectId:string,minu
 export async function saveTime(db:SupabaseClient,payload:Record<string,unknown>) {
   const validated=timeInput(payload);
   await verifyActor(db,String(validated.expectedActorId));
-  const {data,error}=await db.rpc('workspace_time_mutate',{payload:validated});
-  if(error) throw Error('Save was not confirmed. Retry this same entry to recover it safely.');
-  return data;
+  // A transport success alone is not a saved-entry receipt. Keep the same
+  // operation ID until the returned row matches the reviewed manual entry.
+  try {
+    const {data,error}=await db.rpc('workspace_time_mutate',{payload:validated});
+    if(error || !confirmedTimeReceipt(data,validated)) throw Error('unconfirmed');
+    return data;
+  } catch {
+    throw Error('Save was not confirmed. Retry this same entry to recover it safely. An earlier save may already have succeeded.');
+  }
+}
+
+export function confirmedTimeReceipt(row:unknown,payload:Record<string,unknown>):boolean {
+  if(!row || typeof row!=='object' || Array.isArray(row))return false;
+  const receipt=row as Record<string,unknown>;
+  const start=Date.parse(String(receipt.started_at));
+  const end=Date.parse(String(receipt.stopped_at));
+  return payload.action==='manual' && typeof receipt.id==='string'
+    && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(receipt.id)
+    && receipt.owner_id===payload.expectedActorId && receipt.project_id===payload.projectId
+    && receipt.source==='manual' && receipt.description===payload.description
+    && receipt.seconds===payload.seconds && receipt.billable===payload.billable
+    && receipt.rate_minor===payload.rateMinor && receipt.currency===payload.currency
+    && Number.isFinite(start) && start===Date.parse(String(payload.startedAt))
+    && Number.isFinite(end) && end-start===Number(payload.seconds)*1000;
 }

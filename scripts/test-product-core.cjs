@@ -51,14 +51,15 @@ assert.throws(()=>mobile.manualTime(actor,operation,'wrong','1','',Date.now()));
  const departedLoad=apply(new Promise(resolve=>{resolveDeparted=resolve;}));
  responseGate.invalidate();rendered=undefined;resolveDeparted('previous account');await departedLoad;
  assert.equal(rendered,undefined);
+ const receipt=p=>({id:operation,owner_id:p.expectedActorId,project_id:p.projectId,source:'manual',description:p.description,seconds:p.seconds,billable:p.billable,rate_minor:p.rateMinor,currency:p.currency,started_at:p.startedAt,stopped_at:new Date(Date.parse(p.startedAt)+p.seconds*1000).toISOString()});
  let calls=0,stored;
- const db={auth:{getUser:async()=>({data:{user:{id:actor}},error:null})},rpc:async(name,args)=>{calls++;assert.equal(name,'workspace_time_mutate');if(stored)assert.equal(args.payload.operationId,stored.operationId);stored=args.payload;return {data:{id:'saved'},error:null};}};
+ const db={auth:{getUser:async()=>({data:{user:{id:actor}},error:null})},rpc:async(name,args)=>{calls++;assert.equal(name,'workspace_time_mutate');if(stored)assert.equal(args.payload.operationId,stored.operationId);stored=args.payload;return {data:receipt(args.payload),error:null};}};
  // Preparing/revising a review is local only; confirmation sends the exact reviewed payload.
  const reviewed=mobile.manualTime(actor,operation,project,'90','Reviewed note',Date.parse('2026-11-21T16:00:00Z'));
  assert.equal(calls,0);assert.equal(reviewed.seconds,5400);assert.equal(reviewed.description,'Reviewed note');
  assert.equal(reviewed.startedAt,'2026-11-21T14:30:00Z');
  let confirmedPayload;
- await mobile.saveTime({...db,rpc:async(_name,args)=>{confirmedPayload=args.payload;return {data:{id:'reviewed'},error:null};}},reviewed);
+ await mobile.saveTime({...db,rpc:async(_name,args)=>{confirmedPayload=args.payload;return {data:receipt(args.payload),error:null};}},reviewed);
  assert.equal(confirmedPayload,reviewed);assert.equal(confirmedPayload.billable,false);assert.equal(calls,0);
  await mobile.saveTime(db,p);await mobile.saveTime(db,p);assert.equal(calls,2);assert.equal(stored.operationId,operation);
  const wrong={...db,auth:{getUser:async()=>({data:{user:{id:project}},error:null})}};
@@ -72,6 +73,15 @@ assert.throws(()=>mobile.manualTime(actor,operation,'wrong','1','',Date.now()));
  }
  await assert.rejects(()=>mobile.saveTime(wrong,p),/earlier save may already have succeeded/);
  assert.equal(calls,2);
+ // Lost or mismatched acknowledgements must never clear the pending entry.
+ for(const invalid of [null,undefined,{},[],{...receipt(p),id:'bad'},...Object.keys(receipt(p)).filter(k=>k!=='id').map(k=>({...receipt(p),[k]:null})),{...receipt(p),owner_id:project},{...receipt(p),seconds:1},{...receipt(p),billable:true}]){
+  await assert.rejects(()=>mobile.saveTime({...db,rpc:async()=>({data:invalid,error:null})},p),/not confirmed/);
+ }
+ await assert.rejects(()=>mobile.saveTime({...db,rpc:async()=>{throw Error('PRIVATE transport diagnostic');}},p),e=>/earlier save/.test(e.message)&&!e.message.includes('PRIVATE'));
+ const offsetReceipt={...receipt(p),started_at:'2026-11-21T09:15:00-05:00'};
+ assert.equal(mobile.confirmedTimeReceipt(offsetReceipt,p),true);
+ // Recovery after a lost response still submits the original operation.
+ await mobile.saveTime(db,p);assert.equal(stored.operationId,operation);
  const failed={...db,rpc:async()=>({error:{message:'internal error'}})};await assert.rejects(()=>mobile.saveTime(failed,p),/not confirmed/);
  const article=load('app/data/weeklyProjectReview.ts').weeklyProjectReview;assert.equal(article.slug,'weekly-freelance-project-review-checklist');assert.ok(article.sections.length>=6);assert.ok(article.sections.flatMap(s=>s.body).join(' ').split(/\s+/).length>700);
  console.log('PASS project search and stale/account-switch load rejection; analytics route/privacy boundaries; native manual-time validation, account switch, stable retry ID and uncertain-save error; original article structure.');

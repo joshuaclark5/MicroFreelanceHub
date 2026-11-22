@@ -84,3 +84,11 @@ One accepted at-job: 789b6f79-ade2-469d-b0a6-992fd5e5ef65, first run 2026-11-22T
 - Reports now discard stale totals for blank/invalid dates and block default-date exports; canceled CSV responses cannot download old data or reset a newer export's busy state.
 - TypeScript, date/API tests, production build, 28 responsive report surfaces (including invalid-filter and delayed-export recovery), public-route regression and fresh SEO diff passed. All 1515 existing URLs preserved; details in PRODUCT_EXECUTION.md.
 - Local only: original publisher readiness timed out before accepting any request. No provider, billing, legal page or customer-data mutation. QA server stopped; no coding workers started. Rearm only this job before cutoff.
+
+
+## Run 10 checkpoint - mobile save acknowledgement
+- Mobile saves now require a saved-entry receipt matching the reviewed owner, project, description, duration, billing snapshot and start/end times, with a valid entry ID. Empty/malformed/mismatched RPC success responses no longer clear the pending retry ID or display success. Transport exceptions produce bounded uncertain-save guidance rather than raw diagnostics.
+- Focused fixtures passed for missing/mismatched fields, other-owner receipts, thrown transport errors, equivalent timestamp offsets and recovery with the original operation ID. Native TypeScript passed. Native bundle export results recorded at final checkpoint below; no device/install/store claim.
+- Website runtime, public copy, sitemap, legal pages and database unchanged. Prior production/browser/SEO evidence is not a fresh release gate; rerun all required release checks before publishing.
+- Original publishing session readiness timed out before accepting any request. No request ID or live release; no provider mutation, spending, email or duplicate worker. Three unrelated dirty files preserved. Continue this same job before 13:40Z; broader feature ledger and integration/device/support-AI gates remain open.
+- Final run 10 verification: Android/iOS Hermes exports passed (exit 0); focused core tests and native TypeScript passed. Device testing unverified. No coding workers remain.
