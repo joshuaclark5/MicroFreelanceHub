@@ -51,3 +51,9 @@ One accepted at-job: 789b6f79-ade2-469d-b0a6-992fd5e5ef65, first run 2026-11-22T
 - Website runtime, SEO, database and billing unchanged. Prior website build/browser/SEO evidence retained, not rerun. All gates remain required before publication.
 - Publisher readiness timed out before accepting a request; no request ID or deployment. No duplicate worker, provider mutation, spending or email. Three unrelated dirty files preserved.
 - Same job next_check accepted for ten minutes; next run should pursue providers or other unblocked ledger items. No coding workers remain running.
+
+## Overnight run 4 - mobile sign-out recovery (2026-11-22 UTC)
+- Local 158aac4 adds draft/review and uncertain-save sign-out confirmations. Cancel keeps work intact; explicit sign-out explains loss of memory-only retry ID. Stale confirmations cannot sign out another account/session generation. OS termination/expiry and durable recovery remain unfinished.
+- Focused tests cover warning precedence, empty/draft/review states, account and generation changes. Native TypeScript and Android/iOS Hermes exports passed (private mobile-exit-export). Actual native alert/device/install/store validation not claimed. Risky-copy and whitespace checks passed.
+- Publisher readiness timed out before any accepted publication request; no request ID or live increment. Website/SEO/database/billing unchanged; full production build/browser/SEO gates still required before release. Three unrelated files preserved. No coding workers remain running.
+- Next: prioritize controlled Intuit/Entra inspection or grounded support feasibility over further small mobile refinements. Read browser skills; no authority bypass, repeated email or spending. Original product ledger remains open.
