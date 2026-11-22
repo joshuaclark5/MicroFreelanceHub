@@ -246,3 +246,8 @@ Production build, separate TypeScript, focused actual-flow checks, risky-copy sc
 ## Overnight run 19 - support clear confirmation
 - Local support draft clear now requires explicit confirmation; cancel preserves text, edits dismiss stale confirmation, and clearing restores input focus. No persistence, external calls, customer-data or legal/pricing changes.
 - New focused clear-interaction fixtures, existing leave/search fixtures, separate TypeScript and whitespace check passed. Updated browser regression expectations; full build/browser/SEO gates pending for this increment. Publisher readiness timed out without acceptance. No request ID or live-release claim. No coding workers remain; unrelated files preserved.
+
+## Run 20 checkpoint - keyboard-safe draft clearing
+- Local 6932c63 focuses Keep draft on clear confirmation; Escape cancels and restores details focus without deleting text. No new copy claims, persistence, provider calls, legal/pricing or database changes.
+- Focused clear/leave/search/core tests, separate TypeScript and configured production build passed (support-clear-keyboard-build.log). Real browser checks passed four public routes at 320/390/1440, including focus, Escape/Keep cancellation, explicit clearing, and beforeunload preservation. Covers pending run 19 gates. Fresh sitemap retains all 1515 existing URLs (1519 candidate, same four additions). Changed-copy and whitespace review clean.
+- Original publisher readiness timed out before acceptance; no request ID or live release. QA server stopped; no coding workers started. Three unrelated files preserved. Same job next_check accepted for 10m. Broader product/provider/device/AI work remains open.
