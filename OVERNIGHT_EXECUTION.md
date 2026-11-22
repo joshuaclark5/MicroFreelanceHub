@@ -57,3 +57,8 @@ One accepted at-job: 789b6f79-ade2-469d-b0a6-992fd5e5ef65, first run 2026-11-22T
 - Focused tests cover warning precedence, empty/draft/review states, account and generation changes. Native TypeScript and Android/iOS Hermes exports passed (private mobile-exit-export). Actual native alert/device/install/store validation not claimed. Risky-copy and whitespace checks passed.
 - Publisher readiness timed out before any accepted publication request; no request ID or live increment. Website/SEO/database/billing unchanged; full production build/browser/SEO gates still required before release. Three unrelated files preserved. No coding workers remain running.
 - Next: prioritize controlled Intuit/Entra inspection or grounded support feasibility over further small mobile refinements. Read browser skills; no authority bypass, repeated email or spending. Original product ledger remains open.
+
+## Run 5 checkpoint
+- Outlook development adapter and fixture tests added; production build exit 0, TypeScript and existing Calendar tests passed. Disconnected/no real-provider verification. Details and continuation gates in OUTLOOK_INTEGRATION.md.
+- Browser now confirmed usable: existing Intuit app accessible; Entra Default Directory has no applications in All applications. No changes to scopes, credentials, app registrations, billing or customer data.
+- Publisher readiness still times out without request acceptance. No new live release. Continue provider sandbox inspection or grounded support, preserving all release gates and unrelated files. No coding children started.
