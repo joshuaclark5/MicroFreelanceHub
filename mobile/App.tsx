@@ -16,11 +16,12 @@ function Workspace({db}:{db:SupabaseClient}) {
  const [minutes,setMinutes]=useState(''),[description,setDescription]=useState(''),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[truncated,setTruncated]=useState(false);
  const [loadState,setLoadState]=useState<'loading'|'ready'|'error'>('loading'),[loadError,setLoadError]=useState(''),[query,setQuery]=useState(''),[hasLoaded,setHasLoaded]=useState(false);
  const loadGate=useRef(createLoadGate());
+ const [review,setReview]=useState<Record<string,unknown>|null>(null);
  const pending=useRef<Record<string,unknown>|null>(null), generation=useRef(0), currentActor=useRef<string|null>(null), acting=useRef(false);
  useEffect(()=>{
   const {data:{subscription}}=db.auth.onAuthStateChange((_event,session)=>{
    const id=session?.user.id||null;
-   if(id!==currentActor.current){generation.current++;loadGate.current.invalidate();setLoadState('loading');setLoadError('');setQuery('');setHasLoaded(false);currentActor.current=id;pending.current=null;setProjects([]);setEntries([]);setProjectId('');setMinutes('');setDescription('');setMessage('');setActor(id);}
+   if(id!==currentActor.current){generation.current++;loadGate.current.invalidate();setLoadState('loading');setLoadError('');setQuery('');setHasLoaded(false);currentActor.current=id;pending.current=null;setReview(null);setProjects([]);setEntries([]);setProjectId('');setMinutes('');setDescription('');setMessage('');setActor(id);}
   });
   const state=AppState.addEventListener('change',value=>{if(value==='active')db.auth.startAutoRefresh();else db.auth.stopAutoRefresh();});
   return()=>{subscription.unsubscribe();state.remove();db.auth.stopAutoRefresh();};
@@ -46,10 +47,19 @@ function Workspace({db}:{db:SupabaseClient}) {
   try{await fn();}catch(e){setMessage(e instanceof Error?e.message:'Something went wrong. Please retry.');}
   finally{acting.current=false;setBusy(false);}
  }
+ function prepareReview(){
+  try {
+   if(!actor)return;
+   setReview(manualTime(actor,Crypto.randomUUID(),projectId,minutes,description,Date.now()));setMessage('');
+  } catch(e){setMessage(e instanceof Error?e.message:'Check the entry and retry.');}
+ }
  async function submit(){
   if(!actor)return;
   const id=actor,g=generation.current;
-  pending.current ||= manualTime(id,Crypto.randomUUID(),projectId,minutes,description,Date.now());
+  if(!pending.current){
+   if(!review)throw Error('Review this entry before saving.');
+   pending.current=review;setReview(null);
+  }
   await saveTime(db,pending.current);
   if(g!==generation.current||currentActor.current!==id)return;
   pending.current=null;setMinutes('');setDescription('');setMessage('Time saved. This entry is nonbillable; no invoice or charge was created.');
@@ -66,7 +76,7 @@ function Workspace({db}:{db:SupabaseClient}) {
    <Button title="Sign in" disabled={busy||!email.trim()||!password} onPress={()=>void action(async()=>{const {error}=await db.auth.signInWithPassword({email:email.trim(),password});if(error)throw Error('Sign-in failed. Check your details or use the website to recover access.');setPassword('');})}/>
    <Text style={styles.body}>Google-only sign-in and account recovery are not supported in this first native build. Use the website for those flows. No account is created here.</Text>
   </>:<>
-   <View style={styles.row}><Button title="Refresh" disabled={busy} onPress={()=>void action(()=>refresh(actor))}/><Button title="Sign out" disabled={busy} onPress={()=>void action(async()=>{const {error}=await db.auth.signOut({scope:'local'});if(error)throw Error('Sign-out was not confirmed. Please retry.');})}/></View>
+   <View style={styles.row}><Button title="Refresh" disabled={busy||!!review} onPress={()=>void action(()=>refresh(actor))}/><Button title="Sign out" disabled={busy} onPress={()=>void action(async()=>{const {error}=await db.auth.signOut({scope:'local'});if(error)throw Error('Sign-out was not confirmed. Please retry.');})}/></View>
    {loadState==='loading'&&<Text accessibilityLiveRegion="polite" style={styles.notice}>Loading your projects and recent time...</Text>}
    {loadState==='error'&&<Text accessibilityRole="alert" style={styles.notice}>{loadError}</Text>}
    {hasLoaded&&<View style={styles.overview}><View><Text style={styles.metric}>{projects.length}{truncated?'+':''}</Text><Text style={styles.caption}>ACTIVE PROJECTS</Text></View><View><Text style={styles.metric}>{Math.round(entries.reduce((sum,e)=>sum+(e.seconds||0),0)/60)}</Text><Text style={styles.caption}>MINUTES IN LATEST ENTRIES</Text></View></View>}<Text style={styles.subheading}>Log completed time</Text><Text style={styles.body}>Record work ending now, up to 24 hours. Entries are nonbillable; review billing details on the website.</Text>
@@ -74,11 +84,12 @@ function Workspace({db}:{db:SupabaseClient}) {
     <Text style={styles.label}>Choose a project</Text><TextInput accessibilityLabel="Search loaded projects" placeholder="Search loaded projects" value={query} onChangeText={setQuery} style={styles.input} maxLength={100}/>
     <Text style={styles.body}>Selected: {projects.find(p=>p.id===projectId)?.name||'Previously selected project'}</Text>
     {filterProjects(projects,query).length===0&&<Text style={styles.notice}>No loaded projects match. Clear your search to see the list; your selection has not changed.</Text>}
-    {filterProjects(projects,query).map(p=><Pressable key={p.id} accessibilityRole="radio" accessibilityState={{checked:p.id===projectId,disabled:busy||!!pending.current}} disabled={busy||!!pending.current} onPress={()=>setProjectId(p.id)} style={[styles.project,p.id===projectId&&styles.selected]}><Text style={styles.body}>{p.id===projectId?'✓ ':''}{p.name}</Text></Pressable>)}
+    {filterProjects(projects,query).map(p=><Pressable key={p.id} accessibilityRole="radio" accessibilityState={{checked:p.id===projectId,disabled:busy||!!pending.current||!!review}} disabled={busy||!!pending.current||!!review} onPress={()=>setProjectId(p.id)} style={[styles.project,p.id===projectId&&styles.selected]}><Text style={styles.body}>{p.id===projectId?'✓ ':''}{p.name}</Text></Pressable>)}
     {truncated&&<Text style={styles.notice}>Showing the first 200 active projects. Use the website for the full list.</Text>}
-    <Text style={styles.label}>Minutes worked</Text><TextInput accessibilityLabel="Minutes worked" keyboardType="number-pad" maxLength={4} value={minutes} onChangeText={setMinutes} editable={!busy&&!pending.current} style={styles.input}/>
-    <Text style={styles.label}>Work note (optional)</Text><TextInput accessibilityLabel="Work note" multiline maxLength={2000} value={description} onChangeText={setDescription} editable={!busy&&!pending.current} style={styles.input}/>
-    <Button title={pending.current?'Retry the same entry':'Save nonbillable time'} disabled={busy||!projectId||!minutes||(!pending.current&&loadState!=='ready')} onPress={()=>void action(submit)}/>
+    <Text style={styles.label}>Minutes worked</Text><TextInput accessibilityLabel="Minutes worked" keyboardType="number-pad" maxLength={4} value={minutes} onChangeText={setMinutes} editable={!busy&&!pending.current&&!review} style={styles.input}/>
+    <Text style={styles.label}>Work note (optional)</Text><TextInput accessibilityLabel="Work note" multiline maxLength={2000} value={description} onChangeText={setDescription} editable={!busy&&!pending.current&&!review} style={styles.input}/>
+    {review&&<View style={styles.helpCard} accessibilityLabel="Review time entry"><Text style={styles.subheading}>Review before saving</Text><Text style={styles.body}>Project: {projects.find(p=>p.id===String(review.projectId))?.name||'Selected project'}</Text><Text style={styles.body}>{Number(review.seconds)/60} minutes - Nonbillable</Text><Text style={styles.body}>Started: {new Date(String(review.startedAt)).toLocaleString()}</Text><Text style={styles.body}>{String(review.description)||'No work note'}</Text><Text style={styles.body}>No invoice or customer charge will be created. Nothing is saved until you confirm.</Text><Button title="Confirm and save time" disabled={busy||loadState!=='ready'} onPress={()=>void action(submit)}/><Button title="Edit entry" disabled={busy} onPress={()=>setReview(null)}/></View>}
+    {!review&&<Button title={pending.current?'Retry the same entry':'Review time entry'} disabled={busy||!projectId||!minutes||(!pending.current&&loadState!=='ready')} onPress={()=>pending.current?void action(submit):prepareReview()}/>}
     {pending.current&&<Text style={styles.notice}>The outcome is uncertain. Retry uses the same operation ID to prevent duplicate time. Keep this app open until the save is confirmed.</Text>}
    </>}
    <Text style={styles.subheading}>Latest 20 completed entries</Text>{entries.length===0?(loadState==='ready'?<Text style={styles.body}>No completed time yet. Your first entry will appear here after it is saved.</Text>:null):entries.map(e=><View key={e.id} style={styles.project}><Text style={styles.label}>{projects.find(p=>p.id===e.project_id)?.name||'Project'}</Text><Text style={styles.body}>{Math.round((e.seconds||0)/60)} minutes · {new Date(e.started_at).toLocaleDateString()}</Text><Text style={styles.body}>{e.description}</Text></View>)}

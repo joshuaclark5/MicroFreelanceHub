@@ -19,3 +19,7 @@ Before a native release: test real sign-in/expiry/sign-out, two-account isolatio
 ## Project browsing and recovery
 
 Search filters only the loaded, owner-scoped list (up to 200 active projects); it never changes the selected project. The selected name remains visible even when filtered out. Loading, failed refresh, and verified empty results have distinct messages. Previously loaded data is labeled potentially stale after a refresh failure. New saves require a successful load; retries of uncertain saves retain their existing operation ID and project even if the refreshed project list changes. Older responses are ignored after a newer refresh or account change. These behaviors have source/type and focused logic checks; phone interaction and accessibility checks remain required.
+
+## Review before capture
+
+Time entry now has a local review step: project, duration, start time and note are visible before confirmation. Editing returns to the unsent form. Project/duration/note and refresh are locked during review so the confirmed payload matches the preview; signing out clears it. Confirmation uses the reviewed timestamp (not a later shifted start), and uncertain retries retain that exact payload and operation ID. No RPC is made to prepare a review. Actual device interaction still needs validation.

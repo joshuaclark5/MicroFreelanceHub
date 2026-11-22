@@ -45,6 +45,13 @@ assert.throws(()=>mobile.manualTime(actor,operation,'wrong','1','',Date.now()));
  assert.equal(rendered,undefined);
  let calls=0,stored;
  const db={auth:{getUser:async()=>({data:{user:{id:actor}},error:null})},rpc:async(name,args)=>{calls++;assert.equal(name,'workspace_time_mutate');if(stored)assert.equal(args.payload.operationId,stored.operationId);stored=args.payload;return {data:{id:'saved'},error:null};}};
+ // Preparing/revising a review is local only; confirmation sends the exact reviewed payload.
+ const reviewed=mobile.manualTime(actor,operation,project,'90','Reviewed note',Date.parse('2026-11-21T16:00:00Z'));
+ assert.equal(calls,0);assert.equal(reviewed.seconds,5400);assert.equal(reviewed.description,'Reviewed note');
+ assert.equal(reviewed.startedAt,'2026-11-21T14:30:00Z');
+ let confirmedPayload;
+ await mobile.saveTime({...db,rpc:async(_name,args)=>{confirmedPayload=args.payload;return {data:{id:'reviewed'},error:null};}},reviewed);
+ assert.equal(confirmedPayload,reviewed);assert.equal(confirmedPayload.billable,false);assert.equal(calls,0);
  await mobile.saveTime(db,p);await mobile.saveTime(db,p);assert.equal(calls,2);assert.equal(stored.operationId,operation);
  const wrong={...db,auth:{getUser:async()=>({data:{user:{id:project}},error:null})}};
  await assert.rejects(()=>mobile.saveTime(wrong,p),/session changed/);assert.equal(calls,2);
