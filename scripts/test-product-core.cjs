@@ -55,7 +55,9 @@ assert.throws(()=>mobile.manualTime(actor,operation,'wrong','1','',Date.now()));
   await assert.rejects(()=>mobile.loadWork(loadDb([],invalid),actor),/Could not load/);
  }
  await assert.rejects(()=>mobile.loadWork(loadDb([],[],{message:'private diagnostic'}),actor),/Could not load/);
- const loaded=await mobile.loadWork(loadDb(Array.from({length:201},(_,i)=>({id:String(i),name:'Project',status:'active'})),[{id:'entry'}]),actor);
+ await assert.rejects(()=>mobile.loadWork(loadDb([{id:'bad',name:null,status:'active'}],[]),actor),/Could not load/);
+ await assert.rejects(()=>mobile.loadWork(loadDb([],[{id:'bad'}]),actor),/Could not load/);
+ const loaded=await mobile.loadWork(loadDb(Array.from({length:201},(_,i)=>({id:String(i),name:'Project',status:'active'})),[{id:'entry',project_id:'project',description:'Work',seconds:60,started_at:'2026-11-22T12:00:00Z'}]),actor);
  assert.equal(loaded.projects.length,200);assert.equal(loaded.projectsTruncated,true);assert.equal(loaded.entries[0].id,'entry');
  // Simulate responses completing out of order, including an account change.
  const responseGate=browser.createLoadGate();let rendered,resolveOld,resolveNew;
@@ -132,3 +134,12 @@ const boundaryDetails='&'.repeat(Math.floor(encodedRoom/3))+'x'.repeat(encodedRo
 assert.equal(handoff.supportDraft('Reports',boundaryDetails).href.length,2000);
 assert.equal(handoff.supportDraft('Reports',boundaryDetails).canOpenEmail,true);
 assert.equal(handoff.supportDraft('Reports',boundaryDetails+'x').canOpenEmail,false);
+
+const rowChecks=load('mobile/src/workflow.ts',{'../../app/lib/workspaceTime':{timeInput:x=>x}});
+const goodProject={id:'project',name:'Example',status:'active'};
+assert.equal(rowChecks.validProject(goodProject),true);
+for(const row of [null,{}, {...goodProject,name:null},{...goodProject,status:'archived'}]) assert.equal(rowChecks.validProject(row),false);
+const goodEntry={id:'entry',project_id:'project',description:'Work',started_at:'2026-11-22T12:00:00Z',seconds:60};
+assert.equal(rowChecks.validEntry(goodEntry),true);
+for(const change of [{seconds:null},{seconds:-1},{seconds:NaN},{seconds:1.5},{description:null},{started_at:'invalid'}]) assert.equal(rowChecks.validEntry({...goodEntry,...change}),false);
+console.log('PASS malformed mobile project/time row rejection');

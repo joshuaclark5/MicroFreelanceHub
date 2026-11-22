@@ -151,3 +151,7 @@ One accepted at-job: 789b6f79-ade2-469d-b0a6-992fd5e5ef65, first run 2026-11-22T
 - Mobile loads reject incomplete project/time response data rather than falsely showing an empty workspace. Existing stale-data recovery preserves prior rows. Confirmed empty arrays remain supported.
 - Core response fixtures, session feedback tests, native TypeScript and both Hermes exports passed. No native device or live verification claim. Website release gates remain required.
 - Publisher readiness returned unbound_workspace/unknown target/no request. No release. Unrelated files preserved; export finished and no coding workers running. Continue this same job before cutoff.
+
+## Run 25 checkpoint
+- Mobile load rejects malformed project/time rows before filtering or formatting; preserves existing retryable load-error behavior. Focused core tests and native TypeScript passed. Fixtures updated to represent complete valid rows and reject malformed rows.
+- Native bundle/device checks and full website release gates remain pending. No publication attempted; prior unbound publisher blocker unresolved. No coding workers started. Unrelated files preserved. Same job rearmed in 10m.

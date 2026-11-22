@@ -17,7 +17,7 @@ export async function loadWork(db:SupabaseClient, actor:string) {
     db.from('workspace_projects').select('id,name,status').eq('owner_id',actor).eq('status','active').order('name').limit(201),
     db.from('workspace_time_entries').select('id,project_id,description,seconds,started_at').eq('owner_id',actor).not('stopped_at','is',null).order('started_at',{ascending:false}).limit(20)
   ]);
-  if(projects.error || entries.error || !Array.isArray(projects.data) || !Array.isArray(entries.data)) throw Error('Could not load your work. Check your connection and retry.');
+  if(projects.error || entries.error || !Array.isArray(projects.data) || !Array.isArray(entries.data) || !projects.data.every(validProject) || !entries.data.every(validEntry)) throw Error('Could not load your work. Check your connection and retry.');
   return {projects:projects.data.slice(0,200) as Project[],projectsTruncated:projects.data.length>200,entries:entries.data as Entry[]};
 }
 export function manualTime(actor:string,operationId:string,projectId:string,minutes:string,description:string,now:number) {
@@ -53,4 +53,19 @@ export function confirmedTimeReceipt(row:unknown,payload:Record<string,unknown>)
     && receipt.rate_minor===payload.rateMinor && receipt.currency===payload.currency
     && Number.isFinite(start) && start===Date.parse(String(payload.startedAt))
     && Number.isFinite(end) && end-start===Number(payload.seconds)*1000;
+}
+
+// Reject malformed rows before UI filtering/formatting; callers retain prior data.
+export function validProject(row:unknown):row is Project {
+  if(!row || typeof row!=='object')return false;
+  const p=row as Project;
+  return typeof p.id==='string' && p.id.length>0 && typeof p.name==='string' && p.status==='active';
+}
+export function validEntry(row:unknown):row is Entry {
+  if(!row || typeof row!=='object')return false;
+  const e=row as Entry;
+  return typeof e.id==='string' && e.id.length>0 && typeof e.project_id==='string'
+    && typeof e.description==='string' && typeof e.started_at==='string'
+    && Number.isFinite(Date.parse(e.started_at))
+    && typeof e.seconds==='number' && Number.isSafeInteger(e.seconds) && e.seconds>=0;
 }
