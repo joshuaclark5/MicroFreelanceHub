@@ -147,3 +147,11 @@ Production build, separate TypeScript, focused actual-flow checks, risky-copy sc
 - Native TypeScript and focused product-core tests passed; Android/iOS JavaScript exports passed. Native binary, actual phone UX/accessibility and store publication remain unverified. No website runtime, public content, sitemap or billing/database changes in this increment; prior website build/browser/SEO evidence remains the e99ec70 checkpoint, not a new full release verification.
 - Publisher readiness again timed out before any request was accepted. No request ID, publication, migration or provider mutation. Do not claim this increment is live. All release gates (production build/browser/SEO included) must pass before publishing once access recovers.
 - Next run: continue provider inspection or account-safe mobile workflows. Do not repeat completed email test or create another cron. Same continuation should rearm in ten minutes before 13:40Z. No coding subagent running.
+
+
+## Overnight run 3 - mobile time review (2026-11-22 UTC)
+- Local commit a4e6b05 adds review/edit/confirm for mobile nonbillable time: project, duration, start and note preview. Inputs/refresh locked during review; account changes clear it. Confirmation sends the reviewed payload; uncertain retries preserve their operation ID.
+- Native TypeScript, focused product-core tests and iOS/Android Hermes exports passed. Tests cover local-only review preparation, exact confirmed payload, identity boundaries and stable retries. Device interaction/native binaries/store release remain unverified. Evidence: private product-completion-20261122/mobile-review-export. Risky-copy and whitespace checks passed.
+- Website runtime, SEO, database and billing unchanged. Prior website build/browser/SEO evidence retained, not rerun. All gates remain required before publication.
+- Publisher readiness timed out before accepting a request; no request ID or deployment. No duplicate worker, provider mutation, spending or email. Three unrelated dirty files preserved.
+- Same job next_check accepted for ten minutes; next run should pursue providers or other unblocked ledger items. No coding workers remain running.
