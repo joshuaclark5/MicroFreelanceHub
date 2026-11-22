@@ -128,3 +128,13 @@ Production build, separate TypeScript, focused actual-flow checks, risky-copy sc
 - Sitemap comparison: live 1515, candidate 1519, removed zero; adds only features/support/security and the previously queued original article.
 - New scheduled continuation 789b6f79-ade2-469d-b0a6-992fd5e5ef65 starts 06:05Z and is bounded to 13:40Z. See OVERNIGHT_EXECUTION.md. This is not proof of completed future execution.
 - Final overnight revision: production build explicit exit 0, separate TypeScript pass, responsive four-route tests pass after visual correction, native TypeScript/Android+iOS JS exports pass. Evidence in overnight-build-final.log and browser/overnight-home-final.png. Still LOCAL ONLY; support AI and native device/install remain unverified/unimplemented as described above.
+
+## Overnight run 1 — support handoff (2026-11-22 06:14 UTC)
+- Verified remote main remains 74b15186f73a80ef6953e374786ce6fef4966ea5; fresh public assets identify dpl_CPFBrmo6MV67Kjnva1D5JwdDynys and expected Production database. No active subagents at intake; no duplicate build/server found.
+- Implemented local-only human support draft composer: topic selection, bounded details, email preview, explicit open-draft action, clipboard fallback, clear action and accessible outcome feedback. No automatic email/ticket submission, storage, external inference or account access. Does not automatically collect page URLs/search text; warns users to redact sensitive details. Clipboard/email copies remain outside form clearing.
+- Support remains reviewed guidance, NOT AI. Support mailbox receiving/routing remains unverified; no response-time promise. Existing approved real email test was not repeated.
+- Website TypeScript passed separately (incremental false). Production build passed exit 0. Focused core tests include special-character mailto encoding, fixed recipient/subject boundaries and text length cap.
+- Browser tests passed all four public routes at 320/390/1440px, including topic/detail draft creation, no search-query inclusion, denied clipboard fallback, preview and clearing. Mobile screenshot reviewed. No native app changes in this run.
+- Fresh SEO diff: 1515 baseline URLs, 1519 candidate URLs, zero removed; only previously queued features/support/security/article additions. Risky-copy scan clean for new support surfaces. Existing legal documents untouched.
+- Evidence: mfh-private-backups/product-completion-20261122/support-handoff-build.log, support-handoff-seo.json, overnight-run1-baseline.json, browser/support-handoff-mobile.png.
+- Supported publisher readiness timed out twice; no accepted publication request or request ID, no push/PR/deployment/migration. New increment remains local. Three unrelated dirty files preserved.

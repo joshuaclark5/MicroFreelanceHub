@@ -1,6 +1,15 @@
 const fs=require('fs'),vm=require('vm'),ts=require('typescript'),assert=require('assert/strict'),path=require('path');
 function load(file,imports={}){const exports={};vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(__dirname,'..',file),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,{exports,require:n=>{if(n in imports)return imports[n];throw Error('Unexpected import '+n);},Date,Number,Error,Map,BigInt,Intl,URLSearchParams});return exports;}
 const privacy=load('app/lib/analyticsPrivacy.ts');
+const handoff=load('app/lib/supportHandoff.ts');
+const special='Save failed & retry?\nUnicode: café <script>alert(1)</script>';
+const draft=handoff.supportDraft('Time tracking',special);
+assert.equal(draft.subject,'MicroFreelanceHub help: Time tracking');
+const params=new URLSearchParams(draft.href.split('?')[1]);
+assert.ok(params.get('body').includes(special));
+assert.equal([...params.keys()].sort().join(','),'body,subject');
+assert.equal(handoff.supportDraft('Invalid\r\nBcc: attacker','').subject,'MicroFreelanceHub help: Something else');
+assert.ok(!handoff.supportDraft('Account access','x'.repeat(1500)+'PRIVATE_TAIL').body.includes('PRIVATE_TAIL'));
 for(const p of ['/','/pricing','/features','/articles/weekly-freelance-project-review-checklist','/create'])assert.equal(privacy.publicAnalyticsPath(p),p);
 for(const p of ['/login','/dashboard','/workspace/clients','/book/abc','/sow/abc','/auth/callback','/create?token=secret','//evil.test','/articles/a?email=test'])assert.equal(privacy.publicAnalyticsPath(p),null);
 assert.equal(privacy.analyticsAllowed({doNotTrack:'1'}),false);assert.equal(privacy.analyticsAllowed({globalPrivacyControl:true}),false);assert.equal(privacy.analyticsAllowed({}),true);

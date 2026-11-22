@@ -19,6 +19,23 @@ const base=process.env.QA_BASE_URL||'http://127.0.0.1:3079';
     await page.getByLabel('Find an answer').fill('zzzz-no-answer');
     assert.ok(await page.getByText('No reviewed answer matches.',{exact:false}).isVisible());
     assert.ok(await page.getByRole('link',{name:'support@microfreelancehub.com',exact:true}).isVisible());
+    await page.getByLabel('What do you need help with?').selectOption('Time tracking');
+    await page.getByLabel('What happened?',{exact:true}).fill('Save failed & retry?\nSecond line');
+    const draftUrl = await page.getByRole('link',{name:'Open email draft',exact:true}).getAttribute('href');
+    const draft = new URL(draftUrl);
+    assert.equal(draft.protocol,'mailto:');
+    assert.equal(draft.pathname,'support@microfreelancehub.com');
+    assert.equal(draft.searchParams.get('subject'),'MicroFreelanceHub help: Time tracking');
+    assert.ok(draft.searchParams.get('body').includes('Save failed & retry?\nSecond line'));
+    assert.ok(!draft.searchParams.get('body').includes('zzzz-no-answer'));
+    await page.getByText('Review email draft',{exact:true}).click();
+    assert.ok(await page.locator('pre').isVisible());
+    await page.evaluate(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async()=>{throw Error('denied');}}}));
+    await page.getByRole('button',{name:'Copy draft',exact:true}).click();
+    await page.getByRole('status').filter({hasText:'Copy is unavailable.'}).waitFor();
+    await page.getByRole('button',{name:'Clear draft',exact:true}).click();
+    assert.equal(await page.getByLabel('What happened?',{exact:true}).inputValue(),'');
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
    }
   }
   assert.deepEqual(errors,[]);await context.close();

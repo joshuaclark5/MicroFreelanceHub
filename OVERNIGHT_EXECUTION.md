@@ -28,3 +28,9 @@ One accepted at-job: 789b6f79-ade2-469d-b0a6-992fd5e5ef65, first run 2026-11-22T
 - Risky-copy scan found only explicit denial of guarantees on support/security; no marketing legal-protection/payment-outcome promise introduced. Existing legal pages unchanged.
 - All 1515 public URLs preserved in candidate sitemap (1519 total). No production migration, billing mutation, email, enrollment or purchase.
 - Remaining: publish supported release when tool recovers; exact live verification; support AI implementation/cost/security gates; native binary/device testing; provider and original feature ledger completion. Do not describe this increment as finished product.
+
+## Run 1 checkpoint — 2026-11-22 06:14 UTC
+- Added and verified a human support email-draft workflow; reviewed search is still not AI. Production build, separate TypeScript, focused tests, responsive browser checks and SEO diff passed. See PRODUCT_EXECUTION.md for bounded results.
+- Live deployment remains PR #4; supported publisher readiness timed out twice without accepting any request. No publication to recover or duplicate.
+- Next run: inspect current HEAD/state, continue mobile usability/core workflow or controlled provider setup; support AI requires verified no-new-spend inference and safety gates. Do not spend each run only retrying publisher. Preserve release gates before publication. No subagents authorized.
+- Local QA server stopped before handoff; no coding worker remains. Same cron should rearm in 10 minutes, bounded to 13:40Z; saved continuation is not execution proof.
