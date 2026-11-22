@@ -3,6 +3,7 @@ export const MARKETING_SOURCE_KEY = 'marketing_source';
 
 export function initializeTracking() {
   if (typeof window === 'undefined') return;
+  if (typeof navigator !== 'undefined' && (navigator.doNotTrack === '1' || (navigator as Navigator & {globalPrivacyControl?:boolean}).globalPrivacyControl)) return;
   try {
   const urlParams = new URLSearchParams(window.location.search);
   const existingLandingPage = localStorage.getItem(LANDING_PAGE_KEY);
