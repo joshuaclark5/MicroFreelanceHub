@@ -69,3 +69,9 @@ One accepted at-job: 789b6f79-ade2-469d-b0a6-992fd5e5ef65, first run 2026-11-22T
 - Adapter remains disconnected: no OAuth/customer calendar access or live Outlook claim. No public pages, metadata, sitemap, legal copy, database or billing changed. Risky-copy/whitespace checks passed; prior browser/SEO evidence is not a fresh release gate. Full browser/SEO/live verification remains mandatory before publishing.
 - Publisher readiness again timed out before acceptance; no request ID or release. Existing unrelated dirty files preserved. No duplicate build or coding child at intake; build finished and no coding workers started.
 - Next run should prioritize provider sandbox inspection or grounded-support feasibility rather than more small adapter refinements. Original feature ledger remains open. Rearm only this job before 13:40Z.
+
+## Run 7 checkpoint
+- Reviewed support now has topic filtering, reset, keyword aliases, stable answer links and uncertain-save guidance. Not AI. Focused tests, TypeScript, production build, responsive browser regression and fresh SEO diff passed (1515 old URLs preserved).
+- Current scheduled publisher context is unbound; original owner session readiness still times out. No accepted request or live release. No authority bypass.
+- Job history reports delivery failed because no previous channel resolved. Scheduled tool cannot update delivery; record results here and in automation history, do not guess a recipient. No coding workers started; local QA server stopped.
+- Remaining ledger and integration gates stay open. Rearm only this same job before 13:40Z.

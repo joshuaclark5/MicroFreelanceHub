@@ -1,15 +1,38 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import SupportHandoff from './SupportHandoff';
-const answers = [
- {q:'Where are the new features?', a:'Sign in, then open a workspace tool below. Your agreements remain in the dashboard; the wider workspace includes CRM, scheduling, invoices, time, reports, resources and team access.', href:'/features', label:'Explore the workspace'},
- {q:'How do I start with a client?', a:'Open CRM to record client details and notes. Add only information you need for your work. A client record does not send an invitation or charge anyone.', href:'/workspace/crm', label:'Open CRM'},
- {q:'Can clients book appointments?', a:'Public booking is opt-in. Configure scheduling and enable your booking link before sharing it. Existing accounts are not automatically opted in.', href:'/workspace/scheduling', label:'Open scheduling'},
- {q:'Will recurring invoices automatically charge clients?', a:'No. Recurring drafts require manual review. Live automatic recurring charges are not enabled; Stripe subscription lifecycle checks have been test-mode only.', href:'/workspace/invoices', label:'Review invoices'},
- {q:'How do I recover my password or log in with Google?', a:'Use the live sign-in page and its recovery options. Google-only accounts should use Continue with Google. Never send a password, recovery link or verification code to support.', href:'/login?mode=signin', label:'Go to sign in'},
- {q:'Does Google Calendar, Outlook or QuickBooks sync?', a:'Google Calendar supports manual availability sync after connection. Background sync and calendar event creation are not verified live. Outlook and QuickBooks are still in development.', href:'/workspace/connections', label:'Review connections'},
- {q:'Can I get legal, tax or payment advice?', a:'We provide business workflow tools, not legal or tax advice. Review documents and payment arrangements with qualified professionals when appropriate. No template or disclaimer guarantees an outcome.', href:'/disclaimer', label:'Read the disclaimer'},
- {q:'How do I report a bug or billing problem?', a:'Email support with the page, approximate time, what you expected and what happened. Redact client information. Do not include passwords, card details or secret keys. We do not promise a response time that has not been established.', href:'mailto:support@microfreelancehub.com', label:'Contact support'},
-];
-export default function SupportGuide(){const [query,setQuery]=useState('');const terms=query.toLowerCase().trim().split(/\s+/).filter(Boolean);const results=answers.filter(x=>terms.every(t=>(x.q+' '+x.a).toLowerCase().includes(t)));return <><label htmlFor="help-search" className="font-semibold">Find an answer</label><input id="help-search" type="search" value={query} onChange={e=>setQuery(e.target.value)} maxLength={200} placeholder="Try booking, invoices or Google" className="my-3 block w-full rounded-xl border border-slate-300 p-4"/><p className="mb-6 text-sm text-slate-600">Reviewed product guidance, not an AI chat. Search stays in your browser; this tool cannot access or change your account.</p><div aria-live="polite" className="mb-4 text-sm">{results.length} {results.length===1?'answer':'answers'}</div><div className="space-y-4">{results.map(x=><details key={x.q} className="rounded-xl border border-slate-200 p-5"><summary className="cursor-pointer font-semibold">{x.q}</summary><p className="my-4 leading-7 text-slate-600">{x.a}</p><Link className="font-semibold text-emerald-800 underline" href={x.href}>{x.label}</Link></details>)}</div>{!results.length&&<p className="rounded-xl bg-slate-50 p-5">No reviewed answer matches. Try a shorter search or contact support below.</p>}<SupportHandoff/></>}
+import { findSupportAnswers, supportAnswers, supportTopics, type SupportTopic } from '../lib/supportKnowledge';
+
+export default function SupportGuide() {
+ const [query, setQuery] = useState('');
+ const [topic, setTopic] = useState<SupportTopic>('All topics');
+ const [opened, setOpened] = useState<string | null>(null);
+ useEffect(() => {
+  function followAnswer() {
+   const id = window.location.hash.slice(1);
+   if (!supportAnswers.some(answer => answer.id === id)) return;
+   setQuery(''); setTopic('All topics'); setOpened(id);
+   requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView({block:'center'}));
+  }
+  followAnswer(); window.addEventListener('hashchange', followAnswer);
+  return () => window.removeEventListener('hashchange', followAnswer);
+ }, []);
+ const results = findSupportAnswers(query, topic);
+ return <>
+  <label htmlFor="help-search" className="font-semibold">Find an answer</label>
+  <input id="help-search" type="search" value={query} onChange={e => setQuery(e.target.value)} maxLength={200} placeholder="Try booking, invoices or Google" className="my-3 block w-full rounded-xl border border-slate-300 p-4"/>
+  <label htmlFor="help-topic" className="font-semibold">Browse by topic</label>
+  <select id="help-topic" value={topic} onChange={e => setTopic(e.target.value as SupportTopic)} className="my-3 block w-full rounded-xl border border-slate-300 bg-white p-4">{supportTopics.map(value => <option key={value}>{value}</option>)}</select>
+  <p className="mb-6 text-sm text-slate-600">Reviewed product guidance, not an AI chat. Search stays in your browser; this tool cannot access or change your account.</p>
+  <div aria-live="polite" className="mb-4 text-sm">{results.length} {results.length === 1 ? 'answer' : 'answers'}</div>
+  {(query || topic !== 'All topics') && <button type="button" onClick={() => {setQuery(''); setTopic('All topics');}} className="mb-5 font-semibold text-emerald-800 underline">Clear search and topic</button>}
+  <div className="space-y-4">{results.map(answer => <details id={answer.id} key={answer.id} open={opened === answer.id} onToggle={e => {if (e.currentTarget.open) setOpened(answer.id); else setOpened(current => current === answer.id ? null : current);}} className="scroll-mt-24 rounded-xl border border-slate-200 p-5">
+   <summary className="cursor-pointer font-semibold">{answer.q}</summary>
+   <p className="my-4 leading-7 text-slate-600">{answer.a}</p>
+   <div className="flex flex-wrap gap-5"><Link className="font-semibold text-emerald-800 underline" href={answer.href}>{answer.label}</Link><a className="text-slate-600 underline" href={'#' + answer.id} aria-label={'Direct link: ' + answer.q}>Link to this answer</a></div>
+  </details>)}</div>
+  {!results.length && <p className="rounded-xl bg-slate-50 p-5">No reviewed answer matches. Try a shorter search or contact support below.</p>}
+  <SupportHandoff/>
+ </>;
+}

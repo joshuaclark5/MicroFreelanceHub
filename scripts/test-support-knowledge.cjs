@@ -1,0 +1,16 @@
+const fs=require('fs'),vm=require('vm'),ts=require('typescript'),assert=require('assert/strict');
+const exportsObject={};
+vm.runInNewContext(ts.transpileModule(fs.readFileSync('app/lib/supportKnowledge.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,{exports:exportsObject});
+const {supportAnswers,findSupportAnswers,supportTopics}=exportsObject;
+assert.equal(new Set(supportAnswers.map(x=>x.id)).size,supportAnswers.length);
+for(const answer of supportAnswers){assert.match(answer.id,/^[a-z-]+$/);assert.ok(supportTopics.includes(answer.topic));assert.ok(answer.href.startsWith('/')||answer.href==='mailto:support@microfreelancehub.com');}
+for(const query of ['login','sign-in','SIGN IN','password'])assert.ok(findSupportAnswers(query).some(x=>x.id==='account-access'),query);
+for(const query of ['invoice','invoices','INVOICE'])assert.ok(findSupportAnswers(query).some(x=>x.id==='recurring-invoices'),query);
+assert.ok(findSupportAnswers('retry').some(x=>x.id==='uncertain-time-save'));
+assert.equal(findSupportAnswers('zzzz-unknown').length,0);
+assert.equal(findSupportAnswers('Google','Billing').length,0);
+assert.ok(findSupportAnswers('', 'Billing').every(x=>x.topic==='Billing'));
+assert.equal(findSupportAnswers('').length,supportAnswers.length);
+assert.equal(findSupportAnswers('invoice'+' '.repeat(193)+'zzzz').length,findSupportAnswers('invoice').length);
+assert.equal(findSupportAnswers('<script>alert(1)</script>').length,0);
+console.log('PASS support topics, stable IDs, aliases, Unicode, unknown fallback and bounded input');
