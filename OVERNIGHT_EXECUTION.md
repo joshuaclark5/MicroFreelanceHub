@@ -164,3 +164,8 @@ One accepted at-job: 789b6f79-ade2-469d-b0a6-992fd5e5ef65, first run 2026-11-22T
 ## Run 27 checkpoint
 - Incomplete auth verification envelopes now return bounded uncertain-save guidance without invoking the mutation. Five malformed-envelope fixtures assert zero writes. Product-core tests and native TypeScript passed.
 - Native bundle/device and full website release checks remain pending. Not published; prior publisher binding blocker unresolved. No coding workers started; unrelated files preserved. Continue same job before cutoff.
+
+## Run 28 checkpoint - malformed auth response shapes
+- Reject primitive and array auth envelopes/data before property checks, keeping bounded uncertain-save guidance instead of a TypeError. Thirteen malformed-response fixtures verify both zero mutations and zero workspace queries.
+- Product-core/session feedback tests, native TypeScript and Android/iOS Hermes exports passed (private product-completion-20261122/mobile-auth-shapes-export), covering run 27 pending bundle checks. No device/binary/store proof.
+- Website runtime/copy/SEO unchanged; full website release gates remain required before publishing. Publisher readiness timed out before acceptance; no request ID or release. Unrelated files preserved; export completed, no coding workers started. Continue same job only before cutoff.

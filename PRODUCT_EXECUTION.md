@@ -267,3 +267,8 @@ Production build, separate TypeScript, focused actual-flow checks, risky-copy sc
 - Product-core fixtures cover missing/malformed data on either query, query errors, confirmed empty responses, and the 200-project bound. Session feedback fixtures and native TypeScript passed. Android/iOS Hermes exports completed successfully in private mobile-load-response-export. No device/install/store claim.
 - Supported publisher readiness returned unbound_workspace, unknown target and no request even with original owner selection. No publication attempted or accepted. Website runtime/copy/routes unchanged; fresh production/browser/SEO release gates still required before publishing. No pricing, legal, provider, database or customer changes.
 - Three unrelated dirty files preserved. No coding children started; export process completed. Continue same bounded job before 13:40Z; broader ledger remains unfinished.
+
+## Run 28 checkpoint - malformed auth response shapes
+- Reject primitive and array auth envelopes/data before property checks, keeping bounded uncertain-save guidance instead of a TypeError. Thirteen malformed-response fixtures verify both zero mutations and zero workspace queries.
+- Product-core/session feedback tests, native TypeScript and Android/iOS Hermes exports passed (private product-completion-20261122/mobile-auth-shapes-export), covering run 27 pending bundle checks. No device/binary/store proof.
+- Website runtime/copy/SEO unchanged; full website release gates remain required before publishing. Publisher readiness timed out before acceptance; no request ID or release. Unrelated files preserved; export completed, no coding workers started. Continue same job only before cutoff.

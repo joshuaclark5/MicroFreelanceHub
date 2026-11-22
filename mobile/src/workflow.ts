@@ -7,7 +7,7 @@ export async function verifyActor(db:SupabaseClient, expectedActorId:string) {
   let result;
   try { result=await db.auth.getUser(); }
   catch { throw Error('Could not verify your session. Check your connection and retry the same entry. An earlier save may already have succeeded.'); }
-  if(!result || !result.data || !('user' in result.data)) throw Error('Could not verify your session. Check your connection and retry the same entry. An earlier save may already have succeeded.');
+  if(!result || typeof result!=='object' || Array.isArray(result) || !result.data || typeof result.data!=='object' || Array.isArray(result.data) || !('user' in result.data)) throw Error('Could not verify your session. Check your connection and retry the same entry. An earlier save may already have succeeded.');
   const {data:{user},error}=result;
   if(error) throw Error('Could not verify your session. Check your connection and retry the same entry. An earlier save may already have succeeded.');
   if(!user || user.id!==expectedActorId) throw Error('Your session changed. Sign in to the original account and check its latest entries before creating another. An earlier save may already have succeeded.');
