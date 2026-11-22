@@ -17,8 +17,8 @@ export async function loadWork(db:SupabaseClient, actor:string) {
     db.from('workspace_projects').select('id,name,status').eq('owner_id',actor).eq('status','active').order('name').limit(201),
     db.from('workspace_time_entries').select('id,project_id,description,seconds,started_at').eq('owner_id',actor).not('stopped_at','is',null).order('started_at',{ascending:false}).limit(20)
   ]);
-  if(projects.error || entries.error) throw Error('Could not load your work. Check your connection and retry.');
-  return {projects:(projects.data||[]).slice(0,200) as Project[],projectsTruncated:(projects.data||[]).length>200,entries:(entries.data||[]) as Entry[]};
+  if(projects.error || entries.error || !Array.isArray(projects.data) || !Array.isArray(entries.data)) throw Error('Could not load your work. Check your connection and retry.');
+  return {projects:projects.data.slice(0,200) as Project[],projectsTruncated:projects.data.length>200,entries:entries.data as Entry[]};
 }
 export function manualTime(actor:string,operationId:string,projectId:string,minutes:string,description:string,now:number) {
   if(!/^[1-9][0-9]{0,3}$/.test(minutes) || Number(minutes)>1440) throw Error('Enter 1 to 1440 whole minutes.');

@@ -146,3 +146,8 @@ One accepted at-job: 789b6f79-ade2-469d-b0a6-992fd5e5ef65, first run 2026-11-22T
 ## Run 23 checkpoint
 - Session-scoped mobile feedback suppresses old async failures after account/session transitions, including post-save refresh fallback. Focused delayed-error tests, product-core checks, native TypeScript and Android/iOS Hermes exports passed; no device/binary/store claim.
 - Website unchanged; full build/browser/SEO gates remain required for release. Publisher readiness timed out before accepting a request. Nothing published. Unrelated files preserved; no coding workers. Continue same bounded job before cutoff.
+
+## Run 24 checkpoint
+- Mobile loads reject incomplete project/time response data rather than falsely showing an empty workspace. Existing stale-data recovery preserves prior rows. Confirmed empty arrays remain supported.
+- Core response fixtures, session feedback tests, native TypeScript and both Hermes exports passed. No native device or live verification claim. Website release gates remain required.
+- Publisher readiness returned unbound_workspace/unknown target/no request. No release. Unrelated files preserved; export finished and no coding workers running. Continue this same job before cutoff.

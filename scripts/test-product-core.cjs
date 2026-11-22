@@ -40,6 +40,23 @@ assert.equal(p.seconds,2700);assert.equal(p.startedAt,'2026-11-21T14:15:00Z');as
 for(const minutes of ['0','-1','1.5','1441','1e2',''])assert.throws(()=>mobile.manualTime(actor,operation,project,minutes,'',Date.now()));
 assert.throws(()=>mobile.manualTime(actor,operation,'wrong','1','',Date.now()));
 (async()=>{
+ // Only explicit arrays confirm an empty workspace; incomplete responses must fail.
+ function loadDb(projectData,entryData,queryError=null){
+  return {auth:{getUser:async()=>({data:{user:{id:actor}},error:null})},from:table=>{
+   const query={select:()=>query,eq:()=>query,not:()=>query,order:()=>query,
+    limit:async()=>({data:table==='workspace_projects'?projectData:entryData,error:queryError})};
+   return query;
+  }};
+ }
+ const empty=await mobile.loadWork(loadDb([],[]),actor);
+ assert.equal(empty.projects.length,0);assert.equal(empty.entries.length,0);
+ for(const invalid of [null,undefined,{},'']){
+  await assert.rejects(()=>mobile.loadWork(loadDb(invalid,[]),actor),/Could not load/);
+  await assert.rejects(()=>mobile.loadWork(loadDb([],invalid),actor),/Could not load/);
+ }
+ await assert.rejects(()=>mobile.loadWork(loadDb([],[],{message:'private diagnostic'}),actor),/Could not load/);
+ const loaded=await mobile.loadWork(loadDb(Array.from({length:201},(_,i)=>({id:String(i),name:'Project',status:'active'})),[{id:'entry'}]),actor);
+ assert.equal(loaded.projects.length,200);assert.equal(loaded.projectsTruncated,true);assert.equal(loaded.entries[0].id,'entry');
  // Simulate responses completing out of order, including an account change.
  const responseGate=browser.createLoadGate();let rendered,resolveOld,resolveNew;
  const apply=async(promise)=>{const request=responseGate.begin();const value=await promise;if(request.isCurrent())rendered=value;};
