@@ -15,3 +15,7 @@ From `mobile`, run `npm ci`. Supply `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_
 `npm run android` requires Android SDK/JDK/emulator or a connected test device. `npm run ios` requires macOS/Xcode. Signing, platform accounts and store publication need verified existing access. Do not purchase accounts or use paid cloud builds without authorization.
 
 Before a native release: test real sign-in/expiry/sign-out, two-account isolation, rotation/background/foreground, accessibility font scaling, keyboard/320px overflow, offline uncertain outcomes/retries, and actual device install. Add secure persistent custody and native OAuth before calling the account experience complete. No price, subscription, checkout or live charge action exists in this prototype.
+
+## Project browsing and recovery
+
+Search filters only the loaded, owner-scoped list (up to 200 active projects); it never changes the selected project. The selected name remains visible even when filtered out. Loading, failed refresh, and verified empty results have distinct messages. Previously loaded data is labeled potentially stale after a refresh failure. New saves require a successful load; retries of uncertain saves retain their existing operation ID and project even if the refreshed project list changes. Older responses are ignored after a newer refresh or account change. These behaviors have source/type and focused logic checks; phone interaction and accessibility checks remain required.

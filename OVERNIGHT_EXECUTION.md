@@ -34,3 +34,12 @@ One accepted at-job: 789b6f79-ade2-469d-b0a6-992fd5e5ef65, first run 2026-11-22T
 - Live deployment remains PR #4; supported publisher readiness timed out twice without accepting any request. No publication to recover or duplicate.
 - Next run: inspect current HEAD/state, continue mobile usability/core workflow or controlled provider setup; support AI requires verified no-new-spend inference and safety gates. Do not spend each run only retrying publisher. Preserve release gates before publication. No subagents authorized.
 - Local QA server stopped before handoff; no coding worker remains. Same cron should rearm in 10 minutes, bounded to 13:40Z; saved continuation is not execution proof.
+
+
+## Overnight run 2 - mobile project browsing (2026-11-22 UTC)
+- Inspected HEAD e99ec70 and processes; no duplicate project worker/server at intake. Preserved the three unrelated local changes. No subagents started.
+- Added local project search with persistent selected-project label, distinct loading/error/confirmed-empty messages and stale-data warning. Suppressed zero-valued summary until first successful load. New saves require a successful load; uncertain-save retries remain available and preserve their project even if refresh returns no active projects.
+- Added request-generation guard so older refreshes/account-switch responses cannot overwrite newer work. Focused tests exercise out-of-order asynchronous completion and account invalidation, plus search and existing retry validation.
+- Native TypeScript and focused product-core tests passed; Android/iOS JavaScript exports passed. Native binary, actual phone UX/accessibility and store publication remain unverified. No website runtime, public content, sitemap or billing/database changes in this increment; prior website build/browser/SEO evidence remains the e99ec70 checkpoint, not a new full release verification.
+- Publisher readiness again timed out before any request was accepted. No request ID, publication, migration or provider mutation. Do not claim this increment is live. All release gates (production build/browser/SEO included) must pass before publishing once access recovers.
+- Next run: continue provider inspection or account-safe mobile workflows. Do not repeat completed email test or create another cron. Same continuation should rearm in ten minutes before 13:40Z. No coding subagent running.

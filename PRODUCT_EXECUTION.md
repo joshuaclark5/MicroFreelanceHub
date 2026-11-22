@@ -138,3 +138,12 @@ Production build, separate TypeScript, focused actual-flow checks, risky-copy sc
 - Fresh SEO diff: 1515 baseline URLs, 1519 candidate URLs, zero removed; only previously queued features/support/security/article additions. Risky-copy scan clean for new support surfaces. Existing legal documents untouched.
 - Evidence: mfh-private-backups/product-completion-20261122/support-handoff-build.log, support-handoff-seo.json, overnight-run1-baseline.json, browser/support-handoff-mobile.png.
 - Supported publisher readiness timed out twice; no accepted publication request or request ID, no push/PR/deployment/migration. New increment remains local. Three unrelated dirty files preserved.
+
+
+## Overnight run 2 - mobile project browsing (2026-11-22 UTC)
+- Inspected HEAD e99ec70 and processes; no duplicate project worker/server at intake. Preserved the three unrelated local changes. No subagents started.
+- Added local project search with persistent selected-project label, distinct loading/error/confirmed-empty messages and stale-data warning. Suppressed zero-valued summary until first successful load. New saves require a successful load; uncertain-save retries remain available and preserve their project even if refresh returns no active projects.
+- Added request-generation guard so older refreshes/account-switch responses cannot overwrite newer work. Focused tests exercise out-of-order asynchronous completion and account invalidation, plus search and existing retry validation.
+- Native TypeScript and focused product-core tests passed; Android/iOS JavaScript exports passed. Native binary, actual phone UX/accessibility and store publication remain unverified. No website runtime, public content, sitemap or billing/database changes in this increment; prior website build/browser/SEO evidence remains the e99ec70 checkpoint, not a new full release verification.
+- Publisher readiness again timed out before any request was accepted. No request ID, publication, migration or provider mutation. Do not claim this increment is live. All release gates (production build/browser/SEO included) must pass before publishing once access recovers.
+- Next run: continue provider inspection or account-safe mobile workflows. Do not repeat completed email test or create another cron. Same continuation should rearm in ten minutes before 13:40Z. No coding subagent running.
