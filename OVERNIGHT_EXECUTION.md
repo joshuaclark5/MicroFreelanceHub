@@ -160,3 +160,7 @@ One accepted at-job: 789b6f79-ade2-469d-b0a6-992fd5e5ef65, first run 2026-11-22T
 - Mobile workspace loads now normalize thrown query/transport failures and absent response envelopes to bounded retry guidance, without leaking raw diagnostics. Existing account verification stays outside this boundary, preserving changed-session guidance; existing UI retains prior rows on failure.
 - Focused core fixtures cover synchronous query throws, rejected requests and missing envelopes. Core/session feedback tests and native TypeScript passed. Android/iOS Hermes exports passed at private product-completion-20261122/mobile-load-errors-export, also covering run 25 row-validation bundles. No native device/binary/store proof.
 - Website runtime/copy/SEO unchanged; full website release gates remain required before publication. Supported publisher readiness timed out before acceptance; no request ID or release. No spending, provider mutation or email. Unrelated files preserved; export completed and no coding workers started. Continue this same job before cutoff.
+
+## Run 27 checkpoint
+- Incomplete auth verification envelopes now return bounded uncertain-save guidance without invoking the mutation. Five malformed-envelope fixtures assert zero writes. Product-core tests and native TypeScript passed.
+- Native bundle/device and full website release checks remain pending. Not published; prior publisher binding blocker unresolved. No coding workers started; unrelated files preserved. Continue same job before cutoff.

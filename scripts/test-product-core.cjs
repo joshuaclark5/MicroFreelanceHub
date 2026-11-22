@@ -40,6 +40,12 @@ assert.equal(p.seconds,2700);assert.equal(p.startedAt,'2026-11-21T14:15:00Z');as
 for(const minutes of ['0','-1','1.5','1441','1e2',''])assert.throws(()=>mobile.manualTime(actor,operation,project,minutes,'',Date.now()));
 assert.throws(()=>mobile.manualTime(actor,operation,'wrong','1','',Date.now()));
 (async()=>{
+ for(const result of [null,undefined,{}, {data:null}, {data:{}}]) {
+  let writes=0;
+  const db={auth:{getUser:async()=>result},rpc:async()=>{writes++;}};
+  await assert.rejects(()=>mobile.saveTime(db,p),e=>e.message==='Could not verify your session. Check your connection and retry the same entry. An earlier save may already have succeeded.');
+  assert.equal(writes,0);
+ }
  // Only explicit arrays confirm an empty workspace; incomplete responses must fail.
  function loadDb(projectData,entryData,queryError=null){
   return {auth:{getUser:async()=>({data:{user:{id:actor}},error:null})},from:table=>{
