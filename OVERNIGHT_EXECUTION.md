@@ -142,3 +142,7 @@ One accepted at-job: 789b6f79-ade2-469d-b0a6-992fd5e5ef65, first run 2026-11-22T
 ## Run 22 checkpoint
 - Search reset restores focus; real responsive browser tests verify unanswered-question handoff without forwarding search text or losing details. Focused tests, TypeScript, production build and fresh SEO passed; 1515 existing URLs retained. Covers run 21 pending release gates.
 - Publisher observation changed from timeout to unbound_workspace/unknown target/no request when selecting original owner key. No supported release binding proved; nothing published. QA server stopped, no coding workers; unrelated changes preserved. Continue same job before 13:40Z, broader ledger unfinished.
+
+## Run 23 checkpoint
+- Session-scoped mobile feedback suppresses old async failures after account/session transitions, including post-save refresh fallback. Focused delayed-error tests, product-core checks, native TypeScript and Android/iOS Hermes exports passed; no device/binary/store claim.
+- Website unchanged; full build/browser/SEO gates remain required for release. Publisher readiness timed out before accepting a request. Nothing published. Unrelated files preserved; no coding workers. Continue same bounded job before cutoff.

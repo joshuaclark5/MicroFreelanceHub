@@ -4,6 +4,7 @@ import {ActivityIndicator, Alert, AppState, Linking, KeyboardAvoidingView, Platf
 import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
 import {createClient, type SupabaseClient} from '@supabase/supabase-js';
 import * as Crypto from 'expo-crypto';
+import {sessionAction} from './src/sessionAction';
 import {signOutWarning, sameSession} from './src/sessionExit';
 import {createLoadGate, filterProjects} from './src/projectBrowser';
 import {loadWork, manualTime, saveTime, type Project, type Entry} from './src/workflow';
@@ -45,7 +46,9 @@ function Workspace({db}:{db:SupabaseClient}) {
  useEffect(()=>{if(actor)void refresh(actor).catch(()=>{});},[actor]);
  async function action(fn:()=>Promise<void>){
   if(acting.current)return; acting.current=true;setBusy(true);setMessage('');
-  try{await fn();}catch(e){setMessage(e instanceof Error?e.message:'Something went wrong. Please retry.');}
+  const id=currentActor.current, epoch=generation.current;
+  // Include signed-out login attempts, but reject any intervening session change.
+  try{await sessionAction(fn,()=>id===currentActor.current&&epoch===generation.current,setMessage);}
   finally{acting.current=false;setBusy(false);}
  }
  function prepareReview(){
@@ -79,7 +82,7 @@ function Workspace({db}:{db:SupabaseClient}) {
   await saveTime(db,pending.current);
   if(g!==generation.current||currentActor.current!==id)return;
   pending.current=null;setMinutes('');setDescription('');setMessage('Time saved. This entry is nonbillable; no invoice or charge was created.');
-  try{await refresh(id);}catch{setMessage('Time saved. Refresh to see your latest entries; do not submit it again.');}
+  try{await refresh(id);}catch{if(sameSession(id,g,currentActor.current,generation.current))setMessage('Time saved. Refresh to see your latest entries; do not submit it again.');}
  }
  return <SafeAreaView style={styles.safe}><KeyboardAvoidingView style={styles.safe} behavior={Platform.OS==='ios'?'padding':undefined}><ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
   <View style={styles.brandRow}><View style={styles.monogram}><Text style={styles.monogramText}>M</Text></View><View><Text style={styles.brand}>MicroFreelanceHub</Text><Text style={styles.caption}>CLIENT WORK, IN FOCUS</Text></View></View><Text style={styles.heading}>{actor?'Make today count.':'Good work. Less admin.'}</Text>
