@@ -1,4 +1,5 @@
 import {weeklyProjectReview} from './weeklyProjectReview';
+import { portfolioSample } from './portfolioSample';
 
 export type ArticleLink = {
   label: string;
@@ -26,6 +27,7 @@ export type Article = {
 };
 
 export const articles: Article[] = [
+  portfolioSample,
   weeklyProjectReview,
   {
     slug: 'how-to-ask-for-a-freelance-deposit-before-starting-work',
