@@ -57,6 +57,18 @@ const base=process.env.QA_BASE_URL||'http://127.0.0.1:3079';
     await page.getByRole('status').filter({hasText:'Copy is unavailable.'}).waitFor();
     await page.getByRole('button',{name:'Clear draft',exact:true}).click();
     assert.equal(await page.getByLabel('What happened?',{exact:true}).inputValue(),'');
+    await page.evaluate(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:()=>new Promise(resolve=>{window.finishSupportCopy=resolve;})}}));
+    await page.getByLabel('What happened?',{exact:true}).fill('Pending clipboard draft');
+    await page.getByRole('button',{name:'Copy draft',exact:true}).click();
+    await page.getByRole('button',{name:'Clear draft',exact:true}).click();
+    await page.evaluate(()=>window.finishSupportCopy());
+    await page.getByRole('status').filter({hasText:'Draft cleared from this form.'}).waitFor();
+    await page.evaluate(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:()=>new Promise((resolve,reject)=>{window.failSupportCopy=()=>reject(Error('denied'));})}}));
+    await page.getByRole('button',{name:'Copy draft',exact:true}).click();
+    await page.getByLabel('What happened?',{exact:true}).fill('New edited draft');
+    await page.evaluate(()=>window.failSupportCopy());
+    await page.waitForTimeout(50);
+    assert.equal(await page.getByRole('status').last().textContent(),'');
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
    }
   }

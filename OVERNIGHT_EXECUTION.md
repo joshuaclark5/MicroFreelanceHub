@@ -99,3 +99,7 @@ One accepted at-job: 789b6f79-ade2-469d-b0a6-992fd5e5ef65, first run 2026-11-22T
 ## Run 13 checkpoint
 - Support email drafts now replace isolated UTF-16 surrogates and truncate on code-point boundaries, preventing URI encoding crashes from malformed pasted text or split emoji. Focused core fixtures passed. No public claims, legal pages, routes, or customer data changed.
 - Publisher readiness timed out before acceptance; no request ID or live release. Full production/browser/SEO gates remain required before release. Unrelated dirty files preserved; no coding subagents started.
+
+## Run 14 checkpoint
+- Support clipboard feedback now ignores stale asynchronous responses after editing/clearing/opening email/new copies. Browser tests cover delayed success and failure. Focused tests, separate TypeScript, production build, responsive public/report tests and fresh SEO comparison passed; all 1515 existing URLs retained. Includes prior Unicode fix release checks.
+- Publisher readiness timed out before acceptance; local only, no request ID. QA server stopped and no coding workers. Unrelated files preserved. Broader product/integration/device/AI gates remain open; rearm only this same job before cutoff.
