@@ -1,6 +1,6 @@
 # Transactional email candidate (wave5)
 
-Local readiness implementation, not an enabled service. No provider calls, sender verification, config changes, customer data, remote migrations or email sends were performed. Existing manual invitation generation and acceptance remain unchanged. No marketing automation is imported or enabled.
+Local readiness implementation, not an enabled service. No provider calls, sender verification, environment activation, customer data, remote migrations or email sends were performed. Existing manual invitation generation and acceptance remain unchanged. No marketing automation is imported or enabled.
 
 ## UI / HTTP seam
 
@@ -8,7 +8,7 @@ Cookie-authenticated Node route: **/api/workspace/email**. Every response is pri
 
 GET ?expectedActorId=<current user UUID>[&after=<UUID>] returns:
 - actorId, records (100 maximum), hasMore, nextCursor. Traverse all pages before claiming a complete list; live UUID traversal, not a cross-page snapshot.
-- readiness: enqueueConfigured, sendConfigured, workerScheduled:false. Configuration presence is not provider permission or verified sender proof. No worker is scheduled by this slice.
+- readiness: enqueueConfigured, sendConfigured, workerScheduled. workerScheduled is true only for VERCEL_ENV=production with the committed every five minutes cron entry and valid worker, send, database, secret and keyring configuration. It is configuration readiness, not execution, sender verification or delivery proof. Preview/local and disabled configurations return false.
 - records: id, template, aggregateId, workspaceId, recipient, status, attempts, nextAttemptAt, cancelRequested, createdAt, version. No ciphertext/hash/provider ID/raw invite token.
 - Only creator's records visible; team invite records additionally require current owner/admin permission for that invitation role. Removed/demoted members lose visibility immediately on the next read.
 
@@ -27,7 +27,7 @@ Server-only enqueue requires EMAIL_OUTBOX_ENQUEUE_ENABLED=true, existing NEXT_PU
 
 Dispatch requires a separate explicit EMAIL_OUTBOX_SEND_ENABLED=true plus existing RESEND_API_KEY, EMAIL_OUTBOX_FROM (single bare verified sender address), EMAIL_OUTBOX_SITE_ORIGIN (approved HTTPS origin), and valid keyring. Reuses fixed https://api.resend.com/emails POST Authorization/Bearer, JSON from/to/subject/text and Idempotency-Key contract evidenced by existing app/api/partners/apply and app/api/challenge/signup. It does NOT reuse marketing sender, recipients, cron or outreach consent. Operator must independently verify domain/sender permissions, delivery retrieval permission, authorized test recipient, cost/quota, privacy and release authorization before activation.
 
-Server library dispatchEmailOnce(db, env, fetcher) in app/lib/server/emailWorker.ts claims at most one job, reauthorizes immediately before beginning and performs at most one provider POST. No public worker route, cron, interval or import-time execution exists. Operator runner deployment/wiring is deliberately not provided or enabled. Injected fetch supports entirely mocked tests. No actual provider credentials were read.
+Server library dispatchEmailOnce(db, env, fetcher) in app/lib/server/emailWorker.ts claims at most one job, reauthorizes immediately before beginning and performs at most one provider POST. The authenticated GET/POST /api/internal/email-worker route wraps bounded dispatch and reconciliation. vercel.json declares one every five minutes cron; activation gates remain disabled unless explicitly configured. No import-time execution occurs. See EMAIL_WORKER_OPERATIONS.md for the required service-only reconciliation SQL and rollout procedure. Injected fetch supports entirely mocked tests. No actual provider credentials were read.
 
 ## Custody / lifecycle
 
@@ -47,7 +47,7 @@ reconcileEmail fetches recorded Resend ID and checks returned ID, exact recipien
 
 Run node scripts/test-email-outbox-api.cjs (actual transpiled handler, Node crypto, worker and Resend adapter, injected mocks only). Run node scripts/test-email-outbox-db.cjs (disposable file-backed PGlite, real ordered prerequisite SQL, fictional auth, grants/RLS/lease/idempotency/persistence). Evidence defaults ../evidence-email. PGlite is one embedded backend, not independent-connection PostgreSQL contention or real JWT/PostgREST. No production-ready/build/provider claim from unit tests.
 
-Local verification receipt: 12 API/crypto/provider/worker groups PASS; 16 file-backed SQL groups PASS; explicit targeted TypeScript --noEmit --incremental false PASS. Full-project TypeScript and offline-fixture optimized build attempted, blocked by concurrently unfinished parent-owned app/workspace/connections/page.tsx import of ../../components/workspace-connections/ConnectionsWorkspace. Build log: ../evidence-email/build-check/build.log. Parent must rerun integrated types/build after its UI is complete. SQL claim alias ambiguity found by independent test child was corrected and full DB suite rerun successfully. No lint or production-ready claim.
+Local worker verification receipt: 12 API/crypto/provider groups PASS; 6 authenticated worker groups PASS; 21 real file-backed SQL groups PASS including the additive emailWorker.sql prerequisite. Targeted TypeScript for both email routes and their dependencies (--noEmit --incremental false) PASS. Full-project TypeScript encountered disappearing .next/types files during concurrent shared-checkout work; parent must run the final integrated types/build after all workers finish. No live provider, lint or production-ready claim.
 
 Before release: independent security review, intended Supabase catalog/function owner/default-grants audit, backup+restore rehearsal and authorized staging migration; two-account real cookie/JWT/PostgREST tests, independent-backend enqueue/revoke/claim races, authorized provider sandbox evidence and operator runner review. Rollback: disable enqueue/send switches and stop runner FIRST; preserve outbox/operation history and keys for review rather than dropping tables/resending. No remote migration/rollback was executed.
 

@@ -8,6 +8,7 @@ fs.mkdirSync(out,{recursive:true});const dir=fs.mkdtempSync(path.join(out,'datab
 const migrationNames=['20261118020000_workspace_scheduling.sql','20261118070000_workspace_team.sql','20261118100000_workspace_email.sql'];
 const hash=x=>createHash('sha256').update(x).digest('hex');
 const migrations=migrationNames.map(name=>({name,sql:fs.readFileSync(path.join(root,'supabase/migrations',name),'utf8')}));
+migrations.push({name:'emailWorker.sql',sql:fs.readFileSync(path.join(root,'app/lib/server/emailWorker.sql'),'utf8')});
 const report={passed:false,engine:'file-backed PGlite',database:dir,migrations:migrations.map(x=>({name:x.name,sha256:hash(x.sql)})),checks:[],failures:[],limitations:['Fictional auth.users/auth.uid and non-superuser roles; not live JWT, getUser, PostgREST or Supabase verification.','PGlite serializes one backend; no independent-backend contention or provider/network verification.','Test-only administrator clock adjustments avoid sleeping; no production migrations or configuration touched.']};
 let db,current;const [A,B,C,D,U]=Array.from({length:5},randomUUID),email=id=>id+'@fixture.invalid';
 const q=(sql,args=[])=>db.query(sql,args);
@@ -48,13 +49,26 @@ const assertSafe=x=>{for(const k of ['token_hash','token_ciphertext','provider_i
  intake=await scheduling('publish',{title:'Fixture intake',consent:'Fixture consent',fields:[{id:'q1',label:'Question',required:true}]});
  await check('forced RLS, closed table grants and fixed function search paths',async()=>{
   await admin();const t=(await q("select relrowsecurity,relforcerowsecurity from pg_class where relname in ('workspace_email_outbox','workspace_email_rate')")).rows;assert.equal(t.length,2);assert.ok(t.every(x=>x.relrowsecurity&&x.relforcerowsecurity));
-  const f=(await q("select proname,prosecdef,proconfig from pg_proc where proname like 'workspace_email_%'")).rows;assert.equal(f.length,11);assert.ok(f.every(x=>x.proconfig.includes('search_path=pg_catalog, public')));assert.ok(f.filter(x=>x.proname!=='workspace_email_safe').every(x=>x.prosecdef));
+  const f=(await q("select proname,prosecdef,proconfig from pg_proc where proname like 'workspace_email_%'")).rows;assert.equal(f.length,12);assert.ok(f.every(x=>x.proconfig.includes('search_path=pg_catalog, public')));assert.ok(f.filter(x=>x.proname!=='workspace_email_safe').every(x=>x.prosecdef));
   for(const name of ['anon','authenticated','service_role']){await actor(A,name);for(const table of ['workspace_email_outbox','workspace_email_rate'])for(const statement of ['select * from '+table,'insert into '+table+' default values','delete from '+table,'update '+table+' set '+(table.endsWith('rate')?'next_at=next_at':'status=status')])await deny(()=>q(statement));}
   await actor(A);await deny(()=>q("insert into workspace_email_rate values(true,now()) on conflict(id) do update set next_at=now()"));
  });
  await check('anon and authenticated cannot execute enqueue worker or internal helper RPCs',async()=>{
-  for(const name of ['anon','authenticated']){await actor(A,name);for(const [fn,args] of [['enqueue',[A,randomUUID(),'booking-reminder.v1',randomUUID(),email(D),null,null,'transactional-email.v1']],['claim',[]],['begin',[randomUUID(),randomUUID()]],['finish',[randomUUID(),randomUUID(),'accepted','fixture',60]],['reconcile',[randomUUID(),'fixture','delivered']]])await deny(()=>call(fn,args));for(const fn of ['authorized','visible','safe'])await deny(()=>q('select workspace_email_'+fn+'(null::workspace_email_outbox)'));}
+  for(const name of ['anon','authenticated']){await actor(A,name);for(const [fn,args] of [['evidence_next',[]],['enqueue',[A,randomUUID(),'booking-reminder.v1',randomUUID(),email(D),null,null,'transactional-email.v1']],['claim',[]],['begin',[randomUUID(),randomUUID()]],['finish',[randomUUID(),randomUUID(),'accepted','fixture',60]],['reconcile',[randomUUID(),'fixture','delivered']]])await deny(()=>call(fn,args));for(const fn of ['authorized','visible','safe'])await deny(()=>q('select workspace_email_'+fn+'(null::workspace_email_outbox)'));}
   await actor('','anon');await deny(()=>snapshot(A));await deny(()=>call('cancel',[A,randomUUID()]));await actor('');await deny(()=>snapshot(A));await actor(A);await deny(()=>snapshot(B));
+ });
+ await check('bounded evidence selection rotates pending IDs without direct table grants or false delivery',async()=>{
+  await admin();
+  const ids=[randomUUID(),randomUUID(),randomUUID()];
+  for(let n=0;n<ids.length;n++)await q("insert into workspace_email_outbox(id,actor_id,operation_id,template,aggregate_id,recipient,payload_hash,consent_version,status,provider_id,updated_at) values($1,$2,$3,'booking-reminder.v1',$4,$5,$6,'transactional-email.v1',$7,$8,clock_timestamp()-interval '2 hours')",[ids[n],A,randomUUID(),randomUUID(),email(D),hash('fixture'),n===2?'unknown':'accepted',n===2?null:'provider-'+n]);
+  await service();
+  const first=await call('evidence_next'),second=await call('evidence_next');
+  assert.notEqual(first.id,second.id);assert.ok(ids.slice(0,2).includes(first.id));assert.ok(ids.slice(0,2).includes(second.id));
+  assert.deepEqual(Object.keys(first).sort(),['id','provider_id','recipient']);
+  assert.equal(await call('evidence_next'),null);
+  await admin();const states=(await q("select status from workspace_email_outbox where id=any($1::uuid[])",[ids])).rows;
+  assert.equal(states.filter(x=>x.status==='accepted').length,2);assert.equal(states.filter(x=>x.status==='unknown').length,1);
+  await q("delete from workspace_email_outbox where id=any($1::uuid[])",[ids]);
  });
  let original,originalArgs;
  await check('owner enqueue needs explicit consent and matching token; safe result omits secrets',async()=>{
