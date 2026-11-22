@@ -1,3 +1,5 @@
+import {weeklyProjectReview} from './weeklyProjectReview';
+
 export type ArticleLink = {
   label: string;
   href: string;
@@ -24,6 +26,7 @@ export type Article = {
 };
 
 export const articles: Article[] = [
+  weeklyProjectReview,
   {
     slug: 'how-to-ask-for-a-freelance-deposit-before-starting-work',
     title: 'How to Ask for a Freelance Deposit Before Starting Work',

@@ -2,16 +2,18 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const ts = require('typescript');
-function visit(url, referrer = '', initial = {}) {
+function visit(url, referrer = '', initial = {}, privacy = {}) {
   const values = new Map(Object.entries(initial));
   const exports = {};
   const storage = { getItem: k => values.get(k) || null, setItem: (k,v) => values.set(k,v) };
   vm.runInNewContext(ts.transpileModule(fs.readFileSync('app/lib/trackingClient.ts','utf8'), {compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,
-    {exports, window:{location:new URL(url)}, document:{referrer}, localStorage:storage, URL, URLSearchParams});
+    {exports, window:{location:new URL(url)}, navigator:privacy, document:{referrer}, localStorage:storage, URL, URLSearchParams});
   exports.initializeTracking();
   return Object.fromEntries(values);
 }
 const home = 'https://www.microfreelancehub.com';
+assert.deepEqual(visit(home+'/?source=test','',{}, {doNotTrack:'1'}),{});
+assert.deepEqual(visit(home+'/?source=test','',{}, {globalPrivacyControl:true}),{});
 assert.equal(visit(home+'/quote-follow-up','https://google.com').landing_page,'/quote-follow-up');
 assert.equal(visit(home+'/quote-follow-up/guide','https://google.com').landing_page,'/quote-follow-up/guide');
 assert.equal(visit(home+'/quote-follow-up/workspace','https://google.com').landing_page,undefined);

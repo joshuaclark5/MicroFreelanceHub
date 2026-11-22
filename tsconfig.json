@@ -33,6 +33,6 @@
     "middleware.ts"
   ],
   "exclude": [
-    "node_modules", "supabase"
+    "node_modules", "supabase", "mobile"
   ]
 }

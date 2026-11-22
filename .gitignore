@@ -9,3 +9,7 @@ scripts/outreach-targets.json
 scripts/customer-outreach-targets.json
 QA_LOGIN.local.md
 .tmp-homepage-demo-video/
+mobile/.expo/
+mobile/dist/
+mobile/android/
+mobile/ios/

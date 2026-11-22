@@ -1,0 +1,102 @@
+# Product completion — execution ledger
+
+Updated 2026-11-22 UTC. **The product is not complete.** This preserves the original all-category ledger at `C:/Users/joshu/mfh-suite-20261118/FEATURE-LEDGER.md`; it does not replace advanced requirements with the smaller shipped slices.
+
+## Baseline and custody
+
+- Remote main freshly fetched: `74b15186f73a80ef6953e374786ce6fef4966ea5` (PR #4).
+- Public-domain assets freshly matched `dpl_CPFBrmo6MV67Kjnva1D5JwdDynys`; GitHub Vercel status successful; public chunks identify Production Supabase `rjgttmwrbyjqifodjnqm`.
+- All 1,515 sitemap URLs crawled: 200, titles, descriptions, canonicals, no detected noindex. This is an HTTP/content baseline, not indexing/ranking evidence or a full semantic content review.
+- No active coding children at intake. Main agent executes this increment. The prior integration worker is finished.
+- Preserve unrelated `supabase/.temp/cli-latest`, `staging-before-pr2.sql`, `tsconfig.tsbuildinfo`.
+- No price change, new paid service, customer enrollment, live charge or production migration in this increment.
+- Private fresh evidence: `C:/Users/joshu/mfh-private-backups/product-completion-20261122/`.
+
+## Current increment
+
+| Work | State | Evidence / next gate |
+|---|---|---|
+| First-use onboarding | Local implementation | Short optional setup, first-action choice, existing profile preload, inline retry and account-switch protection; no payment connection, enrollment or automatic email |
+| Analytics privacy | Local implementation | Reuses GA4 property; public route allowlist, clean page location, no query/referrer, DNT/GPC guard; private routes disabled |
+| Original weekly-review article | Local implementation, not published | `weekly-freelance-project-review-checklist`; substantive workflow guide with labeled hypothetical example; preserves old articles/slugs |
+| Daily content automation | Configuration updated, publication unverified | Existing job `a4880000-68a6-44de-a027-da38bc373c3e`, 10:30 America/New_York daily; recorded account binding requested; no duplicate job |
+| iOS/Android core | Native source prototype | Expo/React Native, same Supabase/RLS/atomic time RPC; email/password session in memory, project list and nonbillable time capture; device/install/store gates not passed |
+| Email delivery | Live verified, bounded | Joshua confirmed the one authorized adapter test arrived in his inbox. Automatic worker invocation separately verified. Real-recipient scheduled-outbox delivery is not the same test and remains open |
+
+## Every original feature ID
+
+“Partial” means a bounded slice is live or implemented, **not** full acceptance. Prior release evidence is kept distinct from new tests. Advanced features without evidence remain not built, not implicitly complete.
+
+| ID | Status | What exists; what remains |
+|---|---|---|
+| CRM01 | Partial | Live owner-scoped clients; multiple contacts/company model and archive semantics need full acceptance |
+| CRM02 | Partial | Live stages/opportunities and outcomes; board, safe custom-stage lifecycle and conversion remain |
+| CRM03 | Partial | Live private activity/notes; complete attributable relationship timeline remains |
+| CRM04 | Partial | Search/filter/intake slices; tags, segmentation and deduplicated intake-to-lead mapping remain |
+| CRM05 | Partial | Live bounded CSV preview/import/export; flexible mapping, reversible merge and relationship portability remain |
+| CRM06 | Not built | Full scoped client portal and automatic follow-up workflow; existing individual agreement links are not a portal |
+| SCH01 | Partial | Opt-in public booking live and previously race-tested; full exceptions and scheduling acceptance remain |
+| SCH02 | Partial | Owner cancellation exists; client rescheduling/cancellation lifecycle and full reminders remain |
+| SCH03 | Partial / blocked verification | Google primary free/busy manual sync verified; background/event sync and Outlook not delivered; provider browser blocked |
+| SCH04 | Partial | Versioned text intake live; choice/date/conditional forms not complete |
+| SCH05 | Not built | Unified intake → booking → approval → payment orchestration; separate functioning tools are not end-to-end proof |
+| PRJ01 | Partial | Persistent owner projects and archive status live; budget/advanced lifecycle remains |
+| PRJ02 | Partial | Basic tasks live; dependencies, subtasks, recurring tasks and advanced work views remain |
+| PRJ03 | Live/verified bounded | Explicit owner-checked project/agreement links shipped in PR #2; not full cross-suite lifecycle |
+| PRJ04 | Partial | Timer/manual entries/timesheets live; task allocation, team approval and invoice allocation remain |
+| PRJ05 | Not built | Integrated milestones/budgets/profitability, beyond existing separate expense records |
+| PRJ06 | Partial | Agreement templates exist; full shared files/project-template collaboration not built |
+| BILL01 | Partial | Invoice drafts/issue/void live; full numbering/tax/discount/delivery acceptance remains |
+| BILL02 | Partial | Manual recurring drafts + verified Stripe TEST subscription lifecycle; no automatic live recurring billing |
+| BILL03 | Partial | Owner allowance ledger live; funded client retainer/replenishment not delivered |
+| BILL04 | Partial | Existing one-time agreement payments; recurring opt-in checkout/dunning lifecycle remains test-gated |
+| BILL05 | Not built | Atomic time/expense/milestone-to-invoice allocation and double-invoicing prevention |
+| BILL06 | Not built | Full collections/aging/client statements with verified payment authority |
+| ACC01 | Partial | Recorded invoice/time reports live; revenue/fees/refunds/net reconciliation not complete |
+| ACC02 | Partial | Existing expenses; receipt custody and full billable-cost acceptance remain |
+| ACC03 | Blocked real verification / not built full connector | Intuit development app now created by Joshua; sandbox/company/credentials not inspected due browser failure. QuickBooks-first; Xero remains later scope |
+| ACC04 | Partial | Time/invoice operational reports live; complete conversion/utilization reports remain |
+| ACC05 | Partial | CSV exports live; all-category portable relationship export remains |
+| ACC06 | Not built | Accounting reconciliation/error-resolution audit workflow |
+| TEAM01 | Partial | Separate owner/admin/member model live; fine-grained shared authorization expansion remains |
+| TEAM02 | Partial | Weekly resource allocation live; integrated task/time/leave availability remains |
+| TEAM03 | Not built | Team timesheet approvals and utilization acceptance |
+| TEAM04 | Blocked decision / not built | Seat billing and commercial policy need approved packaging; no price or existing entitlement changes |
+| APP01 | Partial | Chosen Expo/React Native architecture and bounded time-capture workflow |
+| APP02 | Partial | Native source, in-memory secure session, shared RLS/RPC; OAuth, persistent secure session and device lifecycle acceptance remain |
+| APP03 | Not built | Durable encrypted offline queue, sync conflicts and push notifications; current retry ID is in-memory only |
+| APP04 | Blocked platform proof | No native binary/device/store validation yet; Android SDK/toolchain and macOS/Xcode/signing are required; no purchases authorized |
+| AGR01 | Partial | Existing agreements/signing/payment plus explicit links; full cross-suite lifecycle remains |
+| AGR02 | Partial | Separate change-order drafts; structured request/approval/history workflow remains |
+
+## Access and product decisions
+
+- Browser navigation returns `Browser navigation authority fence is no longer admitting targets`. Prior restart succeeded but navigation did not recover. Do not bypass an authority fence through raw CDP/credentials.
+- Supported GitHub publisher readiness timed out twice. No publication request was accepted; no request ID exists. Do not claim a PR/deployment or fall back to an unrelated account.
+- Outlook tenant/app and Intuit sandbox/company still need controlled inspection. Joshua already authorized taking over; do not repeatedly ask for permission or onboarding he has completed.
+- Real inbox test already approved, sent once and confirmed; do not resend it.
+- Subscription prices/seat policy changes need a concrete proposal and explicit approval. No automatic enrollment of existing customers.
+- GA4 dashboard/cohort data not accessible through the blocked browser. Operational counts do not establish conversion or retention rates.
+
+## Milestone estimates after inspection
+
+- First onboarding/privacy/content increment: approximately 1–2 hours engineering/checks, plus release-tool recovery and deployment verification.
+- Native core source/bundle and isolated workflow proof: several hours. Device QA, OAuth, secure offline persistence and store release are additional work, not included in a prototype estimate.
+- Calendar events/background, Outlook and QuickBooks: estimate after provider inspection and scope verification; do not promise a date from a created app card.
+- Full original feature ledger: multiple milestones; not a single completed PR and no credible all-product completion date yet.
+
+## Release gates
+
+Production build, separate TypeScript, focused actual-flow checks, risky-copy scan, public SEO baseline diff, exact supported publication/merge and changed behavior on the public domain. New migrations require independent backup/restore/rehearsal before production. Existing article URLs must remain in the sitemap; the new article should add one URL, not replace any.
+
+## This increment's verification checkpoint
+
+- Optimized production build passed twice; final log `build-final.log`. Separate website TypeScript passed.
+- Native TypeScript passed. Expo exported iOS (633 modules) and Android (631 modules) Hermes bundles; first Metro attempt failed nested dependency resolution, corrected before successful export. **No native binary or device/store claim.**
+- Actual mobile service code tested against isolated staging: authenticated project list, 900-second time capture, identical retry produces one record, second-account read and cross-owner write rejection, signed-out rejection. Five checks passed; all synthetic accounts/domain/audit records cleaned up with no cleanup failures after dependency-order correction. No email or payment sent.
+- New core tests and existing attribution checks passed after correcting a non-browser navigator guard in the fixture-compatible code.
+- Browser: 320/390/1440px onboarding prefill, optional business field, failure retains entries, successful retry; query-free GA page event, no GA script on auth page, article heading/canonical. All auth/mutations mocked; screenshot visually reviewed.
+- Risky-copy scan of changed product surfaces: no listed guarantee/legal-protection phrases found.
+- Candidate sitemap: 1,516 URLs; removed **0**, added only `/articles/weekly-freelance-project-review-checklist`.
+- Fresh operational counts: 47 confirmed auth accounts, 31 profiles, 60 non-template agreements, zero verified agreement receipt rows, zero workspace clients/projects/time entries. One profile has a subscription reference; not proof of active paid status. Staff/test inclusion and lack of GA4 access prevent conversion-rate claims.
+- Gateway diagnosis: process running and connectivity OK; publisher readiness still times out. Browser authority fence remains. No supported publication request accepted, no PR created, no new Production deployment.
