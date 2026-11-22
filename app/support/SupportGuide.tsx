@@ -28,7 +28,7 @@ export default function SupportGuide() {
   <select id="help-topic" value={topic} onChange={e => setTopic(e.target.value as SupportTopic)} className="my-3 block w-full rounded-xl border border-slate-300 bg-white p-4">{supportTopics.map(value => <option key={value}>{value}</option>)}</select>
   <p className="mb-6 text-sm text-slate-600">Reviewed product guidance, not an AI chat. Search stays in your browser; this tool cannot access or change your account.</p>
   <div aria-live="polite" className="mb-4 text-sm">{results.length} {results.length === 1 ? 'answer' : 'answers'}</div>
-  {(query || topic !== 'All topics') && <button type="button" onClick={() => {setQuery(''); setTopic('All topics');}} className="mb-5 font-semibold text-emerald-800 underline">Clear search and topic</button>}
+  {(query || topic !== 'All topics') && <button type="button" onClick={() => {setQuery(''); setTopic('All topics'); document.getElementById('help-search')?.focus();}} className="mb-5 font-semibold text-emerald-800 underline">Clear search and topic</button>}
   <div className="space-y-4">{results.map(answer => <details id={answer.id} key={answer.id} open={opened === answer.id} onToggle={e => {if (e.currentTarget.open) setOpened(answer.id); else setOpened(current => current === answer.id ? null : current);}} className="scroll-mt-24 rounded-xl border border-slate-200 p-5">
    <summary className="cursor-pointer font-semibold">{answer.q}</summary>
    <p className="my-4 leading-7 text-slate-600">{answer.a}</p>
