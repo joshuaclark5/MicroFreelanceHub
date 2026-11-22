@@ -19,7 +19,7 @@ export async function loadWork(db:SupabaseClient, actor:string) {
       db.from('workspace_projects').select('id,name,status').eq('owner_id',actor).eq('status','active').order('name').limit(201),
       db.from('workspace_time_entries').select('id,project_id,description,seconds,started_at').eq('owner_id',actor).not('stopped_at','is',null).order('started_at',{ascending:false}).limit(20)
     ]);
-    if(!projects || !entries || projects.error || entries.error || !Array.isArray(projects.data) || !Array.isArray(entries.data) || !projects.data.every(validProject) || !entries.data.every(validEntry)) throw Error('Could not load your work. Check your connection and retry.');
+    if(!projects || !entries || projects.error || entries.error || !Array.isArray(projects.data) || !Array.isArray(entries.data) || !projects.data.every(validProject) || !entries.data.every(validEntry) || !uniqueRowIds(projects.data) || !uniqueRowIds(entries.data)) throw Error('Could not load your work. Check your connection and retry.');
     return {projects:projects.data.slice(0,200) as Project[],projectsTruncated:projects.data.length>200,entries:entries.data as Entry[]};
   } catch {
     throw Error('Could not load your work. Check your connection and retry.');
@@ -73,4 +73,9 @@ export function validEntry(row:unknown):row is Entry {
     && typeof e.description==='string' && typeof e.started_at==='string'
     && Number.isFinite(Date.parse(e.started_at))
     && typeof e.seconds==='number' && Number.isSafeInteger(e.seconds) && e.seconds>=0;
+}
+
+// Duplicate IDs cannot be rendered safely as distinct selectable/list rows.
+export function uniqueRowIds(rows: {id:string}[]):boolean {
+  return new Set(rows.map(row=>row.id)).size===rows.length;
 }

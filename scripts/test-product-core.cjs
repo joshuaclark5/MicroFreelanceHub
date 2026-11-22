@@ -161,3 +161,8 @@ const goodEntry={id:'entry',project_id:'project',description:'Work',started_at:'
 assert.equal(rowChecks.validEntry(goodEntry),true);
 for(const change of [{seconds:null},{seconds:-1},{seconds:NaN},{seconds:1.5},{description:null},{started_at:'invalid'}]) assert.equal(rowChecks.validEntry({...goodEntry,...change}),false);
 console.log('PASS malformed mobile project/time row rejection');
+
+assert.equal(rowChecks.uniqueRowIds([]),true);
+assert.equal(rowChecks.uniqueRowIds([{id:'a'},{id:'b'}]),true);
+assert.equal(rowChecks.uniqueRowIds([{id:'a'},{id:'a'}]),false);
+console.log('PASS duplicate mobile response identity rejection');

@@ -169,3 +169,7 @@ One accepted at-job: 789b6f79-ade2-469d-b0a6-992fd5e5ef65, first run 2026-11-22T
 - Reject primitive and array auth envelopes/data before property checks, keeping bounded uncertain-save guidance instead of a TypeError. Thirteen malformed-response fixtures verify both zero mutations and zero workspace queries.
 - Product-core/session feedback tests, native TypeScript and Android/iOS Hermes exports passed (private product-completion-20261122/mobile-auth-shapes-export), covering run 27 pending bundle checks. No device/binary/store proof.
 - Website runtime/copy/SEO unchanged; full website release gates remain required before publishing. Publisher readiness timed out before acceptance; no request ID or release. Unrelated files preserved; export completed, no coding workers started. Continue same job only before cutoff.
+
+## Run 29 checkpoint
+- Mobile load rejects duplicate project/time IDs before rendering, avoiding repeated entries and ambiguous selection. Focused core tests and native TypeScript passed.
+- Bundle/device and full website release gates pending; no publication attempted, prior publisher binding blocker unresolved. Website copy/SEO unchanged. Unrelated files preserved; no coding workers started. Continue same job before cutoff.
