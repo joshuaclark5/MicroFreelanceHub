@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { productFeatures } from './data/productFeatures';
 import AgreementExample from './components/AgreementExample';
 import { useEffect, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
@@ -58,7 +59,7 @@ export default function HomePage() {
           </Link>
           <div className="hidden md:flex gap-4 items-center">
             <Link href="/pricing" className="text-sm font-semibold text-gray-600 hover:text-gray-950">Pricing</Link>
-            <a href="#help" className="text-sm font-semibold text-slate-700">Help</a>
+            <Link href="/features" className="text-sm font-semibold text-slate-700">Features</Link><Link href="/support" className="text-sm font-semibold text-slate-700">Help</Link>
             <Link href="/articles" className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">
               Articles
             </Link>
@@ -100,7 +101,7 @@ export default function HomePage() {
             {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
-        <div className="d4-home-mobile-links"><Link href="/pricing">Pricing</Link>{user ? <><Link href="/dashboard">My dashboard</Link><button type="button" onClick={signOut}>Sign out</button></> : <><Link href="/login?mode=signin">Log in</Link><Link href="/login" className="d4-mobile-signup">Sign up</Link></>}</div>
+        <div className="d4-home-mobile-links"><Link href="/features">Features</Link><Link href="/pricing">Pricing</Link>{user ? <><Link href="/dashboard">My dashboard</Link><button type="button" onClick={signOut}>Sign out</button></> : <><Link href="/login?mode=signin">Log in</Link><Link href="/login" className="d4-mobile-signup">Sign up</Link></>}</div>
         {isMenuOpen && (
           <div className="border-t border-slate-100 bg-white px-4 py-4 md:hidden">
             <div className="mx-auto flex max-w-7xl flex-col gap-3">
@@ -133,9 +134,9 @@ export default function HomePage() {
 
       <section className="d4-home-hero px-5 pt-8 pb-12 max-w-7xl mx-auto">
         <div className="mfh-hero-copy max-w-3xl mx-auto text-center">
-          <p className="d4-eyebrow mb-3">Agreement software for freelancers &amp; service businesses</p>
-          <h1 className="text-3xl sm:text-5xl font-semibold text-gray-950 leading-tight">Agree on the job.<br/>Approve the changes.<br/><em>Let clients pay.</em></h1>
-          <p className="mt-4 text-base sm:text-lg text-gray-600 leading-relaxed">Create an agreement, collect signatures and accept payments through your connected Stripe account—all from one client link.</p>
+          <p className="d4-eyebrow mb-3">A workspace for freelancers &amp; service businesses</p>
+          <h1 className="text-3xl sm:text-5xl font-semibold text-gray-950 leading-tight">Less scattered admin.<br/>More room for<br/><em>your best work.</em></h1>
+          <p className="mt-4 text-base sm:text-lg text-gray-600 leading-relaxed">Keep clients, scheduling, agreements, invoice drafts and time tracking in one workspace. Start with one useful task, then bring the rest of your work together.</p>
           <div className="mt-6 flex flex-col sm:flex-row justify-center items-stretch sm:items-center gap-3">
             <Link href="/create" className="d4-primary">Start my agreement <ArrowRight size={18}/></Link>
             <a href="#agreement-example" className="inline-flex min-h-11 items-center justify-center px-3 text-sm font-semibold text-blue-700 underline underline-offset-4">See a sample client link</a>
@@ -143,6 +144,7 @@ export default function HomePage() {
           <p className="mt-3 text-xs sm:text-sm text-slate-600">Free to draft. Create an account to save. <Link href="/pricing" className="underline underline-offset-2">Compare plan limits and payment features</Link>.</p>
         </div>
         <div className="mfh-hero-example mt-7"><AgreementExample /></div>
+        <section aria-labelledby="workspace-features" className="my-10 text-left" style={{gridColumn: '1 / -1'}}><div className="mb-6 flex flex-wrap items-end justify-between gap-4"><div><p className="text-sm font-semibold text-emerald-800">YOUR WORKSPACE</p><h2 id="workspace-features" className="mt-2 text-2xl font-semibold">More than the agreement.</h2></div><Link href="/features" className="font-semibold text-emerald-800 underline">Explore all features</Link></div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{productFeatures.map(f=><Link key={f.href} href={f.href} className="rounded-2xl border border-slate-200 bg-white p-5 hover:border-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-700"><h3 className="font-semibold">{f.title}</h3><p className="mt-3 text-sm leading-6 text-slate-600">{f.text}</p><span className="mt-4 block text-sm font-semibold text-emerald-800">Open workspace tool &rarr;</span></Link>)}</div><p className="mt-4 text-sm text-slate-600">Sign-in required for workspace tools. <Link href="/features" className="underline">See integration limits</Link> &middot; <Link href="/security" className="underline">Security</Link> &middot; <Link href="/support" className="underline">Support</Link></p></section>
         {/* VISUAL FLOW GRAPHIC */}
         <div className="d4-home-steps mt-10 max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 relative z-20">
            <div className="hidden md:block absolute top-1/2 left-1/6 right-1/6 h-1 bg-gradient-to-r from-slate-200 via-blue-300 to-emerald-300 -z-10 translate-y-2"></div>

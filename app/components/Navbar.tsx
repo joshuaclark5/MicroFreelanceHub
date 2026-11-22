@@ -36,10 +36,10 @@ useEffect(() => {
         </Link>
 
         {/* Right Side Buttons */}
-        <div className="hidden gap-4 md:flex">
+        <div className="hidden gap-4 md:flex"><Link href="/features" className="text-gray-600 hover:text-black mt-2">Features</Link>
           <Link href="/templates" className="text-gray-600 hover:text-black mt-2">Templates</Link>
           <Link href="/pricing" className="text-gray-600 hover:text-black mt-2">Pricing</Link>
-          <a href="mailto:support@microfreelancehub.com" className="text-gray-600 hover:text-black mt-2">Help</a>
+          <a href="/support" className="text-gray-600 hover:text-black mt-2">Help</a>
           {userEmail && <Link href="/settings" className="text-gray-600 hover:text-black mt-2">Settings</Link>}
           <Link href="/articles" className="text-gray-600 hover:text-black mt-2">
             Articles
@@ -82,9 +82,9 @@ useEffect(() => {
       </div>
       {isMenuOpen && (
         <div className="container mx-auto flex flex-col gap-3 px-4 pt-4 md:hidden">
-          <Link href="/templates" className="p-3">Templates</Link>
+          <Link href="/features" className="p-3">Features</Link><Link href="/templates" className="p-3">Templates</Link>
           <Link href="/pricing" className="p-3">Pricing</Link>
-          <a href="mailto:support@microfreelancehub.com" className="p-3">Help</a>
+          <a href="/support" className="p-3">Help</a>
           {userEmail && <Link href="/settings" className="p-3">Settings</Link>}
           <Link href="/articles" className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
             Articles

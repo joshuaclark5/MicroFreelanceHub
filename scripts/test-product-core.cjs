@@ -1,7 +1,7 @@
 const fs=require('fs'),vm=require('vm'),ts=require('typescript'),assert=require('assert/strict'),path=require('path');
 function load(file,imports={}){const exports={};vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(__dirname,'..',file),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,{exports,require:n=>{if(n in imports)return imports[n];throw Error('Unexpected import '+n);},Date,Number,Error,Map,BigInt,Intl,URLSearchParams});return exports;}
 const privacy=load('app/lib/analyticsPrivacy.ts');
-for(const p of ['/','/pricing','/articles/weekly-freelance-project-review-checklist','/create'])assert.equal(privacy.publicAnalyticsPath(p),p);
+for(const p of ['/','/pricing','/features','/articles/weekly-freelance-project-review-checklist','/create'])assert.equal(privacy.publicAnalyticsPath(p),p);
 for(const p of ['/login','/dashboard','/workspace/clients','/book/abc','/sow/abc','/auth/callback','/create?token=secret','//evil.test','/articles/a?email=test'])assert.equal(privacy.publicAnalyticsPath(p),null);
 assert.equal(privacy.analyticsAllowed({doNotTrack:'1'}),false);assert.equal(privacy.analyticsAllowed({globalPrivacyControl:true}),false);assert.equal(privacy.analyticsAllowed({}),true);
 const time=load('app/lib/workspaceTime.ts');

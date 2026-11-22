@@ -109,3 +109,22 @@ Production build, separate TypeScript, focused actual-flow checks, risky-copy sc
 - Candidate sitemap: 1,516 URLs; removed **0**, added only `/articles/weekly-freelance-project-review-checklist`.
 - Fresh operational counts: 47 confirmed auth accounts, 31 profiles, 60 non-template agreements, zero verified agreement receipt rows, zero workspace clients/projects/time entries. One profile has a subscription reference; not proof of active paid status. Staff/test inclusion and lack of GA4 access prevent conversion-rate claims.
 - Gateway diagnosis: process running and connectivity OK; publisher readiness still times out. Browser authority fence remains. No supported publication request accepted, no PR created, no new Production deployment.
+
+## Browser recovery follow-up
+- Managed OpenClaw Edge browser started successfully; tab navigation now works. Opened Intuit developer apps and Microsoft Entra app registrations using supported browser tools.
+- Intuit redirected to sign-in; no credential or provider configuration changed. User must complete interactive sign-in in the managed browser.
+- Entra retained Joshua's session in Default Directory; app-registration page text loaded. Existing application identities/configuration not yet verified.
+- Existing-session Chrome attachment failed because remote debugging was not enabled; managed browser is distinct from the user's ordinary browser.
+- Publisher readiness retried twice: both timed out after five seconds. No publication request submitted, no PR/deployment created. Local candidate remains 88f9a62.
+- Hardware confirmed by Joshua: Android, iPhone, MacBook Neo, Acer Nitro 5. Xcode/device compatibility not yet inspected.
+- No coding workers started in this run; unrelated local files preserved.
+
+## Overnight product discovery increment
+- Joshua authorized overnight build/revisions/publication and emphasized discoverability of released tools, premium UX, support, mobile, and accurate security/disclaimer information. No additional login needed at intake; interactive provider access may still require later challenges.
+- Added public feature overview, reviewed searchable support with human email route, and factual security/account guidance. Preserved existing Terms/Privacy/Disclaimer; no legal immunity claims. AI support is NOT implemented by this search guide and remains a separate gated task.
+- Broadened homepage messaging/navigation and added six workspace entry points. Retained agreement drafting CTA and existing routes. Feature integration limitations remain explicit.
+- Native mobile visual revision includes branding, active-project/recent-entry summary and browser help links. Both platform JS bundles exported; no native device/store claim.
+- Initial public browser regression passed four routes at 320/390/1440px, canonical checks, feature destinations, support search/no-result/escalation, and no page errors. Visual review prompted full-width feature section below hero; final rebuild/retest required.
+- Sitemap comparison: live 1515, candidate 1519, removed zero; adds only features/support/security and the previously queued original article.
+- New scheduled continuation 789b6f79-ade2-469d-b0a6-992fd5e5ef65 starts 06:05Z and is bounded to 13:40Z. See OVERNIGHT_EXECUTION.md. This is not proof of completed future execution.
+- Final overnight revision: production build explicit exit 0, separate TypeScript pass, responsive four-route tests pass after visual correction, native TypeScript/Android+iOS JS exports pass. Evidence in overnight-build-final.log and browser/overnight-home-final.png. Still LOCAL ONLY; support AI and native device/install remain unverified/unimplemented as described above.
