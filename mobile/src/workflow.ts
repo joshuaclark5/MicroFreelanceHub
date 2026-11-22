@@ -71,8 +71,18 @@ export function validEntry(row:unknown):row is Entry {
   const e=row as Entry;
   return typeof e.id==='string' && e.id.trim().length>0 && typeof e.project_id==='string' && e.project_id.trim().length>0
     && typeof e.description==='string' && typeof e.started_at==='string'
-    && Number.isFinite(Date.parse(e.started_at))
+    && validEntryTimestamp(e.started_at)
     && typeof e.seconds==='number' && Number.isSafeInteger(e.seconds) && e.seconds>=0;
+}
+
+// Database timestamps must identify an instant, never a device-local wall time.
+export function validEntryTimestamp(value:string):boolean {
+  const parts=/^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,6})?(Z|[+-](\d{2}):(\d{2}))$/.exec(value);
+  if(!parts || Number(parts[2])>23 || Number(parts[3])>59 || Number(parts[4])>59
+    || (parts[5]!=='Z' && (Number(parts[6])>23 || Number(parts[7])>59)))return false;
+  const day=Date.parse(parts[1]+'T00:00:00Z');
+  return Number.isFinite(day) && new Date(day).toISOString().slice(0,10)===parts[1]
+    && Number.isFinite(Date.parse(value));
 }
 
 // Duplicate IDs cannot be rendered safely as distinct selectable/list rows.

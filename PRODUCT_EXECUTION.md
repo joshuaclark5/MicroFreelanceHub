@@ -272,3 +272,9 @@ Production build, separate TypeScript, focused actual-flow checks, risky-copy sc
 - Reject primitive and array auth envelopes/data before property checks, keeping bounded uncertain-save guidance instead of a TypeError. Thirteen malformed-response fixtures verify both zero mutations and zero workspace queries.
 - Product-core/session feedback tests, native TypeScript and Android/iOS Hermes exports passed (private product-completion-20261122/mobile-auth-shapes-export), covering run 27 pending bundle checks. No device/binary/store proof.
 - Website runtime/copy/SEO unchanged; full website release gates remain required before publishing. Publisher readiness timed out before acceptance; no request ID or release. Unrelated files preserved; export completed, no coding workers started. Continue same job only before cutoff.
+
+## Run 31 - final overnight cutoff checkpoint
+- Mobile entry timestamps now require an explicit timezone and valid calendar day/time. Date-only/local-time values and normalized impossible dates cannot silently reach display; load errors retain existing retry guidance. Valid UTC, offsets, leap days and database fractional seconds remain accepted.
+- Product-core tests (including load-path rejection), session feedback tests, native TypeScript and Android/iOS Hermes exports passed. Evidence: private product-completion-20261122/mobile-timestamps-export. No device/binary/store validation claimed.
+- Publisher readiness retried and timed out before acceptance. No request ID or release. Website runtime, public copy and SEO unchanged in this run; fresh full website build/browser/SEO and exact live verification remain required before publication.
+- Cutoff 13:40Z passed: no next_check requested. Overnight execution stops with local work saved, broader product/provider/AI/device ledger unfinished. Export process exited 0; no coding workers started or left by this run. Three unrelated dirty files preserved.

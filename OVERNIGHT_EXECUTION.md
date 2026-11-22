@@ -178,3 +178,8 @@ One accepted at-job: 789b6f79-ade2-469d-b0a6-992fd5e5ef65, first run 2026-11-22T
 - Reject blank mobile row/project references before selection/rendering; regression fixtures and native TypeScript passed. Android/iOS Hermes exports passed, covering prior duplicate-ID bundle gate. No device/store proof.
 - Website unchanged; full website release gates remain required. Publisher readiness timed out before acceptance; no request ID or release. Unrelated files preserved; no coding workers started; bundle process finished.
 
+
+## Final cutoff - run 31
+- Explicit-zone/calendar validation for mobile entry timestamps implemented and tested. Product-core/session tests, native TypeScript and Android/iOS Hermes exports passed; device/store validation remains open.
+- Publisher readiness timed out before acceptance; no request ID or release. Fresh full website release gates and exact live verification remain required. Broader product, provider and AI support ledger remains unfinished.
+- 13:40Z cutoff passed. No continuation rearmed. Export completed, no coding workers left by this run; unrelated files preserved. See PRODUCT_EXECUTION.md for final evidence.

@@ -75,6 +75,7 @@ assert.throws(()=>mobile.manualTime(actor,operation,'wrong','1','',Date.now()));
  await assert.rejects(()=>mobile.loadWork(loadDb([],[],{message:'private diagnostic'}),actor),/Could not load/);
  await assert.rejects(()=>mobile.loadWork(loadDb([{id:'bad',name:null,status:'active'}],[]),actor),/Could not load/);
  await assert.rejects(()=>mobile.loadWork(loadDb([],[{id:'bad'}]),actor),/Could not load/);
+ for(const started_at of ['2026-11-22T12:00:00','2026-02-30T12:00:00Z']) await assert.rejects(()=>mobile.loadWork(loadDb([],[{id:'entry',project_id:'project',description:'Work',seconds:60,started_at}]),actor),/Could not load/);
  const loaded=await mobile.loadWork(loadDb(Array.from({length:201},(_,i)=>({id:String(i),name:'Project',status:'active'})),[{id:'entry',project_id:'project',description:'Work',seconds:60,started_at:'2026-11-22T12:00:00Z'}]),actor);
  assert.equal(loaded.projects.length,200);assert.equal(loaded.projectsTruncated,true);assert.equal(loaded.entries[0].id,'entry');
  // Simulate responses completing out of order, including an account change.
@@ -171,3 +172,7 @@ assert.equal(rowChecks.validProject({...goodProject,id:'   '}),false);
 assert.equal(rowChecks.validEntry({...goodEntry,id:'   '}),false);
 assert.equal(rowChecks.validEntry({...goodEntry,project_id:''}),false);
 assert.equal(rowChecks.validEntry({...goodEntry,project_id:'   '}),false);
+
+for(const started_at of ['2026-11-22','2026-11-22T12:00:00','2026-02-30T12:00:00Z','2026-11-22T24:00:00Z','2026-11-22T12:00:00+24:00']) assert.equal(rowChecks.validEntry({...goodEntry,started_at}),false);
+for(const started_at of ['2024-02-29T12:00:00Z','2026-11-22T12:00:00.123456+00:00','2026-11-22T07:00:00-05:00']) assert.equal(rowChecks.validEntry({...goodEntry,started_at}),true);
+console.log('PASS explicit-zone mobile timestamps and calendar validation');
