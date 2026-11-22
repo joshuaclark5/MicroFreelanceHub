@@ -86,3 +86,12 @@ assert.throws(()=>mobile.manualTime(actor,operation,'wrong','1','',Date.now()));
  const article=load('app/data/weeklyProjectReview.ts').weeklyProjectReview;assert.equal(article.slug,'weekly-freelance-project-review-checklist');assert.ok(article.sections.length>=6);assert.ok(article.sections.flatMap(s=>s.body).join(' ').split(/\s+/).length>700);
  console.log('PASS project search and stale/account-switch load rejection; analytics route/privacy boundaries; native manual-time validation, account switch, stable retry ID and uncertain-save error; original article structure.');
 })().catch(e=>{console.error(e);process.exitCode=1;});
+
+for (const input of ['broken\uD800', '\uDC00broken', 'x'.repeat(1499)+'\u{1F600}tail', '\u{1F600}'.repeat(1501)]) {
+ const result=handoff.supportDraft('Something else',input);
+ const encoded=new URL(result.href).searchParams.get('body');
+ assert.equal(encoded,result.body);
+ assert.ok(!result.body.split('\n\n')[1].includes('tail'));
+}
+assert.ok(handoff.supportDraft('Something else','x'.repeat(1499)+'\u{1F600}').body.includes('\u{1F600}'));
+console.log('PASS support draft malformed Unicode and emoji truncation');

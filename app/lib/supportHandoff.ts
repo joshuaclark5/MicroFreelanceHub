@@ -3,9 +3,17 @@ export type SupportTopic = typeof supportTopics[number];
 
 // Never collect a current URL: booking, agreement and recovery links can carry
 // private identifiers even when their query string has been removed.
+// Bound by Unicode code points so truncation never splits an emoji. Replace
+// isolated UTF-16 surrogates before URI encoding (clipboard text can contain them).
+function draftDetails(value: string) {
+  return Array.from(value.trim()).slice(0, 1500).map(character => {
+    const point = character.codePointAt(0)!;
+    return point >= 0xD800 && point <= 0xDFFF ? '\uFFFD' : character;
+  }).join('');
+}
 export function supportDraft(topic: SupportTopic, details: string) {
   const safeTopic = supportTopics.includes(topic) ? topic : 'Something else';
   const subject = `MicroFreelanceHub help: ${safeTopic}`;
-  const body = `Topic: ${safeTopic}\n\n${details.trim().slice(0, 1500)}\n\nPlease review this draft before sending. Remove passwords, verification codes, private links, client information and payment details.`;
+  const body = `Topic: ${safeTopic}\n\n${draftDetails(details)}\n\nPlease review this draft before sending. Remove passwords, verification codes, private links, client information and payment details.`;
   return { subject, body, href: `mailto:support@microfreelancehub.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}` };
 }

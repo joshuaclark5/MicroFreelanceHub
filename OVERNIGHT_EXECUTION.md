@@ -95,3 +95,7 @@ One accepted at-job: 789b6f79-ade2-469d-b0a6-992fd5e5ef65, first run 2026-11-22T
 
 ## Run 12 checkpoint
 - Added reviewed Reports support topic: UTC dates, bounded invoice totals and CSV recovery. Focused/core tests, production build, responsive public/report browser checks and fresh SEO diff passed (1515 existing URLs retained). Includes pending run 11 search regression checks. Publisher readiness timed out without acceptance; local only. QA server stopped; no coding children. Continue broader ledger using this same job before cutoff.
+
+## Run 13 checkpoint
+- Support email drafts now replace isolated UTF-16 surrogates and truncate on code-point boundaries, preventing URI encoding crashes from malformed pasted text or split emoji. Focused core fixtures passed. No public claims, legal pages, routes, or customer data changed.
+- Publisher readiness timed out before acceptance; no request ID or live release. Full production/browser/SEO gates remain required before release. Unrelated dirty files preserved; no coding subagents started.
