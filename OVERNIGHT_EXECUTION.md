@@ -92,3 +92,6 @@ One accepted at-job: 789b6f79-ade2-469d-b0a6-992fd5e5ef65, first run 2026-11-22T
 - Website runtime, public copy, sitemap, legal pages and database unchanged. Prior production/browser/SEO evidence is not a fresh release gate; rerun all required release checks before publishing.
 - Original publishing session readiness timed out before accepting any request. No request ID or live release; no provider mutation, spending, email or duplicate worker. Three unrelated dirty files preserved. Continue this same job before 13:40Z; broader feature ledger and integration/device/support-AI gates remain open.
 - Final run 10 verification: Android/iOS Hermes exports passed (exit 0); focused core tests and native TypeScript passed. Device testing unverified. No coding workers remain.
+
+## Run 12 checkpoint
+- Added reviewed Reports support topic: UTC dates, bounded invoice totals and CSV recovery. Focused/core tests, production build, responsive public/report browser checks and fresh SEO diff passed (1515 existing URLs retained). Includes pending run 11 search regression checks. Publisher readiness timed out without acceptance; local only. QA server stopped; no coding children. Continue broader ledger using this same job before cutoff.

@@ -13,6 +13,14 @@ const base=process.env.QA_BASE_URL||'http://127.0.0.1:3079';
    assert.equal(await page.locator('link[rel="canonical"]').getAttribute('href'),'https://www.microfreelancehub.com'+(path==='/'?'':path));
    if(path==='/features')assert.equal(await page.locator('main article a[href^="/workspace/"], main article a[href="/dashboard"]').count(),6);
    if(path==='/support'){
+    await page.getByLabel('Browse by topic').selectOption('Reports');
+    await page.getByLabel('Find an answer').fill('export CSV');
+    await page.getByText('How do I export a report CSV?',{exact:true}).click();
+    assert.ok(await page.getByRole('link',{name:'Open report exports',exact:true}).isVisible());
+    await page.getByRole('button',{name:'Clear search and topic'}).click();
+    await page.getByLabel('Find an answer').fill('How do I reset my password?');
+    assert.equal(await page.locator('main details[id]').count(),1);
+    await page.getByRole('button',{name:'Clear search and topic'}).click();
     await page.getByLabel('Browse by topic').selectOption('Billing');
     await page.getByLabel('Find an answer').fill('invoice');
     assert.equal(await page.locator('main details[id]').count(),1);

@@ -19,3 +19,10 @@ for (const query of ['How do I reset my password?', 'please recover my password'
 for (const query of ['how do I', '???', 'reset password unicorn', 'not password']) assert.equal(findSupportAnswers(query).length,0,query);
 assert.equal(findSupportAnswers('How do I reset my password?', 'Billing').length,0);
 console.log('PASS natural questions, unknown subjects, punctuation, negation and topic boundaries');
+
+for (const [query,id] of [['report dates','report-dates'],['invoice revenue','report-totals'],['export CSV','report-export']]) {
+ assert.ok(findSupportAnswers(query,'Reports').some(x=>x.id===id),query);
+ assert.equal(findSupportAnswers(query,'Account access').length,0);
+}
+assert.equal(findSupportAnswers('', 'Reports').length,3);
+console.log('PASS report guidance discovery and topic isolation');
