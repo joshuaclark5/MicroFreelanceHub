@@ -23,3 +23,7 @@ Search filters only the loaded, owner-scoped list (up to 200 active projects); i
 ## Review before capture
 
 Time entry now has a local review step: project, duration, start time and note are visible before confirmation. Editing returns to the unsent form. Project/duration/note and refresh are locked during review so the confirmed payload matches the preview; signing out clears it. Confirmation uses the reviewed timestamp (not a later shifted start), and uncertain retries retain that exact payload and operation ID. No RPC is made to prepare a review. Actual device interaction still needs validation.
+
+## Leaving an unfinished entry
+
+Sign-out asks for confirmation if a duration/note, review, or uncertain save exists. An uncertain save takes priority: users can keep working and retry, or explicitly sign out after being warned that the in-memory retry ID will be lost and the original account must be checked before another entry. Canceling changes nothing. Confirmation from an older account/session is ignored. This does not protect against OS termination, forced closure, or session expiry; durable encrypted recovery remains unfinished. Native alert interaction still requires device testing.

@@ -1,5 +1,13 @@
 const fs=require('fs'),vm=require('vm'),ts=require('typescript'),assert=require('assert/strict'),path=require('path');
 function load(file,imports={}){const exports={};vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(__dirname,'..',file),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,{exports,require:n=>{if(n in imports)return imports[n];throw Error('Unexpected import '+n);},Date,Number,Error,Map,BigInt,Intl,URLSearchParams});return exports;}
+const exit=load('mobile/src/sessionExit.ts');
+assert.equal(exit.signOutWarning(false,false,'','  '),null);
+for(const args of [[false,false,'10',''],[false,false,'','note'],[false,true,'','']])assert.equal(exit.signOutWarning(...args).title,'Discard this unsaved entry?');
+assert.equal(exit.signOutWarning(true,true,'10','note').title,'A save is still uncertain');
+assert.equal(exit.sameSession('a',1,'a',1),true);
+assert.equal(exit.sameSession('a',1,'b',1),false);
+assert.equal(exit.sameSession('a',1,'a',2),false);
+assert.equal(exit.sameSession(null,1,null,1),false);
 const privacy=load('app/lib/analyticsPrivacy.ts');
 const handoff=load('app/lib/supportHandoff.ts');
 const special='Save failed & retry?\nUnicode: café <script>alert(1)</script>';

@@ -1,9 +1,10 @@
 import 'react-native-url-polyfill/auto';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {ActivityIndicator, AppState, Linking, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View} from 'react-native';
+import {ActivityIndicator, Alert, AppState, Linking, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View} from 'react-native';
 import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
 import {createClient, type SupabaseClient} from '@supabase/supabase-js';
 import * as Crypto from 'expo-crypto';
+import {signOutWarning, sameSession} from './src/sessionExit';
 import {createLoadGate, filterProjects} from './src/projectBrowser';
 import {loadWork, manualTime, saveTime, type Project, type Entry} from './src/workflow';
 
@@ -53,6 +54,21 @@ function Workspace({db}:{db:SupabaseClient}) {
    setReview(manualTime(actor,Crypto.randomUUID(),projectId,minutes,description,Date.now()));setMessage('');
   } catch(e){setMessage(e instanceof Error?e.message:'Check the entry and retry.');}
  }
+ function requestSignOut(){
+  if(acting.current)return;
+  const id=currentActor.current, epoch=generation.current;
+  const finish=()=>{
+   // A dialog opened by a departed account cannot sign out a newer session.
+   if(!sameSession(id,epoch,currentActor.current,generation.current)||acting.current)return;
+   void action(async()=>{const {error}=await db.auth.signOut({scope:'local'});if(error)throw Error('Sign-out was not confirmed. Please retry.');});
+  };
+  const warning=signOutWarning(!!pending.current,!!review,minutes,description);
+  if(!warning){finish();return;}
+  Alert.alert(warning.title,warning.message,[
+   {text:'Keep working',style:'cancel'},
+   {text:'Sign out anyway',style:'destructive',onPress:finish}
+  ],{cancelable:true});
+ }
  async function submit(){
   if(!actor)return;
   const id=actor,g=generation.current;
@@ -76,7 +92,7 @@ function Workspace({db}:{db:SupabaseClient}) {
    <Button title="Sign in" disabled={busy||!email.trim()||!password} onPress={()=>void action(async()=>{const {error}=await db.auth.signInWithPassword({email:email.trim(),password});if(error)throw Error('Sign-in failed. Check your details or use the website to recover access.');setPassword('');})}/>
    <Text style={styles.body}>Google-only sign-in and account recovery are not supported in this first native build. Use the website for those flows. No account is created here.</Text>
   </>:<>
-   <View style={styles.row}><Button title="Refresh" disabled={busy||!!review} onPress={()=>void action(()=>refresh(actor))}/><Button title="Sign out" disabled={busy} onPress={()=>void action(async()=>{const {error}=await db.auth.signOut({scope:'local'});if(error)throw Error('Sign-out was not confirmed. Please retry.');})}/></View>
+   <View style={styles.row}><Button title="Refresh" disabled={busy||!!review} onPress={()=>void action(()=>refresh(actor))}/><Button title="Sign out" disabled={busy} onPress={requestSignOut}/></View>
    {loadState==='loading'&&<Text accessibilityLiveRegion="polite" style={styles.notice}>Loading your projects and recent time...</Text>}
    {loadState==='error'&&<Text accessibilityRole="alert" style={styles.notice}>{loadError}</Text>}
    {hasLoaded&&<View style={styles.overview}><View><Text style={styles.metric}>{projects.length}{truncated?'+':''}</Text><Text style={styles.caption}>ACTIVE PROJECTS</Text></View><View><Text style={styles.metric}>{Math.round(entries.reduce((sum,e)=>sum+(e.seconds||0),0)/60)}</Text><Text style={styles.caption}>MINUTES IN LATEST ENTRIES</Text></View></View>}<Text style={styles.subheading}>Log completed time</Text><Text style={styles.body}>Record work ending now, up to 24 hours. Entries are nonbillable; review billing details on the website.</Text>
