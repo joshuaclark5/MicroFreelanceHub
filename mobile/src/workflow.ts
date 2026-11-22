@@ -4,8 +4,12 @@ import { timeInput } from '../../app/lib/workspaceTime';
 export type Project = {id:string;name:string;status:string};
 export type Entry = {id:string;project_id:string;description:string;seconds:number|null;started_at:string};
 export async function verifyActor(db:SupabaseClient, expectedActorId:string) {
-  const {data:{user},error}=await db.auth.getUser();
-  if(error || !user || user.id!==expectedActorId) throw Error('Your session changed. Sign in again; no time was saved.');
+  let result;
+  try { result=await db.auth.getUser(); }
+  catch { throw Error('Could not verify your session. Check your connection and retry the same entry. An earlier save may already have succeeded.'); }
+  const {data:{user},error}=result;
+  if(error) throw Error('Could not verify your session. Check your connection and retry the same entry. An earlier save may already have succeeded.');
+  if(!user || user.id!==expectedActorId) throw Error('Your session changed. Sign in to the original account and check its latest entries before creating another. An earlier save may already have succeeded.');
 }
 export async function loadWork(db:SupabaseClient, actor:string) {
   await verifyActor(db,actor);

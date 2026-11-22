@@ -17,6 +17,15 @@ assert.throws(()=>mobile.manualTime(actor,operation,'wrong','1','',Date.now()));
  await mobile.saveTime(db,p);await mobile.saveTime(db,p);assert.equal(calls,2);assert.equal(stored.operationId,operation);
  const wrong={...db,auth:{getUser:async()=>({data:{user:{id:project}},error:null})}};
  await assert.rejects(()=>mobile.saveTime(wrong,p),/session changed/);assert.equal(calls,2);
+ // A prior RPC can succeed while its response is lost. A failed identity check
+ // on retry must not claim that nothing was saved or issue another mutation.
+ for(const getUser of [async()=>({data:{user:null},error:{message:'offline'}}),async()=>{throw Error('network failed');}]){
+  const unavailable={...db,auth:{getUser}};
+  await assert.rejects(()=>mobile.saveTime(unavailable,p),e=>/earlier save may already have succeeded/.test(e.message)&&!/no time was saved/.test(e.message));
+  assert.equal(calls,2);
+ }
+ await assert.rejects(()=>mobile.saveTime(wrong,p),/earlier save may already have succeeded/);
+ assert.equal(calls,2);
  const failed={...db,rpc:async()=>({error:{message:'internal error'}})};await assert.rejects(()=>mobile.saveTime(failed,p),/not confirmed/);
  const article=load('app/data/weeklyProjectReview.ts').weeklyProjectReview;assert.equal(article.slug,'weekly-freelance-project-review-checklist');assert.ok(article.sections.length>=6);assert.ok(article.sections.flatMap(s=>s.body).join(' ').split(/\s+/).length>700);
  console.log('PASS analytics route/privacy boundaries; native manual-time validation, account switch, stable retry ID and uncertain-save error; original article structure.');

@@ -89,6 +89,15 @@ Updated 2026-11-22 UTC. **The product is not complete.** This preserves the orig
 
 Production build, separate TypeScript, focused actual-flow checks, risky-copy scan, public SEO baseline diff, exact supported publication/merge and changed behavior on the public domain. New migrations require independent backup/restore/rehearsal before production. Existing article URLs must remain in the sitemap; the new article should add one URL, not replace any.
 
+## Continuation checkpoint (2026-11-22)
+
+- Supported publisher readiness retried twice after the earlier restart: both timed out. No publication request ID, push, PR, merge, migration or deployment was created in this continuation.
+- Local gateway is listening on loopback port 18889. Recent logs show repeated passive-skills worker timeouts and publication-options timeouts. This establishes broader gateway degradation, not its root cause. The read-only CLI status probe also stalled; no gateway configuration was changed.
+- Fixed native retry feedback: an identity-check failure no longer incorrectly claims no time was saved. Network/auth failures preserve uncertainty about an earlier mutation; changed-account guidance asks the user to inspect the original account before creating another entry. Focused tests cover returned auth errors, thrown network errors and account changes without issuing another RPC. Product-core tests and native TypeScript passed; no new native build/device claim.
+- Unrelated three local files remain untouched. Prior website build/SEO evidence belongs to 423ae7a; this continuation changes only native workflow feedback/tests and this checklist.
+- No adb/java commands found on PATH and no default local Android SDK directory found. This is a bounded toolchain check, not proof none exists elsewhere. Ask which test devices Joshua has and whether a Mac is available before device validation; no purchase requested.
+- No coding child was started in this continuation. No new email sent; prior confirmed inbox delivery remains valid. Remaining original feature ledger is still open.
+
 ## This increment's verification checkpoint
 
 - Optimized production build passed twice; final log `build-final.log`. Separate website TypeScript passed.
