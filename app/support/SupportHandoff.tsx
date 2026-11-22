@@ -7,6 +7,7 @@ export default function SupportHandoff({ request }: { request?: {topic: SupportT
   const [details, setDetails] = useState('');
   const [feedback, setFeedback] = useState('');
   const [confirmClear, setConfirmClear] = useState(false);
+  const keepDraftButton = useRef<HTMLButtonElement>(null);
   const revision = useRef(0);
   const detailsInput = useRef<HTMLTextAreaElement>(null);
   const preview = useRef<HTMLDetailsElement>(null);
@@ -32,6 +33,9 @@ export default function SupportHandoff({ request }: { request?: {topic: SupportT
     window.addEventListener('beforeunload', warnBeforeLeaving);
     return () => window.removeEventListener('beforeunload', warnBeforeLeaving);
   }, [hasDetails]);
+  useEffect(() => {
+    if (confirmClear) keepDraftButton.current?.focus();
+  }, [confirmClear]);
   const draft = supportDraft(topic, details);
   async function copy() {
     const request = ++revision.current;
@@ -75,10 +79,15 @@ export default function SupportHandoff({ request }: { request?: {topic: SupportT
       <button type="button" onClick={() => void copy()} className="rounded-xl border border-emerald-900 px-4 py-3 font-semibold text-emerald-900">Copy draft</button>
       <button type="button" onClick={() => {revision.current++; setConfirmClear(true); setFeedback('');}} aria-expanded={confirmClear} aria-controls="support-clear-confirmation" className="px-4 py-3 text-emerald-900 underline">Clear draft</button>
     </div>
-    {confirmClear && <div id="support-clear-confirmation" role="group" aria-labelledby="support-clear-label" className="mt-4 rounded-xl border border-emerald-900 bg-white p-4">
+    {confirmClear && <div id="support-clear-confirmation" onKeyDown={event => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      setConfirmClear(false);
+      detailsInput.current?.focus();
+    }} role="group" aria-labelledby="support-clear-label" className="mt-4 rounded-xl border border-emerald-900 bg-white p-4">
       <p id="support-clear-label">Clear this draft? Entered details will be removed from this tab. Copies in your clipboard or email app will not change.</p>
       <div className="mt-3 flex flex-wrap gap-3">
-        <button type="button" onClick={() => {setConfirmClear(false); detailsInput.current?.focus();}} className="rounded-xl border border-emerald-900 px-4 py-3">Keep draft</button>
+        <button ref={keepDraftButton} type="button" onClick={() => {setConfirmClear(false); detailsInput.current?.focus();}} className="rounded-xl border border-emerald-900 px-4 py-3">Keep draft</button>
         <button type="button" onClick={() => {revision.current++; setDetails(''); setTopic('Something else'); setConfirmClear(false); setFeedback('Draft cleared from this form. Any copy in your clipboard or email app is unchanged.'); detailsInput.current?.focus();}} className="rounded-xl bg-emerald-900 px-4 py-3 text-white">Confirm clear draft</button>
       </div>
     </div>}

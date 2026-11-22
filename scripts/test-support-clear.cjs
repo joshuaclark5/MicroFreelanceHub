@@ -17,3 +17,9 @@ button(render(),'Clear draft').props.onClick();button(render(),'Confirm clear dr
 assert.match(state[2],/clipboard or email app is unchanged/);
 console.log('PASS clear request preserves draft, cancel preserves draft, editing dismisses stale confirmation, explicit confirmation clears');
 
+
+state[1]='Keep with Escape';button(render(),'Clear draft').props.onClick();
+const group=find(render(),n=>n.props?.id==='support-clear-confirmation');
+let prevented=false;group.props.onKeyDown({key:'Enter',preventDefault(){prevented=true;}});assert.equal(state[3],true);
+group.props.onKeyDown({key:'Escape',preventDefault(){prevented=true;}});assert.equal(prevented,true);assert.equal(state[3],false);assert.equal(state[1],'Keep with Escape');
+console.log('PASS Escape cancels without clearing; other keys do not dismiss');
