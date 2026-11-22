@@ -17,3 +17,9 @@ The product is NOT complete. This continuation prioritizes native build delivery
 - Do not run build helper until SDK installer completes. Build helper not yet executed at checkpoint. Inspect native-build-receipt.json after completion. No device/install/store claim.
 - Mac/phone not connected via presence. Common Android toolchain paths were absent before this installation. Native iOS compilation requires Mac/Xcode/signing access; don't purchase services or accept enrollment on user's behalf.
 - No duplicate Expo server started. Do not turn internal build work into a claim of published applications.
+
+## Continuation receipt
+- Current branch reconciled origin/main c2b8bf0 (published daily article PR6). Resolved only article import/list addition from main and retained reviewed Reply-To code/tests. Commit5d55e73. No old broad merge overwrite; all new article content retained.
+- A final combined-main production build is running; private replyto-final-main-build.log. Previous build/TypeScript passed before article reconciliation; do not conflate with final combined result.
+- Same-session continuation accepted: 6e0b1b67-99d0-4d6c-b563-ce1d289f37b7 at2026-11-22T21:30Z. It must observe existing installer/build, not duplicate them. Native runner is prepared but has NOT run yet.
+- No publication request accepted in this continuation. Readiness timed out. No reply configuration saved because browser navigation authority fence persists.
