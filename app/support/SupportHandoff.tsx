@@ -16,6 +16,18 @@ export default function SupportHandoff({ request }: { request?: {topic: SupportT
     detailsInput.current?.focus();
   }, [request]);
   useEffect(() => () => { revision.current++; }, []);
+  // Keep sensitive drafts memory-only, but warn on browser close/reload.
+  // Copying/opening email is not delivery confirmation, so retain the warning.
+  const hasDetails = details.trim().length > 0;
+  useEffect(() => {
+    if (!hasDetails) return;
+    const warnBeforeLeaving = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', warnBeforeLeaving);
+    return () => window.removeEventListener('beforeunload', warnBeforeLeaving);
+  }, [hasDetails]);
   const draft = supportDraft(topic, details);
   async function copy() {
     const request = ++revision.current;
@@ -30,7 +42,7 @@ export default function SupportHandoff({ request }: { request?: {topic: SupportT
   }
   return <section className="mt-10 rounded-2xl bg-emerald-50 p-6 sm:p-7" aria-labelledby="human-support">
     <h2 id="human-support" className="text-xl font-semibold">Need a person?</h2>
-    <p className="my-3 leading-7">Prepare an email for <a className="break-all font-semibold text-emerald-900 underline" href="mailto:support@microfreelancehub.com">support@microfreelancehub.com</a>. This form stays in this tab. It does not submit a ticket, send an email or save a draft after you leave.</p>
+    <p className="my-3 leading-7">Prepare an email for <a className="break-all font-semibold text-emerald-900 underline" href="mailto:support@microfreelancehub.com">support@microfreelancehub.com</a>. This form stays in this tab. It does not submit a ticket, send an email or save a draft after you leave. Your browser may warn before closing or reloading a tab with details entered, but cannot guarantee recovery. Copy anything you want to keep before leaving.</p>
     <label htmlFor="support-topic" className="block font-semibold">What do you need help with?</label>
     <select id="support-topic" value={topic} onChange={e => {revision.current++; setTopic(e.target.value as SupportTopic); setFeedback('');}} className="my-3 w-full rounded-xl border border-slate-300 bg-white p-3">
       {supportTopics.map(t => <option key={t}>{t}</option>)}

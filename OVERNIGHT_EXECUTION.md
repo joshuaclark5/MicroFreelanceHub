@@ -111,3 +111,8 @@ One accepted at-job: 789b6f79-ade2-469d-b0a6-992fd5e5ef65, first run 2026-11-22T
 ## Run 16 checkpoint
 - Long support drafts now use full-content copy/manual preview instead of an oversized email link; short drafts retain the email action. Focused boundary/Unicode tests, TypeScript, configured production build, responsive public/report browser checks and fresh SEO diff passed (1515 existing URLs preserved).
 - Publisher readiness timed out before acceptance; local only, no request ID. QA server stopped; no coding workers started. Unrelated changes preserved. Continue this same bounded job before cutoff; full product/integration/device/AI ledger remains open.
+
+## Run 17 checkpoint
+- Added memory-only support draft close/reload warning while non-whitespace details exist; listener is removed on clear/unmount. Copy/open-email retains warning because neither confirms delivery. Copy explains browser recovery is not guaranteed.
+- Focused lifecycle and reviewed-search tests passed; real browser dialog, production build and fresh SEO gates pending. No publication attempted: known publisher binding/timeout blocker remains unresolved. No live-release claim.
+- Preserved unrelated files, started no coding workers. Same job next_check accepted for 10 minutes. Next run should complete release gates and broader ledger work.
