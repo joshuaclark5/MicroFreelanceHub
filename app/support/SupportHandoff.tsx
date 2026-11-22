@@ -2,11 +2,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { supportDraft, supportTopics, type SupportTopic } from '../lib/supportHandoff';
 
-export default function SupportHandoff() {
+export default function SupportHandoff({ request }: { request?: {topic: SupportTopic} | null }) {
   const [topic, setTopic] = useState<SupportTopic>('Something else');
   const [details, setDetails] = useState('');
   const [feedback, setFeedback] = useState('');
   const revision = useRef(0);
+  const detailsInput = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    if (!request) return;
+    revision.current++;
+    setTopic(request.topic);
+    setFeedback('Help topic selected. Any details you already entered are unchanged. Review the draft before sending.');
+    detailsInput.current?.focus();
+  }, [request]);
   useEffect(() => () => { revision.current++; }, []);
   const draft = supportDraft(topic, details);
   async function copy() {
@@ -29,7 +37,7 @@ export default function SupportHandoff() {
     </select>
     <label htmlFor="support-details" className="block font-semibold">What happened?</label>
     <p id="support-privacy" className="my-2 text-sm leading-6">Include the tool name, approximate time, what you expected and what happened instead. Do not paste passwords, codes, private links, client information or card details. For account access, never send a recovery link.</p>
-    <textarea id="support-details" aria-describedby="support-privacy" value={details} onChange={e => {revision.current++; setDetails(e.target.value); setFeedback('');}} maxLength={1500} rows={5} placeholder="For example: In Time tracking, I tried saving an entry but saw an error. I have not created another entry." className="w-full rounded-xl border border-slate-300 p-3"/>
+    <textarea ref={detailsInput} id="support-details" aria-describedby="support-privacy" value={details} onChange={e => {revision.current++; setDetails(e.target.value); setFeedback('');}} maxLength={1500} rows={5} placeholder="For example: In Time tracking, I tried saving an entry but saw an error. I have not created another entry." className="w-full rounded-xl border border-slate-300 p-3"/>
     <p className="my-2 text-sm text-slate-600">{details.length}/1500 characters. Review and redact before sending.</p>
     <details className="my-4 rounded-xl border border-emerald-200 bg-white p-4"><summary className="cursor-pointer font-semibold">Review email draft</summary><p className="my-3 font-semibold">{draft.subject}</p><pre className="whitespace-pre-wrap break-words font-sans text-sm leading-6">{draft.body}</pre></details>
     <div className="flex flex-wrap gap-3">

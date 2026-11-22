@@ -95,3 +95,7 @@ for (const input of ['broken\uD800', '\uDC00broken', 'x'.repeat(1499)+'\u{1F600}
 }
 assert.ok(handoff.supportDraft('Something else','x'.repeat(1499)+'\u{1F600}').body.includes('\u{1F600}'));
 console.log('PASS support draft malformed Unicode and emoji truncation');
+
+for (const [id,topic] of [['account-access','Account access'],['report-export','Reports'],['uncertain-time-save','Time tracking'],['integrations','Integrations'],['untrusted?token=private','Something else'],['__proto__','Something else']]) assert.equal(handoff.answerSupportTopic(id),topic);
+assert.equal(handoff.supportDraft('Reports','Existing details').subject,'MicroFreelanceHub help: Reports');
+console.log('PASS reviewed answer handoff topics and unknown/prototype fallback');

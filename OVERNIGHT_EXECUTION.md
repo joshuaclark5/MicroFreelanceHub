@@ -103,3 +103,7 @@ One accepted at-job: 789b6f79-ade2-469d-b0a6-992fd5e5ef65, first run 2026-11-22T
 ## Run 14 checkpoint
 - Support clipboard feedback now ignores stale asynchronous responses after editing/clearing/opening email/new copies. Browser tests cover delayed success and failure. Focused tests, separate TypeScript, production build, responsive public/report tests and fresh SEO comparison passed; all 1515 existing URLs retained. Includes prior Unicode fix release checks.
 - Publisher readiness timed out before acceptance; local only, no request ID. QA server stopped and no coding workers. Unrelated files preserved. Broader product/integration/device/AI gates remain open; rearm only this same job before cutoff.
+
+## Run 15 checkpoint
+- Added contextual reviewed-answer to human-email handoff, preserving unsent details and excluding search/URL/account data. Reports is now an explicit email topic. Focused tests, separate TypeScript, configured production build, responsive public browser tests and fresh SEO comparison passed (1515 existing URLs retained).
+- Initial bare build lacked Stripe configuration; retried successfully with the existing helper/private environment. Publisher readiness still timed out before acceptance; no release/request ID. QA server stopped, no coding children; unrelated changes preserved. Continue this job only before cutoff.

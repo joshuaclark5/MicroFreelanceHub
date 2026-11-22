@@ -1,4 +1,4 @@
-export const supportTopics = ['Account access', 'Clients and projects', 'Scheduling', 'Invoices and billing', 'Time tracking', 'Integrations', 'Something else'] as const;
+export const supportTopics = ['Account access', 'Clients and projects', 'Scheduling', 'Invoices and billing', 'Time tracking', 'Integrations', 'Reports', 'Something else'] as const;
 export type SupportTopic = typeof supportTopics[number];
 
 // Never collect a current URL: booking, agreement and recovery links can carry
@@ -16,4 +16,15 @@ export function supportDraft(topic: SupportTopic, details: string) {
   const subject = `MicroFreelanceHub help: ${safeTopic}`;
   const body = `Topic: ${safeTopic}\n\n${draftDetails(details)}\n\nPlease review this draft before sending. Remove passwords, verification codes, private links, client information and payment details.`;
   return { subject, body, href: `mailto:support@microfreelancehub.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}` };
+}
+
+// Only reviewed answer IDs select a fixed topic; never forward search text or URLs.
+export function answerSupportTopic(id: string): SupportTopic {
+  const topics: Record<string, SupportTopic> = {
+    'account-access': 'Account access', clients: 'Clients and projects',
+    booking: 'Scheduling', 'recurring-invoices': 'Invoices and billing',
+    integrations: 'Integrations', 'uncertain-time-save': 'Time tracking',
+    'report-dates': 'Reports', 'report-totals': 'Reports', 'report-export': 'Reports',
+  };
+  return Object.prototype.hasOwnProperty.call(topics, id) ? topics[id] : 'Something else';
 }

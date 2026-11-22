@@ -2,9 +2,11 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import SupportHandoff from './SupportHandoff';
+import { answerSupportTopic, type SupportTopic as HandoffTopic } from '../lib/supportHandoff';
 import { findSupportAnswers, supportAnswers, supportTopics, type SupportTopic } from '../lib/supportKnowledge';
 
 export default function SupportGuide() {
+ const [handoff, setHandoff] = useState<{topic: HandoffTopic} | null>(null);
  const [query, setQuery] = useState('');
  const [topic, setTopic] = useState<SupportTopic>('All topics');
  const [opened, setOpened] = useState<string | null>(null);
@@ -30,9 +32,9 @@ export default function SupportGuide() {
   <div className="space-y-4">{results.map(answer => <details id={answer.id} key={answer.id} open={opened === answer.id} onToggle={e => {if (e.currentTarget.open) setOpened(answer.id); else setOpened(current => current === answer.id ? null : current);}} className="scroll-mt-24 rounded-xl border border-slate-200 p-5">
    <summary className="cursor-pointer font-semibold">{answer.q}</summary>
    <p className="my-4 leading-7 text-slate-600">{answer.a}</p>
-   <div className="flex flex-wrap gap-5"><Link className="font-semibold text-emerald-800 underline" href={answer.href}>{answer.label}</Link><a className="text-slate-600 underline" href={'#' + answer.id} aria-label={'Direct link: ' + answer.q}>Link to this answer</a></div>
+   <div className="flex flex-wrap gap-5"><Link className="font-semibold text-emerald-800 underline" href={answer.href}>{answer.label}</Link><a className="text-slate-600 underline" href={'#' + answer.id} aria-label={'Direct link: ' + answer.q}>Link to this answer</a><button type="button" className="text-emerald-800 underline" onClick={() => setHandoff({topic: answerSupportTopic(answer.id)})}>Get help with this topic</button></div>
   </details>)}</div>
   {!results.length && <p className="rounded-xl bg-slate-50 p-5">No reviewed answer matches. Try a shorter search or contact support below.</p>}
-  <SupportHandoff/>
+  <SupportHandoff request={handoff}/>
  </>;
 }
