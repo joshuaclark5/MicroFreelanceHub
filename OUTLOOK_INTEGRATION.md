@@ -16,6 +16,14 @@ returned values, same-origin/same-endpoint pagination, repeated-page rejection,
 bounded page/event/body limits, redacted errors and failure after a partial page.
 The adapter never returns a partial snapshot as available time.
 
+Window inputs must be explicit UTC ISO timestamps ending in `Z`, with seconds
+and optionally 1–3 fractional digits. Local/date-only strings, offsets, impossible
+dates, leap seconds and excess precision are rejected before sending credentials.
+Callers must convert their validated timezone-aware selection to UTC first; the
+adapter does not infer the server or user's timezone. Equal/reversed windows and
+windows longer than 31 days are also rejected. Fixture tests cover leap day,
+the daylight-saving fallback hour, fractional seconds and the exact 31-day bound.
+
 ## Remaining integration gates
 
 1. Create or identify the intended Entra app. Read-only inspection on November

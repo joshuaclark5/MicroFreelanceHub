@@ -8,6 +8,20 @@ export class OutlookAvailabilityError extends Error {
 }
 type Busy = { start: string; end: string };
 
+// Require explicit UTC instants. Date.parse alone accepts local dates and silently
+// normalizes impossible dates (for example February 30), shifting the sync window.
+function windowInstant(value: string): number {
+  if (typeof value !== 'string' ||
+      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/.test(value)) {
+    throw new OutlookAvailabilityError('invalid_window');
+  }
+  const instant = Date.parse(value);
+  if (!Number.isFinite(instant) || new Date(instant).toISOString().slice(0, 19) !== value.slice(0, 19)) {
+    throw new OutlookAvailabilityError('invalid_window');
+  }
+  return instant;
+}
+
 function utcInstant(value: unknown): number {
   if (!value || typeof value !== 'object') throw new OutlookAvailabilityError('invalid_snapshot');
   const { dateTime, timeZone } = value as Record<string, unknown>;
@@ -54,7 +68,7 @@ async function readPage(response: Response): Promise<any> {
  */
 export async function outlookAvailability(token: string, start: string, end: string,
   fetcher: typeof fetch = fetch): Promise<Busy[]> {
-  const lo = Date.parse(start), hi = Date.parse(end);
+  const lo = windowInstant(start), hi = windowInstant(end);
   if (!Number.isFinite(lo) || !Number.isFinite(hi) || hi <= lo || hi - lo > 31 * 86400000) {
     throw new OutlookAvailabilityError('invalid_window');
   }

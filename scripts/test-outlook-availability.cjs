@@ -27,5 +27,26 @@ const response=j=>new Response(JSON.stringify(j)),fixture=items=>async()=>respon
  await assert.rejects(read('t',start,end,fixture(Array(2001).fill(event))),e=>e.code==='snapshot_too_large');
  let page=0;await assert.rejects(read('t',start,end,async()=>++page===1?response({value:[event],'@odata.nextLink':'https://graph.microsoft.com/v1.0/me/calendarView?$skiptoken=2'}):new Response('bad',{status:503})),e=>e.code==='provider_unavailable');
  await assert.rejects(read('t',end,start),e=>e.code==='invalid_window');
+ // Reject ambiguous/normalized windows before any token-bearing request.
+ let invalidFetches=0;
+ const noRequest=async()=>{invalidFetches++;return response({value:[]});};
+ for(const invalid of ['2026-11-22','2026-11-22T00:00:00','2026-11-22T00:00:00+00:00',
+   '2026-02-30T00:00:00Z','2026-11-22T24:00:00Z','2026-11-22T00:00:60Z',
+   '2026-11-22T00:00:00.0001Z',' 2026-11-22T00:00:00Z',null,123]) {
+   await assert.rejects(read('t',invalid,end,noRequest),e=>e.code==='invalid_window');
+   await assert.rejects(read('t',start,invalid,noRequest),e=>e.code==='invalid_window');
+ }
+ await assert.rejects(read('t',start,start,noRequest),e=>e.code==='invalid_window');
+ await assert.rejects(read('t',start,'2026-12-23T00:00:00.001Z',noRequest),e=>e.code==='invalid_window');
+ assert.equal(invalidFetches,0);
+ for(const [lo,hi] of [[start,'2026-12-23T00:00:00Z'],
+   ['2028-02-29T23:59:59.1Z','2028-03-01T00:00:00.123Z'],
+   ['2026-11-01T05:30:00Z','2026-11-01T06:30:00Z']]) {
+   let fetched=0;
+   await read('t',lo,hi,async url=>{fetched++;const query=new URL(url).searchParams;
+     assert.equal(query.get('startDateTime'),new Date(lo).toISOString());
+     assert.equal(query.get('endDateTime'),new Date(hi).toISOString());return response({value:[]});});
+   assert.equal(fetched,1);
+ }
  console.log('PASS Outlook adapter: complete pagination, UTC validation, privacy, clipping, scope fences, limits, errors; fixture-only, no real provider claim.');
 })().catch(e=>{console.error(e);process.exitCode=1;});

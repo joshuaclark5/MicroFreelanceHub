@@ -62,3 +62,10 @@ One accepted at-job: 789b6f79-ade2-469d-b0a6-992fd5e5ef65, first run 2026-11-22T
 - Outlook development adapter and fixture tests added; production build exit 0, TypeScript and existing Calendar tests passed. Disconnected/no real-provider verification. Details and continuation gates in OUTLOOK_INTEGRATION.md.
 - Browser now confirmed usable: existing Intuit app accessible; Entra Default Directory has no applications in All applications. No changes to scopes, credentials, app registrations, billing or customer data.
 - Publisher readiness still times out without request acceptance. No new live release. Continue provider sandbox inspection or grounded support, preserving all release gates and unrelated files. No coding children started.
+
+## Run 6 checkpoint - Outlook window validation
+- Fixed a development-adapter correctness gap: Date.parse accepted local/date-only and impossible dates, potentially shifting availability windows. Window inputs now require validated explicit UTC instants with bounded precision before any credential-bearing request.
+- Focused fixtures cover invalid inputs at both boundaries with zero network calls, leap day, daylight-saving fallback instants, fractional seconds, equal/reversed windows and exact/excess 31-day limits. Outlook tests, seven existing Google-provider checks, separate TypeScript and production build passed (outlook-window-build.log, exit 0).
+- Adapter remains disconnected: no OAuth/customer calendar access or live Outlook claim. No public pages, metadata, sitemap, legal copy, database or billing changed. Risky-copy/whitespace checks passed; prior browser/SEO evidence is not a fresh release gate. Full browser/SEO/live verification remains mandatory before publishing.
+- Publisher readiness again timed out before acceptance; no request ID or release. Existing unrelated dirty files preserved. No duplicate build or coding child at intake; build finished and no coding workers started.
+- Next run should prioritize provider sandbox inspection or grounded-support feasibility rather than more small adapter refinements. Original feature ledger remains open. Rearm only this job before 13:40Z.
