@@ -64,12 +64,12 @@ export function confirmedTimeReceipt(row:unknown,payload:Record<string,unknown>)
 export function validProject(row:unknown):row is Project {
   if(!row || typeof row!=='object')return false;
   const p=row as Project;
-  return typeof p.id==='string' && p.id.length>0 && typeof p.name==='string' && p.status==='active';
+  return typeof p.id==='string' && p.id.trim().length>0 && typeof p.name==='string' && p.status==='active';
 }
 export function validEntry(row:unknown):row is Entry {
   if(!row || typeof row!=='object')return false;
   const e=row as Entry;
-  return typeof e.id==='string' && e.id.length>0 && typeof e.project_id==='string'
+  return typeof e.id==='string' && e.id.trim().length>0 && typeof e.project_id==='string' && e.project_id.trim().length>0
     && typeof e.description==='string' && typeof e.started_at==='string'
     && Number.isFinite(Date.parse(e.started_at))
     && typeof e.seconds==='number' && Number.isSafeInteger(e.seconds) && e.seconds>=0;

@@ -173,3 +173,8 @@ One accepted at-job: 789b6f79-ade2-469d-b0a6-992fd5e5ef65, first run 2026-11-22T
 ## Run 29 checkpoint
 - Mobile load rejects duplicate project/time IDs before rendering, avoiding repeated entries and ambiguous selection. Focused core tests and native TypeScript passed.
 - Bundle/device and full website release gates pending; no publication attempted, prior publisher binding blocker unresolved. Website copy/SEO unchanged. Unrelated files preserved; no coding workers started. Continue same job before cutoff.
+
+## Run 30 checkpoint
+- Reject blank mobile row/project references before selection/rendering; regression fixtures and native TypeScript passed. Android/iOS Hermes exports passed, covering prior duplicate-ID bundle gate. No device/store proof.
+- Website unchanged; full website release gates remain required. Publisher readiness timed out before acceptance; no request ID or release. Unrelated files preserved; no coding workers started; bundle process finished.
+

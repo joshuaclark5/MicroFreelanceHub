@@ -166,3 +166,8 @@ assert.equal(rowChecks.uniqueRowIds([]),true);
 assert.equal(rowChecks.uniqueRowIds([{id:'a'},{id:'b'}]),true);
 assert.equal(rowChecks.uniqueRowIds([{id:'a'},{id:'a'}]),false);
 console.log('PASS duplicate mobile response identity rejection');
+
+assert.equal(rowChecks.validProject({...goodProject,id:'   '}),false);
+assert.equal(rowChecks.validEntry({...goodEntry,id:'   '}),false);
+assert.equal(rowChecks.validEntry({...goodEntry,project_id:''}),false);
+assert.equal(rowChecks.validEntry({...goodEntry,project_id:'   '}),false);
