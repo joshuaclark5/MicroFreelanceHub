@@ -5,10 +5,11 @@ import {createClient} from '@supabase/supabase-js';
 import {emailInput} from '../../../lib/emailOutbox';
 import {emailHash,emailKeyring,sealEmailToken} from '../../../lib/server/emailCrypto';
 import {emailProviderConfig} from '../../../lib/server/emailProvider';
+import {emailWorkerScheduled} from '../../../lib/server/emailWorkerConfig';
 export const runtime='nodejs';export const dynamic='force-dynamic';
 const reply=(body:unknown,status=200)=>NextResponse.json(body,{status,headers:{'Cache-Control':'private, no-store','Referrer-Policy':'no-referrer'}});
 const validId=(s:string|null)=>!!s&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(s);
-function readiness(){let encryption=false,sending=false;try{emailKeyring();encryption=true;}catch{}try{emailProviderConfig();sending=encryption;}catch{}return {enqueueConfigured:encryption&&process.env.EMAIL_OUTBOX_ENQUEUE_ENABLED==='true'&&!!process.env.SUPABASE_SERVICE_ROLE_KEY&&!!process.env.NEXT_PUBLIC_SUPABASE_URL,sendConfigured:sending,workerScheduled:false};}
+function readiness(){let encryption=false,sending=false;try{emailKeyring();encryption=true;}catch{}try{emailProviderConfig();sending=encryption;}catch{}return {enqueueConfigured:encryption&&process.env.EMAIL_OUTBOX_ENQUEUE_ENABLED==='true'&&!!process.env.SUPABASE_SERVICE_ROLE_KEY&&!!process.env.NEXT_PUBLIC_SUPABASE_URL,sendConfigured:sending,workerScheduled:emailWorkerScheduled()};}
 function failure(code?:string){const status=code==='42501'?403:code==='40001'||code==='23505'?409:code==='54000'?429:['22023','22P02','23514'].includes(code||'')?400:503;return reply({code:status===409?'email_conflict':status===429?'email_rate_limited':'email_unavailable',error:status===409?'Email request already exists or changed. Reload its status; do not create another request.':status===429?'Email request limit reached. Try later.':'Email request unavailable. Reload status before retrying the same operation.'},status);}
 async function handle(request:Request,method:'GET'|'POST'){
  try{

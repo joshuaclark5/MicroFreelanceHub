@@ -1,0 +1,26 @@
+// Browser execution of the actual standalone document and API handlers.
+// The caller connects these handlers to the disposable real SQL database.
+const assert=require('assert/strict'),http=require('http');
+const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'C:/Users/joshu/AppData/Roaming/npm/node_modules/openclaw/node_modules/playwright-core');
+module.exports=async function({pageHandler,apiHandler,token,prepare}){
+ let browser,server,drop=false;const operations=[];try{
+ server=http.createServer(async(req,res)=>{try{const url='http://127.0.0.1:'+server.address().port+req.url;const chunks=[];for await(const chunk of req)chunks.push(chunk);const request=new Request(url,{method:req.method,headers:req.headers,...(req.method==='POST'?{body:Buffer.concat(chunks)}:{})});
+ const route=req.url==='/book/'+token?pageHandler:req.url==='/api/public-booking/'+token?apiHandler:null;
+ if(req.method==='POST')operations.push(JSON.parse(Buffer.concat(chunks).toString()).operationId);const response=route?await route[req.method](request,{params:{token}}):new Response('Not found',{status:404});if(req.method==='POST')console.log('BROWSER API result',response.status,await response.clone().text());if(drop&&req.method==='POST'&&response.status===200){drop=false;res.writeHead(200,{'Content-Type':'application/json','Content-Length':'1000'});res.flushHeaders();res.write('{');setTimeout(()=>res.destroy(),50);return;}res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));}catch(e){res.writeHead(500);res.end('Fixture error');}});
+ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const origin='http://127.0.0.1:'+server.address().port;
+ browser=await chromium.launch({channel:'msedge',headless:true,timeout:30000});console.log('BROWSER launched');
+ for(const width of [320,1440]){
+ await prepare();drop=width===320;operations.length=0;const context=await browser.newContext({viewport:{width,height:950}}),page=await context.newPage(),errors=[],external=[];
+ page.setDefaultTimeout(15000);page.setDefaultNavigationTimeout(15000);console.log('BROWSER width '+width);page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(!r.url().startsWith(origin))external.push(r.url());});
+ await page.goto(origin+'/book/'+token);console.log('BROWSER navigated');await page.getByRole('button',{name:'Confirm booking',exact:true}).waitFor();
+ console.log('BROWSER form visible');await page.getByLabel('Available time',{exact:true}).selectOption({index:1});await page.getByLabel('Your name',{exact:true}).fill('Browser fixture visitor');await page.getByLabel('Discussion topic (required)',{exact:true}).fill('<script>not executable</script>');await page.getByRole('checkbox').check();console.log('BROWSER form filled');
+ // Production challenge intentionally requires a short dwell before submission.
+ await new Promise(resolve=>setTimeout(resolve,2100));await page.getByRole('button',{name:'Confirm booking',exact:true}).click();
+ console.log('BROWSER submitted',await page.getByRole('status').textContent());if(width===320){await page.getByRole('status').filter({hasText:'Your result is unknown.'}).waitFor();await page.getByRole('button',{name:'Retry same submission',exact:true}).click();}
+ await page.getByRole('status').filter({hasText:'Confirmed:'}).waitFor();if(width===320){assert.equal(operations.length,2);assert.equal(operations[0],operations[1]);}assert.equal(await page.getByRole('button',{name:'Confirm booking',exact:true}).isVisible(),false);
+ assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));assert.deepEqual(errors,[]);assert.deepEqual(external,[]);
+ await context.close();
+ }
+ return 'Actual public document + real API + actual disposable SQL: mobile/desktop confirmation, lost-response idempotent retry, labels, escaping, CSP, zero external requests';
+ }catch(e){console.error('BROWSER failure',e);throw e;}finally{if(browser)await browser.close();if(server){server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}}
+};

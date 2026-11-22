@@ -3,7 +3,7 @@ import {emailProviderConfig,sendResendEmail,readResendEvidence} from './emailPro
 export type EmailRpc={rpc:(name:string,args?:Record<string,unknown>)=>PromiseLike<{data:any;error:any}>};
 async function rpc(db:EmailRpc,name:string,args?:Record<string,unknown>){const r=await db.rpc(name,args);if(r.error)throw Error('Email state unavailable.');return r.data;}
 export async function dispatchEmailOnce(db:EmailRpc,env:NodeJS.ProcessEnv=process.env,fetcher:typeof fetch=fetch){
- // No endpoint, scheduler or import-time work. Explicit operator activation gates even claims.
+ // No import-time work. Explicit operator activation gates even claims.
  const config=emailProviderConfig(env),ring=emailKeyring(env);
  const claimed=await rpc(db,'workspace_email_claim');if(!claimed)return {status:'idle'};
  // Validate/decrypt before begin. Missing historical key quarantines the fenced lease as failed; never sends garbage.
