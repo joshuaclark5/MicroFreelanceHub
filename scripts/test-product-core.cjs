@@ -10,7 +10,7 @@ assert.equal(exit.sameSession('a',1,'a',2),false);
 assert.equal(exit.sameSession(null,1,null,1),false);
 const privacy=load('app/lib/analyticsPrivacy.ts');
 const handoff=load('app/lib/supportHandoff.ts');
-const special='Save failed & retry?\nUnicode: café <script>alert(1)</script>';
+const special='Save failed & retry?\nUnicode: cafÃ© <script>alert(1)</script>';
 const draft=handoff.supportDraft('Time tracking',special);
 assert.equal(draft.subject,'MicroFreelanceHub help: Time tracking');
 const params=new URLSearchParams(draft.href.split('?')[1]);
@@ -48,6 +48,15 @@ assert.throws(()=>mobile.manualTime(actor,operation,'wrong','1','',Date.now()));
    return query;
   }};
  }
+ // Thrown transports and missing envelopes must not expose diagnostics to UI.
+ for(const result of [null,undefined]) {
+  const broken=loadDb([],[]);broken.from=()=>({select(){return this;},eq(){return this;},not(){return this;},order(){return this;},limit:async()=>result});
+  await assert.rejects(()=>mobile.loadWork(broken,actor),e=>e.message==='Could not load your work. Check your connection and retry.');
+ }
+ const thrown=loadDb([],[]);thrown.from=()=>{throw Error('PRIVATE transport URL and credentials');};
+ await assert.rejects(()=>mobile.loadWork(thrown,actor),e=>e.message==='Could not load your work. Check your connection and retry.');
+ const rejected=loadDb([],[]);rejected.from=()=>({select(){return this;},eq(){return this;},not(){return this;},order(){return this;},limit:async()=>{throw Error('PRIVATE rejection');}});
+ await assert.rejects(()=>mobile.loadWork(rejected,actor),e=>e.message==='Could not load your work. Check your connection and retry.');
  const empty=await mobile.loadWork(loadDb([],[]),actor);
  assert.equal(empty.projects.length,0);assert.equal(empty.entries.length,0);
  for(const invalid of [null,undefined,{},'']){
