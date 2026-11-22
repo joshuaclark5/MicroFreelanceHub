@@ -133,3 +133,8 @@ One accepted at-job: 789b6f79-ade2-469d-b0a6-992fd5e5ef65, first run 2026-11-22T
 - Local 6932c63 focuses Keep draft on clear confirmation; Escape cancels and restores details focus without deleting text. No new copy claims, persistence, provider calls, legal/pricing or database changes.
 - Focused clear/leave/search/core tests, separate TypeScript and configured production build passed (support-clear-keyboard-build.log). Real browser checks passed four public routes at 320/390/1440, including focus, Escape/Keep cancellation, explicit clearing, and beforeunload preservation. Covers pending run 19 gates. Fresh sitemap retains all 1515 existing URLs (1519 candidate, same four additions). Changed-copy and whitespace review clean.
 - Original publisher readiness timed out before acceptance; no request ID or live release. QA server stopped; no coding workers started. Three unrelated files preserved. Same job next_check accepted for 10m. Broader product/provider/device/AI work remains open.
+
+## Run 21 checkpoint
+- Unanswered support searches now offer a direct human-draft action with a fixed generic topic; no query is forwarded and existing details are preserved by the handoff component. No automatic sending or storage.
+- Focused search, clear and new unanswered-handoff interaction tests passed. Full production/browser/SEO gates remain pending; no publication attempted because existing publisher blocker remains unresolved. No release claim. Unrelated files preserved; no coding workers started. Same job rearmed in 10m.
+

@@ -34,7 +34,7 @@ export default function SupportGuide() {
    <p className="my-4 leading-7 text-slate-600">{answer.a}</p>
    <div className="flex flex-wrap gap-5"><Link className="font-semibold text-emerald-800 underline" href={answer.href}>{answer.label}</Link><a className="text-slate-600 underline" href={'#' + answer.id} aria-label={'Direct link: ' + answer.q}>Link to this answer</a><button type="button" className="text-emerald-800 underline" onClick={() => setHandoff({topic: answerSupportTopic(answer.id)})}>Get help with this topic</button></div>
   </details>)}</div>
-  {!results.length && <p className="rounded-xl bg-slate-50 p-5">No reviewed answer matches. Try a shorter search or contact support below.</p>}
+  {!results.length && <div className="rounded-xl bg-slate-50 p-5"><p>No reviewed answer matches. Try a shorter search or prepare a support email draft.</p><button type="button" className="mt-4 min-h-11 font-semibold text-emerald-800 underline" onClick={() => setHandoff({topic: 'Something else'})}>Get help with an unanswered question</button><p className="mt-2 text-sm text-slate-600">Your search is not included. Existing draft details are kept; nothing is sent automatically.</p></div>}
   <SupportHandoff request={handoff}/>
  </>;
 }
