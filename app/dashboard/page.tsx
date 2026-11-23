@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import WorkspaceNav from '../components/WorkspaceNav';
 import ConnectedAgreementGroups from '../components/ConnectedAgreementGroups';
+import AgreementActionQueue from '../components/AgreementActionQueue';
 import ConnectStripeButton from '../components/ConnectStripeButton';
 import PricingModal from '../components/PricingModal';
 import AddExpenseModal from '../components/AddExpenseModal';
@@ -463,6 +464,7 @@ export default function Dashboard() {
                  </div>
             </div>)}
 
+            <AgreementActionQueue records={sows} ownerId={userId} />
             <ConnectedAgreementGroups />
             {sows.length > 0 && <section className="rounded-lg border border-gray-200 bg-white p-4" aria-label="Client project overview">
               <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-end gap-4"><div className="min-w-0 w-full sm:w-auto sm:flex-1"><label htmlFor="client-project-filter" className="block text-sm font-semibold text-slate-900">Legacy agreement names</label><select id="client-project-filter" value={clientFilter} onChange={event => { setClientFilter(event.target.value); setSelectedIds([]); }} className="mt-2 min-h-11 w-full max-w-full rounded-lg border border-gray-300 bg-white px-3 text-sm"><option value="">All recorded names ({clientNames.length})</option>{clientNames.map(name => <option key={name} value={name}>{name}</option>)}</select></div>
