@@ -32,24 +32,6 @@ export async function POST(req: Request) {
     return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
   }
 
-  // Fetch current provider state so delayed/replayed lifecycle events cannot
-  // restore access from an old trial or remove access from a newer subscription.
-  if (['customer.subscription.updated', 'customer.subscription.deleted'].includes(event.type)) {
-    try {
-      const eventSubscription = event.data.object as Stripe.Subscription;
-      const current = await stripe.subscriptions.retrieve(eventSubscription.id);
-      const customerId = typeof current.customer === 'string' ? current.customer : current.customer.id;
-      const { error } = await supabaseAdmin.from('profiles').update({
-        is_pro: ['active', 'trialing'].includes(current.status),
-        updated_at: new Date().toISOString(),
-      }).eq('stripe_customer_id', customerId).eq('subscription_id', current.id);
-      if (error) throw error;
-      return NextResponse.json({ received: true });
-    } catch {
-      return NextResponse.json({ error: 'Unable to synchronize subscription' }, { status: 500 });
-    }
-  }
-
   // 2. Handle checkout.session.completed
   if (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') {
     try {
@@ -61,7 +43,7 @@ export async function POST(req: Request) {
         await recordAgreementPayment(supabaseAdmin, session, document);
         return NextResponse.json({ received: true });
       }
-      if (session.mode !== 'subscription' || !session.subscription || !['starter', 'pro', 'agency'].includes(session.metadata?.plan || '')) {
+      if (session.mode !== 'subscription' || !session.subscription || session.payment_status !== 'paid' || !['starter', 'pro', 'agency'].includes(session.metadata?.plan || '')) {
         return NextResponse.json({ received: true });
       }
 
@@ -70,19 +52,6 @@ export async function POST(req: Request) {
       const stripeCustomerId = session.customer as string;
       const subscriptionId = session.subscription as string;
       const customerEmail = session.customer_details?.email || null;
-
-      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-      const subscriptionCustomer = typeof subscription.customer === 'string' ? subscription.customer : subscription.customer.id;
-      if (subscriptionCustomer !== stripeCustomerId || subscription.metadata.userId !== userId || !['active', 'trialing'].includes(subscription.status)) {
-        return NextResponse.json({ received: true });
-      }
-      const { data: existingProfile, error: profileError } = await supabaseAdmin.from('profiles').select('stripe_customer_id,subscription_id').eq('id', userId).maybeSingle();
-      if (profileError) throw profileError;
-      if (!existingProfile || existingProfile.stripe_customer_id !== stripeCustomerId) return NextResponse.json({ error: 'Customer mapping unavailable' }, { status: 500 });
-      if (existingProfile.subscription_id && existingProfile.subscription_id !== subscriptionId) {
-        const previous = await stripe.subscriptions.retrieve(existingProfile.subscription_id);
-        if (!['canceled', 'incomplete_expired'].includes(previous.status)) return NextResponse.json({ received: true });
-      }
 
       // Validate we have userId
       if (!userId) {

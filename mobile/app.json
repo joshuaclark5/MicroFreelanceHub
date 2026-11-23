@@ -2,12 +2,11 @@
   "expo": {
     "name": "MicroFreelanceHub",
     "slug": "microfreelancehub-mobile",
-    "scheme": "microfreelancehub",
-    "version": "0.1.1",
+    "version": "0.1.0",
     "orientation": "default",
     "userInterfaceStyle": "light",
     "ios": {"supportsTablet": true, "bundleIdentifier": "com.microfreelancehub.mobile"},
-    "android": {"package": "com.microfreelancehub.mobile", "versionCode": 2},
+    "android": {"package": "com.microfreelancehub.mobile"},
     "platforms": ["ios", "android"]
   }
 }

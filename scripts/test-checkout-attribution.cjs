@@ -2,18 +2,18 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const ts = require('typescript');
-function load(file, imports, env = {}) {
+function load(file, imports) {
   const exports = {};
   vm.runInNewContext(ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, {
     exports, require: name => { if (!(name in imports)) throw Error(name); return imports[name]; },
-    process: { env: { NEXT_PUBLIC_BASE_URL: 'https://example.test', ...env } }, console: { error() {} },
+    process: { env: { NEXT_PUBLIC_BASE_URL: 'https://example.test' } }, console: { error() {} },
   });
   return exports;
 }
 const helper = load('app/lib/profileAttribution.ts', {});
 async function check(options = {}) {
   let row = options.row ? { ...options.row } : null;
-  const sessions = [], customers = [], writes = [], keys = [];
+  const sessions = [], customers = [], writes = [];
   const db = {
     auth: { admin: { async getUserById() { return { data: { user: { id: 'owner', email: 'test@example.test', user_metadata: options.metadata || {} } } }; } } },
     from() { return {
@@ -24,13 +24,13 @@ async function check(options = {}) {
   };
   const { POST } = load('app/api/stripe/checkout-plan/route.ts', {
     'next/server': { NextResponse: { json: (body, init = {}) => ({ body, status: init.status || 200 }) } },
-    stripe: { default: class { constructor() { this.customers = { create: async value => { customers.push(value); return { id: 'cus_mock' }; } }; this.subscriptions = { list: async () => ({ data: options.history || [], has_more: !!options.more }) }; this.checkout = { sessions: { list: async () => ({ data: options.open || [], has_more: false }), create: async (value, config) => { keys.push(config.idempotencyKey); sessions.push(value); return { url: 'https://example.test/checkout' }; } } }; } } },
+    stripe: { default: class { constructor() { this.customers = { create: async value => { customers.push(value); return { id: 'cus_mock' }; } }; this.checkout = { sessions: { create: async value => { sessions.push(value); return { url: 'https://example.test/checkout' }; } } }; } } },
     '@supabase/supabase-js': { createClient: () => db },
     '@supabase/auth-helpers-nextjs': { createRouteHandlerClient: () => ({ auth: { getUser: async () => ({ data: { user: options.unauthorized ? null : { id: 'owner' } } }) } }) },
     'next/headers': { cookies: () => {} }, '../../../lib/profileAttribution': helper,
-  }, { MFH_SEVEN_DAY_TRIAL_ENABLED: options.trial ? 'true' : 'false' });
+  });
   const result = await POST({ json: async () => ({ plan: 'pro', userId: 'owner', landingPage: '/pricing?email=secret', leadSource: 'later', ...options.body }) });
-  return { result, row, sessions, customers, writes, keys };
+  return { result, row, sessions, customers, writes };
 }
 (async () => {
   for (const stripe_customer_id of [null, 'cus_existing']) {
@@ -61,21 +61,5 @@ async function check(options = {}) {
     const x = await check({ body: { plan } });
     assert.equal(x.sessions[0].line_items[0].price_data.unit_amount, amount);
   }
-  assert.equal((await check({ trial: true })).sessions[0].subscription_data.trial_period_days, 7);
-  assert.equal((await check()).sessions[0].subscription_data.trial_period_days, undefined);
-  assert.equal((await check({ trial: true, history: [{ status: 'canceled' }] })).sessions[0].subscription_data.trial_period_days, undefined);
-  for (const status of ['active', 'trialing', 'past_due', 'unpaid', 'paused', 'incomplete']) {
-    const x = await check({ trial: true, history: [{ status }] });
-    assert.equal(x.result.status, 409); assert.equal(x.sessions.length, 0);
-  }
-  assert.equal((await check({ more: true })).result.status, 409);
-  const reused = await check({ open: [{ mode: 'subscription', status: 'open', metadata: { plan: 'pro' }, url: 'https://example.test/existing' }] });
-  assert.equal(reused.result.body.url, 'https://example.test/existing'); assert.equal(reused.sessions.length, 0);
-  assert.equal((await check({ open: [{ mode: 'subscription', status: 'open', metadata: { plan: 'starter' } }] })).result.status, 409);
-  assert.equal((await check({ body: { plan: 'starter' } })).keys[0], (await check({ body: { plan: 'pro' } })).keys[0], 'Concurrent plan selections must share an account-wide idempotency key');
-  const expired = await check({ open: [{ id: 'cs_expired', mode: 'subscription', status: 'expired' }] });
-  assert.equal(expired.result.status, 200);
-  assert.equal(expired.keys[0], 'platform-checkout-owner-cs_expired');
-  assert.equal((await check({ open: [{ id: 'cs_done', mode: 'subscription', status: 'complete' }] })).result.status, 409);
   console.log('PASS: checkout preserves first touch, sanitizes metadata, retains prices, and rejects unauthorized/invalid requests. All Stripe and database calls mocked.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

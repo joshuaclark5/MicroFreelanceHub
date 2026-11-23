@@ -34,7 +34,6 @@ const database = {
       eq() { return query; }, or() { return query; },
       update() { updating = true; signatureWrites++; return query; },
       upsert: async value => { profileUpdates.push(value); return { error: null }; },
-      maybeSingle: async () => ({ data: { stripe_customer_id: 'cus_fixture', subscription_id: null }, error: null }),
       single: async () => ({ data: table === 'profiles' ? { stripe_account_id: 'acct_fixture' } : doc, error: null }),
     };
     return query;
@@ -42,7 +41,6 @@ const database = {
   rpc: async (name, args) => { recorded.push({ name, args }); return { error: null }; },
 };
 class Stripe {
-  subscriptions = { retrieve: async () => ({ id: 'sub_fixture', customer: 'cus_fixture', status: 'active', metadata: { userId: 'owner' } }) };
   webhooks = { constructEvent: body => { if (!validSignature) throw Error('invalid signature'); return JSON.parse(body); } };
   checkout = { sessions: {
     create: async config => { created.push(config); return { url: 'https://checkout.stripe.com/fixture' }; },
@@ -108,7 +106,7 @@ const request = body => ({ json: async () => body });
   assert.equal((await webhook.POST(event(session))).status, 200);
   assert.equal(recorded.length, before + 1);
   assert.equal(profileUpdates.length, 0, 'Agreement payment must never grant a SaaS subscription');
-  assert.equal((await webhook.POST(event({ ...session, mode: 'subscription', customer: 'cus_fixture', subscription: 'sub_fixture', metadata: { plan: 'pro' }, client_reference_id: 'owner' }))).status, 200);
+  assert.equal((await webhook.POST(event({ ...session, mode: 'subscription', subscription: 'sub_fixture', metadata: { plan: 'pro' }, client_reference_id: 'owner' }))).status, 200);
   assert.equal(profileUpdates.length, 1);
   assert.equal(profileUpdates[0].id, 'owner');
   console.log('PASS: server pricing, partial balances, unpaid/wrong-document rejection, migration gate, Stripe-bound confirmation, provider authorization and signature overwrite guards. Providers mocked; SQL transaction not exercised.');

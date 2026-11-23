@@ -1,12 +1,9 @@
 import 'react-native-url-polyfill/auto';
-import './src/nativeCrypto';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {ActivityIndicator, Alert, AppState, Linking, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View} from 'react-native';
 import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
 import {createClient, type SupabaseClient} from '@supabase/supabase-js';
 import * as Crypto from 'expo-crypto';
-import * as WebBrowser from 'expo-web-browser';
-import {googleSignIn} from './src/googleSignIn';
 import {sessionAction} from './src/sessionAction';
 import {signOutWarning, sameSession} from './src/sessionExit';
 import {createLoadGate, filterProjects} from './src/projectBrowser';
@@ -93,18 +90,10 @@ function Workspace({db}:{db:SupabaseClient}) {
   {busy&&<ActivityIndicator accessibilityLabel="Working" color="#194d41"/>}
   {!actor?<>
    <Text style={styles.body}>Sign in with your existing account. This prototype keeps the session only in memory; sign in again after closing the app.</Text>
-   <Button title="Continue with Google" disabled={busy} onPress={()=>void action(async()=>{
-    const completed=await googleSignIn(db,process.env.EXPO_PUBLIC_SUPABASE_URL!,WebBrowser.openAuthSessionAsync);
-    if(!completed)setMessage('Google sign-in canceled. No account was changed.');
-   })}/>
-   <Text style={styles.body}>Use the same Google account you use on the website. Google opens in your browser; this app never asks for your Google password.</Text>
-   <Text style={styles.label}>Or sign in with an email password</Text>
    <Text style={styles.label}>Email</Text><TextInput accessibilityLabel="Email" style={styles.input} autoCapitalize="none" keyboardType="email-address" autoComplete="email" value={email} onChangeText={setEmail} editable={!busy}/>
    <Text style={styles.label}>Password</Text><TextInput accessibilityLabel="Password" style={styles.input} secureTextEntry autoComplete="current-password" value={password} onChangeText={setPassword} editable={!busy}/>
    <Button title="Sign in" disabled={busy||!email.trim()||!password} onPress={()=>void action(async()=>{const {error}=await db.auth.signInWithPassword({email:email.trim(),password});if(error)throw Error('Sign-in failed. Check your details or use the website to recover access.');setPassword('');})}/>
-   <Text style={styles.body}>New here? Continue with Google to create an account, or open website signup. If you previously used Google, use the Google button above rather than guessing a password.</Text>
-   <Button title="Create account on website" disabled={busy} onPress={()=>void Linking.openURL('https://www.microfreelancehub.com/login').catch(()=>setMessage('Could not open signup. Visit microfreelancehub.com/login.'))}/>
-   <Button title="Recover email password on website" disabled={busy} onPress={()=>void Linking.openURL('https://www.microfreelancehub.com/login').catch(()=>setMessage('Could not open recovery. Visit microfreelancehub.com/login.'))}/>
+   <Text style={styles.body}>Google-only sign-in and account recovery are not supported in this first native build. Use the website for those flows. No account is created here.</Text>
   </>:<>
    <View style={styles.row}><Button title="Refresh" disabled={busy||!!review} onPress={()=>void action(()=>refresh(actor))}/><Button title="Sign out" disabled={busy} onPress={requestSignOut}/></View>
    {loadState==='loading'&&<Text accessibilityLiveRegion="polite" style={styles.notice}>Loading your projects and recent time...</Text>}
@@ -131,7 +120,7 @@ export default function App(){
  const db=useMemo(()=>{
   const url=process.env.EXPO_PUBLIC_SUPABASE_URL,key=process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
   if(!url||!key||!/^https:\/\/[a-z0-9]+\.supabase\.co$/.test(url))return null;
-  return createClient(url,key,{auth:{flowType:'pkce',persistSession:false,autoRefreshToken:true,detectSessionInUrl:false}});
+  return createClient(url,key,{auth:{persistSession:false,autoRefreshToken:true,detectSessionInUrl:false}});
  },[]);
  return <SafeAreaProvider>{db?<Workspace db={db}/>:<SafeAreaView style={styles.content}><Text style={styles.heading}>Setup required</Text><Text style={styles.body}>Set the public Supabase URL and anonymous key for an isolated test project before building. Never put service-role or provider secrets in this app.</Text></SafeAreaView>}</SafeAreaProvider>;
 }

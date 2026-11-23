@@ -42,8 +42,6 @@ const { GET } = load('app/api/stripe/subscription/route.ts', {
   records = [{ status: 'trialing', metadata: {}, cancel_at_period_end: false, items: { data: [{ current_period_end: 1900000000, price: { product: { name: 'Professional' }, recurring: { interval: 'month', interval_count: 1 } } }] } }];
   assert.equal((await GET()).body.plan, 'Professional');
   assert.equal((await GET()).body.status, 'trialing');
-  records[0].trial_end = 1890000000;
-  assert.equal((await GET()).body.nextDate, new Date(1890000000 * 1000).toISOString());
   records[0].cancel_at_period_end = true;
   assert.equal((await GET()).body.canCancel, false);
   records[0].status = 'past_due';

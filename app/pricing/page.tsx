@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { CheckCircle2, X, ShieldCheck, ArrowRight } from 'lucide-react';
 import { getTrackedData } from '../lib/trackingClient';
@@ -10,27 +10,19 @@ export default function PricingPage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
-  const [checkoutError, setCheckoutError] = useState('');
-  const [trialDays, setTrialDays] = useState(0);
-  const supabase = useMemo(() => createClientComponentClient(), []);
+  const supabase = createClientComponentClient();
 
   useEffect(() => {
     const checkAuth = async () => {
-      try {
-        const { data } = await supabase.auth.getSession();
-        setUser(data?.session?.user || null);
-        const response = await fetch('/api/stripe/checkout-plan');
-        if (response.ok) setTrialDays((await response.json()).trialDays === 7 ? 7 : 0);
-      } catch { setCheckoutError('Account details could not load. Refresh before choosing a plan.'); }
-      finally { setLoading(false); }
+      const { data } = await supabase.auth.getSession();
+      setUser(data?.session?.user || null);
+      setLoading(false);
     };
     checkAuth();
   }, [supabase]);
 
   // --- STRIPE CHECKOUT HANDLER ---
   const handlePricingClick = async (plan: 'starter' | 'pro') => {
-    if (checkoutLoading) return;
-    setCheckoutError('');
     const { landing_page, lead_source } = getTrackedData();
 
     if (!user) {
@@ -56,14 +48,14 @@ export default function PricingPage() {
       });
 
       const data = await response.json();
-      if (response.ok && data.url) {
+      if (data.url) {
         window.location.href = data.url;
       } else {
-        setCheckoutError(data.error || 'Unable to start checkout. Please try again.');
+        alert('Error initiating checkout: ' + data.error);
       }
     } catch (error) {
       console.error('Checkout error:', error);
-      setCheckoutError('Unable to reach checkout. Please try again. You have not been enrolled by this page.');
+      alert('Failed to start checkout');
     } finally {
       setCheckoutLoading(null);
     }
@@ -103,16 +95,11 @@ export default function PricingPage() {
       {/* HEADER */}
       <div className="max-w-6xl mx-auto pt-10 pb-8 px-5">
         <h1 className="text-3xl md:text-4xl font-semibold tracking-normal text-slate-900 mb-6">
-          From project scope to <span className="text-blue-600">a client-ready agreement.</span>
+          A clearer way to start <span className="text-blue-600">client work.</span>
         </h1>
         <p className="text-base text-slate-600 leading-relaxed">
-          Outline the work, review your agreement, and share signing and payment steps. Start free, then choose a plan when you are ready to send live client links.
+          Choose the plan that helps you outline scope, pricing, approvals, timelines, signatures, and payment steps.
         </p>
-        <div className="mt-6 rounded-xl border border-blue-200 bg-white p-5 text-sm leading-6">
-          {trialDays === 7 ? <><strong>Try a paid plan for 7 days.</strong> First-time subscribers only. Card required. After the trial, Starter renews at $9/month or Professional at $29/month unless canceled before the trial ends. Returning subscribers pay the displayed price without another trial. Review your exact terms in Stripe Checkout.</> : <><strong>Explore before you subscribe.</strong> Create your first three agreements on Free. Paid plans are monthly subscriptions; review the price in Stripe Checkout before confirming.</>}
-          <p className="mt-2">Manage or cancel your subscription in <Link href="/settings" className="underline">Settings</Link>. Client payment processing fees are separate from your MicroFreelanceHub subscription.</p>
-        </div>
-        {checkoutError && <div role="alert" className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-red-900">{checkoutError} <Link href="/settings" className="underline">Manage billing</Link></div>}
       </div>
 
       {/* PRICING CARDS */}
@@ -142,10 +129,10 @@ export default function PricingPage() {
             <div className="text-5xl font-extrabold text-slate-950 mb-6">$9<span className="text-lg text-slate-600 font-medium">/mo</span></div>
             <button
               onClick={() => handlePricingClick('starter')}
-              disabled={checkoutLoading !== null}
+              disabled={checkoutLoading === 'starter'}
               className="w-full block text-center py-4 rounded-xl bg-blue-600 font-bold text-white hover:bg-blue-500 transition-all shadow-lg shadow-blue-900/50 mb-8 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {checkoutLoading === 'starter' ? 'Opening secure checkout...' : trialDays === 7 ? 'Try Starter for 7 days' : 'Choose Starter — $9/month'}
+              {checkoutLoading === 'starter' ? 'Loading...' : 'Start Starter'}
             </button>
             <ul className="space-y-4 flex-1">
               <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> <strong>1 active client project</strong></li>
@@ -163,14 +150,15 @@ export default function PricingPage() {
             <div className="text-5xl font-extrabold text-slate-900 mb-6">$29<span className="text-lg text-slate-500 font-medium">/mo</span></div>
             <button
               onClick={() => handlePricingClick('pro')}
-              disabled={checkoutLoading !== null}
+              disabled={checkoutLoading === 'pro'}
               className="w-full block text-center py-4 rounded-xl border-2 border-slate-200 font-bold text-slate-700 hover:border-slate-300 hover:bg-slate-50 transition-all mb-8 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {checkoutLoading === 'pro' ? 'Opening secure checkout...' : trialDays === 7 ? 'Try Professional for 7 days' : 'Choose Professional — $29/month'}
+              {checkoutLoading === 'pro' ? 'Loading...' : 'Go Professional'}
             </button>
 
             <ul className="space-y-4 flex-1">
               <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-600 shrink-0" /> <span>Unlimited active projects</span></li>
+              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-600 shrink-0" /> <span>Automated dunning emails</span></li>
               <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-600 shrink-0" /> <span>Mid-project change orders</span></li>
               <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-600 shrink-0" /> <span>Remove watermarks</span></li>
               <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-600 shrink-0" /> <span>Profit and expense tracking</span></li>
