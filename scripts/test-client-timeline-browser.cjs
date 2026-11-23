@@ -28,11 +28,13 @@ for(const width of [320,390,768,1440]){
  await page.goto(base+'/workspace/clients');await page.getByRole('button',{name:'Open client timeline',exact:true}).click();
  await page.getByText('Preserved opportunity conversation',{exact:true}).waitFor();await page.getByText('Historical account owner (name was not recorded)',{exact:false}).waitFor();
  for(const body of ['First independent note','Second independent note','Third independent note']){
- await page.getByLabel('New note for Fictional Acorn').fill(body);await page.getByRole('button',{name:'Add note',exact:true}).click();await page.getByText(body,{exact:true}).waitFor();
+ await page.getByLabel('New note for Fictional Acorn').fill(body);await Promise.all([page.waitForResponse(r=>r.url().endsWith('/api/workspace-client-timeline')&&r.request().method()==='POST'),page.getByRole('button',{name:'Add note',exact:true}).click()]);await page.locator('.client-timeline ol').getByText(body,{exact:true}).waitFor();
  }
  assert.equal(saved.size,3);assert.equal(await page.locator('.client-timeline time').count(),5);assert.equal(await page.getByText('Existing editable summary',{exact:true}).count(),1);
  await page.reload();await page.getByRole('button',{name:'Open client timeline',exact:true}).click();await page.getByText('Third independent note',{exact:true}).waitFor();
  uncertain=true;await page.getByLabel('New note for Fictional Acorn').fill('Uncertain fourth note');await page.getByRole('button',{name:'Add note',exact:true}).click();await page.getByRole('alert').filter({hasText:'unconfirmed'}).waitFor();assert.equal(saved.size,4);
+ // Filtering unmounts the card; pending operation identity must survive in the workspace.
+ await page.getByRole('searchbox').fill('No matching fictional client');await page.getByRole('heading',{name:'No matching records',exact:true}).waitFor();await page.getByRole('searchbox').fill('');await page.getByRole('button',{name:'Open client timeline',exact:true}).click();await page.getByRole('button',{name:'Retry same note',exact:true}).waitFor();assert.equal(await page.getByLabel('New note for Fictional Acorn').inputValue(),'Uncertain fourth note');
  await page.getByRole('button',{name:'Refresh timeline and check account'}).click();await page.getByRole('button',{name:'Retry same note',exact:true}).click();await page.getByRole('button',{name:'Add note',exact:true}).waitFor();assert.equal(saved.size,4);assert.deepEqual(writes.at(-1),writes.at(-2));
  await page.getByLabel('New note for Fictional Acorn').fill('Original account draft');account=other;
  await page.getByRole('button',{name:'Add note',exact:true}).click();await page.getByRole('alert').filter({hasText:'Account changed'}).waitFor();assert.equal(await page.getByText('Third independent note',{exact:true}).count(),0);assert.equal(await page.getByLabel('New note for Fictional Acorn').count(),0);assert.equal(saved.size,4);
@@ -40,7 +42,7 @@ for(const width of [320,390,768,1440]){
  clipped=true;await page.getByRole('button',{name:'Refresh timeline and check account'}).click();await page.getByText('Showing the latest 200 entries only.',{exact:false}).waitFor();
  await page.addScriptTag({path:'C:/Users/joshu/microfreelancehub/node_modules/axe-core/axe.min.js'});const violations=await page.evaluate(async()=>{const r=await axe.run(document.querySelector('.client-timeline'),{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}});return r.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)}));});assert.deepEqual(violations,[]);
  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'overflow at '+width);
- await page.screenshot({path:out+'/timeline-'+width+'.png',fullPage:true});assert.deepEqual(errors,[]);checks.push({width,notes:5,uncertainRetryDeduplicated:true,accountMismatchHidesHistoryAndDraft:true,axeViolations:violations});await context.close();
+ await page.screenshot({path:out+'/timeline-'+width+'.png',fullPage:true});assert.deepEqual(errors,[]);checks.push({width,notes:5,uncertainRetryDeduplicated:true,pendingOperationSurvivesFiltering:true,accountMismatchHidesHistoryAndDraft:true,axeViolations:violations});await context.close();
 }
 fs.writeFileSync(out+'/browser-results.json',JSON.stringify({checks,bounds:['Production build in local browser; all APIs intercepted with fictional records. No live Supabase/customer/session proof.']},null,2));console.log('PASS client timeline 4 widths, separate notes, replay, reload, account mismatch, bounded history and axe');
 })().catch(e=>{console.error(e);process.exitCode=1;fs.writeFileSync(out+'/browser-results.json',JSON.stringify({checks,error:String(e)},null,2));}).finally(async()=>{if(browser)await browser.close();});

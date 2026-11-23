@@ -3,9 +3,13 @@ import {useEffect,useRef,useState} from 'react';
 import Link from 'next/link';
 type Entry={id:string;source:string;kind:string;body:string;created_at:string;author_id:string;author_name:string|null;opportunity_id:string|null;title:string|null};
 type Pending={clientId:string;body:string;operationId:string;expectedActorId:string};
-export default function ClientTimeline({clientId,clientName,ownerId}:{clientId:string;clientName:string;ownerId:string}){
- const [open,setOpen]=useState(false),[records,setRecords]=useState<Entry[]>([]),[truncated,setTruncated]=useState(false),[body,setBody]=useState(''),[pending,setPending]=useState<Pending|null>(null),[busy,setBusy]=useState(false),[loading,setLoading]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState(''),[verified,setVerified]=useState(false);
+export type TimelineDraft={body:string;pending:Pending|null};
+export default function ClientTimeline({clientId,clientName,ownerId,drafts}:{clientId:string;clientName:string;ownerId:string;drafts:Map<string,TimelineDraft>}){
+ const draftKey=ownerId+':'+clientId;
+ const retained=drafts.get(draftKey);
+ const [open,setOpen]=useState(false),[records,setRecords]=useState<Entry[]>([]),[truncated,setTruncated]=useState(false),[body,setBody]=useState(retained?.body||''),[pending,setPending]=useState<Pending|null>(retained?.pending||null),[busy,setBusy]=useState(false),[loading,setLoading]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState(''),[verified,setVerified]=useState(false);
  const generation=useRef(0),alive=useRef(true),saving=useRef(false);
+ function remember(nextBody:string,nextPending:Pending|null){drafts.set(draftKey,{body:nextBody,pending:nextPending});setBody(nextBody);setPending(nextPending);}
  useEffect(()=>{alive.current=true;return()=>{alive.current=false;generation.current++;};},[]);
  async function load(){
  const ticket=++generation.current;setLoading(true);setError('');setVerified(false);
@@ -21,12 +25,12 @@ export default function ClientTimeline({clientId,clientName,ownerId}:{clientId:s
  async function save(){
  if(saving.current||!verified||loading)return;
  const operation=pending||{clientId,body,operationId:crypto.randomUUID(),expectedActorId:ownerId};
- setPending(operation);saving.current=true;setBusy(true);setError('');setNotice('');
+ remember(operation.body,operation);saving.current=true;setBusy(true);setError('');setNotice('');
  try{
  const response=await fetch('/api/workspace-client-timeline',{method:'POST',headers:{'Content-Type':'application/json','x-workspace-owner':ownerId},body:JSON.stringify(operation)}),result=await response.json();
  if(!response.ok||result.actorId!==ownerId||!result.record?.id)throw Error(result.error||'Save outcome is unconfirmed. Retry the same note.');
  if(!alive.current)return;
- setPending(null);setBody('');setNotice('Note saved.');await load();
+ remember('',null);setNotice('Note saved.');await load();
  }catch(e){if(alive.current){setError((e as Error).message);setVerified(false);setRecords([]);}}
  finally{saving.current=false;if(alive.current)setBusy(false);}
  }
@@ -39,7 +43,7 @@ export default function ClientTimeline({clientId,clientName,ownerId}:{clientId:s
  <button type="button" disabled={busy||loading} onClick={load}>Refresh timeline and check account</button>
  {verified&&<><form onSubmit={e=>{e.preventDefault();save();}}>
  <label htmlFor={'note-'+clientId}>New note for {clientName}</label>
- <textarea id={'note-'+clientId} value={pending?.body??body} maxLength={2000} rows={3} required disabled={busy||!!pending} onChange={e=>setBody(e.target.value)}/>
+ <textarea id={'note-'+clientId} value={pending?.body??body} maxLength={2000} rows={3} required disabled={busy||!!pending} onChange={e=>remember(e.target.value,null)}/>
  {pending&&<p>This note is retained for an identical retry. A retry cannot create a second copy.</p>}
  <button type="submit" disabled={busy||loading||(!pending&&!body.trim())}>{busy?'Saving note…':pending?'Retry same note':'Add note'}</button>
  </form>
