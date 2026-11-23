@@ -32,6 +32,10 @@ const PLAN_PRICES = {
   },
 };
 
+export async function GET() {
+  return NextResponse.json({ trialDays: process.env.MFH_SEVEN_DAY_TRIAL_ENABLED === 'true' ? 7 : 0 }, { headers: { 'Cache-Control': 'no-store' } });
+}
+
 export async function POST(request: Request) {
   try {
     const auth = createRouteHandlerClient({ cookies });
@@ -82,7 +86,7 @@ export async function POST(request: Request) {
         metadata: {
           supabase_id: userId,
         },
-      });
+      }, { idempotencyKey: `platform-customer-${userId}` });
       stripeCustomerId = customer.id;
 
       // Save the Stripe customer ID
@@ -102,6 +106,24 @@ export async function POST(request: Request) {
 
     const planConfig = PLAN_PRICES[plan as keyof typeof PLAN_PRICES];
 
+    // Never start another subscription while an existing one needs attention.
+    // Keep historical customers on ordinary checkout rather than repeating trials.
+    const history = await stripe.subscriptions.list({ customer: stripeCustomerId, status: 'all', limit: 100 });
+    if (history.has_more || history.data.some(s => !['canceled', 'incomplete_expired'].includes(s.status))) {
+      return NextResponse.json({ error: 'You already have a subscription or billing action in progress. Manage it in Settings.', manageUrl: '/settings' }, { status: 409 });
+    }
+    const trialEligible = process.env.MFH_SEVEN_DAY_TRIAL_ENABLED === 'true' && history.data.length === 0;
+    const checkouts = await stripe.checkout.sessions.list({ customer: stripeCustomerId, limit: 100 });
+    const previousCheckout = checkouts.data.find(s => s.mode === 'subscription');
+    const existingCheckout = checkouts.data.find(s => s.mode === 'subscription' && s.status === 'open');
+    if (existingCheckout || checkouts.has_more) {
+      if (existingCheckout?.metadata?.plan === plan && existingCheckout.url) return NextResponse.json({ url: existingCheckout.url });
+      return NextResponse.json({ error: 'A plan checkout is already open. Finish it or wait for it to expire before choosing another plan.' }, { status: 409 });
+    }
+    if (previousCheckout && previousCheckout.status !== 'expired') {
+      return NextResponse.json({ error: 'Your previous checkout is being reconciled. Check Settings before starting another subscription.' }, { status: 409 });
+    }
+
     // Create checkout session for subscription
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
@@ -114,6 +136,7 @@ export async function POST(request: Request) {
         lead_source: attributedSource,
       },
       subscription_data: {
+        ...(trialEligible ? { trial_period_days: 7 } : {}),
         metadata: {
           plan,
           userId,
@@ -139,7 +162,9 @@ export async function POST(request: Request) {
       ],
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment-success?plan=${plan}&session_id={CHECKOUT_SESSION_ID}&landing_page=${encodeURIComponent(attributedLanding)}&lead_source=${encodeURIComponent(attributedSource)}`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/pricing?upgrade=cancelled`,
-    });
+    // Account-wide key, not plan/time-bucket: concurrent different-plan requests
+    // cannot create separate sessions. Only a terminal expired checkout advances it.
+    }, { idempotencyKey: `platform-checkout-${userId}-${previousCheckout?.id || 'first'}` });
 
     return NextResponse.json({ url: session.url });
   } catch (err: any) {

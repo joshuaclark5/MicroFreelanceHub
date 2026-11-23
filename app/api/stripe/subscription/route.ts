@@ -26,7 +26,7 @@ export async function GET() {
     const product = item?.price.product;
     const name = typeof product === 'object' && !('deleted' in product && product.deleted) ? (product as Stripe.Product).name : null;
     const recurring = item?.price.recurring;
-    const nextDate = subscription.cancel_at || item?.current_period_end;
+    const nextDate = subscription.cancel_at || (subscription.status === 'trialing' ? subscription.trial_end : item?.current_period_end);
     return NextResponse.json({
       plan: name || subscription.metadata.plan || 'Paid subscription',
       status: subscription.status.replace(/_/g, ' '),
