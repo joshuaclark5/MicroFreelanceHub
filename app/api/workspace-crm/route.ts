@@ -15,7 +15,10 @@ export async function GET(request:Request){try{
  if(mode==='activity'){
  if(!id||after||stage||search)return reply({error:'Choose one opportunity.'},400);
  const r=await db.from('workspace_crm_activity').select('id,opportunity_id,kind,body,created_at,before_record,after_record',{count:'exact'}).eq('owner_id',user.id).eq('opportunity_id',id).order('created_at',{ascending:false}).order('id').limit(201);
- if(r.error)throw r.error;return reply({actorId:user.id,records:(r.data||[]).slice(0,200),truncated:r.count==null||r.count>200||r.count>(r.data||[]).length});
+ // This CRM is owner-only: label the authenticated owner, never a caller-supplied author.
+ const name=user.user_metadata?.full_name||user.user_metadata?.name;
+ const authorName=typeof name==='string'&&name.trim()?name.trim().slice(0,160):'Account owner';
+ if(r.error)throw r.error;return reply({actorId:user.id,authorName,records:(r.data||[]).slice(0,200),truncated:r.count==null||r.count>200||r.count>(r.data||[]).length});
  }
  if(id||mode==='export'&&after)return reply({error:'Unsupported filter combination.'},400);
  let query=db.from('workspace_crm_opportunities').select('id,client_id,title,stage,amount_minor,currency,expected_close,follow_up,reason,version,updated_at',{count:'exact'}).eq('owner_id',user.id).order('id').limit(mode==='export'?10001:101);
