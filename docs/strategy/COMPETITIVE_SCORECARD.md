@@ -49,6 +49,22 @@ A = advertised officially, P = partial locally/production as stated, U = not est
 
 ## Brutal internal readiness score (not market review stars)
 
+### Evidence-gated path to 50 (November 22 follow-up)
+
+Current awarded score remains **28/100**, not 50. Subsequent Android installation/first-screen proof exists, but the Google-only account journey has not passed; a built APK does not meet the complete-journey threshold. Reply-To configuration is saved in Vercel, but code activation and receiving verification remain incomplete. Seven-day trial code is gated off pending Stripe test lifecycle proof. Earlier snapshots below describe the original assessment, not those later milestones.
+
+| Dimension | Current -> target | Weighted gain | Required acceptance evidence |
+|---|---|---:|---|
+| Connected client journey | 1 -> 3 | 8 | Real test client -> project -> agreement -> approval -> invoice handoff; owner/client access separation and recoverable failures; deployed and verified |
+| Billing/reconciliation | 2 -> 3 | 3 | Stripe test trial start/expiry/cancel/failure and webhook replay; correct access and balance; deploy only after gates pass |
+| Onboarding/activation | 2 -> 3 | 2 | New account reaches useful draft and returns to the next action; Google and email paths, desktop/mobile, no unintended enrollment |
+| Native mobile delivery | 1 -> 3 | 6 | Installed Android AND iOS Google sign-in, project read, save/retry/session-switch journey; store approval tracked separately |
+| Support/resolution | 1 -> 2 | 2 | Deployed reply routing and an explicitly authorized end-to-end receiving/handoff check |
+| Acquisition UX/accessibility | 2 -> 3 | 1 | Pricing/signup/first-action journey keyboard and responsive checks, accurate trial/price disclosures, production verification |
+| TOTAL | 28 -> 50 | 22 | All listed gates, not merely source implementation |
+
+The dashboard action queue addresses discoverability of the next step, not the entire connected-journey gate. No points awarded for this local change alone. Account review, physical device access and test authorization are external dependencies. A defensible date for 50 requires completing the first end-to-end test and timing the remaining failures. Under the existing rubric, 100 requires measured superiority in matched customer tests across every dimension; it cannot be achieved by coding alone or promised on a fixed date.
+
 Scale 0 absent; 1 prototype or serious gaps; 2 live bounded slice; 3 complete tested journey; 4 measured dependable operation; 5 demonstrated superior outcome in matched customer tests. Weighted total = sum(weight * score / 5). Assessments are judgment calls based on evidence, not telemetry-derived product quality.
 
 | Dimension | Weight | MFH score /5 | Evidence gap |
