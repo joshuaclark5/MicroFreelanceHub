@@ -5,6 +5,8 @@ import Navbar from '../components/Navbar';
 import { templateLibrarySummary } from '../lib/templateLibrarySummary';
 
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { templateSearchState } from '../lib/templateSearchState';
 import { useEffect, useState } from 'react';
 import { ArrowRight, Briefcase, FileSignature, Receipt, Search, Wrench, Mail } from 'lucide-react';
 
@@ -36,10 +38,18 @@ function getDisplayTitle(template: TemplateLibraryItem) {
 }
 
 export default function TemplatesLibraryClient({ templates, total }: { templates: TemplateLibraryItem[]; total: number }) {
-  const [query, setQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState('all');
-
-  const [page, setPage] = useState(1);
+  const searchParams = useSearchParams();
+  const {query, filter: activeFilter, page} = templateSearchState(searchParams);
+  function updateSearch(next: {query?: string; filter?: string; page?: number}) {
+    const url = new URL(window.location.href);
+    const state = {query, filter: activeFilter, page, ...next};
+    for (const [key, value] of [['q', state.query.slice(0, 150)], ['filter', state.filter === 'all' ? '' : state.filter], ['page', state.page === 1 ? '' : String(state.page)]]) {
+      if (value) url.searchParams.set(key, value); else url.searchParams.delete(key);
+    }
+    // Replace the current library entry; template navigation adds its own entry.
+    // Next.js synchronizes native history changes with useSearchParams.
+    window.history.replaceState(null, '', url);
+  }
   const [results, setResults] = useState({ templates, total });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -99,7 +109,7 @@ export default function TemplatesLibraryClient({ templates, total }: { templates
               <input
                 value={query}
                 aria-label="Search templates"
-                onChange={(event) => { setQuery(event.target.value); setPage(1); }}
+                onChange={(event) => { updateSearch({query: event.target.value, page: 1}); }}
                 placeholder="Search templates"
                 className="h-13 w-full rounded-xl border border-slate-200 bg-white py-4 pl-12 pr-4 text-base font-semibold outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
               />
@@ -115,7 +125,7 @@ export default function TemplatesLibraryClient({ templates, total }: { templates
                     key={filter.value}
                     type="button"
                     aria-pressed={selected}
-                    onClick={() => { setActiveFilter(filter.value); setPage(1); }}
+                    onClick={() => { updateSearch({filter: filter.value, page: 1}); }}
                     className={`inline-flex shrink-0 items-center gap-2 rounded-xl border px-4 py-3 text-sm font-extrabold transition ${
                       selected
                         ? 'border-slate-900 bg-slate-900 text-white'
@@ -143,7 +153,7 @@ export default function TemplatesLibraryClient({ templates, total }: { templates
         </div>
 
         {(query || activeFilter !== 'all') && (
-          <button type="button" onClick={() => { setQuery(''); setActiveFilter('all'); setPage(1); }} className="mb-5 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold">
+          <button type="button" onClick={() => { updateSearch({query: '', filter: 'all', page: 1}); }} className="mb-5 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold">
             Clear search and filters
           </button>
         )}
@@ -187,9 +197,9 @@ export default function TemplatesLibraryClient({ templates, total }: { templates
           </div>
         )}
         <nav aria-label="Template pages" className="mt-8 flex items-center justify-center gap-6">
-          <button disabled={loading || !!error || page === 1} onClick={() => setPage(value => value - 1)} className="disabled:opacity-40">Previous</button>
+          <button disabled={loading || !!error || page === 1} onClick={() => updateSearch({page: page - 1})} className="disabled:opacity-40">Previous</button>
           <span>Page {page} of {Math.max(1, Math.ceil(results.total / 48))}</span>
-          <button disabled={loading || !!error || page * 48 >= results.total} onClick={() => setPage(value => value + 1)} className="disabled:opacity-40">Next</button>
+          <button disabled={loading || !!error || page * 48 >= results.total} onClick={() => updateSearch({page: page + 1})} className="disabled:opacity-40">Next</button>
         </nav>
       </section>
     </main>
