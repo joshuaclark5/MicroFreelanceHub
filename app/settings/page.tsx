@@ -8,7 +8,6 @@ import ConnectStripeButton from '../components/ConnectStripeButton';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { deleteUserAccount } from '../actions/delete-account';
 
 type SettingsTab = 'profile' | 'billing' | 'team';
 type Billing = { plan: string; status: string; cycle: string; nextDate: string | null; cancelAtPeriodEnd: boolean; canManage: boolean; canCancel: boolean };
@@ -50,7 +49,6 @@ export default function SettingsPage() {
   const [loadingPortal, setLoadingPortal] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
-  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   const supabase = createClientComponentClient();
   const router = useRouter();
@@ -122,26 +120,6 @@ export default function SettingsPage() {
       alert('Failed to save profile. Make sure you ran the SQL policy update!');
     } finally {
       setIsSavingProfile(false);
-    }
-  };
-
-  // Delete Account Logic
-  const handleDeleteAccount = async () => {
-    const confirmed = window.confirm(
-      "Are you absolutely sure? This will permanently delete your account, contracts, and data. This action cannot be undone."
-    );
-    if (!confirmed) return;
-
-    setIsDeletingAccount(true);
-    
-    const result = await deleteUserAccount();
-
-    if (result.success) {
-      await supabase.auth.signOut();
-      router.push('/');
-    } else {
-      alert("Failed to delete account. Please contact support.");
-      setIsDeletingAccount(false);
     }
   };
 
@@ -380,26 +358,17 @@ export default function SettingsPage() {
                   </button>
                 </div>
 
-                {/* Danger Zone */}
+                {/* Account deletion */}
                 <div className="bg-red-50 rounded-2xl p-8 border-2 border-red-200 space-y-4">
                   <div>
                     <h3 className="font-bold text-lg text-red-900 flex items-center gap-2">
                       <span className="w-2 h-2 bg-red-600 rounded-full"></span>
-                      Danger Zone
+                      Account deletion
                     </h3>
-                    <p className="text-red-700 text-sm mt-2">Permanently delete your account and all associated data. This action cannot be undone.</p>
+                    <p className="text-red-700 text-sm mt-2">Self-service account deletion is temporarily unavailable while we improve billing safeguards. To request deletion, contact support. This does not cancel a subscription; manage billing separately.</p>
                   </div>
-                  <button 
-                    onClick={handleDeleteAccount}
-                    disabled={isDeletingAccount}
-                    className="w-full bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-bold text-sm py-3 rounded-lg transition-all shadow-lg hover:shadow-red-600/20 active:scale-95 flex items-center justify-center gap-2"
-                  >
-                    {isDeletingAccount ? (
-                      <><Loader2 className="w-4 h-4 animate-spin" /> Deleting Account...</>
-                    ) : (
-                      <><Trash2 className="w-4 h-4" /> Delete Account</>
-                    )}
-                  </button>
+                  <a href="mailto:support@microfreelancehub.com?subject=Account%20deletion%20request" className="block text-red-900 underline font-semibold">Contact support about deletion</a>
+                  <button type="button" onClick={() => setActiveTab('billing')} className="w-full bg-slate-900 text-white font-bold text-sm py-3 rounded-lg">Review billing and subscription</button>
                 </div>
               </div>
             )}
