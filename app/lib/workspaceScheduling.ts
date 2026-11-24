@@ -76,3 +76,11 @@ export function addDaysOffRange(value:WeeklyRecurrence,start:string,end:string=s
  if(dates.size>366)throw Error('Use up to 366 days off per rule.');
  return {...value,excludedDates:[...dates].sort()};
 }
+
+// Conservative UTC envelope covers the selected calendar month in every supported
+// IANA timezone. The calendar groups these instants in its chosen display zone.
+export function calendarMonthBounds(value:unknown){
+ if(typeof value!=='string'||! /^(19|20|21)\d{2}-(0[1-9]|1[0-2])$/.test(value))throw Error('Choose a month from 1900 through 2199.');
+ const [year,month]=value.split('-').map(Number);
+ return {month:value,start:new Date(Date.UTC(year,month-1,1)-2*86400000).toISOString(),end:new Date(Date.UTC(year,month,1)+2*86400000).toISOString()};
+}

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { schedulingInput, validId } from '../../lib/workspaceScheduling';
+import { schedulingInput, validId, calendarMonthBounds } from '../../lib/workspaceScheduling';
 export const dynamic='force-dynamic';
 const reply=(body:unknown,status=200)=>NextResponse.json(body,{status,headers:{'Cache-Control':'private, no-store'}});
 async function handle(request:Request){
@@ -15,8 +15,20 @@ async function handle(request:Request){
   if(request.method==='GET'){
    const params=new URL(request.url).searchParams;
    const focusKeys=['bookingId','availabilityId'];
-   if(Array.from(params.keys()).some(k=>!focusKeys.includes(k))||focusKeys.some(k=>params.getAll(k).length>1)||focusKeys.filter(k=>params.has(k)).length>1||focusKeys.some(k=>params.has(k)&&!validId(params.get(k))))return reply({error:'Choose one valid scheduling record.'},400);
+   let calendar:null|ReturnType<typeof calendarMonthBounds>=null;
+   if(params.has('calendarMonth')){
+    if(Array.from(params.keys()).some(k=>k!=='calendarMonth')||params.getAll('calendarMonth').length!==1)return reply({error:'Choose one calendar month.'},400);
+    try{calendar=calendarMonthBounds(params.get('calendarMonth'));}catch(e){return reply({error:(e as Error).message},400);}
+   }
+   if(!calendar&&(Array.from(params.keys()).some(k=>!focusKeys.includes(k))||focusKeys.some(k=>params.getAll(k).length>1)||focusKeys.filter(k=>params.has(k)).length>1||focusKeys.some(k=>params.has(k)&&!validId(params.get(k)))))return reply({error:'Choose one valid scheduling record.'},400);
    const queries=[['availability','id,title,timezone,weekday,start_minute,end_minute,duration,buffer,notice_hours,horizon_days,daily_cap,active,version,recurrence'],['intakes','id,title,consent,fields,version'],['bookings','id,attendee,starts_at,ends_at,timezone,status,version,intake_id,answers']];
+   if(calendar){
+    const {data:rules,error:rulesError}=await db.from('workspace_scheduling_availability').select(queries[0][1]).eq('owner_id',user.id).eq('active',true).order('id',{ascending:true}).limit(501);
+    if(rulesError)throw rulesError;
+    const {data:bookings,error:bookingsError}=await db.from('workspace_scheduling_bookings').select(queries[2][1]).eq('owner_id',user.id).gte('starts_at',calendar.start).lt('starts_at',calendar.end).order('starts_at',{ascending:true}).order('id',{ascending:true}).limit(501);
+    if(bookingsError)throw bookingsError;
+    return reply({actorId:user.id,calendarMonth:calendar.month,truncated:(rules||[]).length>500||(bookings||[]).length>500,availability:(rules||[]).slice(0,500),bookings:(bookings||[]).slice(0,500),intakes:[]});
+   }
    const result:Record<string,unknown>={actorId:user.id,truncated:false};
    for(const [name,columns]of queries){const {data,error}=await db.from('workspace_scheduling_'+name).select(columns).eq('owner_id',user.id).order('created_at',{ascending:false}).order('id',{ascending:false}).limit(501);if(error)throw error;result[name]=(data||[]).slice(0,500);if((data||[]).length>500)result.truncated=true;}
    const focusKey=focusKeys.find(k=>params.has(k));
