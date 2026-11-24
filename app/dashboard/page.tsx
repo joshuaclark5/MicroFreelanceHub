@@ -1,5 +1,6 @@
 'use client';
 
+import {BrandMark} from '../components/Brand';
 import { useEffect, useRef, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
@@ -365,7 +366,7 @@ export default function Dashboard() {
       <div className="d4-workspace-header bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 min-h-16 py-3 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-              <div className="bg-slate-900 text-white w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl font-bold text-lg shadow-lg shadow-slate-900/20">M</div>
+              <BrandMark/>
               <div className="flex flex-col">
                  <h1 className="text-sm font-bold text-slate-900 leading-tight">MicroFreelanceHub</h1>
                  <p className="text-[10px] text-slate-400 font-medium tracking-wide">DASHBOARD</p>

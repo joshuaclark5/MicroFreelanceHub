@@ -1,5 +1,6 @@
 'use client';
 
+import Brand from '../components/Brand';
 import { useState, useEffect, Suspense } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useSearchParams } from 'next/navigation';
@@ -54,6 +55,7 @@ function LoginForm() {
     const currentDomain = typeof window !== 'undefined' ? window.location.origin : '';
 
     const redirectUrl = new URL(`${currentDomain}/auth/callback`);
+    if(searchParams.get('next')==='/workspace') redirectUrl.searchParams.set('next','/workspace');
     if (templateSlug) {
       redirectUrl.searchParams.set('template', templateSlug);
     }
@@ -92,6 +94,7 @@ function LoginForm() {
 
   const getPostAuthPath = () => {
     const params = new URLSearchParams();
+    if(searchParams.get('next')==='/workspace') params.set('next','/workspace');
     const attribution = getAuthAttribution(landingPageParam, leadSourceParam);
     if (templateSlug) params.set('template', templateSlug);
     if (attribution.landing_page) params.set('landing_page', attribution.landing_page);
@@ -108,6 +111,7 @@ function LoginForm() {
 
     try {
       const callbackUrl = new URL('/auth/callback', window.location.origin);
+      if(searchParams.get('next')==='/workspace') callbackUrl.searchParams.set('next','/workspace');
       const attribution = getAuthAttribution(landingPageParam, leadSourceParam);
       if (plan) callbackUrl.searchParams.set('plan', plan);
       if (templateSlug) callbackUrl.searchParams.set('template', templateSlug);
@@ -184,7 +188,7 @@ function LoginForm() {
 
         {/* Logo at top of card */}
         <div className="flex justify-center">
-          <Link href="/" className="d4-brand"><span aria-hidden="true">M</span>MicroFreelanceHub</Link>
+          <Link href="/" className="d4-brand"><Brand/></Link>
         </div>
 
         <div className="text-center">

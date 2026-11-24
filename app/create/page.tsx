@@ -1,5 +1,6 @@
 'use client';
 
+import {BrandMark} from '../components/Brand';
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -13,6 +14,8 @@ import {
 import PricingModal from '../components/PricingModal';
 import { AuthRequiredModal } from '../components/modals/AuthRequiredModal';
 import { isEmailTemplate, isChecklistTemplate } from '../lib/templateType';
+import { agreementContext } from '../lib/agreementContext';
+import { briefStorageKey, clearAgreementDraft, validateHandoff, HandoffContext } from '../lib/agreementHandoff';
 import AgreementStarter from '../components/AgreementStarter';
 import { trackAgreementEvent } from '../lib/agreementEvents';
 import { DRAFT_KEY, parseEditorDraft } from '../lib/agreementDraft';
@@ -41,6 +44,9 @@ interface LineItem {
 }
 
 function CreateProjectContent() {
+  const [context, setContext] = useState<HandoffContext | null>(null);
+  const mounted = useRef(true);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   const skipDraftSave = useRef(false);
   const [initialized, setInitialized] = useState(false);
   const [initializationError, setInitializationError] = useState(false);
@@ -203,19 +209,30 @@ If the Client cancels the project after work has begun, any deposit, completed w
 
   // 1. Load User & Template
   useEffect(() => {
+    let cancelled = false;
     let requestedTemplate = false;
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser();
+      if (cancelled) return;
       if (user) {
         setUserId(user.id);
         const [profileRes, countRes] = await Promise.all([
             supabase.from('profiles').select('is_pro').eq('id', user.id).single(),
             supabase.from('sow_documents').select('id', { count: 'exact', head: true }).eq('user_id', user.id)
         ]);
+        if (cancelled) return;
         setIsPro(profileRes.data?.is_pro || false);
         setProjectCount(countRes.count || 0);
       }
 
+      if (searchParams.has('project')) {
+        if (!user) throw Error('Sign in required.');
+        const next = await agreementContext(supabase, user.id, searchParams.get('project') || '');
+        if (cancelled) return;
+        setContext({...next, ownerId:user.id});
+        setFormData(prev => ({...prev, projectTitle:next.title, clientName:next.client, clientEmail:next.email}));
+        return;
+      }
       // Load Template
       const urlSlug = searchParams.get('template');
       const localSlug = localStorage.getItem('pending_template');
@@ -248,6 +265,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
             }
         }
 
+        if (cancelled) return;
         // Manual overrides fallback
         if (!seoDoc && !isSow) {
              const manualOverrides: Record<string, string> = {
@@ -265,6 +283,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
              }
         }
 
+        if (cancelled) return;
         if (seoDoc) {
              if (!isSow && (isEmailTemplate(seoDoc.document_type, slug) || isChecklistTemplate(seoDoc.document_type, slug))) {
                  localStorage.removeItem('pending_template');
@@ -324,7 +343,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
       }
     };
     init().then(() => {
-      if (requestedTemplate) return;
+      if (cancelled || requestedTemplate || searchParams.has('project')) return;
       try {
         const draft = parseEditorDraft(sessionStorage.getItem(DRAFT_KEY));
         if (!draft) return;
@@ -342,11 +361,12 @@ If the Client cancels the project after work has begun, any deposit, completed w
         setDunningEnabled(draft.dunningEnabled);
         setStep('final');
       } catch { /* Browser storage is optional. */ }
-    }).catch(() => setInitializationError(true)).finally(() => setInitialized(true));
+    }).catch(() => { if (!cancelled) setInitializationError(true); }).finally(() => { if (!cancelled) setInitialized(true); });
+    return () => { cancelled = true; };
   }, [supabase, searchParams]);
 
   useEffect(() => {
-    if (!initialized || step !== 'final') return;
+    if (!initialized || context || searchParams.has('project') || step !== 'final') return;
     const timer = window.setTimeout(() => {
       if (skipDraftSave.current) return;
       try {
@@ -511,6 +531,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
         });
     }
 
+    if (!user && context) { setLoading(false); alert('Sign in to the original account before saving this project draft.'); return; }
     if (!user) {
       setLoading(false); 
       localStorage.setItem('pendingSOW', JSON.stringify({
@@ -542,10 +563,19 @@ If the Client cancels the project after work has begun, any deposit, completed w
       return;
     }
 
+    if (context) {
+      try {
+        if (user.id !== context.ownerId) throw Error('Account changed');
+        await validateHandoff(supabase, context);
+      } catch { setLoading(false); alert('Project context changed or is unavailable. Reload before saving.'); return; }
+    }
+    if (!mounted.current) return;
     setLoadingMessage('Saving...');
     if (!isPro && projectCount >= 3) { setLoading(false); setShowPricingModal(true); return; }
 
+    const agreementId = crypto.randomUUID();
     const { error } = await supabase.from('sow_documents').insert({
+      id: agreementId,
       user_id: user.id,
       client_name: formData.clientName,
       client_data: {
@@ -574,10 +604,10 @@ If the Client cancels the project after work has begun, any deposit, completed w
       skipDraftSave.current = true;
       trackAgreementEvent('agreement_saved');
       try {
-        sessionStorage.removeItem('mfh-agreement-brief-v1');
-        sessionStorage.removeItem(DRAFT_KEY);
+        clearAgreementDraft(sessionStorage, context);
       } catch { /* Optional local draft cache. */ }
-      router.push('/dashboard');
+      if (!mounted.current) return;
+      router.push(context ? '/workspace/agreements?project='+context.projectId+'&agreement='+agreementId : '/dashboard');
     }
     else alert("Error saving: " + error.message);
     setLoading(false);
@@ -600,14 +630,13 @@ If the Client cancels the project after work has begun, any deposit, completed w
               if (confirm('Start a new agreement? This replaces the unsaved draft in this tab.')) {
                 skipDraftSave.current = true;
                 try {
-                  sessionStorage.removeItem(DRAFT_KEY);
-                  sessionStorage.removeItem('mfh-agreement-brief-v1');
+                  clearAgreementDraft(sessionStorage, context);
                 } catch { /* Browser storage may be unavailable. */ }
                 window.location.assign('/create');
               }
             }} className="text-sm font-medium text-gray-600 underline underline-offset-4">New draft</button>
             {!isPro && projectCount >= 3 && <span className="hidden md:flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full border border-amber-200 cursor-pointer" onClick={() => setShowPricingModal(true)}><AlertCircle className="w-3 h-3" /> Free Limit Reached</span>}
-            <div className="bg-slate-900 text-white w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg font-bold text-lg shadow-sm">M</div>
+            <BrandMark/>
             <span className="d4-editor-wordmark text-sm font-bold text-gray-900">MicroFreelanceHub</span>
         </div>
       </div>
@@ -621,10 +650,10 @@ If the Client cancels the project after work has begun, any deposit, completed w
       {renderHeader()}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
-        {!initialized ? <div role="status" className="py-16 text-center text-gray-600">Loading your agreement...</div> : initializationError ? <div role="alert" className="py-16 text-center text-red-700">We could not load the editor. Please refresh to try again.</div> : <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        {!initialized ? <div role="status" className="py-16 text-center text-gray-600">Loading your agreement...</div> : initializationError ? <div role="alert" className="py-16 text-center text-red-700">We could not load the editor or verify this project and client for your signed-in account. Return to your workspace or refresh to try again.</div> : <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
 
           {/* STEP 0: MODE SELECTION */}
-          {step === 'select_mode' && <AgreementStarter onSkip={brief => {
+          {step === 'select_mode' && <AgreementStarter initialBrief={context || undefined} storageKey={briefStorageKey(context)} onSkip={brief => {
             if (!brief.title && !brief.scope && !brief.price && !brief.client && !brief.email && !brief.timing && !brief.exclusions && !brief.revisions && brief.deposit === 'none') { handleStartManual(); return; }
             setManualPriceOverride(brief.price);
             setDepositType(brief.deposit);
@@ -968,10 +997,16 @@ If the Client cancels the project after work has begun, any deposit, completed w
   );
 }
 
+function ContextualEditor() {
+  const params = useSearchParams();
+  // Query navigation remounts every piece of editor state, including error/loading state.
+  return <CreateProjectContent key={params.toString()} />;
+}
+
 export default function CreateProject() {
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-500 font-medium">Loading editor...</div>}>
-      <CreateProjectContent />
+      <ContextualEditor />
     </Suspense>
   );
 }

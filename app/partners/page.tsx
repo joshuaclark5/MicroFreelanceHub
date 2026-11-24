@@ -1,3 +1,4 @@
+import Brand from '../components/Brand';
 import Navbar from '../components/Navbar';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -45,8 +46,7 @@ export default function PartnersPage() {
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-20">
           <div>
             <Link href="/" className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-slate-900">
-              <span className="flex h-8 w-8 items-center justify-center rounded-md bg-slate-900 text-sm font-bold text-white">M</span>
-              MicroFreelanceHub
+              <Brand/>
             </Link>
             <p className="mb-4 text-sm font-semibold uppercase tracking-wide text-blue-700">Partner Program</p>
             <h1 className="mb-5 max-w-3xl text-4xl font-extrabold leading-tight tracking-normal text-slate-950 md:text-5xl">

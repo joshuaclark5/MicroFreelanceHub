@@ -1,5 +1,6 @@
 'use client';
 
+import Brand from '../../components/Brand';
 import { useEffect, useRef, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
@@ -219,7 +220,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
 
   return (
     <div className="d4-portal min-h-screen bg-[#f6f8f7] py-6 sm:py-8 px-4 print:bg-white print:p-0 print:m-0">
-      <header className="d4-client-brand print:hidden"><Link href="/" className="d4-brand"><span>M</span>MicroFreelanceHub</Link><span>Client review</span></header>
+      <header className="d4-client-brand print:hidden"><Link href="/" className="d4-brand"><Brand/></Link><span>Client review</span></header>
       {paymentNotice && <p role="status" className="mx-auto mb-5 max-w-5xl rounded-md border border-gray-200 bg-white p-4 text-sm text-gray-700 print:hidden">{paymentNotice} {paymentVerificationPending && <button className="underline font-semibold" onClick={() => window.location.reload()}>Refresh confirmation</button>}</p>}
 
       {dunningActive && (

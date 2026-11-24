@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Brand from './components/Brand';
 import { productFeatures } from './data/productFeatures';
 import AgreementExample from './components/AgreementExample';
 import { useEffect, useState } from 'react';
@@ -54,8 +55,7 @@ export default function HomePage() {
       <nav className="border-b border-gray-100/50 bg-white/70 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center">
           <Link href="/" aria-label="MicroFreelanceHub home" className="flex items-center gap-2 min-w-0">
-            <div className="bg-slate-900 text-white w-8 h-8 flex items-center justify-center rounded-lg font-bold text-lg shadow-md">M</div>
-            <span className="font-semibold text-base sm:text-lg text-gray-950">MicroFreelanceHub</span>
+            <Brand/>
           </Link>
           <div className="hidden md:flex gap-4 items-center">
             <Link href="/pricing" className="text-sm font-semibold text-gray-600 hover:text-gray-950">Pricing</Link>
@@ -71,10 +71,10 @@ export default function HomePage() {
             </Link>
             {user ? (
               <Link
-                href="/dashboard"
+                href="/workspace"
                 className="bg-slate-900 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-slate-800 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
               >
-                My dashboard <ArrowRight className="w-4 h-4" />
+                My workspace <ArrowRight className="w-4 h-4" />
               </Link>
             ) : (
               <>
@@ -101,7 +101,7 @@ export default function HomePage() {
             {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
-        <div className="d4-home-mobile-links"><Link href="/features">Features</Link><Link href="/pricing">Pricing</Link>{user ? <><Link href="/dashboard">My dashboard</Link><button type="button" onClick={signOut}>Sign out</button></> : <><Link href="/login?mode=signin">Log in</Link><Link href="/login" className="d4-mobile-signup">Sign up</Link></>}</div>
+        <div className="d4-home-mobile-links"><Link href="/features">Features</Link><Link href="/pricing">Pricing</Link>{user ? <><Link href="/workspace">My workspace</Link><button type="button" onClick={signOut}>Sign out</button></> : <><Link href="/login?mode=signin">Log in</Link><Link href="/login" className="d4-mobile-signup">Sign up</Link></>}</div>
         {isMenuOpen && (
           <div className="border-t border-slate-100 bg-white px-4 py-4 md:hidden">
             <div className="mx-auto flex max-w-7xl flex-col gap-3">
@@ -116,7 +116,7 @@ export default function HomePage() {
                 Templates
               </Link>
               {user ? (
-                <div className="grid gap-3"><Link href="/dashboard" className="d4-primary">My dashboard</Link><Link href="/settings" className="d4-secondary">Account &amp; billing</Link><button type="button" className="d4-secondary" onClick={signOut}>Sign out</button></div>
+                <div className="grid gap-3"><Link href="/workspace" className="d4-primary">My workspace</Link><Link href="/settings" className="d4-secondary">Account &amp; billing</Link><button type="button" className="d4-secondary" onClick={signOut}>Sign out</button></div>
               ) : (
                 <div className="grid grid-cols-2 gap-3 pt-1">
                   <Link href="/login?mode=signin" className="rounded-lg border border-slate-200 px-3 py-2 text-center text-sm font-bold text-slate-700">
@@ -138,7 +138,7 @@ export default function HomePage() {
           <h1 className="text-3xl sm:text-5xl font-semibold text-gray-950 leading-tight">Less scattered admin.<br/>More room for<br/><em>your best work.</em></h1>
           <p className="mt-4 text-base sm:text-lg text-gray-600 leading-relaxed">Keep clients, scheduling, agreements, invoice drafts and time tracking in one workspace. Start with one useful task, then bring the rest of your work together.</p>
           <div className="mt-6 flex flex-col sm:flex-row justify-center items-stretch sm:items-center gap-3">
-            <Link href="/create" className="d4-primary">Start my agreement <ArrowRight size={18}/></Link>
+            <Link href={user?"/workspace":"/login?next=/workspace"} className="d4-primary">{user?"Open my workspace":"Start with my clients"} <ArrowRight size={18}/></Link><Link href="/create" className="d4-secondary">Draft an agreement</Link>
             <a href="#agreement-example" className="inline-flex min-h-11 items-center justify-center px-3 text-sm font-semibold text-blue-700 underline underline-offset-4">See a sample client link</a>
           </div>
           <p className="mt-3 text-xs sm:text-sm text-slate-600">Free to draft. Create an account to save. <Link href="/pricing" className="underline underline-offset-2">Compare plan limits and payment features</Link>.</p>
@@ -256,7 +256,7 @@ export default function HomePage() {
                  </p>
               </div>
               <div className="mt-auto relative rounded-xl overflow-hidden border border-slate-200 shadow-lg min-h-[260px] bg-white flex items-start">
-                 <div className="w-full p-6 text-sm text-slate-700"><p className="d4-eyebrow mb-5">A practical workspace</p><p className="border-b border-slate-200 py-4">Continue unfinished drafts</p><p className="border-b border-slate-200 py-4">Review signatures and payment details</p><p className="py-4">Open, edit or copy a client link</p><Link href="/dashboard" className="d4-secondary mt-4">Open your dashboard</Link></div>
+                 <div className="w-full p-6 text-sm text-slate-700"><p className="d4-eyebrow mb-5">A practical workspace</p><p className="border-b border-slate-200 py-4">Continue unfinished drafts</p><p className="border-b border-slate-200 py-4">Review signatures and payment details</p><p className="py-4">Open, edit or copy a client link</p><Link href="/workspace" className="d4-secondary mt-4">Open your dashboard</Link></div>
               </div>
             </div>
 

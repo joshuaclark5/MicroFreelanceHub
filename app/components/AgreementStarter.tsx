@@ -6,23 +6,29 @@ import { keepDialogFocus } from '../lib/dialogFocus';
 import { trackAgreementEvent } from '../lib/agreementEvents';
 
 export type AgreementBrief = { title: string; scope: string; timing: string; price: string; client: string; email: string; revisions: string; exclusions: string; deposit: 'none' | '50' };
+// A new cache identity must never reuse another project's in-memory brief.
+export default function AgreementStarter(props: Parameters<typeof AgreementStarterContent>[0]) {
+  return <AgreementStarterContent key={props.storageKey || 'mfh-agreement-brief-v1'} {...props} />;
+}
 const empty: AgreementBrief = { title: '', scope: '', timing: '', price: '', client: '', email: '', revisions: '', exclusions: '', deposit: 'none' };
 const labels = ['Project', 'Scope', 'Payment', 'Review'];
 const money = (value: string) => value ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(value)) : 'Not set';
 
-export default function AgreementStarter({ onComplete, onSkip }: {
+function AgreementStarterContent({ onComplete, onSkip, initialBrief, storageKey = 'mfh-agreement-brief-v1' }: {
+  initialBrief?: Partial<AgreementBrief>;
+  storageKey?: string;
   onComplete: (brief: AgreementBrief) => void;
   onSkip: (brief: AgreementBrief) => void;
 }) {
   const [stage, setStage] = useState(0);
-  const [brief, setBrief] = useState<AgreementBrief>(empty);
+  const [brief, setBrief] = useState<AgreementBrief>({...empty, ...initialBrief});
   const [restored, setRestored] = useState(false);
   const [storageState, setStorageState] = useState('Loading draft…');
   const dialog = useRef<HTMLDialogElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     try {
-      const saved = JSON.parse(sessionStorage.getItem('mfh-agreement-brief-v1') || 'null');
+      const saved = JSON.parse(sessionStorage.getItem(storageKey) || 'null');
       if (saved && Number.isFinite(saved.savedAt) && saved.savedAt <= Date.now() && Date.now() - saved.savedAt < 86400000 && ['title', 'scope', 'timing', 'price'].every(key => typeof saved.brief?.[key] === 'string')) {
         const next = { ...empty };
         for (const key of Object.keys(empty) as (keyof AgreementBrief)[]) {
@@ -38,10 +44,10 @@ export default function AgreementStarter({ onComplete, onSkip }: {
   useEffect(() => {
     if (!restored) return;
     try {
-      sessionStorage.setItem('mfh-agreement-brief-v1', JSON.stringify({ version: 2, brief, stage, savedAt: Date.now() }));
+      sessionStorage.setItem(storageKey, JSON.stringify({ version: 2, brief, stage, savedAt: Date.now() }));
       setStorageState('Draft saved in this tab');
     } catch { setStorageState('Not saved — browser storage unavailable. Keep this page open.'); }
-  }, [brief, stage, restored]);
+  }, [brief, stage, restored, storageKey]);
   const advance = (next: number) => { setStage(next); requestAnimationFrame(() => heading.current?.focus()); };
   const field = 'mt-2 w-full rounded-md border border-slate-300 bg-white px-3 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-600';
   const update = (key: keyof AgreementBrief, value: string) => setBrief(previous => ({ ...previous, [key]: value }));

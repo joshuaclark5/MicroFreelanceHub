@@ -28,7 +28,7 @@ const other = '22222222-2222-4222-8222-222222222222';
 const id = '33333333-3333-4333-8333-333333333333';
 const related = '44444444-4444-4444-8444-444444444444';
 const specs = {
-  clients: { fields: ['name','email','notes'], valid: {name:'Client',email:'client@fixture.invalid',notes:'Notes'}, required:['name'] },
+  clients: { fields: ['name','email','phone','notes'], valid: {name:'Client',email:'client@fixture.invalid',phone:'+1 (202) 555-0100',notes:'Notes'}, required:['name'] },
   stages: { fields:['name','position'], valid:{name:'In progress',position:2}, required:['name'] },
   projects: { fields:['name','client_id','stage_id','notes','status'], valid:{name:'Project',client_id:related,stage_id:related,notes:'Notes',status:'active'}, required:['name','client_id','stage_id'] },
   tasks: { fields:['title','project_id','notes','due_date','status'], valid:{title:'Task',project_id:related,notes:'Notes',due_date:'2028-02-29',status:'open'}, required:['title','project_id'] },
@@ -203,7 +203,7 @@ for(const [entity,spec] of Object.entries(specs)) {
       for(const method of ['POST','PATCH']){const f=fixture();denied(await f.invoke(method,entity,{body}),400);noDB(f);}
     });
     if(['name','title','notes','email'].includes(key)) {
-      const max=key==='notes'?4000:key==='email'?254:entity==='stages'?80:160;
+      const max=key==='phone'?80:key==='notes'?4000:key==='email'?254:entity==='stages'?80:160;
       const value=length=>key==='email'?'a'.repeat(length-6)+'@b.com':'x'.repeat(length);
       test(entity+' '+key+' length boundary '+max,async()=>{
         const f=fixture();for(const method of ['POST','PATCH']) {

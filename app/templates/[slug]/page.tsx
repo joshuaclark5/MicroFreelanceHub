@@ -1,3 +1,4 @@
+import Brand from '../../components/Brand';
 import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
@@ -248,7 +249,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
     <div className="public-design public-template d4-template min-h-screen bg-white font-sans text-slate-900 pb-20">
       
       <nav aria-label="Site navigation" className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 bg-white px-5 py-4">
-        <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold"><span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-lg font-bold text-white">M</span>MicroFreelanceHub</Link>
+        <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold"><Brand/></Link>
         <div className="flex flex-wrap items-center gap-4 text-sm"><Link href="/templates">Templates</Link><Link href="/pricing">Pricing</Link><a href="mailto:support@microfreelancehub.com">Help</a><Link href="/login?mode=signin">Sign in</Link></div>
       </nav>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />

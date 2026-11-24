@@ -1,4 +1,26 @@
+# Current release readiness: 0.1.3 candidate
+
+The shared logo, Home links and project-specific website navigation are updated in source. These links open the website and may require a separate web sign-in; customer notes are not yet native screens.
+
+Android native builds remain internal previews using `com.microfreelancehub.mobile.preview` and a debug certificate. Do not submit these APKs to Google Play. A production-signed AAB, store listing/data-safety declarations and store review are still required. iOS needs a controlled Mac/Xcode build, distribution signing, device acceptance and App Store submission/review. Neither platform has a guaranteed approval-day publication date. Do not purchase cloud builds or enrollment without separate spending authorization.
+
+App icon source is `public/brand/mark.svg`; `scripts/render-brand-assets.cjs` generates native bitmap assets. Version0.1.3/code4 must be verified from the built binary before installation or packaging. Existing0.1.2 artifact remains preserved.
+
+---
+
 # MicroFreelanceHub native core prototype
+
+## Google sign-in candidate (0.1.1)
+
+Adds Continue with Google using the system browser and Supabase PKCE. The same Google identity accesses the existing backend account; users do not need an email password or a duplicate account. Website signup/recovery links are explicit secondary paths. This implementation is not yet end-to-end verified on a phone.
+
+The exact callback `microfreelancehub://auth/callback` was added and verified in Production Supabase's redirect allowlist, preserving the three existing web/local entries and Site URL. Expo declares the scheme. Callback parsing rejects other addresses, fragment tokens, missing/duplicate codes and provider errors. The SDK exchanges the single-use code against its in-memory verifier. Native Expo Crypto supplies secure randomness and SHA-256 with a TextEncoder polyfill; authorization fails closed unless the SDK emits S256. No Google client secret or backend service-role key is embedded.
+
+Sessions and PKCE state remain memory-only. OS termination during sign-in requires a new attempt. Secure persistent sessions, iOS native testing, store signing and full provider/device verification remain pending. Internal Android build uses separate preview ID and debug signing; do not upload it as a production store artifact. Avoid installing both preview and production apps with the same custom scheme during testing.
+
+Focused checks: `node scripts/test-mobile-google.cjs`, `node scripts/test-mobile-native-crypto.cjs`, and `npm run typecheck --prefix mobile`. These validate parsing/control flow/crypto adapter behavior, not Google consent or native return-to-app behavior.
+
+Historical prototype notes below predate this candidate; Google OAuth is now implemented locally but not verified end-to-end.
 
 Expo SDK 54 / React Native for iOS and Android; not a WebView, PWA, signed binary, device-tested app or store release. Shares the existing secure Supabase accounts, RLS and `workspace_time_mutate` operation. No new database or alternate billing system.
 
@@ -27,3 +49,9 @@ Time entry now has a local review step: project, duration, start time and note a
 ## Leaving an unfinished entry
 
 Sign-out asks for confirmation if a duration/note, review, or uncertain save exists. An uncertain save takes priority: users can keep working and retry, or explicitly sign out after being warned that the in-memory retry ID will be lost and the original account must be checked before another entry. Canceling changes nothing. Confirmation from an older account/session is ignored. This does not protect against OS termination, forced closure, or session expiry; durable encrypted recovery remains unfinished. Native alert interaction still requires device testing.
+
+## Home overview (0.1.2 candidate)
+
+Signed-in users land on Home. Home and Time tabs remain above the scroll area. Home summarizes only the loaded active projects (up to 200) and latest 20 completed entries, not lifetime work or revenue. The first five projects are listed, with browser links to Clients, CRM notes, Agreements and Invoices; these are not native implementations. Website sign-in is separate.
+
+Tab changes preserve the in-memory time draft, review and uncertain retry operation. Account changes clear that state and return Home. Native TypeScript, mocked navigation/session tests and OAuth tests are separate from actual on-device acceptance. Device installation and visual/accessibility checks remain required. This version does not add offline persistence or full-workspace totals.
