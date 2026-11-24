@@ -1,4 +1,4 @@
-import {validId} from './workspaceScheduling';
+import {validId,validLocalDate} from './workspaceScheduling';
 export const validHandle=(v:string)=>/^[a-f0-9]{64}$/.test(v);
 function object(v:unknown):Record<string,unknown>{if(!v||typeof v!=='object'||Array.isArray(v))throw Error('Invalid request.');return v as Record<string,unknown>;}
 function closed(b:Record<string,unknown>,keys:string[]){if(Object.keys(b).length!==keys.length||keys.some(k=>!Object.hasOwn(b,k)))throw Error('Invalid fields.');}
@@ -17,4 +17,12 @@ export async function boundedJson(request:Request,max=22000){if(Number(request.h
  const reader=request.body?.getReader();if(!reader)throw Error('Missing body.');let total=0;const chunks:Uint8Array[]=[];
  try{while(true){const {done,value}=await reader.read();if(done)break;total+=value.length;if(total>max){await reader.cancel();throw Error('Request too large.');}chunks.push(value);}}finally{reader.releaseLock();}
  const bytes=new Uint8Array(total);let offset=0;for(const c of chunks){bytes.set(c,offset);offset+=c.length;}return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));
+}
+
+export function publicBookingStart(params:URLSearchParams):{startsOn:string|null;afterSlot:string|null} {
+ if(!params.toString())return {startsOn:null,afterSlot:null};
+ const after=params.get('after');
+ if(Array.from(params.keys()).some(k=>!['start','after'].includes(k))||params.getAll('start').length!==1||!validLocalDate(params.get('start'))||params.getAll('after').length>1)throw Error('Invalid booking date window.');
+ if(after!==null&&(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.000Z$/.test(after)||!Number.isFinite(Date.parse(after))||new Date(after).toISOString()!==after))throw Error('Invalid booking cursor.');
+ return {startsOn:params.get('start'),afterSlot:after};
 }

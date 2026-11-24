@@ -13,7 +13,7 @@ async function handle(request:Request){
   const cookieStore=cookies();const db=createRouteHandlerClient({cookies:()=>cookieStore});
   const {data:{user},error}=await db.auth.getUser();if(error||!user)return reply({error:'Sign in required. Drafts have not been submitted.'},401);
   if(request.method==='GET'){
-   const queries=[['availability','id,title,timezone,weekday,start_minute,end_minute,duration,buffer,notice_hours,horizon_days,daily_cap,active,version'],['intakes','id,title,consent,fields,version'],['bookings','id,attendee,starts_at,ends_at,timezone,status,version,intake_id,answers']];
+   const queries=[['availability','id,title,timezone,weekday,start_minute,end_minute,duration,buffer,notice_hours,horizon_days,daily_cap,active,version,recurrence'],['intakes','id,title,consent,fields,version'],['bookings','id,attendee,starts_at,ends_at,timezone,status,version,intake_id,answers']];
    const result:Record<string,unknown>={actorId:user.id,truncated:false};
    for(const [name,columns]of queries){const {data,error}=await db.from('workspace_scheduling_'+name).select(columns).eq('owner_id',user.id).order('created_at',{ascending:false}).order('id',{ascending:false}).limit(501);if(error)throw error;result[name]=(data||[]).slice(0,500);if((data||[]).length>500)result.truncated=true;}
    return reply(result);

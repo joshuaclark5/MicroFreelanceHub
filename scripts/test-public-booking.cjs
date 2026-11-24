@@ -12,7 +12,7 @@ function load(file,mocks={},env={}){const exports={};vm.runInNewContext(ts.trans
 (async()=>{db=new PGlite(dir);
 await db.exec("create role service_role nologin nosuperuser bypassrls;create role authenticated nologin nosuperuser nobypassrls;create role anon nologin nosuperuser nobypassrls;create schema auth;create table auth.users(id uuid primary key);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;grant usage on schema auth,public to authenticated,anon,service_role;grant execute on function auth.uid() to authenticated,anon,service_role;");
 await q('insert into auth.users values($1),($2)',[A,B]);
-for(const f of ['20261118020000_workspace_scheduling.sql','20261118090000_workspace_calendar.sql','20261121000000_public_booking.sql'])await db.exec(fs.readFileSync(path.join(root,'supabase/migrations',f),'utf8'));
+for(const f of ['20261118020000_workspace_scheduling.sql','20261118090000_workspace_calendar.sql','20261121000000_public_booking.sql','20261124000000_weekly_recurrence.sql','20261124010000_public_booking_windows.sql','20261124020000_recurrence_helper_grants.sql'])await db.exec(fs.readFileSync(path.join(root,'supabase/migrations',f),'utf8'));
 const date=new Date(Date.now()+3*86400000);date.setUTCHours(12,0,0,0);let rule,intake,portal;
 await role('authenticated',A);
 await check('no existing owner is auto enabled; real owner scheduling/configuration RPCs',async()=>{
@@ -28,12 +28,12 @@ await check('browser roles cannot reach privileged SQL or another owner settings
 for(const r of ['anon','authenticated']){await role(r,B);for(const t of ['workspace_public_booking_receipts','workspace_public_booking_limits'])await denied(()=>q('select * from '+t));await denied(()=>service(portal.token));await denied(()=>throttle(portal.token));}
 await role('authenticated',B);assert.equal((await q('select * from workspace_public_booking')).rows.length,0);
 await denied(()=>config({expectedActorId:B,expectedVersion:0,availabilityId:rule.id,intakeId:intake.id,enabled:true,rotate:false}));
-await role();
+await role();await denied(()=>q("select workspace_recurrence_valid(null::jsonb)"));await denied(()=>q("select workspace_availability_matches(0,null::jsonb,current_date)"));
 });
 await check('minimal public projection and actual SQL filters',async()=>{
 const result=await service(portal.token);assert.deepEqual(Object.keys(result).sort(),['consent','duration','fields','portalVersion','slots','timezone','title']);
 assert.ok(result.slots.includes(date.toISOString()));assert.ok(result.slots.length<=100);assert.ok(!JSON.stringify(result).includes(A));assert.ok(!JSON.stringify(result).includes(rule.id));
-for(const extra of [{answers:{}},{answers:{q2:'forged'}},{consented:false},{attendee:null},{startsAt:new Date(date.getTime()+60000).toISOString()},{startsAt:new Date(date.getTime()+7*86400000).toISOString()},{portalVersion:0},{owner_id:B},{operationId:null}])await denied(()=>service(portal.token,body(extra)));
+for(const extra of [{answers:{}},{answers:{q2:'forged'}},{consented:false},{attendee:null},{startsAt:new Date(date.getTime()+60000).toISOString()},{startsAt:new Date(date.getTime()+35*86400000).toISOString()},{portalVersion:0},{owner_id:B},{operationId:null}])await denied(()=>service(portal.token,body(extra)));
 });
 let accepted;
 await check('20 competing public submissions admit exactly one, retry is idempotent',async()=>{
@@ -75,7 +75,7 @@ await role('authenticated',A);portal=await config({expectedActorId:A,expectedVer
 const scheduling=load('app/lib/workspaceScheduling.ts'),input=load('app/lib/publicBooking.ts',{'./workspaceScheduling':scheduling});
 const env={PUBLIC_BOOKING_ENABLED:'true',NEXT_PUBLIC_SUPABASE_URL:'https://fixture.invalid',SUPABASE_SERVICE_ROLE_KEY:'fictional-server-key'};
 let rpcCalls=0;
-const rpc=async(name,args)=>{rpcCalls++;await role();try{const data=name==='public_booking_throttle'?await throttle(args.handle,args.writing,args.identity_hash):await service(args.handle,args.payload);return {data,error:null};}catch(e){return {data:null,error:{code:e.code}};}};
+const rpc=async(name,args)=>{rpcCalls++;await role();try{const data=name==='public_booking_throttle'?await throttle(args.handle,args.writing,args.identity_hash):name==='public_booking_window'?(await q('select public_booking_window($1,$2::date,$3::timestamptz) r',[args.handle,args.starts_on,args.after_slot])).rows[0].r:await service(args.handle,args.payload);return {data,error:null};}catch(e){return {data:null,error:{code:e.code}};}};
 const lib=load('app/lib/server/publicBooking.ts',{'@supabase/supabase-js':{createClient:()=>({rpc})}},env);
 const route=load('app/api/public-booking/[token]/route.ts',{'next/server':{NextResponse:{json:(body,init)=>Response.json(body,init)}},'../../../lib/publicBooking':input,'../../../lib/server/publicBooking':lib});
 const url='https://fixture.invalid/api/public-booking/'+portal.token;
@@ -83,7 +83,7 @@ const get=()=>route.GET(new Request(url),{params:{token:portal.token}});
 const post=(payload,headers={},raw)=>route.POST(new Request(url,{method:'POST',headers:{origin:'https://fixture.invalid','content-type':'application/json',...headers},body:raw??JSON.stringify(payload)}),{params:{token:portal.token}});
 const challenge=()=>lib.bookingChallenge(env.SUPABASE_SERVICE_ROLE_KEY,portal.token,Date.now()-3000);
 await check('actual API validation executes before privileged RPC; bounded streaming JSON',async()=>{
-const before=rpcCalls,valid={...body(),challenge:challenge(),website:''};
+const before=rpcCalls;for(const suffix of ['?start=2027-02-30','?start=2027-01-01&start=2027-01-02','?owner=bad','?start=','?after=2026-12-01T00%3A00%3A00.000Z','?start=2026-12-01&after=bad','?start=2026-12-01&after=2026-02-30T00%3A00%3A00.000Z','?start=2026-12-01&after=&after='])assert.equal((await route.GET(new Request(url+suffix),{params:{token:portal.token}})).status,404);const valid={...body(),challenge:challenge(),website:''};
 for(const [extra,headers]of [[{ownerId:A},{}],[{attendee:''},{}],[{answers:{q9:'bad'}},{}],[{startsAt:'2027-02-30T12:00:00.000Z'},{}],[{website:'bot'},{}],[{consented:false},{}],[{challenge:'invalid'},{}],[{},{origin:'https://evil.invalid'}],[{},{'content-type':'text/plain'}]]){
 assert.ok((await post({...valid,...extra},headers)).status>=400);}
 assert.equal((await post(valid,{},' '.repeat(22001))).status,400);assert.equal((await post(valid,{},'{')).status,400);assert.equal(rpcCalls,before);
@@ -113,7 +113,7 @@ await check('actual browser mobile and desktop flows through real handlers and S
 const document=load('app/lib/server/bookingDocument.ts'),page=load('app/book/[token]/route.ts',{'../../lib/publicBooking':input,'../../lib/server/bookingDocument':document});
 const proof=await require('./public-booking-browser-proof.cjs')({pageHandler:page,apiHandler:route,token:portal.token,prepare:async()=>{
  await role('authenticated',A);const bookings=(await q("select id,version from workspace_scheduling_bookings where status='confirmed'")).rows;for(const b of bookings)await mutate('cancel',{id:b.id,expectedVersion:b.version});
- await db.exec('reset role');await q("update workspace_public_booking_limits set expires_at=now()-interval '1 second'");await role();
+ await db.exec('reset role');await q("update workspace_public_booking_limits set expires_at=now()-interval '1 second'");await role('authenticated',A);const browserRule=await mutate('availability',{title:'Browser availability',timezone:'UTC',weekday:0,startMinute:0,endMinute:1440,duration:15,buffer:0,noticeHours:0,horizonDays:30,dailyCap:50,recurrence:{weekdays:[0,1,2,3,4,5,6],intervalWeeks:1,startDate:new Date().toISOString().slice(0,10),endDate:null,excludedDates:[]}});portal=await config({expectedActorId:A,expectedVersion:portal.version,availabilityId:browserRule.id,intakeId:intake.id,enabled:true,rotate:false});await role();return {laterDate:new Date(date.getTime()+14*86400000).toISOString().slice(0,10)};
 }});console.log(proof);
 });
 console.log(JSON.stringify({passed:checks.length,checks,database:dir,limitations:['Disposable actual scheduling/calendar/public SQL, fictional auth users.','Embedded single-backend contention is not independent PostgreSQL connection proof.','Supabase SDK transport maps to actual disposable SQL; no live provider or deployed Next routing proof.']}));
