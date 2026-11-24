@@ -1,3 +1,4 @@
+import { PLAN_PRICES, PRICING_VERSION, planQuote, BillingCycle } from '../../../lib/planPricing';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
@@ -14,36 +15,21 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-const PLAN_PRICES = {
-  starter: {
-    name: 'Starter',
-    amount: 900, // $9.00 in cents
-    interval: 'month' as const,
-  },
-  pro: {
-    name: 'Professional',
-    amount: 2900, // $29.00 in cents
-    interval: 'month' as const,
-  },
-  agency: {
-    name: 'Agency',
-    amount: 7900, // $79.00 in cents
-    interval: 'month' as const,
-  },
-};
-
 export async function POST(request: Request) {
   try {
     const auth = createRouteHandlerClient({ cookies });
     const { data: { user: authenticatedUser } } = await auth.auth.getUser();
     if (!authenticatedUser) return NextResponse.json({ error: 'Sign in to choose a plan.' }, { status: 401 });
-    const { plan, userId, landingPage, leadSource } = await request.json();
+    const { plan, userId, landingPage, leadSource, billingCycle = 'monthly', pricingVersion } = await request.json();
     if (userId !== authenticatedUser.id) return NextResponse.json({ error: 'Account mismatch.' }, { status: 403 });
 
     // Validate plan
     if (typeof plan !== 'string' || !Object.prototype.hasOwnProperty.call(PLAN_PRICES, plan)) {
       return NextResponse.json({ error: 'Invalid plan' }, { status: 400 });
     }
+
+    if (!['monthly','annual'].includes(billingCycle)) return NextResponse.json({ error: 'Invalid billing cycle.' }, { status: 400 });
+    if (pricingVersion !== PRICING_VERSION) return NextResponse.json({ error: 'Pricing has changed. Refresh pricing and review the current amount before checkout.' }, { status: 409 });
 
     if (!userId) {
       return NextResponse.json({ error: 'User ID required' }, { status: 400 });
@@ -67,6 +53,14 @@ export async function POST(request: Request) {
 
     if (profileError) {
       throw new Error('Unable to load checkout profile');
+    }
+
+    // Never create a second subscription or change an existing subscriber's price here.
+    if (profile?.stripe_customer_id) {
+      const existing = await stripe.subscriptions.list({ customer: profile.stripe_customer_id, status: 'all', limit: 100 });
+      if (existing.has_more || existing.data.some(s => !['canceled','incomplete_expired'].includes(s.status))) {
+        return NextResponse.json({ error: 'You already have a subscription. Manage it in Settings; your current price has not changed.' }, { status: 409 });
+      }
     }
 
     const attribution = sanitizeAttribution(profile?.signup_landing_page, profile?.lead_source);
@@ -100,7 +94,7 @@ export async function POST(request: Request) {
       }
     }
 
-    const planConfig = PLAN_PRICES[plan as keyof typeof PLAN_PRICES];
+    const planConfig = planQuote(plan as keyof typeof PLAN_PRICES, billingCycle as BillingCycle);
 
     // Create checkout session for subscription
     const session = await stripe.checkout.sessions.create({
@@ -110,12 +104,16 @@ export async function POST(request: Request) {
       client_reference_id: userId, // Pass userId so webhook can identify the user
       metadata: {
         plan,
+        billing_cycle: billingCycle,
+        pricing_version: PRICING_VERSION,
         landing_page: attributedLanding,
         lead_source: attributedSource,
       },
       subscription_data: {
         metadata: {
           plan,
+        billing_cycle: billingCycle,
+        pricing_version: PRICING_VERSION,
           userId,
           landing_page: attributedLanding,
           lead_source: attributedSource,
@@ -127,7 +125,7 @@ export async function POST(request: Request) {
             currency: 'usd',
             product_data: {
               name: planConfig.name,
-              description: `${planConfig.name} plan - $${planConfig.amount / 100}/month`,
+              description: `${planConfig.name} plan - $${planConfig.amount / 100}/${planConfig.interval}`,
             },
             unit_amount: planConfig.amount,
             recurring: {

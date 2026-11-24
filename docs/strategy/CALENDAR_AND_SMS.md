@@ -1,5 +1,7 @@
 # Calendar and client messaging
 
+Update, later November 23: Joshua approved a $20 total monthly SMS ceiling and new-subscription prices $5 below HoneyBook standard list pricing. See HONEYBOOK_PRICING_AND_SMS_2026-11-23.md. Earlier authorization boundaries below describe the initial calendar iteration; SMS delivery itself remains unimplemented and disabled.
+
 Requested by Joshua, November 23, 2026: evolve toward the connected client workflow of HoneyBook and Square, with polished tools and an initially lower-cost offer. This is a product direction, not authorization for a new subscription or an approved price change.
 
 ## Implemented in this iteration

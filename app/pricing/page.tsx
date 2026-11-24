@@ -1,6 +1,7 @@
 'use client';
 
 import {BrandMark} from '../components/Brand';
+import { PLAN_PRICES, PaidPlan, BillingCycle, planQuote } from '../lib/planPricing';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
@@ -8,6 +9,7 @@ import { CheckCircle2, X, ShieldCheck, ArrowRight } from 'lucide-react';
 import { getTrackedData } from '../lib/trackingClient';
 
 export default function PricingPage() {
+  const [billingCycle, setBillingCycle] = useState<BillingCycle>('monthly');
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
@@ -23,43 +25,14 @@ export default function PricingPage() {
   }, [supabase]);
 
   // --- STRIPE CHECKOUT HANDLER ---
-  const handlePricingClick = async (plan: 'starter' | 'pro') => {
+  const handlePricingClick = (plan: PaidPlan) => {
     const { landing_page, lead_source } = getTrackedData();
-
-    if (!user) {
-      const loginUrl = new URL('/login', window.location.origin);
-      loginUrl.searchParams.set('plan', plan);
-      if (landing_page) loginUrl.searchParams.set('landing_page', landing_page);
-      if (lead_source) loginUrl.searchParams.set('lead_source', lead_source);
-      window.location.href = loginUrl.toString();
-      return;
-    }
-
-    try {
-      setCheckoutLoading(plan);
-      const response = await fetch('/api/stripe/checkout-plan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          plan,
-          userId: user.id,
-          landingPage: landing_page,
-          leadSource: lead_source,
-        }),
-      });
-
-      const data = await response.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        alert('Error initiating checkout: ' + data.error);
-      }
-    } catch (error) {
-      console.error('Checkout error:', error);
-      alert('Failed to start checkout');
-    } finally {
-      setCheckoutLoading(null);
-    }
+    const url = new URL('/checkout-plan', window.location.origin);
+    url.searchParams.set('plan',plan);
+    url.searchParams.set('billing',billingCycle);
+    if(landing_page) url.searchParams.set('landing_page',landing_page);
+    if(lead_source) url.searchParams.set('lead_source',lead_source);
+    window.location.assign(url.toString());
   };
 
   if (loading) {
@@ -103,9 +76,13 @@ export default function PricingPage() {
         </p>
       </div>
 
+      <section aria-label="Billing options" className="max-w-6xl mx-auto px-5 mb-8">
+        <label className="font-semibold">Billing frequency <select className="ml-2 rounded-lg border border-slate-400 p-3 bg-white" value={billingCycle} onChange={e=>setBillingCycle(e.target.value as BillingCycle)}><option value="monthly">Monthly</option><option value="annual">Annually</option></select></label>
+        <p className="mt-4 text-sm text-slate-600">USD subscription prices for new purchases. Annual plans are charged in full each year. Existing subscriptions are not repriced. Client payment processing fees are separate. SMS is not included or enabled.</p>
+      </section>
       {/* PRICING CARDS */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
-        <div className="grid md:grid-cols-3 gap-8 items-start">
+        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6 items-start">
 
           {/* TIER 1: Free */}
           <div className="bg-white rounded-xl p-8 border border-slate-200 shadow-sm flex flex-col h-full">
@@ -127,7 +104,8 @@ export default function PricingPage() {
 
             <h3 className="text-2xl font-bold text-slate-950 mb-2">Starter</h3>
             <p className="text-slate-600 text-sm mb-6 h-10">For solo operators who need one live client link to collect deposits.</p>
-            <div className="text-5xl font-extrabold text-slate-950 mb-6">$9<span className="text-lg text-slate-600 font-medium">/mo</span></div>
+            <div className="text-5xl font-extrabold text-slate-950 mb-6">${planQuote('starter',billingCycle).monthlyEquivalent}<span className="text-lg text-slate-600 font-medium">/mo</span></div>
+            <p className="text-sm mb-5">{billingCycle==='annual'?`Billed $${PLAN_PRICES.starter.annual/100} annually`:'Billed monthly'}</p>
             <button
               onClick={() => handlePricingClick('starter')}
               disabled={checkoutLoading === 'starter'}
@@ -148,7 +126,8 @@ export default function PricingPage() {
           <div className="bg-white rounded-xl p-8 border border-slate-200 shadow-sm flex flex-col h-full">
             <h3 className="text-2xl font-bold text-slate-900 mb-2">Professional</h3>
             <p className="text-slate-500 text-sm mb-6 h-10">For active freelancers managing multiple jobs and payment links.</p>
-            <div className="text-5xl font-extrabold text-slate-900 mb-6">$29<span className="text-lg text-slate-500 font-medium">/mo</span></div>
+            <div className="text-5xl font-extrabold text-slate-900 mb-6">${planQuote('pro',billingCycle).monthlyEquivalent}<span className="text-lg text-slate-500 font-medium">/mo</span></div>
+            <p className="text-sm mb-5">{billingCycle==='annual'?`Billed $${PLAN_PRICES.pro.annual/100} annually`:'Billed monthly'}</p>
             <button
               onClick={() => handlePricingClick('pro')}
               disabled={checkoutLoading === 'pro'}
@@ -166,6 +145,13 @@ export default function PricingPage() {
             </ul>
           </div>
 
+          <div className="bg-white rounded-xl p-8 border border-slate-200 shadow-sm flex flex-col h-full">
+            <h3 className="text-2xl font-bold mb-2">Agency</h3><p className="text-slate-600 text-sm mb-6">For businesses organizing client work with their team.</p>
+            <div className="text-5xl font-extrabold mb-6">${planQuote('agency',billingCycle).monthlyEquivalent}<span className="text-lg font-medium text-slate-600">/mo</span></div>
+            <p className="text-sm mb-5">{billingCycle==='annual'?`Billed $${PLAN_PRICES.agency.annual/100} annually`:'Billed monthly'}</p>
+            <button className="w-full py-4 rounded-xl border-2 border-slate-200 font-bold mb-8" onClick={()=>handlePricingClick('agency')}>Choose Agency</button>
+            <ul className="space-y-4 text-slate-700"><li>Client and project workspace</li><li>Team and access controls</li><li>Scheduling and invoice tools</li><li>Agreement and payment workflows</li></ul>
+          </div>
         </div>
       </div>
 
