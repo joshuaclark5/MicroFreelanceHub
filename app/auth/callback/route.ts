@@ -46,7 +46,7 @@ export async function GET(request: Request) {
 
   // Rule 1: Paywall Flow - Plan selection takes priority
   if (plan === 'starter' || plan === 'pro' || plan === 'agency') {
-    const checkoutParams = new URLSearchParams({ plan });
+    const checkoutParams = new URLSearchParams({ plan, billing: requestUrl.searchParams.get('billing')==='annual'?'annual':'monthly' });
     if (template) checkoutParams.set('template', template);
     if (landing_page) checkoutParams.set('landing_page', landing_page);
     if (lead_source) checkoutParams.set('lead_source', lead_source);

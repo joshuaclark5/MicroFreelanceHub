@@ -63,6 +63,7 @@ function LoginForm() {
     }
     if (plan) {
       redirectUrl.searchParams.set('plan', plan);
+      redirectUrl.searchParams.set('billing', searchParams.get('billing')==='annual'?'annual':'monthly');
     }
 
     // Add tracked landing page and marketing source
@@ -102,7 +103,7 @@ function LoginForm() {
     if (attribution.landing_page) params.set('landing_page', attribution.landing_page);
     if (attribution.lead_source) params.set('lead_source', attribution.lead_source);
 
-    if (plan) params.set('plan', plan);
+    if (plan) { params.set('plan', plan); params.set('billing', searchParams.get('billing')==='annual'?'annual':'monthly'); }
     return `/auth/callback?${params.toString()}`;
   };
 
@@ -115,7 +116,7 @@ function LoginForm() {
       const callbackUrl = new URL('/auth/callback', window.location.origin);
       if(searchParams.get('next')==='/workspace') callbackUrl.searchParams.set('next','/workspace');
       const attribution = getAuthAttribution(landingPageParam, leadSourceParam);
-      if (plan) callbackUrl.searchParams.set('plan', plan);
+      if (plan) { callbackUrl.searchParams.set('plan', plan); callbackUrl.searchParams.set('billing', searchParams.get('billing')==='annual'?'annual':'monthly'); }
       if (templateSlug) callbackUrl.searchParams.set('template', templateSlug);
       if (attribution.landing_page) callbackUrl.searchParams.set('landing_page', attribution.landing_page);
       if (attribution.lead_source) callbackUrl.searchParams.set('lead_source', attribution.lead_source);

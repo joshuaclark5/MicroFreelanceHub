@@ -1,5 +1,6 @@
 'use client';
 
+import { planMonthly } from '../lib/planPricing';
 import { Check, Star, X, Zap } from 'lucide-react';
 import { useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
@@ -17,51 +18,13 @@ export default function PricingModal({ isOpen, onClose, userId }: PricingModalPr
 
   if (!isOpen) return null;
 
-  const handleUpgrade = async (plan: 'starter' | 'pro') => {
-    try {
-      setLoadingPlan(plan);
-      const { landing_page, lead_source } = getTrackedData();
-      const { data: { user } } = await supabase.auth.getUser();
-      const resolvedUserId = userId || user?.id || '';
-
-      if (!resolvedUserId) {
-        const loginUrl = new URL('/login', window.location.origin);
-        loginUrl.searchParams.set('plan', plan);
-        if (landing_page) loginUrl.searchParams.set('landing_page', landing_page);
-        if (lead_source) loginUrl.searchParams.set('lead_source', lead_source);
-        window.location.href = loginUrl.toString();
-        return;
-      }
-
-      const response = await fetch('/api/stripe/checkout-plan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          plan,
-          userId: resolvedUserId,
-          landingPage: landing_page,
-          leadSource: lead_source,
-        }),
-      });
-
-      const data = await response.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else if (response.status === 401 || data.error === 'User ID required') {
-        const loginUrl = new URL('/login', window.location.origin);
-        loginUrl.searchParams.set('plan', plan);
-        if (landing_page) loginUrl.searchParams.set('landing_page', landing_page);
-        if (lead_source) loginUrl.searchParams.set('lead_source', lead_source);
-        window.location.href = loginUrl.toString();
-      } else {
-        alert(data.error || 'Failed to start checkout');
-      }
-    } catch (error) {
-      console.error('Checkout error:', error);
-      alert('Failed to start checkout');
-    } finally {
-      setLoadingPlan(null);
-    }
+  const handleUpgrade = (plan: 'starter' | 'pro') => {
+    const {landing_page,lead_source}=getTrackedData();
+    const url=new URL('/checkout-plan',window.location.origin);
+    url.searchParams.set('plan',plan);
+    if(landing_page)url.searchParams.set('landing_page',landing_page);
+    if(lead_source)url.searchParams.set('lead_source',lead_source);
+    window.location.assign(url.toString());
   };
 
   return (
@@ -96,7 +59,7 @@ export default function PricingModal({ isOpen, onClose, userId }: PricingModalPr
               <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Best first step</p>
               <h3 className="mt-1 text-2xl font-extrabold text-slate-900">Starter</h3>
               <div className="mt-3 flex items-baseline gap-1">
-                <span className="text-4xl font-extrabold text-slate-900">$9</span>
+                <span className="text-4xl font-extrabold text-slate-900">${planMonthly('starter')}</span>
                 <span className="font-medium text-slate-500">/mo</span>
               </div>
             </div>
@@ -121,7 +84,7 @@ export default function PricingModal({ isOpen, onClose, userId }: PricingModalPr
               <p className="text-xs font-bold uppercase tracking-wider text-slate-500">For more jobs</p>
               <h3 className="mt-1 text-2xl font-extrabold text-slate-900">Professional</h3>
               <div className="mt-3 flex items-baseline gap-1">
-                <span className="text-4xl font-extrabold text-slate-900">$29</span>
+                <span className="text-4xl font-extrabold text-slate-900">${planMonthly('pro')}</span>
                 <span className="font-medium text-slate-500">/mo</span>
               </div>
             </div>

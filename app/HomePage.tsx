@@ -1,4 +1,5 @@
 'use client';
+import { planMonthly } from './lib/planPricing';
 
 import Link from 'next/link';
 import Brand from './components/Brand';
@@ -310,7 +311,7 @@ export default function HomePage() {
                <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-xl relative overflow-hidden flex flex-col">
 
                   <h3 className="text-2xl font-bold text-white mb-2">Starter</h3>
-                  <div className="text-4xl font-extrabold text-white mb-6">$9<span className="text-lg text-slate-400 font-medium">/mo</span></div>
+                  <div className="text-4xl font-extrabold text-white mb-6">${planMonthly('starter')}<span className="text-lg text-slate-400 font-medium">/mo</span></div>
                   <ul className="space-y-4 mb-8 flex-1">
                      <li className="flex items-center gap-3 text-slate-300"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> 1 Active Client Project</li>
                      <li className="flex items-center gap-3 text-slate-300"><CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0" /> Live Contract + Deposit Link</li>
@@ -324,7 +325,7 @@ export default function HomePage() {
                {/* Pro Tier */}
                <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
                   <h3 className="text-2xl font-bold text-slate-900 mb-2">Professional</h3>
-                  <div className="text-4xl font-extrabold text-slate-900 mb-6">$29<span className="text-lg text-slate-500 font-medium">/mo</span></div>
+                  <div className="text-4xl font-extrabold text-slate-900 mb-6">${planMonthly('pro')}<span className="text-lg text-slate-500 font-medium">/mo</span></div>
                   <ul className="space-y-4 mb-8 flex-1">
                      <li className="flex items-center gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0" /> Unlimited Active Projects</li>
                      <li className="flex items-center gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0" /> Automated Dunning Emails</li>
