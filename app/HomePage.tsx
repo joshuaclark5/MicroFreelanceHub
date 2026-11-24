@@ -5,6 +5,7 @@ import Brand from './components/Brand';
 import AccountControl from './components/AccountControl';
 import { productFeatures } from './data/productFeatures';
 import AgreementExample from './components/AgreementExample';
+import ExperienceHero from './components/ExperienceHero';
 import { useEffect, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
@@ -134,18 +135,8 @@ export default function HomePage() {
         )}
       </nav>
 
-      <section className="d4-home-hero px-5 pt-8 pb-12 max-w-7xl mx-auto">
-        <div className="mfh-hero-copy max-w-3xl mx-auto text-center">
-          <p className="d4-eyebrow mb-3">A workspace for freelancers &amp; service businesses</p>
-          <h1 className="text-3xl sm:text-5xl font-semibold text-gray-950 leading-tight">Less scattered admin.<br/>More room for<br/><em>your best work.</em></h1>
-          <p className="mt-4 text-base sm:text-lg text-gray-600 leading-relaxed">Keep clients, scheduling, agreements, invoice drafts and time tracking in one workspace. Start with one useful task, then bring the rest of your work together.</p>
-          <div className="mt-6 flex flex-col sm:flex-row justify-center items-stretch sm:items-center gap-3">
-            <Link href={user?"/workspace":"/login?next=/workspace"} className="d4-primary">{user?"Open my workspace":"Start with my clients"} <ArrowRight size={18}/></Link><Link href="/create" className="d4-secondary">Draft an agreement</Link>
-            <a href="#agreement-example" className="inline-flex min-h-11 items-center justify-center px-3 text-sm font-semibold text-blue-700 underline underline-offset-4">See a sample client link</a>
-          </div>
-          <p className="mt-3 text-xs sm:text-sm text-slate-600">Free to draft. Create an account to save. <Link href="/pricing" className="underline underline-offset-2">Compare plan limits and payment features</Link>.</p>
-        </div>
-        <div className="mfh-hero-example mt-7"><AgreementExample /></div>
+      <ExperienceHero/>
+      <section className="mfh-existing-content max-w-7xl mx-auto px-5">
         <section aria-labelledby="workspace-features" className="my-10 text-left" style={{gridColumn: '1 / -1'}}><div className="mb-6 flex flex-wrap items-end justify-between gap-4"><div><p className="text-sm font-semibold text-emerald-800">YOUR WORKSPACE</p><h2 id="workspace-features" className="mt-2 text-2xl font-semibold">More than the agreement.</h2></div><Link href="/features" className="font-semibold text-emerald-800 underline">Explore all features</Link></div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{productFeatures.map(f=><Link key={f.href} href={f.href} className="rounded-2xl border border-slate-200 bg-white p-5 hover:border-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-700"><h3 className="font-semibold">{f.title}</h3><p className="mt-3 text-sm leading-6 text-slate-600">{f.text}</p><span className="mt-4 block text-sm font-semibold text-emerald-800">Open workspace tool &rarr;</span></Link>)}</div><p className="mt-4 text-sm text-slate-600">Sign-in required for workspace tools. <Link href="/features" className="underline">See integration limits</Link> &middot; <Link href="/security" className="underline">Security</Link> &middot; <Link href="/support" className="underline">Support</Link></p></section>
         {/* VISUAL FLOW GRAPHIC */}
         <div className="d4-home-steps mt-10 max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 relative z-20">
@@ -179,6 +170,7 @@ export default function HomePage() {
       </section>
 
       <section id="help" className="scroll-mt-24 max-w-5xl mx-auto px-5 pb-10"><div className="flex flex-wrap items-center justify-between gap-5 rounded-lg border border-slate-200 p-5"><div><h2 className="font-semibold text-slate-900">Start with the work. Connect payments when you need them.</h2><p className="mt-2 text-sm text-slate-600">Review your draft before sharing. Stripe availability, processing fees and plan limits apply.</p></div><Link href="/templates" className="d4-secondary">Choose a template</Link><a href="mailto:support@microfreelancehub.com" className="d4-secondary">Contact support</a></div></section>
+      <section id="agreement-example" className="max-w-5xl mx-auto px-5 pb-12"><AgreementExample/></section>
       {/* 3. THE PAIN SECTION */}
       <section className="bg-slate-50 py-14 border-y border-slate-200">
         <div className="max-w-4xl mx-auto px-6 text-center">
