@@ -1,0 +1,32 @@
+﻿# Android Play release - verified readiness
+
+## Scope and authority
+Joshua requested an Android app and Play publication while web/calendar work continues. Use local tooling; no new paid build service. A five-star rating is an aspiration, not a verified rating or promise.
+
+## Observed 2026-11-24
+- Play Console personal developer account is accessible and shows Create your first app. No app record, app approval, production access, or store publication was observed. Create-app declarations have not been accepted.
+- Existing Expo 54 native preview has Home, project browsing and time capture, not website feature parity. Preview APKs use a debug certificate and preview application ID; never upload those as production releases.
+- Intended package: com.microfreelancehub.mobile. Availability not yet checked/reserved.
+- Local Android SDK 36 and Java 17 are available. No Android device is currently attached; no emulator is installed.
+- Native login currently lasts only in memory. Encrypted session storage is under development, not yet enabled.
+- Calendar work is isolated in openclaw/global-time-off-proof. Its migration is applied to staging only; production and feature gate remain unchanged.
+
+## Release gates
+1. Native session restore, account isolation, logout and recoverable pending-write handling; device restart/lock/offline/upgrade tests.
+2. Native calendar/services/client workflows and accessible small-screen/large-text design. Review actual device screenshots, not just bundles.
+3. Review external links and digital SaaS subscription flows against Play Payments policy. Do not assume existing Stripe web links are acceptable in the Android app. No new paid purchase flows yet.
+4. Functional account-deletion request and external deletion-request URL with accurate retention policy. The current website deletion hold is not a finished deletion lifecycle.
+5. Production signing key custody, signed AAB with production application ID, dependency/permission review and actual device testing. Never expose keys or publish debug-signed preview builds.
+6. Truthful listing/screenshots, privacy and Data Safety declarations based on actual SDK/network behavior, content rating and reviewer access.
+7. Internal test upload, account-specific closed-test/production-access requirements, then Google review and exact-version store verification.
+
+For new personal accounts created after 2023-11-13, Google's current policy requires at least 12 testers continuously opted in for 14 days before applying for production access. Account creation date and this account's specific requirement are not yet verified. Real testers must participate; credits cannot bypass this condition. Do not recruit/message testers without authorization.
+
+## References
+- https://support.google.com/googleplay/android-developer/answer/14151465?hl=en
+- https://support.google.com/googleplay/android-developer/answer/9858738?hl=en
+
+## Session storage candidate
+`mobile/src/encryptedSessionStorage.ts` is a dependency-injected adapter for an encrypted native store. It serializes reads/writes/removals, uses bounded Unicode-safe parts, and publishes the new manifest last. Failed part writes preserve the old session; missing parts fail visibly. Old committed generations are removed after replacement. Interrupted writes may leave encrypted orphan parts: garbage collection and device-level validation remain required before enabling persistence. No plaintext token store is introduced. The current App still uses memory-only sessions.
+
+Focused test: `node scripts/test-mobile-secure-storage.cjs`.
