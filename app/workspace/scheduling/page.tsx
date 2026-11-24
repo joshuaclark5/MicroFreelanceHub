@@ -63,7 +63,7 @@ export default function Scheduling(){
  return <div className="editorial-shell"><WorkspaceNav active="scheduling"/><div className="editorial-main">
  <header className="editorial-header"><div><p className="editorial-eyebrow">YOUR WORKSPACE / SCHEDULING</p><h1>A calmer calendar.<br/><em>A clearer day.</em></h1><p>Set your hours, prepare your questions and keep private booking records in one place.</p></div><a className="primary-action" href="#availability">Set your availability ↗︎</a></header>
  <p className="quiet-note">No emails or invitations are sent. Connected calendars require fresh synchronized availability. <a href="/workspace/scheduling/public">Configure an opt-in public booking link →</a></p>
- <p><a href="/workspace/scheduling/calendar">Open calendar-only view</a></p>
+ <nav aria-label="Scheduling views" className="flex flex-wrap gap-4"><a href="/workspace/scheduling/calendar">Open calendar-only view</a><a href="/workspace/scheduling/time-off">Time off across all services</a></nav>
  <details><summary>About availability and intake versions</summary><p>Choose multiple weekdays and weekly or alternate-week, same-day windows for 15–240 minute appointments. To change hours or timezone, disable the old rule and create a replacement. Existing booking times stay unchanged. Published question sets are saved versions; create a new version to change them.</p></details>
   {error&&<p role="alert" className="sticky top-4 z-30 rounded border border-red-700 bg-red-50 p-3 shadow">{error}</p>}
   {(busy||status)&&<p role="status" className="sticky top-4 z-20 rounded border border-green-700 bg-green-50 p-3 shadow">{busy?'Saving your change... Please wait.':status}</p>}
