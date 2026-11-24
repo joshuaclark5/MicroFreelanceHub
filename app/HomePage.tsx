@@ -43,7 +43,7 @@ export default function HomePage() {
   }, [supabase]);
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut({scope:'local'});
     if (error) { window.alert('Could not sign out. Please try again.'); return; }
     setUser(null);
   };
@@ -89,6 +89,7 @@ export default function HomePage() {
                 </Link>
               </>
             )}
+            {user && <button type="button" className="text-sm font-semibold min-h-11" onClick={signOut}>Log out</button>}
             {user && <details className="relative"><summary className="cursor-pointer text-sm font-semibold">Account</summary><div className="absolute right-0 top-8 w-48 rounded-lg border border-slate-200 bg-white p-3 shadow-sm"><Link href="/settings" className="block py-2 text-sm">Settings &amp; billing</Link><button type="button" className="py-2 text-sm" onClick={signOut}>Sign out</button></div></details>}
           </div>
           <button

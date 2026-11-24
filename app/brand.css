@@ -6,3 +6,5 @@
 @media(prefers-reduced-motion:no-preference){a .mfh-brand-lockup img{transition:transform .18s ease}a:hover .mfh-brand-lockup img{transform:translateY(-1px)}}
 
 .mfh-brand-mark{width:36px;height:36px;flex-shrink:0;display:block}
+
+.mfh-account-control{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:12px 0;font-size:14px;color:#123e35}.mfh-account-control a,.mfh-account-control button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:9px 14px;border:1px solid #789084;border-radius:8px;background:#fff;color:#123e35;text-decoration:none;font:inherit;font-weight:650}.mfh-account-control .mfh-login-button{background:#123e35;color:white}.mfh-account-control p{flex-basis:100%;color:#a12c25}.mfh-account-control :focus-visible{outline:3px solid #b65c0b;outline-offset:3px}.suite-mobile-header>.mfh-account-control{flex-basis:100%;margin:0}.public-mobile-account{display:none}@media(max-width:1023px){.public-mobile-account{display:block;padding:0 16px}.public-mobile-account .mfh-account-control{margin:8px 0}}
