@@ -37,3 +37,43 @@ export function timeOffInput(input: unknown): TimeOffRequest {
   // Copy only validated own fields; never mutate or normalize an idempotent request.
   return Object.fromEntries(keys.map(k => [k, b[k]])) as TimeOffRequest;
 }
+
+// Project only the documented owner-visible fields; never forward raw RPC data.
+export function timeOffResult(value: unknown, request: TimeOffRequest, actorId: string) {
+  const object = (v: unknown): Record<string, unknown> => {
+    if (!v || typeof v !== 'object' || Array.isArray(v)) throw Error('Invalid response.');
+    return v as Record<string, unknown>;
+  };
+  const instant = (v: unknown): string => {
+    if (typeof v !== 'string' || !/^\d{4}-\d{2}-\d{2}T.*(?:Z|[+-]\d{2}:\d{2})$/.test(v) || !Number.isFinite(Date.parse(v))) throw Error('Invalid time.');
+    return v;
+  };
+  const positive = (v: unknown) => {
+    if (!Number.isSafeInteger(v) || Number(v) < 1) throw Error('Invalid version.');
+    return v as number;
+  };
+  const result = object(value);
+  if (result.ok !== true || result.actorId !== actorId) throw Error('Invalid account response.');
+  if (request.action === 'preview') {
+    const p = object(result.preview);
+    if (typeof p.reviewToken !== 'string' || !/^[a-f0-9]{64}$/.test(p.reviewToken) || !Array.isArray(p.affectedBookings) || p.affectedBookings.length > 500) throw Error('Incomplete review.');
+    const ids = new Set<string>();
+    const affectedBookings = p.affectedBookings.map(value => {
+      const b = object(value);
+      if (!validId(b.id) || ids.has(b.id) || typeof b.attendee !== 'string' || b.attendee.length > 160 || typeof b.timezone !== 'string' || b.timezone.length > 80) throw Error('Invalid appointment.');
+      new Intl.DateTimeFormat('en', { timeZone: b.timezone }).format();
+      if (Date.parse(instant(b.ends_at)) <= Date.parse(instant(b.starts_at))) throw Error('Invalid appointment interval.');
+      ids.add(b.id);
+      return { id: b.id, version: positive(b.version), attendee: b.attendee, timezone: b.timezone, starts_at: instant(b.starts_at), ends_at: instant(b.ends_at) };
+    });
+    if (Date.parse(instant(p.endsAt)) <= Date.parse(instant(p.startsAt))) throw Error('Invalid review interval.');
+    return { actorId, preview: { startsAt: instant(p.startsAt), endsAt: instant(p.endsAt), reviewToken: p.reviewToken, affectedBookings } };
+  }
+  const r = object(result.record);
+  if (typeof result.replayed !== 'boolean' || !validId(r.id) || r.owner_id !== actorId || typeof r.active !== 'boolean') throw Error('Invalid record.');
+  const range = timeOffInput({ action: 'preview', expectedActorId: actorId, startsOn: r.starts_on, endsOn: r.ends_on, timezone: r.timezone });
+  if (range.action !== 'preview' || Date.parse(instant(r.ends_at)) <= Date.parse(instant(r.starts_at))) throw Error('Invalid record interval.');
+  if (request.action === 'remove' && (r.id !== request.id || r.active !== false || r.version !== request.expectedVersion + 1)) throw Error('Wrong removal receipt.');
+  if (request.action === 'create' && (range.startsOn !== request.startsOn || range.endsOn !== request.endsOn || range.timezone !== request.timezone || r.active !== true || r.version !== 1)) throw Error('Wrong creation receipt.');
+  return { actorId, replayed: result.replayed, record: { id: r.id, starts_on: range.startsOn, ends_on: range.endsOn, timezone: range.timezone, starts_at: instant(r.starts_at), ends_at: instant(r.ends_at), active: r.active, version: positive(r.version) } };
+}
