@@ -42,7 +42,22 @@ begin
 end $$;
 create trigger prototype_owner_time_off before insert on public.workspace_scheduling_bookings for each row execute function public.prototype_time_off_guard();
 revoke all on function public.prototype_day_boundary(date,text),public.prototype_time_off_create(date,date,text),public.prototype_time_off_guard() from public,anon,authenticated,service_role;
--- Deliberately incomplete: no public-slot filtering, idempotent time-off receipts,
--- owner UI/API grants, removal/version workflow, preview details or release migration.
+-- Trusted definer-only read path: no browser/service direct table access.
+grant select on public.prototype_time_off to postgres;
+create policy prototype_time_off_internal_read on public.prototype_time_off for select to postgres using(true);
+-- Patch only the disposable clone's two existing preview functions. A production
+-- migration needs exact source-baseline guards and independent ACL/readback review.
+do $$
+declare signature text; definition text; needle text:='   and not exists(select 1 from public.workspace_scheduling_bookings b where b.owner_id=p.owner_id';
+ insertion text:='   and not exists(select 1 from public.prototype_time_off t where t.owner_id=p.owner_id and s-make_interval(mins=>r.buffer)<t.ends_at and s+make_interval(mins=>r.duration+r.buffer)>t.starts_at)'||E'\n';
+begin
+ foreach signature in array array['public.public_booking_service(text,jsonb)','public.public_booking_window(text,date,timestamptz)'] loop
+  definition:=pg_get_functiondef(signature::regprocedure);
+  if (length(definition)-length(replace(definition,needle,'')))/length(needle)<>1 or position('prototype_time_off' in definition)>0 then raise exception 'Unexpected prototype preview baseline';end if;
+  execute replace(definition,needle,insertion||needle);
+ end loop;
+end $$;
+-- Deliberately incomplete: idempotent time-off receipts, owner UI/API grants,
+-- removal/version workflow, preview details or release migration.
 
 commit;
