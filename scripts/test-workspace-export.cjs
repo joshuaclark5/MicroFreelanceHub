@@ -8,3 +8,9 @@ const projects=workspaceCsv('projects',data.projects,data);assert.ok(projects.in
 const task=workspaceCsv('tasks',[{id:'task',title:'\t=2+2',project_id:'missing',due_date:null,status:'open'}],data);assert.ok(task.includes("'\t=2+2"));assert.ok(task.includes('Record unavailable'));assert.ok(!task.includes('undefined'));
 assert.equal(workspaceCsv('clients',[],data).split('\r\n').length,2);
 console.log('PASS workspace CSV: explicit columns, escaped formulas/quotes/newlines, related names, missing relations, empty export, no owner/secrets');
+
+// Guard the rendered workspace labels against accidental UTF-8/Windows-1252 conversion.
+const labelsSource=fs.readFileSync("app/workspace/Workspace.tsx","utf8");
+assert.ok(labelsSource.includes("Open agreements \u2192"));
+assert.ok(labelsSource.includes("Loading your saved workspace\u2026"));
+assert.ok(!/[\u00c2\u00c3\ufffd]/.test(labelsSource));
