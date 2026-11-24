@@ -19,6 +19,14 @@ vm.runInNewContext(ts.transpileModule(source,{compilerOptions:{module:ts.ModuleK
   assert.equal(destinationExports.getAuthDestination(new URLSearchParams({next:path})),path);
   assert.equal(destinationExports.getAuthDestination(new URLSearchParams({returnTo:path})),path);
  }
+ for(const goal of ['clients','projects','agreements','scheduling','time','invoices']) {
+  const next='/workspace/setup?goal='+goal;
+  assert.equal(destinationExports.getAuthDestination(new URLSearchParams({next})),next);
+  const result=await exportsObject.GET({url:'https://fixture.invalid/auth/callback?'+new URLSearchParams({next})});
+  assert.equal(result.pathname+result.search,next);
+ }
+ for(const next of ['/workspace/setup?edit=1','/workspace/setup?goal=time'])assert.equal(destinationExports.getAuthDestination(new URLSearchParams({next})),next);
+ for(const next of ['/workspace/setup?goal=evil','/workspace/setup?goal=time&next=//outside.invalid','/workspace/setup?edit=2','/workspace/setup?goal=%74ime'])assert.equal(destinationExports.getAuthDestination(new URLSearchParams({next})),null);
  signedIn=false;assert.equal((await exportsObject.GET({url:'https://fixture.invalid/auth/callback?next=/workspace'})).pathname,'/login');
  const login=fs.readFileSync('app/login/page.tsx','utf8');
  for(const target of ['redirectUrl.searchParams','params','callbackUrl.searchParams'])assert.ok(login.includes("if (destination) "+target+".set('next', destination)"));
