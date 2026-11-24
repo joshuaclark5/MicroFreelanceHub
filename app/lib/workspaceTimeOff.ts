@@ -1,11 +1,11 @@
 import { validId, validLocalDate } from './workspaceScheduling';
 
 // Shared contract for the upcoming owner time-off API and review screen.
-// Not connected to a route or deployed database function yet.
+// Used by a disabled API candidate; no production database function is deployed.
 type Range = { startsOn: string; endsOn: string; timezone: string };
 type Actor = { expectedActorId: string };
 export type TimeOffRequest =
-  | (Actor & Range & { action: 'preview' })
+  | (Actor & Range & { action: 'preview' | 'list' })
   | (Actor & Range & { action: 'create'; operationId: string; expectedReviewToken: string })
   | (Actor & { action: 'remove'; operationId: string; id: string; expectedVersion: number });
 
@@ -14,14 +14,14 @@ export function timeOffInput(input: unknown): TimeOffRequest {
   const b = input as Record<string, unknown>;
   const common = ['action', 'expectedActorId'];
   const range = ['startsOn', 'endsOn', 'timezone'];
-  const keys = b.action === 'preview' ? [...common, ...range]
+  const keys = (b.action === 'preview' || b.action === 'list') ? [...common, ...range]
     : b.action === 'create' ? [...common, ...range, 'operationId', 'expectedReviewToken']
     : b.action === 'remove' ? [...common, 'operationId', 'id', 'expectedVersion'] : [];
   if (!keys.length || Object.keys(b).length !== keys.length || keys.some(k => !Object.prototype.hasOwnProperty.call(b, k))) {
     throw Error('Missing or unsupported fields.');
   }
   if (!validId(b.expectedActorId)) throw Error('Valid account required.');
-  if (b.action !== 'preview' && (typeof b.operationId !== 'string' || !/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(b.operationId))) {
+  if (b.action !== 'preview' && b.action !== 'list' && (typeof b.operationId !== 'string' || !/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(b.operationId))) {
     throw Error('Valid operation required.');
   }
   if (b.action === 'remove') {
@@ -69,11 +69,22 @@ export function timeOffResult(value: unknown, request: TimeOffRequest, actorId: 
     if (Date.parse(instant(p.endsAt)) <= Date.parse(instant(p.startsAt))) throw Error('Invalid review interval.');
     return { actorId, preview: { startsAt: instant(p.startsAt), endsAt: instant(p.endsAt), reviewToken: p.reviewToken, affectedBookings } };
   }
-  const r = object(result.record);
-  if (typeof result.replayed !== 'boolean' || !validId(r.id) || r.owner_id !== actorId || typeof r.active !== 'boolean') throw Error('Invalid record.');
-  const range = timeOffInput({ action: 'preview', expectedActorId: actorId, startsOn: r.starts_on, endsOn: r.ends_on, timezone: r.timezone });
-  if (range.action !== 'preview' || Date.parse(instant(r.ends_at)) <= Date.parse(instant(r.starts_at))) throw Error('Invalid record interval.');
-  if (request.action === 'remove' && (r.id !== request.id || r.active !== false || r.version !== request.expectedVersion + 1)) throw Error('Wrong removal receipt.');
-  if (request.action === 'create' && (range.startsOn !== request.startsOn || range.endsOn !== request.endsOn || range.timezone !== request.timezone || r.active !== true || r.version !== 1)) throw Error('Wrong creation receipt.');
-  return { actorId, replayed: result.replayed, record: { id: r.id, starts_on: range.startsOn, ends_on: range.endsOn, timezone: range.timezone, starts_at: instant(r.starts_at), ends_at: instant(r.ends_at), active: r.active, version: positive(r.version) } };
+  const projectRecord = (value: unknown) => {
+    const r = object(value);
+    if (!validId(r.id) || r.owner_id !== actorId || typeof r.active !== 'boolean') throw Error('Invalid record.');
+    const range = timeOffInput({ action: 'preview', expectedActorId: actorId, startsOn: r.starts_on, endsOn: r.ends_on, timezone: r.timezone });
+    if (range.action !== 'preview' || Date.parse(instant(r.ends_at)) <= Date.parse(instant(r.starts_at))) throw Error('Invalid record interval.');
+    return { id: r.id, starts_on: range.startsOn, ends_on: range.endsOn, timezone: range.timezone, starts_at: instant(r.starts_at), ends_at: instant(r.ends_at), active: r.active, version: positive(r.version) };
+  };
+  if (request.action === 'list') {
+    if (result.startsOn !== request.startsOn || result.endsOn !== request.endsOn || result.timezone !== request.timezone || typeof result.truncated !== 'boolean' || !Array.isArray(result.records) || result.records.length > 100 || (result.truncated && result.records.length !== 100)) throw Error('Invalid list response.');
+    const records = result.records.map(projectRecord);
+    if (records.some(r => !r.active) || new Set(records.map(r => r.id)).size !== records.length) throw Error('Invalid active list.');
+    return { actorId, startsOn: request.startsOn, endsOn: request.endsOn, timezone: request.timezone, records, truncated: result.truncated };
+  }
+  if (typeof result.replayed !== 'boolean') throw Error('Invalid receipt.');
+  const record = projectRecord(result.record);
+  if (request.action === 'remove' && (record.id !== request.id || record.active !== false || record.version !== request.expectedVersion + 1)) throw Error('Wrong removal receipt.');
+  if (request.action === 'create' && (record.starts_on !== request.startsOn || record.ends_on !== request.endsOn || record.timezone !== request.timezone || record.active !== true || record.version !== 1)) throw Error('Wrong creation receipt.');
+  return { actorId, replayed: result.replayed, record };
 }

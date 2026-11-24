@@ -1,4 +1,4 @@
-﻿const assert = require('node:assert/strict');
+const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const ts = require('typescript');
@@ -18,7 +18,7 @@ const remove = {action:'remove',expectedActorId:actor,operationId:actor,id:actor
 let checks = 0;
 function accepted(body) {assert.equal(JSON.stringify(parse(body)),JSON.stringify(body)); checks++;}
 function rejected(body) {assert.throws(()=>parse(body)); checks++;}
-for(const body of [preview,create,remove]) {
+for(const body of [preview,create,remove,{...preview,action:'list'}]) {
  accepted(body);
  for(const key of Object.keys(body)) {const copy={...body};delete copy[key];rejected(copy);rejected({...body,[key]:null});}
  for(const extra of [{owner_id:actor},{active:false},{version:2},{affectedBookings:[]}])rejected({...body,...extra});
