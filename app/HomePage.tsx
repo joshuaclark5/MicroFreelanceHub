@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Brand from './components/Brand';
 import { productFeatures } from './data/productFeatures';
 import AgreementExample from './components/AgreementExample';
 import { useEffect, useState } from 'react';
@@ -54,8 +55,7 @@ export default function HomePage() {
       <nav className="border-b border-gray-100/50 bg-white/70 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center">
           <Link href="/" aria-label="MicroFreelanceHub home" className="flex items-center gap-2 min-w-0">
-            <div className="bg-slate-900 text-white w-8 h-8 flex items-center justify-center rounded-lg font-bold text-lg shadow-md">M</div>
-            <span className="font-semibold text-base sm:text-lg text-gray-950">MicroFreelanceHub</span>
+            <Brand/>
           </Link>
           <div className="hidden md:flex gap-4 items-center">
             <Link href="/pricing" className="text-sm font-semibold text-gray-600 hover:text-gray-950">Pricing</Link>

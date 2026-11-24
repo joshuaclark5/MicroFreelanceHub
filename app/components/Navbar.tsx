@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Brand from './Brand';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Menu, X } from 'lucide-react';
@@ -32,7 +33,7 @@ useEffect(() => {
       <div className="container mx-auto flex items-center justify-between px-4">
         {/* Logo */}
         <Link href="/" className="d4-brand">
-          <span aria-hidden="true">M</span>MicroFreelanceHub
+          <Brand/>
         </Link>
 
         {/* Right Side Buttons */}

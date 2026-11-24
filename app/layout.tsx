@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import './brand.css';
+import Brand from './components/Brand';
 import './direction04.css';
 import './sitewide-design.css';
 import './public-design.css';
@@ -68,8 +70,7 @@ export default function RootLayout({
                 
                 {/* Brand */}
                 <div className="flex items-center justify-center gap-2 mb-6">
-                    <div className="bg-black text-white w-6 h-6 flex items-center justify-center rounded-md font-bold text-xs">M</div>
-                    <span className="font-bold text-gray-900 text-sm">MicroFreelanceHub</span>
+                    <Brand/>
                 </div>
 
                 {/* The Legal Shield */}

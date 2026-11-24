@@ -1,0 +1,6 @@
+.mfh-brand-lockup{display:inline-flex!important;align-items:center;gap:9px;min-width:0;width:auto!important;height:auto!important;background:transparent!important;color:#123e35!important;border-radius:0!important;font-size:inherit!important;line-height:1.15}
+.mfh-brand-lockup img{width:36px;height:36px;flex-shrink:0;display:block}
+.mfh-brand-name{font-family:inherit;font-weight:750;letter-spacing:-.035em;font-size:15px;white-space:nowrap}
+.mfh-brand-name>span{font-weight:500;color:#396657}
+@media(max-width:380px){.mfh-brand-lockup{gap:6px}.mfh-brand-lockup img{width:29px;height:29px}.mfh-brand-name{font-size:12px}}
+@media(prefers-reduced-motion:no-preference){a .mfh-brand-lockup img{transition:transform .18s ease}a:hover .mfh-brand-lockup img{transform:translateY(-1px)}}

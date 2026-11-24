@@ -4,11 +4,13 @@ import Link from 'next/link';
 type Entry={id:string;source:string;kind:string;body:string;created_at:string;author_id:string;author_name:string|null;opportunity_id:string|null;title:string|null;version?:number;edited_at?:string;revisions?:{body:string;version:number;created_at:string;author_name:string}[]};
 type Pending={clientId:string;body:string;operationId:string;expectedActorId:string;noteId?:string;expectedVersion?:number};
 export type TimelineDraft={body:string;pending:Pending|null;editing?:{id:string;version:number}|null};
-export default function ClientTimeline({clientId,clientName,ownerId,drafts}:{clientId:string;clientName:string;ownerId:string;drafts:Map<string,TimelineDraft>}){
+export default function ClientTimeline({clientId,clientName,ownerId,drafts,initiallyOpen=false}:{clientId:string;clientName:string;ownerId:string;drafts:Map<string,TimelineDraft>;initiallyOpen?:boolean}){
+ const [query,setQuery]=useState(''),[kind,setKind]=useState('all'),[oldest,setOldest]=useState(false);
  const draftKey=ownerId+':'+clientId;
  const retained=drafts.get(draftKey);
  const [editing,setEditing]=useState<{id:string;version:number}|null>(retained?.editing||null);
- const [open,setOpen]=useState(false),[records,setRecords]=useState<Entry[]>([]),[truncated,setTruncated]=useState(false),[body,setBody]=useState(retained?.body||''),[pending,setPending]=useState<Pending|null>(retained?.pending||null),[busy,setBusy]=useState(false),[loading,setLoading]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState(''),[verified,setVerified]=useState(false);
+ const [open,setOpen]=useState(initiallyOpen),[records,setRecords]=useState<Entry[]>([]),[truncated,setTruncated]=useState(false),[body,setBody]=useState(retained?.body||''),[pending,setPending]=useState<Pending|null>(retained?.pending||null),[busy,setBusy]=useState(false),[loading,setLoading]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState(''),[verified,setVerified]=useState(false);
+ useEffect(()=>{if(initiallyOpen)setOpen(true);},[initiallyOpen]);
  const generation=useRef(0),alive=useRef(true),saving=useRef(false);
  function remember(nextBody:string,nextPending:Pending|null){drafts.set(draftKey,{body:nextBody,pending:nextPending,editing});setBody(nextBody);setPending(nextPending);}
  useEffect(()=>{alive.current=true;return()=>{alive.current=false;generation.current++;};},[]);
@@ -36,6 +38,9 @@ export default function ClientTimeline({clientId,clientName,ownerId,drafts}:{cli
  }catch(e){if(alive.current){setError((e as Error).message);setVerified(false);setRecords([]);}}
  finally{saving.current=false;if(alive.current)setBusy(false);}
  }
+ const visible=records.filter(e=>(kind==='all'||e.source===kind)&&[e.body,e.author_name,e.title].join(' ').toLowerCase().includes(query.toLowerCase()));
+ if(oldest)visible.reverse();
+ const currentEdit=editing?records.find(e=>e.id===editing.id):null;
  return <section className="client-timeline" aria-label={'Timeline for '+clientName}>
  <button type="button" aria-expanded={open} aria-controls={'timeline-'+clientId} disabled={busy} onClick={()=>setOpen(!open)}>{open?'Hide':'Open'} client timeline</button>
  {open&&<div id={'timeline-'+clientId}>
@@ -43,7 +48,7 @@ export default function ClientTimeline({clientId,clientName,ownerId,drafts}:{cli
  <p role="status">{loading?'Checking account and loading timeline…':notice}</p>
  {error&&<p role="alert">{error}</p>}
  <button type="button" disabled={busy||loading} onClick={load}>Refresh timeline and check account</button>
- {verified&&<><form onSubmit={e=>{e.preventDefault();save();}}>
+ {verified&&<><div className="timeline-filters"><label>Search communication history<input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Find a conversation or author"/></label><label>Activity type<select value={kind} onChange={e=>setKind(e.target.value)}><option value="all">All activity</option><option value="client_note">Customer notes</option><option value="opportunity">Opportunity activity</option></select></label><button type="button" aria-pressed={oldest} onClick={()=>setOldest(!oldest)}>{oldest?'Oldest first':'Newest first'}</button></div><p>{visible.length} of {records.length} loaded entries shown</p>{editing&&currentEdit&&(currentEdit.version||1)!==editing.version&&!pending&&<div className="suite-confirm"><p>This note changed since you opened it. Your draft is kept below. Latest saved text:</p><p className="suite-notes">{currentEdit.body}</p><button type="button" onClick={()=>{const target={id:currentEdit.id,version:currentEdit.version||1};setEditing(target);drafts.set(draftKey,{body,pending:null,editing:target});}}>I reviewed the latest note; keep editing my draft</button></div>}<form onSubmit={e=>{e.preventDefault();save();}}>
  <label htmlFor={'note-'+clientId}>{editing?'Edit note for':'New note for'} {clientName}</label>
  <textarea id={'note-'+clientId} value={pending?.body??body} maxLength={2000} rows={3} required disabled={busy||!!pending} onChange={e=>remember(e.target.value,null)}/>
  {pending&&<p>This note is retained for an identical retry. A retry cannot create a second copy.</p>}
@@ -51,7 +56,7 @@ export default function ClientTimeline({clientId,clientName,ownerId,drafts}:{cli
  {editing&&!pending&&<button type="button" disabled={busy} onClick={()=>{setEditing(null);drafts.delete(draftKey);setBody('');}}>Cancel edit</button>}
  </form>
  {truncated&&<p role="status">Showing the latest 200 entries only. Older history is retained, not shown in this bounded view.</p>}
- {!records.length?<p>No timeline entries yet. Add the first note.</p>:<ol>{records.map(entry=><li key={entry.source+entry.id}>
+ {!visible.length?<p>{records.length?'No matching communication. Clear your search or change the activity type.':'No timeline entries yet. Add the first note.'}</p>:<ol>{visible.map(entry=><li key={entry.source+entry.id}>
  <p><strong>{entry.source==='client_note'?'Client note':'Opportunity '+entry.kind}</strong>{entry.title?' · '+entry.title:''}</p>
  <p>{entry.author_name||'Historical account owner (name was not recorded)'} · <time dateTime={entry.created_at}>{new Date(entry.created_at).toLocaleString()}</time></p>
  {entry.body&&<p className="suite-notes">{entry.body}</p>}
