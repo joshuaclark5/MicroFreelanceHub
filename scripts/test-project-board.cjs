@@ -1,0 +1,16 @@
+const fs=require('fs'),path=require('path'),assert=require('assert/strict');
+const {chromium}=require('C:/Users/joshu/AppData/Roaming/npm/node_modules/openclaw/node_modules/playwright-core');
+const base=process.env.QA_BASE_URL||'http://127.0.0.1:3075',out='artifacts/email-design';
+const id=n=>'aaaaaaaa-aaaa-4aaa-8aaa-'+String(n).padStart(12,'0');
+(async()=>{const browser=await chromium.launch({channel:'msedge',headless:true});try{
+for(const width of [320,390,1440]){const page=await browser.newPage({viewport:{width,height:1000}});const errors=[];page.on('pageerror',e=>errors.push(e.message));let empty=false;
+const data={clients:[{id:id(1),name:'Northstar Studio'}],stages:[{id:id(2),name:'Inquiry',position:0},{id:id(3),name:'In progress',position:1}],projects:[{id:id(4),name:'Website refresh',client_id:id(1),stage_id:id(3),status:'active',version:1}],tasks:[{id:id(5),project_id:id(4),title:'Review direction',status:'open',due_date:'2026-12-01'}],agreements:[],'available-agreements':[]};
+await page.route('**/*',route=>{const u=new URL(route.request().url());if(u.origin!==base)return route.abort();if(u.pathname.startsWith('/api/workspace/')){const key=u.pathname.split('/').pop();return route.fulfill({json:key==='session'?{ownerId:id(9)}:{ownerId:id(9),records:empty?[]:data[key]||[],complete:true,hasMore:false}});}return route.continue();});
+await page.goto(base+'/workspace/projects');await page.getByRole('button',{name:'View pipeline',exact:true}).click();await page.getByRole('region',{name:'Project pipeline',exact:true}).waitFor();assert.equal(await page.locator('.project-lane').count(),2);assert.equal(await page.locator('.project-tile').count(),1);
+await page.getByRole('searchbox').fill('Northstar');assert.equal(await page.locator('.project-tile').count(),1);await page.getByRole('searchbox').fill('missing');assert.equal(await page.locator('.project-tile').count(),0);await page.getByRole('searchbox').fill('');
+assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:`${out}/pipeline-${width}.png`,fullPage:true});
+await page.getByRole('button',{name:'Edit Website refresh'}).click();await page.getByLabel('Pipeline stage',{exact:true}).selectOption(id(2));await page.getByRole('button',{name:'Cancel',exact:true}).click();assert.equal(await page.locator('.project-tile').count(),1);
+empty=true;await page.reload();await page.getByRole('button',{name:'View pipeline',exact:true}).click();await page.getByRole('heading',{name:'Build your first pipeline'}).waitFor();assert.deepEqual(errors,[]);await page.close();
+const email=await browser.newPage({viewport:{width,height:1000}});for(const name of ['welcome','workspace-message']){await email.setContent(fs.readFileSync(path.join(out,name+'.html'),'utf8'));assert.ok(await email.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await email.screenshot({path:`${out}/${name}-${width}.png`,fullPage:true});}await email.close();}
+console.log('PASS board grouping, customer search, empty account, edit/cancel, no page errors and email/board overflow at 320, 390, 1440. Fictional fixtures; no live writes.');
+}finally{await browser.close();}})().catch(e=>{console.error(e);process.exitCode=1});
