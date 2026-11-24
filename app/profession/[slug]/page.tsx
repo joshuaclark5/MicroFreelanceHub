@@ -208,6 +208,7 @@ export default async function ProfessionHubPage({ params }: { params: { slug: st
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 relative z-20">
+        <section className="mb-8 rounded-2xl border border-slate-200 bg-white p-6"><h2 className="text-2xl font-bold">Beyond the template: manage your {professionName} workflow</h2><p className="my-4">Keep the customer record and project together: record the conversation, agree the scope, track work, then review the invoice. Workspace tools require sign-in.</p><div className="flex flex-wrap gap-4"><Link className="underline" href="/workspace/clients">Customer records</Link><Link className="underline" href="/workspace/projects">Projects</Link><Link className="underline" href="/workspace/time">Time tracking</Link><Link className="underline" href="/workspace/invoices">Invoice drafts</Link><Link className="underline" href="/guides/client-workflows">Profession workflow examples</Link></div></section>
         <section className="mb-14 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
           <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
             <div>

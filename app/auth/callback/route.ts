@@ -53,6 +53,10 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL(`/checkout-plan?${checkoutParams.toString()}`, request.url));
   }
 
+  if (!template && requestUrl.searchParams.get('next') === '/workspace') {
+    return NextResponse.redirect(new URL('/workspace', request.url));
+  }
+
   // Free-account conversion page for analytics segmentation.
   return NextResponse.redirect(new URL(`/signup-success?${successParams.toString()}`, request.url));
 }

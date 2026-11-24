@@ -2,6 +2,9 @@
 -- Intentionally ends in ROLLBACK; never remove it or run a destructive live rollback.
 -- For an application rollback, keep additive schema/history and disable the new UI.
 begin;
+drop function if exists public.workspace_client_note_edit(jsonb);
+drop table if exists public.workspace_client_note_edits;
+alter table public.workspace_clients drop column if exists phone;
 drop function public.workspace_client_timeline(uuid);
 drop function public.workspace_client_note(jsonb);
 drop trigger workspace_client_note_author on public.workspace_client_notes;

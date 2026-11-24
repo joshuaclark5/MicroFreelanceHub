@@ -114,6 +114,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const staticRoutes: MetadataRoute.Sitemap = [
+    {url: `${baseUrl}/guides/client-workflows`, lastModified: new Date('2026-11-23'), changeFrequency: 'monthly', priority: 0.7},
     ...["features", "support", "security"].map(path => ({ url: `${baseUrl}/${path}`, changeFrequency: "monthly" as const, priority: 0.7 })),
     { url: `${baseUrl}/challenge/contractors`, lastModified: new Date('2026-10-23'), changeFrequency: 'monthly', priority: 0.6 },
     { url: `${baseUrl}/challenge`, lastModified: new Date('2026-10-21'), changeFrequency: 'monthly', priority: 0.7 },

@@ -10,7 +10,9 @@ for(const width of [320,390,768,1440]){
  if(u.pathname==='/api/workspace-client-timeline'){
  if(req.headers()['x-workspace-owner']!==account)return route.fulfill({status:409,json:{error:'Account changed. Return to the original account.'}});
  if(req.method()==='GET')return route.fulfill({json:{actorId:account,records:entries,truncated:clipped}});
- const p=req.postDataJSON();writes.push(p);let row=saved.get(p.operationId);
+ const p=req.postDataJSON();
+ if(req.method()==='PATCH'){const row=entries.find(e=>e.id===p.noteId);assert.ok(row);assert.equal(p.expectedVersion,row.version||1);row.revisions=[{body:p.body,version:2,created_at:new Date().toISOString(),author_name:'Current Author'},{body:row.body,version:1,created_at:row.created_at,author_name:row.author_name}];row.body=p.body;row.version=2;row.edited_at=new Date().toISOString();return route.fulfill({json:{actorId:account,record:row}});}
+ writes.push(p);let row=saved.get(p.operationId);
  if(!row){row={id:randomUUID(),source:'client_note',kind:'note',body:p.body,created_at:new Date().toISOString(),author_id:owner,author_name:'Current Author',opportunity_id:null,title:null};saved.set(p.operationId,row);entries.unshift(row);}
  if(uncertain){uncertain=false;return route.fulfill({status:503,json:{error:'Save outcome is unconfirmed. Retry the same note.'}});}
  return route.fulfill({json:{actorId:account,record:row}});
@@ -18,7 +20,7 @@ for(const width of [320,390,768,1440]){
  if(u.pathname.startsWith('/api/workspace/')){
  const entity=u.pathname.split('/').pop();
  if(entity==='session')return route.fulfill({json:{ownerId:owner}});
- const records=entity==='clients'?[{id:client,version:1,name:'Fictional Acorn',email:'acorn@example.test',notes:'Existing editable summary'}]:[];
+ const records=entity==='clients'?[{id:client,version:1,name:'Fictional Acorn',email:'acorn@example.test',phone:'+1 (202) 555-0100',notes:'Existing editable summary'}]:[];
  return route.fulfill({json:{ownerId:owner,records,hasMore:false,complete:true,truncated:false,nextCursor:null}});
  }
  if(u.pathname.startsWith('/api/'))return route.fulfill({status:401,json:{error:'Fixture only'}});
@@ -39,10 +41,15 @@ for(const width of [320,390,768,1440]){
  await page.getByLabel('New note for Fictional Acorn').fill('Original account draft');account=other;
  await page.getByRole('button',{name:'Add note',exact:true}).click();await page.getByRole('alert').filter({hasText:'Account changed'}).waitFor();assert.equal(await page.getByText('Third independent note',{exact:true}).count(),0);assert.equal(await page.getByLabel('New note for Fictional Acorn').count(),0);assert.equal(saved.size,4);
  account=owner;await page.getByRole('button',{name:'Refresh timeline and check account'}).click();await page.getByRole('button',{name:'Retry same note',exact:true}).waitFor();assert.equal(await page.getByLabel('New note for Fictional Acorn').inputValue(),'Original account draft');await page.getByRole('button',{name:'Retry same note',exact:true}).click();await page.getByRole('button',{name:'Add note',exact:true}).waitFor();assert.equal(saved.size,5);
+ await page.getByLabel('New note for Fictional Acorn').fill('Sixth communication');await page.getByRole('button',{name:'Add note',exact:true}).click();await page.locator('.client-timeline ol').getByText('Sixth communication',{exact:true}).waitFor();assert.equal(saved.size,6);
+ const card=page.locator('.client-timeline li').filter({hasText:'Sixth communication'});await card.getByRole('button',{name:'Edit note',exact:true}).click();await page.getByLabel('Edit note for Fictional Acorn').fill('Sixth communication corrected');await page.getByRole('button',{name:'Save changes',exact:true}).click();await page.locator('.client-timeline ol').getByText('Sixth communication corrected',{exact:true}).first().waitFor();await page.getByText('Previous versions (1)',{exact:true}).click();await page.locator('.client-timeline details').getByText('Sixth communication',{exact:true}).waitFor();assert.equal(saved.size,6);assert.equal(await page.getByRole('link',{name:'+1 (202) 555-0100'}).getAttribute('href'),'tel:+12025550100');
+ await page.reload();await page.getByRole('button',{name:'Open client timeline',exact:true}).click();await page.getByText('Sixth communication corrected',{exact:true}).waitFor();
  clipped=true;await page.getByRole('button',{name:'Refresh timeline and check account'}).click();await page.getByText('Showing the latest 200 entries only.',{exact:false}).waitFor();
  await page.addScriptTag({path:'C:/Users/joshu/microfreelancehub/node_modules/axe-core/axe.min.js'});const violations=await page.evaluate(async()=>{const r=await axe.run(document.querySelector('.client-timeline'),{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}});return r.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)}));});assert.deepEqual(violations,[]);
  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'overflow at '+width);
- await page.screenshot({path:out+'/timeline-'+width+'.png',fullPage:true});assert.deepEqual(errors,[]);checks.push({width,notes:5,uncertainRetryDeduplicated:true,pendingOperationSurvivesFiltering:true,accountMismatchHidesHistoryAndDraft:true,axeViolations:violations});await context.close();
+ await page.screenshot({path:out+'/timeline-'+width+'.png',fullPage:true});assert.deepEqual(errors,[]);checks.push({width,notes:6,editAndHistory:true,uncertainRetryDeduplicated:true,pendingOperationSurvivesFiltering:true,accountMismatchHidesHistoryAndDraft:true,axeViolations:violations});for(const [route,title] of [['/workspace','What needs attention today?'],['/guides/client-workflows','From customer conversation to invoice review']]){await page.goto(base+route);await page.getByRole('heading',{name:title,exact:true}).waitFor();assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'overflow '+route+' '+width);await page.screenshot({path:out+'/'+(route==='/workspace'?'home':'guide')+'-'+width+'.png',fullPage:true});}
+ await page.goto(base+'/');await page.getByRole('link',{name:'Start with my clients',exact:false}).waitFor();assert.equal(await page.getByRole('link',{name:'Start with my clients',exact:false}).getAttribute('href'),'/login?next=/workspace');assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'marketing overflow '+width);await page.screenshot({path:out+'/marketing-'+width+'.png',fullPage:true});
+ await context.close();
 }
 fs.writeFileSync(out+'/browser-results.json',JSON.stringify({checks,bounds:['Production build in local browser; all APIs intercepted with fictional records. No live Supabase/customer/session proof.']},null,2));console.log('PASS client timeline 4 widths, separate notes, replay, reload, account mismatch, bounded history and axe');
 })().catch(e=>{console.error(e);process.exitCode=1;fs.writeFileSync(out+'/browser-results.json',JSON.stringify({checks,error:String(e)},null,2));}).finally(async()=>{if(browser)await browser.close();});

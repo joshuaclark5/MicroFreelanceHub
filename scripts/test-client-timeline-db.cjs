@@ -29,6 +29,26 @@ await check('opportunity reassignment preserves historical client association',a
 await check('bounded timeline makes truncation explicit and sorts newest first',async()=>{for(let i=0;i<201;i++)await rpc('workspace_client_note',note('Bounded note '+i));const t=await timeline();assert.equal(t.records.length,200);assert.equal(t.truncated,true);assert.equal(t.records[0].body,'Bounded note 200');});
 await check('file-backed persistence and replay survives reopening',async()=>{await db.close();db=new PGlite(dir);await actor(A);assert.deepEqual(await rpc('workspace_client_note',first),firstResult);assert.equal((await timeline()).truncated,true);});
 await check('anonymous access denied; no identity cannot write',async()=>{await actor('','anon');await denied(()=>timeline(),'42501');await denied(()=>rpc('workspace_client_note',first),'42501');await actor('');await denied(()=>rpc('workspace_client_note',first),'42501');});
+await db.exec('reset role');await db.exec(fs.readFileSync(path.join(root,'supabase/migrations/20261123010000_client_note_edits.sql'),'utf8'));await actor(A);
+let editPayload;
+await check('six notes remain distinct and edits preserve original creation replay and revision history',async()=>{
+ const six=[];for(let i=0;i<6;i++)six.push(await rpc('workspace_client_note',note('Communication '+i)));
+ editPayload={clientId:C,noteId:six[5].id,body:'Corrected communication',expectedVersion:1,expectedActorId:A,operationId:randomUUID()};
+ const result=await rpc('workspace_client_note_edit',editPayload);assert.equal(result.version,2);assert.equal(result.author_name,'Renamed Author');
+ assert.deepEqual(await rpc('workspace_client_note_edit',editPayload),result);
+ const entry=(await timeline()).records.find(r=>r.id===six[5].id);assert.equal(entry.body,'Corrected communication');assert.equal(entry.revisions.length,2);assert.equal(entry.revisions[1].body,'Communication 5');assert.equal(entry.created_at,six[5].created_at);
+ assert.deepEqual(await rpc('workspace_client_note',first),firstResult);
+});
+await check('stale edits changed retries spoofed authors and cross-owner changes denied',async()=>{
+ await denied(()=>rpc('workspace_client_note_edit',{...editPayload,operationId:randomUUID()}),'40001');
+ await denied(()=>rpc('workspace_client_note_edit',{...editPayload,body:'Changed retry'}),'40001');
+ await denied(()=>rpc('workspace_client_note_edit',{...editPayload,author_name:'Spoof'}),'22023');
+ await denied(()=>q("update workspace_client_note_edits set body='Direct overwrite'"),'42501');
+ await actor(B);await denied(()=>rpc('workspace_client_note_edit',{...editPayload,expectedActorId:B}),'P0002');assert.equal((await q('select * from workspace_client_note_edits')).rows.length,0);await actor(A);
+});
+await check('phone contact persists and note revisions survive reopening',async()=>{
+ await q("update workspace_clients set phone='+1 (202) 555-0100' where id=$1",[C]);await db.close();db=new PGlite(dir);await actor(A);assert.equal((await q('select phone from workspace_clients where id=$1',[C])).rows[0].phone,'+1 (202) 555-0100');const entry=(await timeline()).records.find(r=>r.id===editPayload.noteId);assert.equal(entry.version,2);assert.equal(entry.revisions.length,2);
+});
 await check('explicit rollback rehearsal leaves populated notes and audit intact',async()=>{await db.exec('reset role');const before=(await q('select * from workspace_client_notes order by id')).rows,audit=(await q('select * from workspace_crm_activity order by id')).rows;await db.exec(fs.readFileSync(path.join(root,'scripts/workspace-review/client-timeline-rollback.sql'),'utf8'));assert.deepEqual((await q('select * from workspace_client_notes order by id')).rows,before);assert.deepEqual((await q('select * from workspace_crm_activity order by id')).rows,audit);});
 await db.close();db=null;fs.writeFileSync(path.join(out,'db-results.json'),JSON.stringify({passed:checks.length,checks,migrationSha256:createHash('sha256').update(sql).digest('hex'),database:dir,bounds:['Local file-backed PGlite with fictional auth schema and actual migration/RLS. Not live Supabase, staging restore, multi-backend races or deployed evidence.']},null,2));
 })().catch(async e=>{console.error(e);process.exitCode=1;if(db)await db.close();});
