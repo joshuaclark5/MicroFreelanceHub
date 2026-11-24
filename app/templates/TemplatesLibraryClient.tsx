@@ -6,7 +6,7 @@ import { templateLibrarySummary } from '../lib/templateLibrarySummary';
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { ArrowRight, Briefcase, FileSignature, Receipt, Search, Wrench } from 'lucide-react';
+import { ArrowRight, Briefcase, FileSignature, Receipt, Search, Wrench, Mail } from 'lucide-react';
 
 export interface TemplateLibraryItem {
   slug: string;
@@ -20,6 +20,7 @@ const filters = [
   { label: 'Contracts', value: 'contract', icon: FileSignature },
   { label: 'Invoices', value: 'invoice', icon: Receipt },
   { label: 'Scopes', value: 'scope', icon: Wrench },
+  { label: 'Emails', value: 'email', icon: Mail },
 ];
 
 function toTitleCase(value: string) {
@@ -32,23 +33,6 @@ function getDisplayTitle(template: TemplateLibraryItem) {
   const role = template.job_title || toTitleCase(template.slug);
   const documentType = template.document_type || 'Template';
   return `${role} ${documentType}`;
-}
-
-function matchesFilter(template: TemplateLibraryItem, filter: string) {
-  if (filter === 'all') return true;
-
-  const haystack = `${template.document_type || ''} ${template.slug}`.toLowerCase();
-  if (filter === 'contract') {
-    return haystack.includes('contract') || haystack.includes('agreement');
-  }
-  if (filter === 'invoice') {
-    return haystack.includes('invoice') || haystack.includes('payment');
-  }
-  if (filter === 'scope') {
-    return haystack.includes('scope') || haystack.includes('work-order') || haystack.includes('proposal') || haystack.includes('estimate');
-  }
-
-  return true;
 }
 
 export default function TemplatesLibraryClient({ templates, total }: { templates: TemplateLibraryItem[]; total: number }) {
@@ -130,6 +114,7 @@ export default function TemplatesLibraryClient({ templates, total }: { templates
                   <button
                     key={filter.value}
                     type="button"
+                    aria-pressed={selected}
                     onClick={() => { setActiveFilter(filter.value); setPage(1); }}
                     className={`inline-flex shrink-0 items-center gap-2 rounded-xl border px-4 py-3 text-sm font-extrabold transition ${
                       selected
@@ -149,15 +134,22 @@ export default function TemplatesLibraryClient({ templates, total }: { templates
 
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="mb-5 flex items-center justify-between gap-4">
-          <p className="text-sm font-bold text-slate-500">
-            {loading ? 'Loading...' : `${results.total} templates`}
+          <p role="status" aria-live="polite" className="text-sm font-bold text-slate-500">
+            {loading ? 'Loading...' : error ? 'Templates unavailable' : `${results.total} templates`}
           </p>
           <Link href="/articles" className="text-sm font-bold text-blue-600 hover:text-blue-700">
             Browse articles
           </Link>
         </div>
 
-        {error ? <p role="alert">{error} <button onClick={() => setRetry(value => value + 1)} className="underline">Retry</button></p> : filteredTemplates.length > 0 ? (
+        {(query || activeFilter !== 'all') && (
+          <button type="button" onClick={() => { setQuery(''); setActiveFilter('all'); setPage(1); }} className="mb-5 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold">
+            Clear search and filters
+          </button>
+        )}
+        {error ? <p role="alert">{error} <button onClick={() => setRetry(value => value + 1)} className="underline">Retry</button></p> : loading ? (
+          <p className="py-10 text-slate-600">Finding matching templates...</p>
+        ) : filteredTemplates.length > 0 ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {filteredTemplates.map((template) => (
               <Link
@@ -195,9 +187,9 @@ export default function TemplatesLibraryClient({ templates, total }: { templates
           </div>
         )}
         <nav aria-label="Template pages" className="mt-8 flex items-center justify-center gap-6">
-          <button disabled={loading || page === 1} onClick={() => setPage(value => value - 1)} className="disabled:opacity-40">Previous</button>
+          <button disabled={loading || !!error || page === 1} onClick={() => setPage(value => value - 1)} className="disabled:opacity-40">Previous</button>
           <span>Page {page} of {Math.max(1, Math.ceil(results.total / 48))}</span>
-          <button disabled={loading || page * 48 >= results.total} onClick={() => setPage(value => value + 1)} className="disabled:opacity-40">Next</button>
+          <button disabled={loading || !!error || page * 48 >= results.total} onClick={() => setPage(value => value + 1)} className="disabled:opacity-40">Next</button>
         </nav>
       </section>
     </main>
