@@ -30,7 +30,7 @@ export default async function SignupSuccessPage({ searchParams }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login?mode=signin');
   const templateName = prettyTemplate(searchParams.template);
-  const continueHref = searchParams.template ? `/templates/${searchParams.template}` : '/dashboard';
+  const continueHref = searchParams.template ? `/templates/${searchParams.template}` : '/workspace/setup';
 
   return (
     <div className="public-design public-auth public-confirmation min-h-screen bg-slate-50 px-6 py-16 text-slate-900">

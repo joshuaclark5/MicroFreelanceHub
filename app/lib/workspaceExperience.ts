@@ -1,0 +1,3 @@
+﻿export type WorkspacePreferences={business:string;profession:string;goal:string};
+export const experienceGoals=['clients','projects','agreements','scheduling','time','invoices'];
+export function workspacePreferences(value:unknown):WorkspacePreferences|null{if(!value||typeof value!=='object')return null;const v=value as Record<string,unknown>;if(typeof v.business!=='string'||!v.business.trim()||v.business.length>100||typeof v.profession!=='string'||v.profession.length>80||typeof v.goal!=='string'||!experienceGoals.includes(v.goal))return null;return {business:v.business,profession:v.profession,goal:v.goal};}

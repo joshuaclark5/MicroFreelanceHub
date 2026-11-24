@@ -1,6 +1,8 @@
 'use client';
 
 import Brand from '../components/Brand';
+import {ProductPreview} from '../components/ExperienceHero';
+import '../experience.css';
 import { useState, useEffect, Suspense } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useSearchParams } from 'next/navigation';
@@ -55,7 +57,7 @@ function LoginForm() {
     const currentDomain = typeof window !== 'undefined' ? window.location.origin : '';
 
     const redirectUrl = new URL(`${currentDomain}/auth/callback`);
-    if(searchParams.get('next')==='/workspace') redirectUrl.searchParams.set('next','/workspace');
+    if(['/workspace','/workspace/setup'].includes(searchParams.get('next')||'')) redirectUrl.searchParams.set('next',searchParams.get('next')!);
     if (templateSlug) {
       redirectUrl.searchParams.set('template', templateSlug);
     }
@@ -94,7 +96,7 @@ function LoginForm() {
 
   const getPostAuthPath = () => {
     const params = new URLSearchParams();
-    if(searchParams.get('next')==='/workspace') params.set('next','/workspace');
+    if(['/workspace','/workspace/setup'].includes(searchParams.get('next')||'')) params.set('next',searchParams.get('next')!);
     const attribution = getAuthAttribution(landingPageParam, leadSourceParam);
     if (templateSlug) params.set('template', templateSlug);
     if (attribution.landing_page) params.set('landing_page', attribution.landing_page);
@@ -231,8 +233,8 @@ function LoginForm() {
                     </h1>
                     <p className="mt-3 text-slate-500 text-sm">
                         {authMode === 'signup'
-                          ? 'Save your agreements, send client links, and manage deposits from one dashboard.'
-                          : 'Sign in to manage your contracts and clients.'}
+                          ? 'Bring your customers, conversations and projects into one workspace.'
+                          : 'Sign in to pick up your customers, projects and next steps.'}
                     </p>
                 </>
             )}
@@ -344,11 +346,11 @@ export default function LoginPage() {
       </div>
 
       {/* Login Form Card */}
-      <div className="w-full max-w-md">
+      <div className="xp-auth-layout"><aside className="xp-auth-art"><p className="xp-kicker">LESS SCATTERED. MORE CONNECTED.</p><h2>Your business deserves<br/>a clearer view.</h2><p>Keep the people, the conversations and the work together. Start with one useful step.</p><ProductPreview/></aside><div className="w-full max-w-md mx-auto">
          <Suspense fallback={<div className="text-center p-4 text-slate-500 animate-pulse">Loading secure login...</div>}>
             <LoginForm />
          </Suspense>
-      </div>
+      </div></div>
 
       {/* Benefits Footer */}
       <div className="mt-12 sm:mt-16 flex flex-col sm:flex-row gap-6 sm:gap-8 text-sm text-slate-600">
