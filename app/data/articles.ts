@@ -1,3 +1,4 @@
+import { clientHandoffGuide } from './clientHandoffGuide';
 import {weeklyProjectReview} from './weeklyProjectReview';
 import { portfolioSample } from './portfolioSample';
 
@@ -27,6 +28,7 @@ export type Article = {
 };
 
 export const articles: Article[] = [
+  clientHandoffGuide,
   portfolioSample,
   weeklyProjectReview,
   {
