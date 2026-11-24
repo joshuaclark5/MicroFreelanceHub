@@ -66,3 +66,13 @@ export function localInstants(date:string,minute:number,zone:string):string[]{
  for(let t=base-14*3600000;t<=base+38*3600000;t+=60000){const p=Object.fromEntries(formatter.formatToParts(new Date(t)).map(x=>[x.type,x.value]));if(p.year+'-'+p.month+'-'+p.day+'T'+p.hour+':'+p.minute===target)found.push(new Date(t).toISOString());}return found;
 }
 export function slotLabel(iso:string,zone:string){return new Intl.DateTimeFormat('en-US',{timeZone:zone,dateStyle:'medium',timeStyle:'long'}).format(new Date(iso))+' ('+zone+')';}
+
+export function addDaysOffRange(value:WeeklyRecurrence,start:string,end:string=start):WeeklyRecurrence {
+ if(!validLocalDate(start)||!validLocalDate(end)||end<start)throw Error('Choose a valid first and last day off.');
+ if(!validLocalDate(value.startDate)||start<value.startDate||value.endDate!==null&&end>value.endDate)throw Error('Keep days off within your schedule dates.');
+ const first=Date.parse(start+'T00:00:00.000Z'),count=(Date.parse(end+'T00:00:00.000Z')-first)/86400000+1;
+ if(count>366)throw Error('Use up to 366 days off per rule.');
+ const dates=new Set(value.excludedDates);for(let i=0;i<count;i++)dates.add(new Date(first+i*86400000).toISOString().slice(0,10));
+ if(dates.size>366)throw Error('Use up to 366 days off per rule.');
+ return {...value,excludedDates:[...dates].sort()};
+}
