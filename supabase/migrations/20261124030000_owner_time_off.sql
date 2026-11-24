@@ -1,0 +1,187 @@
+-- Owner-wide time off; no existing bookings are changed.
+-- Keep WORKSPACE_TIME_OFF_ENABLED off until staging/application checks pass.
+-- Preserve booking guards and saved closures during any application rollback.
+begin;
+
+set local role postgres;
+do $$ begin
+ if md5(pg_get_functiondef('public.public_booking_service(text,jsonb)'::regprocedure))<>'084c690454746777d72de90adced7c03' then raise exception 'Scheduling source baseline changed: public.public_booking_service(text,jsonb)';end if;
+ if md5(pg_get_functiondef('public.public_booking_window(text,date,timestamptz)'::regprocedure))<>'0e4c72411872fbcba67cc8b8d83ea865' then raise exception 'Scheduling source baseline changed: public.public_booking_window(text,date,timestamptz)';end if;
+ if md5(pg_get_functiondef('public.workspace_scheduling_mutate(jsonb)'::regprocedure))<>'0bc533ea3a8b5ebaf170859d9ef53cfe' then raise exception 'Scheduling source baseline changed: public.workspace_scheduling_mutate(jsonb)';end if;
+end $$;
+
+create function public.workspace_time_off_day_boundary(d date,z text) returns timestamptz language plpgsql set search_path=pg_catalog,public as $$
+declare candidate timestamptz; result timestamptz;
+begin
+ if d is null or d<'1900-01-01' or d>'2200-01-01' or z is null or length(z)>80 or not exists(select 1 from pg_timezone_names where name=z) then raise exception 'Invalid day or timezone';end if;
+ candidate:=d::timestamp at time zone z;
+ -- A deliberately slow reference algorithm: second-resolution exhaustive envelope.
+ -- It handles midnight folds/gaps and skipped civil dates. Optimize only with parity proof.
+ select min(s) into result from generate_series(candidate-interval '26 hours',candidate+interval '26 hours',interval '1 second') s where (s at time zone z)::date>=d;
+ if result is null or ((result-interval '1 second') at time zone z)::date>=d then raise exception 'Unproved civil-day boundary';end if;
+ return result;
+end $$;
+create table public.workspace_scheduling_time_off (
+ id uuid primary key default gen_random_uuid(),owner_id uuid not null references auth.users(id),
+ starts_on date not null,ends_on date not null,timezone text not null,starts_at timestamptz not null,ends_at timestamptz not null,
+ check(ends_on>=starts_on and ends_on-starts_on<366),check(ends_at>starts_at)
+);
+alter table public.workspace_scheduling_time_off enable row level security;
+alter table public.workspace_scheduling_time_off force row level security;
+revoke all on public.workspace_scheduling_time_off from public,anon,authenticated,service_role;
+create function public.workspace_time_off_create_internal(first_day date,last_day date,z text) returns jsonb language plpgsql security definer set search_path=pg_catalog,public as $$
+declare actor uuid:=auth.uid(); first_instant timestamptz; after_last timestamptz; saved public.workspace_scheduling_time_off; affected bigint;
+begin
+ if actor is null or first_day is null or last_day is null or last_day<first_day or last_day-first_day>=366 then raise exception 'Invalid authenticated time-off range';end if;
+ perform pg_advisory_xact_lock(hashtextextended(actor::text,73118));
+ first_instant:=public.workspace_time_off_day_boundary(first_day,z);after_last:=public.workspace_time_off_day_boundary(last_day+1,z);
+ if after_last<=first_instant then raise exception 'This range contains no real local time';end if;
+ insert into public.workspace_scheduling_time_off(owner_id,starts_on,ends_on,timezone,starts_at,ends_at) values(actor,first_day,last_day,z,first_instant,after_last) returning * into saved;
+ select count(*) into affected from public.workspace_scheduling_bookings where owner_id=actor and status='confirmed' and blocked_start<after_last and blocked_end>first_instant;
+ return to_jsonb(saved)||jsonb_build_object('existingBookings',affected);
+end $$;
+create function public.workspace_time_off_guard() returns trigger language plpgsql security definer set search_path=pg_catalog,public as $$
+begin
+ perform pg_advisory_xact_lock(hashtextextended(new.owner_id::text,73118));
+ if new.status='confirmed' and exists(select 1 from public.workspace_scheduling_time_off t where t.owner_id=new.owner_id and new.blocked_start<t.ends_at and new.blocked_end>t.starts_at) then raise exception 'Owner-wide time off';end if;
+ return new;
+end $$;
+create trigger prototype_owner_time_off before insert on public.workspace_scheduling_bookings for each row execute function public.workspace_time_off_guard();
+revoke all on function public.workspace_time_off_day_boundary(date,text),public.workspace_time_off_create_internal(date,date,text),public.workspace_time_off_guard() from public,anon,authenticated,service_role;
+-- Trusted definer-only read path: no browser/service direct table access.
+grant select on public.workspace_scheduling_time_off to postgres;
+create policy workspace_scheduling_time_off_internal_read on public.workspace_scheduling_time_off for select to postgres using(true);
+do $$
+declare signature text; definition text; needle text:='   and not exists(select 1 from public.workspace_scheduling_bookings b where b.owner_id=p.owner_id';
+ insertion text:='   and not exists(select 1 from public.workspace_scheduling_time_off t where t.owner_id=p.owner_id and s-make_interval(mins=>r.buffer)<t.ends_at and s+make_interval(mins=>r.duration+r.buffer)>t.starts_at)'||E'\n';
+begin
+ foreach signature in array array['public.public_booking_service(text,jsonb)','public.public_booking_window(text,date,timestamptz)'] loop
+  definition:=pg_get_functiondef(signature::regprocedure);
+  if (length(definition)-length(replace(definition,needle,'')))/length(needle)<>1 or position('workspace_scheduling_time_off' in definition)>0 then raise exception 'Unexpected prototype preview baseline';end if;
+  execute replace(definition,needle,insertion||needle);
+ end loop;
+end $$;
+-- Lifecycle and admission additions follow in this transaction.
+
+
+
+alter table public.workspace_scheduling_time_off add column active boolean not null default true,add column version integer not null default 1 check(version>0);
+create index workspace_time_off_owner_active on public.workspace_scheduling_time_off(owner_id,starts_at,ends_at) where active;
+create table public.workspace_scheduling_time_off_operations(owner_id uuid not null references auth.users(id),operation_id uuid not null,request_hash text not null,result jsonb not null,primary key(owner_id,operation_id));
+alter table public.workspace_scheduling_time_off_operations enable row level security;
+alter table public.workspace_scheduling_time_off_operations force row level security;
+revoke all on public.workspace_scheduling_time_off_operations from public,anon,authenticated,service_role;
+create function public.workspace_time_off_immutable() returns trigger language plpgsql set search_path=pg_catalog,public as $$
+begin
+ if tg_op='DELETE' then raise exception 'Time-off history is retained';end if;
+ if (to_jsonb(new)-array['active','version']) is distinct from (to_jsonb(old)-array['active','version']) or not old.active or new.active or new.version<>old.version+1 then raise exception 'Only versioned removal is supported';end if;
+ return new;
+end $$;
+create trigger workspace_time_off_history before update or delete on public.workspace_scheduling_time_off for each row execute function public.workspace_time_off_immutable();
+create function public.workspace_time_off_preview_internal(first_day date,last_day date,z text) returns jsonb language plpgsql security definer set search_path=pg_catalog,public set timezone='UTC' as $$
+declare actor uuid:=auth.uid();first_instant timestamptz;after_last timestamptz;affected jsonb;review jsonb;
+begin
+ if actor is null or first_day is null or last_day is null or last_day<first_day or last_day-first_day>=366 then raise exception 'Invalid authenticated time-off range';end if;
+ perform pg_advisory_xact_lock(hashtextextended(actor::text,73118));
+ first_instant:=public.workspace_time_off_day_boundary(first_day,z);after_last:=public.workspace_time_off_day_boundary(last_day+1,z);
+ if after_last<=first_instant then raise exception 'This range contains no real local time';end if;
+ select coalesce(jsonb_agg(to_jsonb(b) order by b.id),'[]'::jsonb) into affected from (select id,version,attendee,timezone,starts_at,ends_at,blocked_start,blocked_end from public.workspace_scheduling_bookings where owner_id=actor and status='confirmed' and blocked_start<after_last and blocked_end>first_instant order by id limit 501)b;
+ if jsonb_array_length(affected)>500 then raise exception 'Too many affected bookings for complete review';end if;
+ review:=jsonb_build_object('owner',actor,'first',first_day,'last',last_day,'timezone',z,'startsAt',first_instant,'endsAt',after_last,'affected',affected);
+ return jsonb_build_object('startsAt',first_instant,'endsAt',after_last,'affectedBookings',affected,'reviewToken',encode(sha256(convert_to(review::text,'UTF8')),'hex'));
+end $$;
+create function public.workspace_time_off_mutate_internal(payload jsonb) returns jsonb language plpgsql security definer set search_path=pg_catalog,public set timezone='UTC' as $$
+declare actor uuid:=auth.uid();action text;keys text[];op uuid;digest text;prior public.workspace_scheduling_time_off_operations;result jsonb;review jsonb;first_day date;last_day date;
+begin
+ if actor is null or jsonb_typeof(payload) is distinct from 'object' or length(payload::text)>6000 then raise exception 'Invalid authenticated request';end if;
+ action:=payload->>'action';keys:=array['action','expectedActorId','operationId']||case action when 'create' then array['startsOn','endsOn','timezone','expectedReviewToken'] when 'remove' then array['id','expectedVersion'] else array[]::text[] end;
+ if action not in ('create','remove') or action is null or (select count(*) from jsonb_object_keys(payload))<>cardinality(keys) or exists(select 1 from jsonb_object_keys(payload) k where not(k=any(keys))) or exists(select 1 from unnest(keys) k where not(payload ? k) or payload->k='null'::jsonb) then raise exception 'Closed payload required';end if;
+ if jsonb_typeof(payload->'expectedActorId')<>'string' or (payload->>'expectedActorId')::uuid is distinct from actor then raise exception 'Actor changed';end if;
+ if jsonb_typeof(payload->'operationId')<>'string' or (payload->>'operationId')!~'^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$' then raise exception 'Valid operation required';end if;
+ op:=(payload->>'operationId')::uuid;digest:=encode(sha256(convert_to(payload::text,'UTF8')),'hex');
+ perform pg_advisory_xact_lock(hashtextextended(actor::text,73118));
+ select * into prior from public.workspace_scheduling_time_off_operations where owner_id=actor and operation_id=op;
+ if found then if prior.request_hash<>digest then raise exception 'Operation changed';end if;return jsonb_build_object('record',prior.result,'replayed',true);end if;
+ if action='create' then
+  if jsonb_typeof(payload->'startsOn')<>'string' or jsonb_typeof(payload->'endsOn')<>'string' or jsonb_typeof(payload->'timezone')<>'string' or jsonb_typeof(payload->'expectedReviewToken')<>'string' or (payload->>'startsOn')!~'^[0-9]{4}-[0-9]{2}-[0-9]{2}$' or (payload->>'endsOn')!~'^[0-9]{4}-[0-9]{2}-[0-9]{2}$' or (payload->>'expectedReviewToken')!~'^[a-f0-9]{64}$' then raise exception 'Valid range and review required';end if;
+  first_day:=(payload->>'startsOn')::date;last_day:=(payload->>'endsOn')::date;
+  review:=public.workspace_time_off_preview_internal(first_day,last_day,payload->>'timezone');
+  if review->>'reviewToken' is distinct from payload->>'expectedReviewToken' then raise exception 'Affected bookings changed; review again';end if;
+  result:=public.workspace_time_off_create_internal(first_day,last_day,payload->>'timezone');
+ else
+  if jsonb_typeof(payload->'id')<>'string' or jsonb_typeof(payload->'expectedVersion')<>'number' or (payload->>'expectedVersion')!~'^[1-9][0-9]{0,8}$' then raise exception 'Valid record and version required';end if;
+  update public.workspace_scheduling_time_off set active=false,version=version+1 where id=(payload->>'id')::uuid and owner_id=actor and active and version=(payload->>'expectedVersion')::int returning to_jsonb(workspace_scheduling_time_off) into result;
+  if result is null then raise exception 'Unavailable time off or changed version';end if;
+ end if;
+ insert into public.workspace_scheduling_time_off_operations values(actor,op,digest,result);
+ return jsonb_build_object('record',result,'replayed',false);
+end $$;
+revoke all on function public.workspace_time_off_immutable(),public.workspace_time_off_preview_internal(date,date,text),public.workspace_time_off_mutate_internal(jsonb) from public,anon,authenticated,service_role;
+-- Active intervals alone affect future booking saves and both public preview paths.
+do $$ declare signature text;definition text;needle text:='where t.owner_id=';begin
+ foreach signature in array array['public.workspace_time_off_guard()','public.public_booking_service(text,jsonb)','public.public_booking_window(text,date,timestamptz)'] loop
+  definition:=pg_get_functiondef(signature::regprocedure);
+  if (length(definition)-length(replace(definition,needle,'')))/length(needle)<>1 then raise exception 'Unexpected lifecycle baseline';end if;
+  execute replace(definition,needle,'where t.active and t.owner_id=');
+ end loop;
+end $$;
+
+
+create table public.workspace_scheduling_time_off_limits (
+ owner_id uuid primary key references auth.users(id), expires_at timestamptz not null,
+ hits integer not null check(hits between 1 and 31)
+);
+alter table public.workspace_scheduling_time_off_limits enable row level security;
+alter table public.workspace_scheduling_time_off_limits force row level security;
+revoke all on public.workspace_scheduling_time_off_limits from public,anon,authenticated,service_role;
+create function public.workspace_time_off_request(payload jsonb) returns jsonb
+language plpgsql security definer set search_path=pg_catalog,public set timezone='UTC' as $$
+declare actor uuid:=auth.uid(); used integer; stamp timestamptz; result jsonb; action text; detail text; state text; first_day date; last_day date; first_instant timestamptz; after_last timestamptz;
+begin
+ if actor is null then return jsonb_build_object('ok',false,'code','invalid');end if;
+ perform pg_advisory_xact_lock(hashtextextended(actor::text,73118));
+ stamp:=clock_timestamp();
+ insert into public.workspace_scheduling_time_off_limits values(actor,stamp+interval '1 minute',1)
+ on conflict(owner_id) do update set
+ hits=case when workspace_scheduling_time_off_limits.expires_at<=stamp then 1 else least(workspace_scheduling_time_off_limits.hits+1,31) end,
+ expires_at=case when workspace_scheduling_time_off_limits.expires_at<=stamp then stamp+interval '1 minute' else workspace_scheduling_time_off_limits.expires_at end
+ returning hits into used;
+ if used>30 then return jsonb_build_object('ok',false,'code','rate_limited');end if;
+ -- Catch in a nested block: failed work rolls back, admission above survives.
+ begin
+  if jsonb_typeof(payload) is distinct from 'object' or length(payload::text)>6000 then raise exception 'Invalid request';end if;
+  if jsonb_typeof(payload->'expectedActorId') is distinct from 'string' or (payload->>'expectedActorId')::uuid is distinct from actor then raise exception 'Invalid actor';end if;
+  action:=payload->>'action';
+  if action in ('preview','list') then
+   if (select count(*) from jsonb_object_keys(payload))<>5 or exists(select 1 from jsonb_object_keys(payload) k where k<>all(array['action','expectedActorId','startsOn','endsOn','timezone'])) then raise exception 'Invalid fields';end if;
+   if jsonb_typeof(payload->'startsOn') is distinct from 'string' or jsonb_typeof(payload->'endsOn') is distinct from 'string' or jsonb_typeof(payload->'timezone') is distinct from 'string' or (payload->>'startsOn')!~'^[0-9]{4}-[0-9]{2}-[0-9]{2}$' or (payload->>'endsOn')!~'^[0-9]{4}-[0-9]{2}-[0-9]{2}$' or length(payload->>'timezone') not between 1 and 80 then raise exception 'Invalid range';end if;
+   if action='list' then
+    first_day:=(payload->>'startsOn')::date;last_day:=(payload->>'endsOn')::date;
+    if last_day<first_day or last_day-first_day>=366 then raise exception 'Invalid range';end if;
+    first_instant:=public.workspace_time_off_day_boundary(first_day,payload->>'timezone');
+    after_last:=public.workspace_time_off_day_boundary(last_day+1,payload->>'timezone');
+    if after_last<=first_instant then raise exception 'Empty range';end if;
+    select coalesce(jsonb_agg(to_jsonb(t) order by t.starts_at,t.id),'[]'::jsonb) into result
+    from (select * from public.workspace_scheduling_time_off where owner_id=actor and active and starts_at<after_last and ends_at>first_instant order by starts_at,id limit 101)t;
+    return jsonb_build_object('ok',true,'actorId',actor,'startsOn',first_day,'endsOn',last_day,'timezone',payload->>'timezone','truncated',jsonb_array_length(result)>100,
+     'records',(select coalesce(jsonb_agg(v order by n),'[]'::jsonb) from jsonb_array_elements(result) with ordinality as a(v,n) where n<=100));
+   end if;
+   result:=public.workspace_time_off_preview_internal((payload->>'startsOn')::date,(payload->>'endsOn')::date,payload->>'timezone');
+   return jsonb_build_object('ok',true,'actorId',actor,'preview',result);
+  elsif action in ('create','remove') then
+   result:=public.workspace_time_off_mutate_internal(payload);
+   return jsonb_build_object('ok',true,'actorId',actor)||result;
+  else raise exception 'Invalid action';end if;
+ exception when others then
+  get stacked diagnostics state=returned_sqlstate,detail=message_text;
+  return jsonb_build_object('ok',false,'code',case
+   when state='P0001' and detail='Affected bookings changed; review again' then 'review_changed'
+   when state='P0001' and detail in ('Operation changed','Unavailable time off or changed version') then 'conflict'
+   when state in ('P0001','22007','22008','22023','22P02','23503','23505','23514') then 'invalid'
+   else 'unavailable' end);
+ end;
+end $$;
+revoke all on function public.workspace_time_off_request(jsonb) from public,anon,authenticated,service_role;
+grant execute on function public.workspace_time_off_request(jsonb) to authenticated;
+
+commit;
