@@ -8,7 +8,7 @@ export async function searchTemplates(query = '', filter = 'all', page = 1) {
   // Restrict filter syntax characters before interpolating into PostgREST expressions.
   const term = query.replace(/[^\p{L}\p{N}\s-]/gu, ' ').trim().slice(0, 150);
   if (term) request = request.or(['job_title', 'document_type', 'slug', 'ai_summary'].map(column => `${column}.ilike.%${term}%`).join(','));
-  const groups: Record<string, string[]> = { contract: ['contract', 'agreement'], invoice: ['invoice', 'payment'], scope: ['scope', 'work-order', 'proposal', 'estimate'] };
+  const groups: Record<string, string[]> = { email: ['email'], contract: ['contract', 'agreement'], invoice: ['invoice', 'payment'], scope: ['scope', 'work-order', 'proposal', 'estimate'] };
   if (groups[filter]) request = request.or(groups[filter].flatMap(word => [`document_type.ilike.%${word}%`, `slug.ilike.%${word}%`]).join(','));
   const offset = (Math.max(1, Math.floor(page)) - 1) * PAGE_SIZE;
   const { data, count, error } = await request.order('job_title', { ascending: true }).order('slug', { ascending: true }).range(offset, offset + PAGE_SIZE - 1);
