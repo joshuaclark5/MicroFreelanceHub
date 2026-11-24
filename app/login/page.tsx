@@ -1,6 +1,7 @@
 'use client';
 
 import Brand from '../components/Brand';
+import { getAuthDestination } from '../lib/authDestination';
 import {ProductPreview} from '../components/ExperienceHero';
 import '../experience.css';
 import { useState, useEffect, Suspense } from 'react';
@@ -22,6 +23,7 @@ function LoginForm() {
   const [authLoading, setAuthLoading] = useState(false);
   const supabase = createClientComponentClient();
 
+  const destination = getAuthDestination(searchParams);
   const templateSlug = searchParams.get('template');
   const plan = searchParams.get('plan') as 'starter' | 'pro' | 'agency' | null;
   const mode = searchParams.get('mode');
@@ -60,7 +62,7 @@ function LoginForm() {
     const currentDomain = typeof window !== 'undefined' ? window.location.origin : '';
 
     const redirectUrl = new URL(`${currentDomain}/auth/callback`);
-    if(['/workspace','/workspace/setup'].includes(searchParams.get('next')||'')) redirectUrl.searchParams.set('next',searchParams.get('next')!);
+    if (destination) redirectUrl.searchParams.set('next', destination);
     if (templateSlug) {
       redirectUrl.searchParams.set('template', templateSlug);
     }
@@ -100,7 +102,7 @@ function LoginForm() {
 
   const getPostAuthPath = () => {
     const params = new URLSearchParams();
-    if(['/workspace','/workspace/setup'].includes(searchParams.get('next')||'')) params.set('next',searchParams.get('next')!);
+    if (destination) params.set('next', destination);
     const attribution = getAuthAttribution(landingPageParam, leadSourceParam);
     if (templateSlug) params.set('template', templateSlug);
     if (attribution.landing_page) params.set('landing_page', attribution.landing_page);
@@ -117,7 +119,7 @@ function LoginForm() {
 
     try {
       const callbackUrl = new URL('/auth/callback', window.location.origin);
-      if(searchParams.get('next')==='/workspace') callbackUrl.searchParams.set('next','/workspace');
+      if (destination) callbackUrl.searchParams.set('next', destination);
       const attribution = getAuthAttribution(landingPageParam, leadSourceParam);
       if (plan) { callbackUrl.searchParams.set('plan', plan); callbackUrl.searchParams.set('billing', searchParams.get('billing')==='annual'?'annual':'monthly'); }
       if (templateSlug) callbackUrl.searchParams.set('template', templateSlug);
@@ -146,7 +148,7 @@ function LoginForm() {
         }
 
         setIsSuccess(true);
-        setMessage(plan ? 'Check your email to confirm your account, then continue to checkout.' : 'Check your email to confirm your account, then continue with your agreement.');
+        setMessage(plan ? 'Check your email to confirm your account, then continue to checkout.' : destination && !templateSlug ? 'Check your email to confirm your account, then return to your workspace.' : 'Check your email to confirm your account, then continue with your agreement.');
         return;
       }
 
