@@ -9,6 +9,17 @@ const reply = (body: unknown, status = 200) => NextResponse.json(body, {
   status, headers: { 'Cache-Control': 'private, no-store', ...(status === 429 ? { 'Retry-After': '60' } : {}) },
 });
 
+export async function GET() {
+  if (process.env.WORKSPACE_TIME_OFF_ENABLED !== 'true') return reply({ error: 'Time-off setup is not available yet.' }, 503);
+  try {
+    const cookieStore = cookies();
+    const db = createRouteHandlerClient({ cookies: () => cookieStore });
+    const { data: { user }, error } = await db.auth.getUser();
+    if (error || !user) return reply({ error: 'Sign in required.' }, 401);
+    return reply({ actorId: user.id, available: true });
+  } catch { return reply({ error: 'Time-off setup is unavailable.' }, 503); }
+}
+
 // Rollout gate: do not enable before the atomic, quota-enforcing RPC and owner UI
 // pass staging. The RPC is deliberately not the unrestricted local prototype.
 export async function POST(request: Request) {
@@ -24,7 +35,7 @@ export async function POST(request: Request) {
     let body;
     try { body = timeOffInput(await boundedJson(request, 6000)); }
     catch { return reply({ error: 'Check the dates, timezone and review details. Your draft has not been submitted.' }, 400); }
-    if (body.expectedActorId !== user.id) return reply({ error: 'Account changed. Return to the original account or reload before continuing.' }, 409);
+    if (body.expectedActorId !== user.id) return reply({ error: 'Account changed. Return to the original account before continuing.', code: 'account_changed' }, 409);
     // Required RPC protocol: enforce durable per-actor quotas for direct calls too,
     // returning expected failures as data so their counters are not rolled back.
     const { data, error: rpcError } = await db.rpc('workspace_time_off_request', { payload: body });
