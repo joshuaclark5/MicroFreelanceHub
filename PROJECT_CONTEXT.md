@@ -164,3 +164,6 @@ Also note: files on this computer matching Crown are currently in Downloads:
 - C:\Users\joshu\Downloads\Base_White_Witch_Crown.stl
 - C:\Users\joshu\Downloads\Full_White_Witch_Crown.stl
 ```
+
+## Standing email design preference (2026-11-23)
+Joshua wants polished MicroFreelanceHub emails inspired by the supplied HoneyBook onboarding reference: branded header, readable mobile typography, clear primary action, concise useful numbered next steps, and consistent footer. No personal/street address in designs. Do not imply unreleased apps exist or invent product claims. Preserve plain-text alternatives and escape dynamic content. Promotional campaigns require a separately configured compliant sender address and unsubscribe handling before sending.
