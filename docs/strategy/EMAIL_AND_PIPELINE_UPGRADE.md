@@ -21,5 +21,7 @@ Document/invoice editor redesign, custom pipeline views and automation are not i
 - TypeScript check passed.
 - Existing email-worker suite: six groups passed with fictional provider/database transport.
 - Email design test checks HTML escaping, plain-text content and supported setup links.
-- Browser test uses fictional API fixtures at 320, 390 and 1440 pixels; screenshots and build results must be checked before release is called complete.
+- Final production build passed after restoring original Unicode labels. Use explicit UTF-8 when editing source on Windows; never run a rebuild against the same `.next` directory used by an active acceptance-test server.
+- Targeted board/email browser tests passed with fictional API fixtures at 320, 390 and 1440 pixels; mobile and desktop screenshots visually inspected.
+- Broader workspace regression passed across 320, 390, 768 and 1440: create/edit/delete, task completion, keyboard use, failed/uncertain saves, expired sessions, owner mismatch, stale-edit recovery and 1005+ records. Loading fixtures now hold their response until the loading-state capture completes instead of racing a timer.
 - Browser email previews are not Gmail/Outlook delivery evidence.
