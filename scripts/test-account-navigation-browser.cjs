@@ -13,6 +13,7 @@ for(const width of [320,390,768,1440])for(const signedIn of [false,true]){
  });
  for(const route of ['/workspace','/guides/client-workflows','/']){
   await page.goto(base+route);const control=signedIn?page.getByRole('button',{name:/^(Log out|Sign out)$/}):page.getByRole('link',{name:/^Log in$/i});await control.first().waitFor({state:'visible'});
+  if(!signedIn){const signup=page.getByRole('link',{name:'Create an account',exact:true}).first();await signup.waitFor({state:'visible'});assert.equal(await signup.getAttribute('href'),'/login?mode=signup&next=/workspace/setup');}
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'overflow '+route+' '+width);
   if(route!=='/')assert.equal(await page.locator('details[open]').count(),0,'account control must not require opening menu');
   await page.screenshot({path:out+'/'+(route==='/'?'marketing':route==='/workspace'?'workspace':'public')+'-'+width+'-'+(signedIn?'in':'out')+'.png',fullPage:false});

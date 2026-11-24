@@ -27,7 +27,7 @@ export default function AccountControl(){
   catch{setError('Could not log out. Please retry.');setBusy(false);}
  }
  return <div className="mfh-account-control" aria-label="Account">
-  {state==='loading'?<span role="status">Checking account…</span>:state==='in'?<><Link href="/settings">Account</Link><button type="button" disabled={busy} onClick={logout}>{busy?'Logging out…':'Log out'}</button></>:state==='out'?<Link className="mfh-login-button" href="/login?mode=signin&next=/workspace">Log in</Link>:<><span>Account unavailable</span><button type="button" onClick={()=>{setState('loading');setRetry(n=>n+1);}}>Retry account check</button><Link href="/login?mode=signin&next=/workspace">Log in</Link></>}
+  {state==='loading'?<span role="status">Checking account…</span>:state==='in'?<><Link href="/settings">Account</Link><button type="button" disabled={busy} onClick={logout}>{busy?'Logging out…':'Log out'}</button></>:state==='out'?<><Link href="/login?mode=signin&next=/workspace">Log in</Link><Link className="mfh-login-button" href="/login?mode=signup&next=/workspace/setup">Create an account</Link></>:<><span>Account unavailable</span><button type="button" onClick={()=>{setState('loading');setRetry(n=>n+1);}}>Retry account check</button><Link href="/login?mode=signin&next=/workspace">Log in</Link></>}
   {error&&<p role="alert">{error}</p>}
  </div>;
 }

@@ -8,7 +8,7 @@ const scripts=[fs.readFileSync(path.join(root,'node_modules/react/umd/react.prod
 let browser;const report={scope:process.env.QA_BASE_URL?'Optimized Next build; fictional intercepted API':'Real component transpiled into offline React fixture; fictional API, no Next layout/build integration',checks:[],screens:[]};
 (async()=>{const css=(await postcss([tailwind({content:[{raw:pageSource,extension:'tsx'}],corePlugins:{preflight:true}})]).process('@tailwind base;@tailwind components;@tailwind utilities;',{from:undefined})).css;browser=await chromium.launch({channel:'msedge',headless:true});
  for(const width of [320,390,768,1440]){
-  const context=await browser.newContext({viewport:{width,height:950}}),page=await context.newPage();page.setDefaultTimeout(15000);
+  const context=await browser.newContext({viewport:{width,height:950},timezoneId:process.env.QA_TIMEZONE||'America/New_York'}),page=await context.newPage();page.setDefaultTimeout(15000);
   const A=randomUUID(),B=randomUUID(),data={actorId:A,availability:[],intakes:[],bookings:[],truncated:false};let fail=false,posts=[],receipts=new Map();const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.route('**/*',async route=>{const req=route.request(),url=new URL(req.url());if(process.env.QA_BASE_URL?url.origin!==process.env.QA_BASE_URL:url.hostname!=='localhost')return route.abort();if(url.pathname==='/api/workspace-scheduling'){
    if(req.method()==='GET')return route.fulfill({json:data});const b=req.postDataJSON();posts.push(b);if(fail)return route.fulfill({status:503,json:{error:'Scheduling unavailable. Retry unchanged action.'}});if(b.expectedActorId!==data.actorId)return route.fulfill({status:409,json:{error:'Account changed. Draft preserved.'}});

@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { SchedulingData, IntakeField, localInstants, slotLabel } from '../../lib/workspaceScheduling';
+import SchedulingCalendar from '../../components/SchedulingCalendar';
 import WorkspaceNav from '../../components/WorkspaceNav';
 import '../../components/workspace-editorial.css';
 const control='min-w-0 max-w-full w-full rounded border border-slate-400 p-2 text-slate-950 bg-white';
@@ -41,7 +42,7 @@ export default function Scheduling(){
  }
  const disabled=busy||!data;
  return <div className="editorial-shell"><WorkspaceNav active="scheduling"/><div className="editorial-main">
- <header className="editorial-header"><div><p className="editorial-eyebrow">YOUR WORKSPACE / SCHEDULING</p><h1>A little planning.<br/><em>A better conversation.</em></h1><p>Set your hours, prepare your questions and keep private booking records in one place.</p></div><a className="primary-action" href="#availability">Set your availability ↗︎</a></header>
+ <header className="editorial-header"><div><p className="editorial-eyebrow">YOUR WORKSPACE / SCHEDULING</p><h1>A calmer calendar.<br/><em>A clearer day.</em></h1><p>Set your hours, prepare your questions and keep private booking records in one place.</p></div><a className="primary-action" href="#availability">Set your availability ↗︎</a></header>
  <p className="quiet-note">No emails or invitations are sent. Connected calendars require fresh synchronized availability. <a href="/workspace/scheduling/public">Configure an opt-in public booking link →</a></p>
  <details><summary>About availability and intake versions</summary><p>Use weekly, same-day windows for 15–240 minute appointments. To change hours or timezone, disable the old rule and create a replacement. Existing booking times stay unchanged. Published question sets are saved versions; create a new version to change them.</p></details>
   {error&&<p role="alert" className="rounded border border-red-700 bg-red-50 p-3">{error}</p>}
@@ -50,6 +51,7 @@ export default function Scheduling(){
   <button disabled={busy} onClick={()=>refresh().then(()=>setError('')).catch(e=>setError(e.message))}>Refresh records (keep draft)</button>
   {!data&&!error&&<p role="status">Loading private scheduling records…</p>}
   {data?.truncated&&<p role="alert">Showing the latest 500 records in each section. Older records are not shown. This bounded view is not a complete export.</p>}
+  {data&&<SchedulingCalendar bookings={data.bookings}/>}
   <div className="grid gap-6 lg:grid-cols-2">
    <form id="availability" className={section} onSubmit={e=>{e.preventDefault();mutate({action:'availability',...rule});}}>
     <h2 className="text-xl font-semibold">1. Create availability</h2>
@@ -70,7 +72,7 @@ export default function Scheduling(){
    </form>
   </div>
   <section className={section}><h2 className="text-xl font-semibold">Availability rules</h2>{data?.availability.length===0&&<p>No rules yet.</p>}{data?.availability.map(r=><div key={r.id} className="border-b py-3 space-y-2"><p className="break-words"><strong>{r.title}</strong> · {days[r.weekday]} {time(r.start_minute)}–{time(r.end_minute)} · {r.timezone} · {r.duration} min · {r.buffer} min buffer · {r.notice_hours}h notice · {r.horizon_days}d horizon · cap {r.daily_cap} · {r.active?'Active':'Disabled'}</p><button className={button} disabled={disabled} onClick={()=>mutate({action:'toggle',id:r.id,expectedVersion:r.version,active:!r.active})}>{r.active?'Disable':'Enable'} {r.title}</button></div>)}</section>
-  <form className={section} onSubmit={e=>{e.preventDefault();if(activeRule)mutate({action:'book',availabilityId:activeRule.id,expectedVersion:activeRule.version,intakeId,startsAt:selected,attendee,answers,consented});}}>
+  <form id="new-booking" className={section} onSubmit={e=>{e.preventDefault();if(activeRule)mutate({action:'book',availabilityId:activeRule.id,expectedVersion:activeRule.version,intakeId,startsAt:selected,attendee,answers,consented});}}>
    <h2 className="text-xl font-semibold">3. Record a local booking</h2>
    <label className="block">Availability<select className={control} required value={ruleId} onChange={e=>{setRuleId(e.target.value);setSlots([]);setSelected('');}}><option value="">Choose a rule</option>{data?.availability.filter(r=>r.active).map(r=><option key={r.id} value={r.id}>{r.title} · {days[r.weekday]} · {r.timezone}</option>)}</select></label>
    <label className="block">Published intake<select className={control} required value={intakeId} onChange={e=>{setIntakeId(e.target.value);setAnswers({});setConsented(false);}}><option value="">Choose a version</option>{data?.intakes.map(i=><option key={i.id} value={i.id}>{i.title} · version {i.version}</option>)}</select></label>
@@ -82,6 +84,6 @@ export default function Scheduling(){
    <p>We check your hours, buffer, notice and other MFH bookings before saving. Bookings crossing a daylight-saving clock change are not accepted.</p>
    <button className={button} disabled={disabled||!selected||!intake}>Confirm local booking</button>
   </form>
-  <section className={section}><h2 className="text-xl font-semibold">Private bookings &amp; submissions</h2>{data?.bookings.length===0&&<p>No bookings yet.</p>}{data?.bookings.map(b=><article key={b.id} className="border-b py-4 space-y-3 break-words"><h3 className="font-semibold">{b.attendee} · {b.status}</h3><p>{slotLabel(b.starts_at,b.timezone)} – {slotLabel(b.ends_at,b.timezone)}</p><details><summary className="cursor-pointer">Owner-only intake answers</summary><p>Published intake ID: {b.intake_id}</p>{Object.entries(b.answers).map(([k,v])=><p className="whitespace-pre-wrap" key={k}><strong>{data.intakes.find(i=>i.id===b.intake_id)?.fields.find(f=>f.id===k)?.label||k}:</strong> {v}</p>)}</details>{b.status==='confirmed'&&<button className={button} disabled={disabled} onClick={()=>mutate({action:'cancel',id:b.id,expectedVersion:b.version})}>Cancel booking for {b.attendee}</button>}</article>)}</section>
+  <section className={section}><h2 className="text-xl font-semibold">Private bookings &amp; submissions</h2>{data?.bookings.length===0&&<p>No bookings yet.</p>}{data?.bookings.map(b=><article id={"booking-"+b.id} key={b.id} className="border-b py-4 space-y-3 break-words"><h3 className="font-semibold">{b.attendee} · {b.status}</h3><p>{slotLabel(b.starts_at,b.timezone)} – {slotLabel(b.ends_at,b.timezone)}</p><details><summary className="cursor-pointer">Owner-only intake answers</summary><p>Published intake ID: {b.intake_id}</p>{Object.entries(b.answers).map(([k,v])=><p className="whitespace-pre-wrap" key={k}><strong>{data.intakes.find(i=>i.id===b.intake_id)?.fields.find(f=>f.id===k)?.label||k}:</strong> {v}</p>)}</details>{b.status==='confirmed'&&<button className={button} disabled={disabled} onClick={()=>mutate({action:'cancel',id:b.id,expectedVersion:b.version})}>Cancel booking for {b.attendee}</button>}</article>)}</section>
  </div></div>;
 }
