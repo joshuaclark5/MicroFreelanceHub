@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Brand from './components/Brand';
+import AccountControl from './components/AccountControl';
 import { productFeatures } from './data/productFeatures';
 import AgreementExample from './components/AgreementExample';
 import { useEffect, useState } from 'react';
@@ -57,7 +58,7 @@ export default function HomePage() {
           <Link href="/" aria-label="MicroFreelanceHub home" className="flex items-center gap-2 min-w-0">
             <Brand/>
           </Link>
-          <div className="hidden md:flex gap-4 items-center">
+          <div className="hidden lg:flex gap-4 items-center">
             <Link href="/pricing" className="text-sm font-semibold text-gray-600 hover:text-gray-950">Pricing</Link>
             <Link href="/features" className="text-sm font-semibold text-slate-700">Features</Link><Link href="/support" className="text-sm font-semibold text-slate-700">Help</Link>
             <Link href="/articles" className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">
@@ -97,14 +98,14 @@ export default function HomePage() {
             aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
             aria-expanded={isMenuOpen}
             onClick={() => setIsMenuOpen((open) => !open)}
-            className="md:hidden rounded-lg border border-slate-200 p-2 text-slate-700"
+            className="lg:hidden rounded-lg border border-slate-200 p-2 text-slate-700"
           >
             {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
-        <div className="d4-home-mobile-links"><Link href="/features">Features</Link><Link href="/pricing">Pricing</Link>{user ? <><Link href="/workspace">My workspace</Link><button type="button" onClick={signOut}>Sign out</button></> : <><Link href="/login?mode=signin">Log in</Link><Link href="/login" className="d4-mobile-signup">Sign up</Link></>}</div>
+        <div className="public-mobile-account"><AccountControl/></div>
         {isMenuOpen && (
-          <div className="border-t border-slate-100 bg-white px-4 py-4 md:hidden">
+          <div className="border-t border-slate-100 bg-white px-4 py-4 lg:hidden">
             <div className="mx-auto flex max-w-7xl flex-col gap-3">
               <Link href="/pricing" className="rounded-md px-3 py-2 text-sm font-semibold text-gray-700">Pricing</Link><a href="#help" onClick={() => setIsMenuOpen(false)} className="rounded-md px-3 py-2 text-sm font-semibold text-gray-700">Help &amp; support</a>
               <Link href="/articles" className="rounded-lg px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
