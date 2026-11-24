@@ -2,6 +2,10 @@
 
 Joshua authorizes an overnight customer-perspective audit and implementation effort, using HoneyBook as a benchmark. Preserve MicroFreelanceHub's identity and existing customer records, prices and permissions. Improve real outcomes; do not claim feature parity or a 4.9-star rating without evidence. No customer messages, campaigns, live charges or invented consent. SMS remains subject to the existing $20/month total ceiling and pending business setup.
 
+## Current acceptance status
+
+See [Customer-quality acceptance scorecard](CUSTOMER_QUALITY_SCORECARD.md) for the reconciled release/gap status. PR22-25 are verified live in saved receipts; older pending-release/publisher notes below are historical. Account deletion remains temporary containment, not a completed lifecycle. No new customer rating or overall competitor parity is established.
+
 ## Review evidence
 
 Observed in the signed-in managed browser, November 24:
