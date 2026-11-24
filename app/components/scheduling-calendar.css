@@ -7,3 +7,5 @@
 .schedule-calendar .calendar-day[aria-pressed=true]{background:#163d35;color:#fff;border-color:#163d35}
 @media(max-width:600px){.schedule-calendar .calendar-day{min-height:58px;padding:6px 2px;align-items:center}.schedule-calendar .calendar-month{padding:10px 6px}}
 .schedule-calendar .calendar-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.schedule-calendar .calendar-filters label{min-width:0}.schedule-calendar .calendar-filters .calendar-check{grid-column:1/-1}@media(max-width:600px){.schedule-calendar .calendar-filters{grid-template-columns:minmax(0,1fr)}}
+
+.calendar-working{margin:20px 0;padding:12px;border:1px solid #81998b;border-radius:8px;font-size:13px}.calendar-working h4{font-size:17px}.calendar-working button{max-width:100%;white-space:normal;overflow-wrap:anywhere;margin-top:8px}
