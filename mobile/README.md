@@ -1,3 +1,13 @@
+## Android Play candidate - secure-session integration (2026-11-24)
+
+Source now restores encrypted device sessions before showing sign-in or workspace. Failed restore shows a retry screen, not a new-account prompt. Native SecureStore stores chunked tokens with recovery journaling; Android backups exclude SecureStore data. Supabase processLock serializes authentication refreshes within the app process. This is local implementation, not device acceptance or a published release.
+
+Time-entry drafts and uncertain save operations are still memory-only: finish/retry them before closing the app. Restoring a login does not recover those drafts. Corrupted-storage reset UX, full native restart/lock/offline/sign-out tests, and production signing remain unfinished. Existing website links still need Play Payments policy review.
+
+Checks: `node scripts/test-mobile-session-startup.cjs`, `node scripts/test-mobile-secure-storage.cjs`, mobile TypeScript, OAuth/session/navigation regressions, and Android JS export. None substitutes for a signed AAB or device test.
+
+Historical preview details below describe older builds, not the new session behavior.
+
 # Current release readiness: 0.1.3 candidate
 
 The shared logo, Home links and project-specific website navigation are updated in source. These links open the website and may require a separate web sign-in; customer notes are not yet native screens.
@@ -26,7 +36,7 @@ Expo SDK 54 / React Native for iOS and Android; not a WebView, PWA, signed binar
 
 ## Core flow
 
-Existing email/password account → active projects → log completed nonbillable time → refresh latest 20 entries. Reuses `app/lib/workspaceTime.ts`. Revalidates account identity before mutation; retries preserve the same operation ID. Existing database constraints/RLS remain the authorization boundary. No service-role key belongs in the app.
+Existing email/password account â†’ active projects â†’ log completed nonbillable time â†’ refresh latest 20 entries. Reuses `app/lib/workspaceTime.ts`. Revalidates account identity before mutation; retries preserve the same operation ID. Existing database constraints/RLS remain the authorization boundary. No service-role key belongs in the app.
 
 Sessions are **memory-only** in this prototype. They are cleared on process exit; the app suspends token refresh in the background. Google OAuth, durable encrypted offline drafts, background sync, push and store distribution remain unfinished. An uncertain save must be retried while the app is open. Closing the app can lose the in-memory retry key/draft; do not market this as offline-safe capture.
 

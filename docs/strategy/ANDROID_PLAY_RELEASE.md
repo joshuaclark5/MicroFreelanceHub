@@ -32,3 +32,6 @@ For new personal accounts created after 2023-11-13, Google's current policy requ
 Focused test: `node scripts/test-mobile-secure-storage.cjs`.
 
 Dependency install completed successfully; mobile TypeScript passed. Native storage is still not wired into App. No device/build/store-release claim.
+
+## Secure-session integration follow-up
+The local App now uses the SecureStore adapter, a session preflight/restore gate, process-wide auth lock and safe retry UI. Workspace waits for its auth callback before showing sign-in, avoiding a returning-account flash of signup. Startup tests cover new/returning sessions, locked storage, auth failure and a pending restore. OAuth, session-scoped feedback and Home navigation regressions pass. Mobile TypeScript passes. Actual native storage/restart/offline/sign-out and visual device testing remain unverified; time drafts and pending operations remain memory-only. Earlier statements that App was memory-only describe the earlier candidate only.
