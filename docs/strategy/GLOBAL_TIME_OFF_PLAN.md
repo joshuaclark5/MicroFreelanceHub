@@ -1,7 +1,7 @@
 # Owner-wide time off: database groundwork (2026-11-24)
 
 ## Status
-Local database proof only. **Not a production migration or shipped feature.** The app remains at PR35. The executable reference files are `scripts/workspace-review/global-time-off-prototype.sql` and `scripts/test-global-time-off-prototype.cjs`.
+Local database proof only. **Not a production migration or shipped feature.** The app remains at PR35. The executable reference files are `scripts/workspace-review/global-time-off-prototype.sql`, `scripts/workspace-review/global-time-off-lifecycle-prototype.sql` and `scripts/test-global-time-off-prototype.cjs`.
 
 The runner creates a disposable clone of `staging_recurrence` inside the existing Docker container, asserts network mode `none` and no port bindings, and refuses to install the prototype outside a `time_off_prototype_<digits>` database. SQL installation is transactional. All accounts and appointments created by the runner are fictional. No hosted requests are made.
 
@@ -20,10 +20,17 @@ The proof compares both preview responses with their original function definitio
 
 The prior prototype intentionally demonstrated that submission guards alone left misleading public slots; that gap is now closed **locally**, not live. Production source-baseline guards, ownership/ACL readback, lifecycle and UI gates below still apply.
 
+## Lifecycle now proved locally
+The guarded lifecycle candidate adds active/version state, immutable range/history guards, a private receipt table, an owner-only affected-booking preview and a closed JSON create/remove function. Preview responses include owner-visible attendee/timezone/times. A review fingerprint covers the owner, range, UTC boundaries and ordered booking IDs/versions/details; it is an optimistic-concurrency check, not an authentication token. UTC function settings make it stable across database session timezones.
+
+Tests prove stale preview rejection, two same-operation saves producing one closure, changed-operation rejection, actor/closed-payload checks, cross-owner and stale-version remove denial, immutable ranges/history, concurrent removes producing one version change, receipt retries, reopening public slots and preservation of existing appointments. A separately connected booking observed holding the owner lock forces the waiting lifecycle save to request a fresh review.
+
+A retried historical create returns its original receipt **without reactivating** a removed closure. The response includes `replayed`; the future UI must refresh current records and distinguish confirmation of an earlier operation from a new active closure. HTTP authentication/rate limits, browser-facing grants, actual controls and production migration/release work remain unimplemented.
+
 ## Production design and acceptance gates
 1. Add a real owner-only table with immutable range/timezone boundaries, versioned activation/removal, explicit RLS/ACL and a reviewed owner/time-range index. A range timezone applies consistently across every current/future service; do not infer it silently from one rule.
-2. Implement a closed authenticated API/RPC with expected actor, operation ID and version checks. Keep idempotent receipts and recoverable unknown-result retries. The prototype's typed function does not implement this lifecycle and has no browser-facing grants.
-3. Owner preview must list/count affected existing appointments without canceling, moving or messaging them. Revalidate under the owner lock at save; require renewed review if the affected set changed. The primitive prototype reports the committed existing-booking count, not this complete UX.
+2. Implement a closed authenticated API/RPC with expected actor, operation ID and version checks. Keep idempotent receipts and recoverable unknown-result retries. The closed JSON lifecycle is locally tested but still has no production API or browser-facing grants; add rate limits before enabling it. If authenticated users can execute the RPC directly, the rate limit must cover that path too; an HTTP-only limit is insufficient.
+3. Owner preview must list/count affected existing appointments without canceling, moving or messaging them. Revalidate under the owner lock at save; require renewed review if the affected set changed. The lifecycle candidate now revalidates the preview fingerprint under the lock; the owner-facing review UX is still missing.
 4. Carry the locally proven overlap predicate into both public slot-list paths and authoritative booking saves using a reviewed new migration. Preserve the owner-before-calendar lock order. Review any future reactivation/reschedule UPDATE path too; the prototype only guards INSERT because current saved appointment times are immutable.
 5. Add clear owner controls for inclusive dates, business timezone, save/retry feedback, affected bookings and removing time off. Calendar working-hour patterns must distinguish time off without claiming verified free slots. Public responses must not expose private time-off labels, owner IDs or affected bookings.
 6. Replace or optimize the deliberately exhaustive second-resolution day-boundary reference only after parity tests. Keep an explicit behavior for skipped civil dates and timezone rule updates; benchmark the final implementation before claiming production performance.
@@ -31,4 +38,4 @@ The prior prototype intentionally demonstrated that submission guards alone left
 8. Rollout/rollback must preserve already-created closures. Disabling creation is not permission to silently reopen saved time off. Do not remove guards/slot filtering while active closures exist.
 
 ## Evidence
-Latest authoritative result: `artifacts/global-time-off-prototype/result.json` and `artifacts/global-time-off-slot-filter.log`. The first runner attempt timed out because its open psql input lacked a terminating newline; fixed and re-proved. Retained disposable databases are local evidence, not hosted fixtures. No application build/release is claimed for this SQL/test-only groundwork.
+Latest authoritative result: `artifacts/global-time-off-prototype/result.json` and `artifacts/global-time-off-lifecycle-final.log`. The first runner attempt timed out because its open psql input lacked a terminating newline; fixed and re-proved. Retained disposable databases are local evidence, not hosted fixtures. No application build/release is claimed for this SQL/test-only groundwork.
