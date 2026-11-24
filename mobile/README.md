@@ -1,3 +1,13 @@
+# Current release readiness: 0.1.3 candidate
+
+The shared logo, Home links and project-specific website navigation are updated in source. These links open the website and may require a separate web sign-in; customer notes are not yet native screens.
+
+Android native builds remain internal previews using `com.microfreelancehub.mobile.preview` and a debug certificate. Do not submit these APKs to Google Play. A production-signed AAB, store listing/data-safety declarations and store review are still required. iOS needs a controlled Mac/Xcode build, distribution signing, device acceptance and App Store submission/review. Neither platform has a guaranteed approval-day publication date. Do not purchase cloud builds or enrollment without separate spending authorization.
+
+App icon source is `public/brand/mark.svg`; `scripts/render-brand-assets.cjs` generates native bitmap assets. Version0.1.3/code4 must be verified from the built binary before installation or packaging. Existing0.1.2 artifact remains preserved.
+
+---
+
 # MicroFreelanceHub native core prototype
 
 ## Google sign-in candidate (0.1.1)

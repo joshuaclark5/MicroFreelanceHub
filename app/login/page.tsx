@@ -1,5 +1,6 @@
 'use client';
 
+import Brand from '../components/Brand';
 import { useState, useEffect, Suspense } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useSearchParams } from 'next/navigation';
@@ -187,7 +188,7 @@ function LoginForm() {
 
         {/* Logo at top of card */}
         <div className="flex justify-center">
-          <Link href="/" className="d4-brand"><span aria-hidden="true">M</span>MicroFreelanceHub</Link>
+          <Link href="/" className="d4-brand"><Brand/></Link>
         </div>
 
         <div className="text-center">

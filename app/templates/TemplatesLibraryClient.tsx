@@ -1,5 +1,6 @@
 'use client';
 
+import Brand from '../components/Brand';
 import Navbar from '../components/Navbar';
 import { templateLibrarySummary } from '../lib/templateLibrarySummary';
 
@@ -89,7 +90,7 @@ export default function TemplatesLibraryClient({ templates, total }: { templates
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
               <Link href="/" className="d4-brand">
-                <span aria-hidden="true">M</span>MicroFreelanceHub
+                <Brand/>
               </Link>
               <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-slate-950 md:text-5xl">
                 Template Library

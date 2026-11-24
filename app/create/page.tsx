@@ -1,5 +1,6 @@
 'use client';
 
+import {BrandMark} from '../components/Brand';
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -635,7 +636,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
               }
             }} className="text-sm font-medium text-gray-600 underline underline-offset-4">New draft</button>
             {!isPro && projectCount >= 3 && <span className="hidden md:flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full border border-amber-200 cursor-pointer" onClick={() => setShowPricingModal(true)}><AlertCircle className="w-3 h-3" /> Free Limit Reached</span>}
-            <div className="bg-slate-900 text-white w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg font-bold text-lg shadow-sm">M</div>
+            <BrandMark/>
             <span className="d4-editor-wordmark text-sm font-bold text-gray-900">MicroFreelanceHub</span>
         </div>
       </div>

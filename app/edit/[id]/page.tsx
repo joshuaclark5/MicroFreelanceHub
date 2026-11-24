@@ -1,5 +1,6 @@
 'use client';
 
+import {BrandMark} from '../../components/Brand';
 import { useState, useEffect, Suspense } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, useParams } from 'next/navigation';
@@ -443,7 +444,7 @@ function EditProjectContent() {
           <span className="d4-change-header-label text-sm text-slate-600">Agreement editor</span>
         </div>
         <div className="flex items-center gap-3">
-            <div className="bg-slate-900 text-white w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg font-bold text-lg shadow-sm">M</div>
+            <BrandMark/>
             <span className="text-sm font-bold text-gray-900">MicroFreelanceHub</span>
         </div>
       </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import {BrandMark} from '../components/Brand';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
@@ -78,7 +79,7 @@ export default function PricingPage() {
       <nav className="border-b border-gray-200 bg-white sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2">
-            <div className="bg-slate-900 text-white w-8 h-8 flex items-center justify-center rounded-lg font-bold text-lg shadow-md">M</div>
+            <BrandMark/>
             <span className="font-semibold text-sm sm:text-base text-slate-900">MicroFreelanceHub</span>
           </Link>
           <div className="flex gap-4 items-center">

@@ -4,3 +4,5 @@
 .mfh-brand-name>span{font-weight:500;color:#396657}
 @media(max-width:380px){.mfh-brand-lockup{gap:6px}.mfh-brand-lockup img{width:29px;height:29px}.mfh-brand-name{font-size:12px}}
 @media(prefers-reduced-motion:no-preference){a .mfh-brand-lockup img{transition:transform .18s ease}a:hover .mfh-brand-lockup img{transform:translateY(-1px)}}
+
+.mfh-brand-mark{width:36px;height:36px;flex-shrink:0;display:block}

@@ -1,5 +1,6 @@
 'use client';
 
+import Brand from '../components/Brand';
 import { useEffect, useState } from 'react';
 import { User, Zap, Users, ChevronLeft, Mail, X, ArrowRight, Loader2, Trash2 } from 'lucide-react';
 import WorkspaceNav from '../components/WorkspaceNav';
@@ -223,7 +224,7 @@ export default function SettingsPage() {
     <div className="d4-settings d4-app-shell min-h-screen bg-[#f6f8f7]">
       <WorkspaceNav active="settings" />
       {/* Header */}
-      <header className="d4-settings-header"><Link className="d4-brand" href="/"><span>M</span>MicroFreelanceHub</Link><Link className="d4-secondary" href="/dashboard">Agreements</Link></header>
+      <header className="d4-settings-header"><Link className="d4-brand" href="/"><Brand/></Link><Link className="d4-secondary" href="/dashboard">Agreements</Link></header>
       <div className="d4-settings-main max-w-6xl mx-auto px-4 sm:px-8 py-8">
         <p className="d4-eyebrow">Settings &amp; billing</p><h1 className="d4-page-title">One workspace.<br /><em>Two different payment needs.</em></h1>
         <p className="mt-2 text-slate-600">Client payments and your software subscription, clearly separated.</p>
