@@ -15,11 +15,11 @@ Observed in the signed-in managed browser, November 24:
 
 | Surface | HoneyBook observed | MFH current / assessment |
 | --- | --- | --- |
-| Sign-in trust | Not scored against competitor | Verified MFH Google logo was the older black M; new green mark saved in Google branding, pending re-verification. Privacy detail and full-name metadata remediation in progress. |
+| Sign-in trust | Not scored against competitor | Verified MFH Google logo was the older black M; matching green mark now Google-verified, published and confirmed in a fresh account chooser. Privacy and full-name remediation released in PR19. |
 | Calendar | Month grid, timezone, session types, booked sessions, connected calendar, project/payment categories | MFH grid/zone selection fixed; broader event-category and session-management coverage still below benchmark. No overall parity claim. |
 | Templates | Grid/list controls, search, sorting, folders, starter templates, reusable templates | MFH public library searches/filter types; personalized reusable-template organization and unified editor coverage remain gaps. Worse for this workflow. |
-| Contacts | Columns, views, filters, Google import, tags and linked projects | MFH contact/project links and notes exist; no equivalent contact export in the connected workspace found. Import/tags/view depth below benchmark. |
-| Reporting | Navigation verified; deeper audit pending | MFH invoice face value and recorded-time reports/export exist. These are not revenue/cash-flow reports. Broader comparison unverified. |
+| Contacts | Columns, views, filters, Google import, tags and linked projects | MFH contact/project links and notes exist; filtered, guarded CSV export added in the current portability release. Import/tags/view depth below benchmark. |
+| Reporting | Payment/leads/booked-client/team reports, exports and conversion summaries inspected | MFH invoice face value and recorded-time reports/export exist. These are not revenue/cash-flow reports. MFH remains below this reporting breadth. |
 | Pricing transparency | Mixed review evidence; price-increase complaints | MFH displays exact first-year/renewal totals and preserves existing subscriptions. Useful safeguard, not proof of better value. |
 | Reliability/support | Mixed reports; current account appears functional | MFH retry/account-isolation checks exist. Need customer-facing support/recovery path audit, not a superiority claim. |
 
@@ -35,3 +35,11 @@ Observed in the signed-in managed browser, November 24:
 ## Brand verification issue observed
 
 Google's Branding screen saved the matching 120×120 green website mark but continues displaying the previously verified logo. Its issue dialog lists insufficient privacy content, logo identity, a formerly login-gated/unclear homepage and an app-name mismatch. Current homepage is public and uses the full visible name; metadata still shortened it to MicroFreelance. The privacy update must describe Google profile data, optional busy-only calendar access, actual processors, AI editing, storage, retention and request paths. No OAuth client IDs, redirect domains, scopes or credentials should be changed merely to fix the logo.
+
+## Portability verification
+
+Filtered saved-record CSV export covers clients, stages, projects, tasks and agreement links, with relation names, formula escaping and account/incomplete-load guards. Production build, TypeScript, unit tests and four-width browser export checks passed. Existing workspace regression passed at 320 and 1440 pixels; export screenshots at those widths visually inspected. Fictional fixtures only; no customer writes. Export is not a complete account backup.
+
+## Google verification resolved
+
+PR19 privacy/full-name changes are live. Google approved re-verification and branding was published; a fresh Google chooser visually confirmed the current green website mark. Earlier issue notes above are historical, not an outstanding blocker. No OAuth credentials or redirect domains changed.
