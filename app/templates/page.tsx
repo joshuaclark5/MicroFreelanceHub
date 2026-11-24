@@ -1,3 +1,4 @@
+import { templateSearchState } from '../lib/templateSearchState';
 import { searchTemplates } from '../lib/templateLibrary';
 import { Metadata } from 'next';
 import TemplatesLibraryClient, { TemplateLibraryItem } from './TemplatesLibraryClient';
@@ -12,7 +13,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function TemplatesLibraryPage() {
-  const { templates, total } = await searchTemplates();
+export default async function TemplatesLibraryPage({ searchParams = {} }: { searchParams?: Record<string, string | string[] | undefined> }) {
+  const state = templateSearchState({get: name => typeof searchParams[name] === 'string' ? searchParams[name] as string : null});
+  const { templates, total } = await searchTemplates(state.query, state.filter, state.page);
   return <TemplatesLibraryClient templates={templates as TemplateLibraryItem[]} total={total} />;
 }
