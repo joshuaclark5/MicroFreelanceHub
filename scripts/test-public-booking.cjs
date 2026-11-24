@@ -12,7 +12,7 @@ function load(file,mocks={},env={}){const exports={};vm.runInNewContext(ts.trans
 (async()=>{db=new PGlite(dir);
 await db.exec("create role service_role nologin nosuperuser bypassrls;create role authenticated nologin nosuperuser nobypassrls;create role anon nologin nosuperuser nobypassrls;create schema auth;create table auth.users(id uuid primary key);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;grant usage on schema auth,public to authenticated,anon,service_role;grant execute on function auth.uid() to authenticated,anon,service_role;");
 await q('insert into auth.users values($1),($2)',[A,B]);
-for(const f of ['20261118020000_workspace_scheduling.sql','20261118090000_workspace_calendar.sql','20261121000000_public_booking.sql','20261124000000_weekly_recurrence.sql','20261124010000_public_booking_windows.sql'])await db.exec(fs.readFileSync(path.join(root,'supabase/migrations',f),'utf8'));
+for(const f of ['20261118020000_workspace_scheduling.sql','20261118090000_workspace_calendar.sql','20261121000000_public_booking.sql','20261124000000_weekly_recurrence.sql','20261124010000_public_booking_windows.sql','20261124020000_recurrence_helper_grants.sql'])await db.exec(fs.readFileSync(path.join(root,'supabase/migrations',f),'utf8'));
 const date=new Date(Date.now()+3*86400000);date.setUTCHours(12,0,0,0);let rule,intake,portal;
 await role('authenticated',A);
 await check('no existing owner is auto enabled; real owner scheduling/configuration RPCs',async()=>{
@@ -28,7 +28,7 @@ await check('browser roles cannot reach privileged SQL or another owner settings
 for(const r of ['anon','authenticated']){await role(r,B);for(const t of ['workspace_public_booking_receipts','workspace_public_booking_limits'])await denied(()=>q('select * from '+t));await denied(()=>service(portal.token));await denied(()=>throttle(portal.token));}
 await role('authenticated',B);assert.equal((await q('select * from workspace_public_booking')).rows.length,0);
 await denied(()=>config({expectedActorId:B,expectedVersion:0,availabilityId:rule.id,intakeId:intake.id,enabled:true,rotate:false}));
-await role();
+await role();await denied(()=>q("select workspace_recurrence_valid(null::jsonb)"));await denied(()=>q("select workspace_availability_matches(0,null::jsonb,current_date)"));
 });
 await check('minimal public projection and actual SQL filters',async()=>{
 const result=await service(portal.token);assert.deepEqual(Object.keys(result).sort(),['consent','duration','fields','portalVersion','slots','timezone','title']);
