@@ -150,5 +150,5 @@ alter table public.workspace_scheduling_availability drop constraint scheduling_
 alter table public.workspace_scheduling_availability drop column recurrence;
 drop function public.workspace_availability_matches(integer,jsonb,date);
 drop function public.workspace_recurrence_valid(jsonb);
-do $$ begin if not exists(select 1 from pg_proc where proname='workspace_scheduling_mutate' and md5(prosrc)='9dd4456de3c8018772349d6a43b6e9b6') then raise exception 'Original function not restored';end if;end $$;
+do $$ begin if not exists(select 1 from pg_proc where proname='workspace_scheduling_mutate' and md5(btrim(replace(prosrc,E'\r\n',E'\n'),E' \t\r\n'))='f0e56718278e83ed753dc6935e60a42b') then raise exception 'Original function not restored';end if;end $$;
 rollback;
