@@ -1,4 +1,4 @@
-﻿# Android Play release - verified readiness
+# Android Play release - verified readiness
 
 ## Scope and authority
 Joshua requested an Android app and Play publication while web/calendar work continues. Use local tooling; no new paid build service. A five-star rating is an aspiration, not a verified rating or promise.
@@ -27,6 +27,8 @@ For new personal accounts created after 2023-11-13, Google's current policy requ
 - https://support.google.com/googleplay/android-developer/answer/9858738?hl=en
 
 ## Session storage candidate
-`mobile/src/encryptedSessionStorage.ts` is a dependency-injected adapter for an encrypted native store. It serializes reads/writes/removals, uses bounded Unicode-safe parts, and publishes the new manifest last. Failed part writes preserve the old session; missing parts fail visibly. Old committed generations are removed after replacement. Interrupted writes may leave encrypted orphan parts: garbage collection and device-level validation remain required before enabling persistence. No plaintext token store is introduced. The current App still uses memory-only sessions.
+`mobile/src/encryptedSessionStorage.ts` is a dependency-injected adapter for an encrypted native store. It serializes reads/writes/removals, uses bounded Unicode-safe parts, and publishes the new manifest last. Failed part writes preserve the old session; missing parts fail visibly. Old committed generations are removed after replacement. An encrypted recovery journal removes interrupted-write orphan parts on the next access while preserving the committed generation. All 48 before/after write/delete restart cases passed. The native SecureStore bridge and Android backup exclusion plugin are added; device-level validation and startup/error UX remain required before enabling persistence. No plaintext token store is introduced. The current App still uses memory-only sessions.
 
 Focused test: `node scripts/test-mobile-secure-storage.cjs`.
+
+Dependency install completed successfully; mobile TypeScript passed. Native storage is still not wired into App. No device/build/store-release claim.
