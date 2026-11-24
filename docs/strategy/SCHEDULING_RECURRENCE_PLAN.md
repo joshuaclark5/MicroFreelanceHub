@@ -40,3 +40,11 @@ Sources: app/lib/workspaceScheduling.ts; app/lib/publicBooking.ts; app/api/works
 ## Baseline run in this batch
 
 `node scripts/test-public-booking.cjs` passed 13 groups against actual disposable scheduling/calendar/public-booking SQL and actual API handlers. Real browser checks at320/1440 covered confirmation and dropped-response retry without duplicates. Data/users were fictional. Embedded database path: C:/Users/joshu/AppData/Local/Temp/mfh-public-booking-l9BtRZ. No live provider, deployed-schema, multi-connection or actual-account capability was proven. No customer mutations or production changes.
+
+## Fresh recovery readiness — November 24
+
+Docker engine responds (29.5.2). Located existing authenticated Supabase CLI3.2.0 without installation. Current project identities and read-only catalogs independently verified: production24 migration records, staging27. Staging-only records are20260929000000,20260929000001,20261021000000; do not infer identical schema merely from shared scheduling column names.
+
+Fresh production schema/data/history exports are nonempty and SHA256-hashed outside Git. Restored into an isolated local Supabase PostgreSQL17.12 container with network=none and no published ports. The two system history tables omitted by normal CLI data dump were exported separately and restored. Final count/content-hash comparison matches all94 tables, including migration histories. No production or staging writes occurred. Storage object bytes are not covered. No recurrence migration or rollback has yet been implemented/rehearsed.
+
+Private receipt: C:/Users/joshu/mfh-private-backups/scheduling-recurrence-20261124/recovery-receipt.json. Preserved stopped container mfh-recurrence-restore-20261124, database recurrence_rehearsal. Resume this known baseline rather than copying it to hosted staging or recreating infrastructure. The previous Docker blocker does not apply to this fresh check. Next implement/test the additive recurrence change against this baseline and synthetic fixtures, verify unchanged legacy fingerprints, and rehearse rollback before hosted work.
