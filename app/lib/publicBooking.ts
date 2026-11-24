@@ -19,8 +19,10 @@ export async function boundedJson(request:Request,max=22000){if(Number(request.h
  const bytes=new Uint8Array(total);let offset=0;for(const c of chunks){bytes.set(c,offset);offset+=c.length;}return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));
 }
 
-export function publicBookingStart(params:URLSearchParams):string|null {
- if(!params.toString())return null;
- if(Array.from(params.keys()).some(k=>k!=='start')||params.getAll('start').length!==1||!validLocalDate(params.get('start')))throw Error('Invalid booking date window.');
- return params.get('start');
+export function publicBookingStart(params:URLSearchParams):{startsOn:string|null;afterSlot:string|null} {
+ if(!params.toString())return {startsOn:null,afterSlot:null};
+ const after=params.get('after');
+ if(Array.from(params.keys()).some(k=>!['start','after'].includes(k))||params.getAll('start').length!==1||!validLocalDate(params.get('start'))||params.getAll('after').length>1)throw Error('Invalid booking date window.');
+ if(after!==null&&(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.000Z$/.test(after)||!Number.isFinite(Date.parse(after))||new Date(after).toISOString()!==after))throw Error('Invalid booking cursor.');
+ return {startsOn:params.get('start'),afterSlot:after};
 }

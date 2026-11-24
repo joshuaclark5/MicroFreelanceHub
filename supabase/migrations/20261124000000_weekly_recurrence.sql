@@ -1,7 +1,8 @@
 -- Additive candidate. Rehearse on an isolated restored baseline before hosted application.
 begin;
+-- Explicit second hash is the reviewed staging variant: line indentation only.
 do $$ begin
- if not exists(select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and proname='workspace_scheduling_mutate' and md5(btrim(replace(prosrc,E'\r\n',E'\n'),E' \t\r\n'))='f0e56718278e83ed753dc6935e60a42b') or not exists(select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and proname='public_booking_service' and md5(btrim(replace(prosrc,E'\r\n',E'\n'),E' \t\r\n'))='e543074c74ec0ad2c73d71910c005e53') then raise exception 'Scheduling baseline changed; review before migration'; end if;
+ if not exists(select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and proname='workspace_scheduling_mutate' and md5(btrim(replace(prosrc,E'\r\n',E'\n'),E' \t\r\n')) in ('f0e56718278e83ed753dc6935e60a42b','7871cc7d850ebc6a0e6f92a8afb3778c')) or not exists(select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and proname='public_booking_service' and md5(btrim(replace(prosrc,E'\r\n',E'\n'),E' \t\r\n'))='e543074c74ec0ad2c73d71910c005e53') then raise exception 'Scheduling baseline changed; review before migration'; end if;
 end $$;
 create function public.workspace_recurrence_valid(r jsonb) returns boolean language plpgsql immutable set search_path=pg_catalog,public as $$
 declare item jsonb; start_day date; end_day date;

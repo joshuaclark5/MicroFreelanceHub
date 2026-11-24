@@ -72,7 +72,7 @@ begin
 end $function$
 
 ;
-CREATE OR REPLACE FUNCTION public.public_booking_window(handle text, starts_on date DEFAULT NULL::date)
+CREATE OR REPLACE FUNCTION public.public_booking_window(handle text, starts_on date DEFAULT NULL::date, after_slot timestamptz DEFAULT NULL::timestamptz)
  RETURNS jsonb
  LANGUAGE plpgsql
  SECURITY DEFINER
@@ -96,12 +96,13 @@ begin
  select * into c from public.workspace_calendar_connections where owner_id=p.owner_id;
  today_host:=(now() at time zone r.timezone)::date;max_day:=((now()+make_interval(days=>r.horizon_days)) at time zone r.timezone)::date;window_day:=coalesce(starts_on,today_host);
  if window_day<today_host or window_day>max_day then raise exception 'Outside booking horizon';end if;
+ if after_slot is not null and (starts_on is null or (after_slot at time zone r.timezone)::date<>window_day) then raise exception 'Invalid slot cursor';end if;
  -- At most seven local dates and 100 instants; no busy intervals,
  -- owner UUID, calendar metadata, other rule or booking details ever leave this function.
  select coalesce(jsonb_agg(to_char(s at time zone 'UTC','YYYY-MM-DD"T"HH24:MI:SS".000Z"')),'[]'::jsonb) into slots from (
   select s from generate_series(greatest(date_trunc('minute',now())+interval '1 minute',window_day::timestamp at time zone r.timezone),((window_day+7)::timestamp at time zone r.timezone)-interval '1 minute',interval '1 minute') s
   cross join lateral (select s at time zone r.timezone as local_start,(s+make_interval(mins=>r.duration)) at time zone r.timezone as local_end) local
-  where s>=now()+make_interval(hours=>r.notice_hours) and s<=now()+make_interval(days=>r.horizon_days)
+  where (after_slot is null or s>after_slot) and s>=now()+make_interval(hours=>r.notice_hours) and s<=now()+make_interval(days=>r.horizon_days)
    and public.workspace_availability_matches(r.weekday,r.recurrence,local_start::date)
    and extract(hour from local_start)::int*60+extract(minute from local_start)::int>=r.start_minute
    and extract(hour from local_start)::int*60+extract(minute from local_start)::int+r.duration<=r.end_minute
@@ -116,12 +117,12 @@ begin
   order by s limit 100
  ) available;
  next_day:=case when jsonb_array_length(slots)=100 then ((slots->>99)::timestamptz at time zone r.timezone)::date else window_day+7 end;
- return jsonb_build_object('windowStart',window_day,'windowEnd',least(window_day+6,max_day),'minDate',today_host,'maxDate',max_day,'previousStart',case when window_day>today_host then greatest(today_host,window_day-7) else null end,'nextStart',case when next_day>window_day and next_day<=max_day then next_day else null end,'title',r.title,'timezone',r.timezone,'duration',r.duration,'consent',i.consent,'fields',i.fields,'slots',slots,'portalVersion',p.version);
+ return jsonb_build_object('windowStart',window_day,'windowEnd',least(window_day+6,max_day),'minDate',today_host,'maxDate',max_day,'previousStart',case when window_day>today_host then greatest(today_host,window_day-7) else null end,'nextStart',case when next_day>=window_day and next_day<=max_day then next_day else null end,'nextAfter',case when jsonb_array_length(slots)=100 and next_day<=max_day then slots->>99 else null end,'afterSlot',after_slot,'title',r.title,'timezone',r.timezone,'duration',r.duration,'consent',i.consent,'fields',i.fields,'slots',slots,'portalVersion',p.version);
 end $function$
 
 ;
 
-alter function public.public_booking_window(text,date) owner to postgres;
-revoke all on function public.public_booking_window(text,date) from public,anon,authenticated;
-grant execute on function public.public_booking_window(text,date) to service_role;
+alter function public.public_booking_window(text,date,timestamptz) owner to postgres;
+revoke all on function public.public_booking_window(text,date,timestamptz) from public,anon,authenticated;
+grant execute on function public.public_booking_window(text,date,timestamptz) to service_role;
 commit;
