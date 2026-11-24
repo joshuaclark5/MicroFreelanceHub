@@ -43,3 +43,13 @@ Filtered saved-record CSV export covers clients, stages, projects, tasks and agr
 ## Google verification resolved
 
 PR19 privacy/full-name changes are live. Google approved re-verification and branding was published; a fresh Google chooser visually confirmed the current green website mark. Earlier issue notes above are historical, not an outstanding blocker. No OAuth credentials or redirect domains changed.
+
+## Continuation: workspace login destination, November 24
+
+Verified in source: connected workspace sign-in links use `returnTo`, while login only recognized `next` for home/setup. Email confirmation additionally dropped setup. Candidate now shares an explicit known-workspace-route allowlist across login and callback, accepts legacy returnTo, and preserves checkout/template priority. Arbitrary hosts, paths, queries and encoded redirects are rejected.
+
+Targeted callback/allowlist and attribution tests pass; standalone TypeScript check passes. First build compiled but failed page-data collection because this managed checkout lacks Stripe environment configuration. Re-running with the existing private project environment through `scripts/local-release-build.cjs` (no credentials copied or printed). Browser regression script intercepts all authentication and external requests; no real accounts, messages or charges authorized for testing.
+
+Publication readiness timed out twice this turn. No publication request submitted, no new PR or deployment claimed. Candidate remains local pending full build, browser regression, managed publication and exact-commit public verification. Broader client/project, template and billing audit remains unfinished; goal remains active. Memory search unavailable due to embedding-provider failure; continuation used this document and source evidence.
+
+Continuation verification result: configured production build exited 0; browser test passed at 320/1440px for legacy client return links, setup confirmation, Google OAuth redirect construction and external-destination rejection. All auth requests intercepted; no real authentication or email delivery tested. Phone setup-confirmation screenshot visually inspected and readable without horizontal overflow. Risky-copy scan on changed app files returned no matches. Publication readiness still timed out on the later retry (three calls in this single turn, not three consecutive blocked turns). Release/live checks remain pending; do not mark the goal blocked or complete. Local evidence: `artifacts/login-destination-build.log` and `artifacts/login-destination-*.png`.

@@ -1,3 +1,4 @@
+import { getAuthDestination } from '../../lib/authDestination';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
@@ -53,8 +54,9 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL(`/checkout-plan?${checkoutParams.toString()}`, request.url));
   }
 
-  if (!template && ['/workspace','/workspace/setup'].includes(requestUrl.searchParams.get('next')||'')) {
-    return NextResponse.redirect(new URL(requestUrl.searchParams.get('next')!, request.url));
+  const destination = getAuthDestination(requestUrl.searchParams);
+  if (!template && destination) {
+    return NextResponse.redirect(new URL(destination, request.url));
   }
 
   // Free-account conversion page for analytics segmentation.
