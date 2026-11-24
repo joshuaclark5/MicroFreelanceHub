@@ -1,12 +1,14 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { SchedulingData, IntakeField, localInstants, slotLabel } from '../../lib/workspaceScheduling';
+import TimezoneSelect from '../../components/TimezoneSelect';
 import SchedulingCalendar from '../../components/SchedulingCalendar';
 import WorkspaceNav from '../../components/WorkspaceNav';
 import '../../components/workspace-editorial.css';
 const control='min-w-0 max-w-full w-full rounded border border-slate-400 p-2 text-slate-950 bg-white';
 const button='primary-action';
 const section='editorial-card space-y-4';
+const presets:Record<string,number[]>={duration:[15,30,45,60,90,120,180,240],buffer:[0,5,10,15,30,60,120],noticeHours:[0,1,2,4,12,24,48,72,168],horizonDays:[7,14,30,60,90,180],dailyCap:[1,2,3,4,5,6,8,10,12,20,50]};
 const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const time=(m:number)=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
 const minute=(s:string)=>Number(s.slice(0,2))*60+Number(s.slice(3));
@@ -56,10 +58,11 @@ export default function Scheduling(){
    <form id="availability" className={section} onSubmit={e=>{e.preventDefault();mutate({action:'availability',...rule});}}>
     <h2 className="text-xl font-semibold">1. Create availability</h2>
     <label className="block">Event title<input className={control} required maxLength={100} value={rule.title} onChange={e=>setRule({...rule,title:e.target.value})}/></label>
-    <label className="block">Host timezone<input className={control} required value={rule.timezone} onChange={e=>setRule({...rule,timezone:e.target.value})}/></label>
+    <label className="block">Host timezone<TimezoneSelect className={control} value={rule.timezone} onChange={timezone=>setRule({...rule,timezone})}/></label>
+    <p className="text-sm">Hours use the selected timezone, including its daylight-saving changes. Existing bookings keep their original times.</p>
     <label className="block">Weekday<select className={control} value={rule.weekday} onChange={e=>setRule({...rule,weekday:Number(e.target.value)})}>{days.map((d,i)=><option key={d} value={i}>{d}</option>)}</select></label>
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{(['startMinute','endMinute'] as const).map(k=><label key={k}>{k==='startMinute'?'Window starts':'Window ends'}<input className={control} type="time" required value={time(rule[k])} onChange={e=>setRule({...rule,[k]:minute(e.target.value)})}/></label>)}</div>
-    {([['duration','Duration (minutes)',15,240],['buffer','Buffer before & after (minutes)',0,120],['noticeHours','Minimum notice (hours)',0,720],['horizonDays','Book up to (days ahead)',1,180],['dailyCap','Maximum bookings per day',1,50]] as const).map(([k,label,min,max])=><label className="block" key={k}>{label}<input className={control} type="number" required min={min} max={max} value={rule[k]} onChange={e=>setRule({...rule,[k]:Number(e.target.value)})}/></label>)}
+    {([['duration','Duration (minutes)',15,240],['buffer','Buffer before & after (minutes)',0,120],['noticeHours','Minimum notice (hours)',0,720],['horizonDays','Book up to (days ahead)',1,180],['dailyCap','Maximum bookings per day',1,50]] as const).map(([k,label,min,max])=><label className="block" key={k}>{label}<select className={control} value={rule[k]} onChange={e=>setRule({...rule,[k]:Number(e.target.value)})}>{Array.from({length:max-min+1},(_,i)=>i+min).filter(n=>presets[k].includes(n)).map(n=><option key={n} value={n}>{n===0?(k==='buffer'?'No buffer':'No minimum notice'):`${n} ${k==='noticeHours'?'hours':k==='horizonDays'?'days':k==='dailyCap'?'bookings':'minutes'}`}</option>)}</select></label>)}
     <button className={button} disabled={disabled}>Create availability</button>
    </form>
    <form className={section} onSubmit={e=>{e.preventDefault();mutate({action:'publish',title,consent,fields});}}>
@@ -74,8 +77,8 @@ export default function Scheduling(){
   <section className={section}><h2 className="text-xl font-semibold">Availability rules</h2>{data?.availability.length===0&&<p>No rules yet.</p>}{data?.availability.map(r=><div key={r.id} className="border-b py-3 space-y-2"><p className="break-words"><strong>{r.title}</strong> · {days[r.weekday]} {time(r.start_minute)}–{time(r.end_minute)} · {r.timezone} · {r.duration} min · {r.buffer} min buffer · {r.notice_hours}h notice · {r.horizon_days}d horizon · cap {r.daily_cap} · {r.active?'Active':'Disabled'}</p><button className={button} disabled={disabled} onClick={()=>mutate({action:'toggle',id:r.id,expectedVersion:r.version,active:!r.active})}>{r.active?'Disable':'Enable'} {r.title}</button></div>)}</section>
   <form id="new-booking" className={section} onSubmit={e=>{e.preventDefault();if(activeRule)mutate({action:'book',availabilityId:activeRule.id,expectedVersion:activeRule.version,intakeId,startsAt:selected,attendee,answers,consented});}}>
    <h2 className="text-xl font-semibold">3. Record a local booking</h2>
-   <label className="block">Availability<select className={control} required value={ruleId} onChange={e=>{setRuleId(e.target.value);setSlots([]);setSelected('');}}><option value="">Choose a rule</option>{data?.availability.filter(r=>r.active).map(r=><option key={r.id} value={r.id}>{r.title} · {days[r.weekday]} · {r.timezone}</option>)}</select></label>
-   <label className="block">Published intake<select className={control} required value={intakeId} onChange={e=>{setIntakeId(e.target.value);setAnswers({});setConsented(false);}}><option value="">Choose a version</option>{data?.intakes.map(i=><option key={i.id} value={i.id}>{i.title} · version {i.version}</option>)}</select></label>
+   <label className="block">Availability<select className={control} required value={ruleId} onChange={e=>{setRuleId(e.target.value);setSlots([]);setSelected('');}}><option value="">{data?.availability.some(r=>r.active)?'Choose availability':'Create availability above first'}</option>{data?.availability.filter(r=>r.active).map(r=><option key={r.id} value={r.id}>{r.title} · {days[r.weekday]} · {r.timezone}</option>)}</select></label>
+   <label className="block">Published intake<select className={control} required value={intakeId} onChange={e=>{setIntakeId(e.target.value);setAnswers({});setConsented(false);}}><option value="">{data?.intakes.length?'Choose intake questions':'Save intake questions above first'}</option>{data?.intakes.map(i=><option key={i.id} value={i.id}>{i.title} · version {i.version}</option>)}</select></label>
    <label className="block">Attendee label (private)<input className={control} required maxLength={160} value={attendee} onChange={e=>setAttendee(e.target.value)}/></label>
    {intake&&<fieldset className="space-y-3"><legend>Intake version {intake.version} · {intake.title}</legend>{intake.fields.map(f=><label className="block" key={f.id}>{f.label}{f.required?' (required)':''}<textarea className={control} required={f.required} maxLength={2000} value={answers[f.id]||''} onChange={e=>setAnswers({...answers,[f.id]:e.target.value})}/></label>)}<p className="whitespace-pre-wrap break-words">{intake.consent}</p><label className="flex gap-2 items-start"><input type="checkbox" required checked={consented} onChange={e=>setConsented(e.target.checked)}/>I reviewed this privacy text with the attendee and have permission to record these answers.</label></fieldset>}
    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2"><label>Host local date<input className={control} type="date" required value={date} onChange={e=>{setDate(e.target.value);setSelected('');setSlots([]);}}/></label><label>Host local start time<input className={control} type="time" required value={at} onChange={e=>{setAt(e.target.value);setSelected('');setSlots([]);}}/></label></div>

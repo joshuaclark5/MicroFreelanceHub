@@ -4,6 +4,7 @@ const {chromium}=require('C:/Users/joshu/AppData/Roaming/npm/node_modules/opencl
 const root=path.resolve(__dirname,'..'),out=path.join(root,'artifacts/calendar');fs.mkdirSync(out,{recursive:true});
 const source=fs.readFileSync(path.join(root,'app/components/SchedulingCalendar.tsx'),'utf8');
 const compiled=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020,jsx:ts.JsxEmit.ReactJSX}}).outputText;
+const zoneCompiled=ts.transpileModule(fs.readFileSync(path.join(root,'app/components/TimezoneSelect.tsx'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020,jsx:ts.JsxEmit.ReactJSX}}).outputText;
 const css=fs.readFileSync(path.join(root,'app/components/scheduling-calendar.css'),'utf8');
 const bookings=[{id:'one',attendee:'Fictional Acorn Studio',starts_at:'2026-11-24T00:30:00Z',ends_at:'2026-11-24T01:00:00Z',timezone:'America/New_York',status:'confirmed'},{id:'two',attendee:'Fictional Canceled',starts_at:'2026-11-23T15:00:00Z',ends_at:'2026-11-23T15:30:00Z',timezone:'America/New_York',status:'canceled'}];
 let browser;const checks=[];
@@ -13,7 +14,8 @@ let browser;const checks=[];
   await page.clock.setFixedTime(new Date('2026-11-23T12:00:00Z'));
   await page.setContent('<!doctype html><html lang="en"><head><title>Calendar fixture</title><style>body{margin:12px;font-family:Arial}*{box-sizing:border-box}button,input,select{font:inherit}a{color:inherit}'+css+'</style></head><body><main id="root"></main></body></html>');
   for(const file of ['react/umd/react.production.min.js','react-dom/umd/react-dom.production.min.js'])await page.addScriptTag({path:path.join(root,'node_modules',file)});
-  await page.addScriptTag({content:'window.Calendar=(()=>{const exports={};const require=n=>n==="react"?React:n==="react/jsx-runtime"?{Fragment:React.Fragment,jsx:(t,p,k)=>React.createElement(t,{...p,key:k}),jsxs:(t,p,k)=>React.createElement(t,{...p,key:k})}:{};'+compiled+';return exports.default})();ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(Calendar,{bookings:'+JSON.stringify(bookings)+'}));'});
+  await page.addScriptTag({content:'window.ZoneSelect=(()=>{const exports={};const require=n=>n==="react"?React:{jsx:(t,p,k)=>React.createElement(t,{...p,key:k}),jsxs:(t,p,k)=>React.createElement(t,{...p,key:k})};'+zoneCompiled+';return exports.default})();'});
+  await page.addScriptTag({content:'window.Calendar=(()=>{const exports={};const require=n=>n==="react"?React:n==="react/jsx-runtime"?{Fragment:React.Fragment,jsx:(t,p,k)=>React.createElement(t,{...p,key:k}),jsxs:(t,p,k)=>React.createElement(t,{...p,key:k})}:n.includes("TimezoneSelect")?{default:window.ZoneSelect}:{};'+compiled+';return exports.default})();ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(Calendar,{bookings:'+JSON.stringify(bookings)+'}));'});
   await page.locator('.calendar-toolbar').waitFor({timeout:5000}).catch(async e=>{console.log(errors,await page.locator('body').innerText());throw e;});await page.getByRole('button',{name:'Monday, November 23, 2026, 1 appointments',exact:true}).click();
   const agenda=page.getByRole('complementary',{name:'Selected day agenda'});await agenda.getByRole('heading',{name:'Fictional Acorn Studio'}).waitFor();
   assert.equal(await agenda.getByRole('link',{name:'View booking details'}).getAttribute('href'),'#booking-one');
