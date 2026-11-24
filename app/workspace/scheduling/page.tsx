@@ -58,7 +58,7 @@ export default function Scheduling(){
    <form id="availability" className={section} onSubmit={e=>{e.preventDefault();mutate({action:'availability',...rule});}}>
     <h2 className="text-xl font-semibold">1. Create availability</h2>
     <label className="block">Event title<input className={control} required maxLength={100} value={rule.title} onChange={e=>setRule({...rule,title:e.target.value})}/></label>
-    <label className="block">Host timezone<TimezoneSelect className={control} value={rule.timezone} onChange={timezone=>setRule({...rule,timezone})}/></label>
+    <TimezoneSelect label="Host timezone" className={control} value={rule.timezone} onChange={timezone=>setRule({...rule,timezone})}/>
     <p className="text-sm">Hours use the selected timezone, including its daylight-saving changes. Existing bookings keep their original times.</p>
     <label className="block">Weekday<select className={control} value={rule.weekday} onChange={e=>setRule({...rule,weekday:Number(e.target.value)})}>{days.map((d,i)=><option key={d} value={i}>{d}</option>)}</select></label>
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{(['startMinute','endMinute'] as const).map(k=><label key={k}>{k==='startMinute'?'Window starts':'Window ends'}<input className={control} type="time" required value={time(rule[k])} onChange={e=>setRule({...rule,[k]:minute(e.target.value)})}/></label>)}</div>
