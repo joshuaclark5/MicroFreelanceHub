@@ -1,4 +1,5 @@
 'use client';
+import SeasonalOfferBanner from './components/SeasonalOffer';
 import { planMonthly } from './lib/planPricing';
 
 import Link from 'next/link';
@@ -54,6 +55,7 @@ export default function HomePage() {
   return (
     <div className="d4-home min-h-screen bg-white text-gray-900 font-sans selection:bg-emerald-100 [&_*]:tracking-normal">
 
+      <SeasonalOfferBanner/>
       {/* 1. NAVBAR */}
       <nav className="border-b border-gray-100/50 bg-white/70 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center">

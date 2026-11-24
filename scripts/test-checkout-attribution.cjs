@@ -2,14 +2,15 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const ts = require('typescript');
-function load(file, imports) {
+function load(file, imports, globals = {}) {
   const exports = {};
   vm.runInNewContext(ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, {
     exports, URL, URLSearchParams, require: name => { if (!(name in imports)) throw Error(name); return imports[name]; },
-    process: { env: { NEXT_PUBLIC_BASE_URL: 'https://example.test' } }, console: { error() {} },
+    process: { env: { NEXT_PUBLIC_BASE_URL: 'https://example.test' } }, console: { error() {} }, ...globals,
   });
   return exports;
 }
+const offers=load('app/lib/seasonalOffers.ts',{});
 const pricing = load('app/lib/planPricing.ts', {});
 const helper = load('app/lib/profileAttribution.ts', {});
 async function check(options = {}) {
@@ -29,8 +30,10 @@ async function check(options = {}) {
     '@supabase/supabase-js': { createClient: () => db },
     '@supabase/auth-helpers-nextjs': { createRouteHandlerClient: () => ({ auth: { getUser: async () => ({ data: { user: options.unauthorized ? null : { id: 'owner' } } }) } }) },
     '../../../lib/planPricing': pricing,
+    '../../../lib/seasonalOffers':offers,
+    '../../../lib/server/seasonalCoupon':{seasonalCoupon:async(_stripe,offer)=>offer.id+'-annual-once'},
     'next/headers': { cookies: () => {} }, '../../../lib/profileAttribution': helper,
-  });
+  },{Date:class extends Date {static now(){return options.now ?? Date.parse('2026-11-24T12:00:00Z');}}});
   const result = await POST({ json: async () => ({ pricingVersion: pricing.PRICING_VERSION, plan: 'pro', userId: 'owner', landingPage: '/pricing?email=secret', leadSource: 'later', ...options.body }) });
   return { result, row, sessions, customers, writes };
 }
@@ -78,6 +81,15 @@ async function check(options = {}) {
   }
   const bounded=await check({row:{id:'owner',stripe_customer_id:'cus_existing'},hasMore:true});assert.equal(bounded.result.status,409);
   const canceled=await check({row:{id:'owner',stripe_customer_id:'cus_existing'},subscriptions:[{status:'canceled'}]});assert.equal(canceled.result.status,200);
+  for(const [now,id] of [['2026-11-24T12:00:00Z','mfh-black-friday-2026'],['2026-12-25T12:00:00Z','mfh-christmas-2026']]){
+    const x=await check({now:Date.parse(now),body:{billingCycle:'annual',offerId:id}});assert.equal(x.result.status,200);assert.equal(x.sessions[0].discounts[0].coupon,id+'-annual-once');assert.equal(x.sessions[0].allow_promotion_codes,undefined);assert.equal(x.sessions[0].expires_at,Date.parse(now)/1000+3600);assert.equal(x.sessions[0].line_items[0].price_data.unit_amount,52800);
+  }
+  for(const options of [
+    {body:{offerId:'mfh-black-friday-2026'}},
+    {now:Date.parse('2026-12-08T05:00:00Z'),body:{billingCycle:'annual',offerId:'mfh-black-friday-2026'}},
+    {body:{billingCycle:'annual',offerId:'made-up'}},
+    {body:{billingCycle:'annual',offerId:'mfh-black-friday-2026'},row:{id:'owner',stripe_customer_id:'cus_existing'},subscriptions:[{status:'canceled'}]},
+  ]){const x=await check(options);assert.equal(x.result.status,409);assert.equal(x.sessions.length,0);}
   const callback=load('app/auth/callback/route.ts',{
     '@supabase/auth-helpers-nextjs':{createRouteHandlerClient:()=>({auth:{getUser:async()=>({data:{user:{id:'owner'}}})}})},
     '@supabase/supabase-js':{createClient:()=>({})},'next/headers':{cookies:()=>({})},
