@@ -30,3 +30,11 @@ Local receipts: `artifacts/pr22-live-assets.json`, `pr23-live-assets.json`, `pr2
 4. **Reporting breadth:** establish authoritative payment/refund data and currency/date semantics before adding collected-money metrics. Never relabel invoice face value as revenue.
 
 Completion requires evidence for the remaining gates, not a target star rating. The mission remains active. Neither the overnight deadline nor successful containment makes the broader objective complete.
+
+## Connected journey verification - 2026-11-24 17:18 UTC
+
+New `scripts/test-customer-journey-browser.cjs` ran against public production-rendered pages at 390/1440px with fresh isolated browser contexts. All workspace APIs were fictional; other API requests and external origins/writes were blocked. Four records were created only in test memory per viewport (client, project, task, agreement link); five intercepted write attempts include one intentional failed task save. No production records, messages or payments changed.
+
+Verified via actual navigation: client card -> filtered projects -> client-prefilled project form -> task form with project retained -> failed save/draft recovery -> exactly one saved task after retry and reload -> project next-action text -> project-prefilled agreement link form -> exact selected agreement ID and review href despite duplicate agreement titles. No horizontal overflow or page runtime errors. Phone project and desktop agreement-link screenshots visually inspected and readable.
+
+Evidence: `artifacts/customer-journey/results.json` and screenshots. This narrows the full-journey gap; it does not close it. Database persistence/RLS, global signed-in navigation (the fixture sidebar is signed out), document creation/editing, invoices, customer preview, signatures and payment processing were not tested in this run. Stage and available agreements were seeded fixtures, not created through their UI. No app implementation changed, so no build or deployment claimed. Next journey gate is the editor/preview boundary using equally isolated fixtures.
