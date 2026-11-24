@@ -1,5 +1,7 @@
 'use client';
 
+import SeasonalOfferBanner, {useSeasonalOffer} from '../components/SeasonalOffer';
+import {offerFirstPayment} from '../lib/seasonalOffers';
 import {BrandMark} from '../components/Brand';
 import { PLAN_PRICES, PaidPlan, BillingCycle, planQuote } from '../lib/planPricing';
 import Link from 'next/link';
@@ -9,6 +11,7 @@ import { CheckCircle2, X, ShieldCheck, ArrowRight } from 'lucide-react';
 import { getTrackedData } from '../lib/trackingClient';
 
 export default function PricingPage() {
+  const {offer}=useSeasonalOffer();
   const [billingCycle, setBillingCycle] = useState<BillingCycle>('monthly');
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -48,6 +51,7 @@ export default function PricingPage() {
 
   return (
     <div className="public-design public-pricing d4-pricing min-h-screen bg-[#f6f8f7] font-sans text-slate-900 selection:bg-blue-100 pb-24">
+      <SeasonalOfferBanner/>
       {/* NAVBAR */}
       <nav className="border-b border-gray-200 bg-white sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center">
@@ -105,7 +109,7 @@ export default function PricingPage() {
             <h3 className="text-2xl font-bold text-slate-950 mb-2">Starter</h3>
             <p className="text-slate-600 text-sm mb-6 h-10">For solo operators who need one live client link to collect deposits.</p>
             <div className="text-5xl font-extrabold text-slate-950 mb-6">${planQuote('starter',billingCycle).monthlyEquivalent}<span className="text-lg text-slate-600 font-medium">/mo</span></div>
-            <p className="text-sm mb-5">{billingCycle==='annual'?`Billed $${PLAN_PRICES.starter.annual/100} annually`:'Billed monthly'}</p>
+            <p className="text-sm mb-5">{billingCycle==='annual'?`Billed $${PLAN_PRICES.starter.annual/100} annually`:'Billed monthly'}</p>{offer&&billingCycle==='annual'&&<p className="text-sm font-semibold mb-5 text-emerald-900">{offer.name}: ${offerFirstPayment(PLAN_PRICES.starter.annual,offer)/100} for the first year if eligible; then ${PLAN_PRICES.starter.annual/100}/year.</p>}
             <button
               onClick={() => handlePricingClick('starter')}
               disabled={checkoutLoading === 'starter'}
@@ -127,7 +131,7 @@ export default function PricingPage() {
             <h3 className="text-2xl font-bold text-slate-900 mb-2">Professional</h3>
             <p className="text-slate-500 text-sm mb-6 h-10">For active freelancers managing multiple jobs and payment links.</p>
             <div className="text-5xl font-extrabold text-slate-900 mb-6">${planQuote('pro',billingCycle).monthlyEquivalent}<span className="text-lg text-slate-500 font-medium">/mo</span></div>
-            <p className="text-sm mb-5">{billingCycle==='annual'?`Billed $${PLAN_PRICES.pro.annual/100} annually`:'Billed monthly'}</p>
+            <p className="text-sm mb-5">{billingCycle==='annual'?`Billed $${PLAN_PRICES.pro.annual/100} annually`:'Billed monthly'}</p>{offer&&billingCycle==='annual'&&<p className="text-sm font-semibold mb-5 text-emerald-900">{offer.name}: ${offerFirstPayment(PLAN_PRICES.pro.annual,offer)/100} for the first year if eligible; then ${PLAN_PRICES.pro.annual/100}/year.</p>}
             <button
               onClick={() => handlePricingClick('pro')}
               disabled={checkoutLoading === 'pro'}
@@ -148,7 +152,7 @@ export default function PricingPage() {
           <div className="bg-white rounded-xl p-8 border border-slate-200 shadow-sm flex flex-col h-full">
             <h3 className="text-2xl font-bold mb-2">Agency</h3><p className="text-slate-600 text-sm mb-6">For businesses organizing client work with their team.</p>
             <div className="text-5xl font-extrabold mb-6">${planQuote('agency',billingCycle).monthlyEquivalent}<span className="text-lg font-medium text-slate-600">/mo</span></div>
-            <p className="text-sm mb-5">{billingCycle==='annual'?`Billed $${PLAN_PRICES.agency.annual/100} annually`:'Billed monthly'}</p>
+            <p className="text-sm mb-5">{billingCycle==='annual'?`Billed $${PLAN_PRICES.agency.annual/100} annually`:'Billed monthly'}</p>{offer&&billingCycle==='annual'&&<p className="text-sm font-semibold mb-5 text-emerald-900">{offer.name}: ${offerFirstPayment(PLAN_PRICES.agency.annual,offer)/100} for the first year if eligible; then ${PLAN_PRICES.agency.annual/100}/year.</p>}
             <button className="w-full py-4 rounded-xl border-2 border-slate-200 font-bold mb-8" onClick={()=>handlePricingClick('agency')}>Choose Agency</button>
             <ul className="space-y-4 text-slate-700"><li>Client and project workspace</li><li>Team and access controls</li><li>Scheduling and invoice tools</li><li>Agreement and payment workflows</li></ul>
           </div>
