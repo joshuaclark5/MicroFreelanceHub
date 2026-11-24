@@ -16,8 +16,8 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.microfreelancehub.com'),
   title: {
-    default: 'MicroFreelance | Client Replies, Agreements & Payments',
-    template: '%s | MicroFreelance',
+    default: 'MicroFreelanceHub | Client Replies, Agreements & Payments',
+    template: '%s | MicroFreelanceHub',
   },
   description: 'The all-in-one workspace for freelancers. Draft client replies, create professional agreements, collect digital signatures, and organize payment steps with Stripe.',
   keywords: [
@@ -31,16 +31,16 @@ export const metadata: Metadata = {
     'client invoicing'
   ],
   openGraph: {
-    title: 'MicroFreelance | Client replies, agreements, and payment workflows',
+    title: 'MicroFreelanceHub | Client replies, agreements, and payment workflows',
     description: 'Draft client replies, create agreements, collect signatures, and organize payment steps in one workspace.',
     url: 'https://www.microfreelancehub.com',
-    siteName: 'MicroFreelance',
+    siteName: 'MicroFreelanceHub',
     locale: 'en_US',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'MicroFreelance | Client Replies, Agreements and Payments',
+    title: 'MicroFreelanceHub | Client Replies, Agreements and Payments',
     description: 'A practical workspace for client communication, agreements, signatures, and payment steps.',
   },
   // 👇 TRUSTPILOT VERIFICATION META TAG 👇
