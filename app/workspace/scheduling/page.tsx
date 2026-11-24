@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { SchedulingData, IntakeField, WeeklyRecurrence, weeklyRecurrence, availabilityMatches, localInstants, slotLabel } from '../../lib/workspaceScheduling';
+import { SchedulingData, IntakeField, WeeklyRecurrence, validId, weeklyRecurrence, availabilityMatches, localInstants, slotLabel } from '../../lib/workspaceScheduling';
 import TimezoneSelect from '../../components/TimezoneSelect';
 import SchedulingCalendar,{calendarDate} from '../../components/SchedulingCalendar';
 import AvailabilityRecurrenceFields from '../../components/AvailabilityRecurrenceFields';
@@ -15,6 +15,7 @@ const time=(m:number)=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60)
 const minute=(s:string)=>Number(s.slice(0,2))*60+Number(s.slice(3));
 export default function Scheduling(){
  const [data,setData]=useState<SchedulingData|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[status,setStatus]=useState(''),[busyAction,setBusyAction]=useState('');
+ const loadGeneration=useRef(0);
  const actor=useRef(''), pending=useRef<{key:string;id:string;body:Record<string,unknown>}|null>(null);
  const [rule,setRule]=useState({title:'Consultation',timezone:'America/New_York',weekday:1,startMinute:540,endMinute:1020,duration:30,buffer:0,noticeHours:24,horizonDays:60,dailyCap:8});
  const [recurrence,setRecurrence]=useState<WeeklyRecurrence>({weekdays:[1],intervalWeeks:1,startDate:'',endDate:null,excludedDates:[]}),[hostToday,setHostToday]=useState('');
@@ -23,11 +24,20 @@ export default function Scheduling(){
  const [ruleId,setRuleId]=useState(''),[intakeId,setIntakeId]=useState(''),[date,setDate]=useState(''),[at,setAt]=useState('09:00'),[slots,setSlots]=useState<string[]>([]),[selected,setSelected]=useState(''),[attendee,setAttendee]=useState(''),[answers,setAnswers]=useState<Record<string,string>>({}),[consented,setConsented]=useState(false);
  const activeRule=data?.availability.find(r=>r.id===ruleId),intake=data?.intakes.find(i=>i.id===intakeId);
  async function refresh(){
-  const res=await fetch('/api/workspace-scheduling',{cache:'no-store'});const body=await res.json();if(!res.ok)throw Error(body.error||'Unable to load.');
+  const generation=++loadGeneration.current;
+  try{
+  const hash=window.location.hash;
+  const kind=hash.startsWith('#availability-rule-')?'availabilityId':hash.startsWith('#booking-')?'bookingId':null;
+  const id=kind?hash.slice(kind==='availabilityId'?19:9):'';
+  if(kind&&!validId(id)){setData(null);throw Error('This scheduling record link is invalid. Open scheduling without the record link.');}
+  const query=kind?'?'+kind+'='+encodeURIComponent(id):'';
+  const res=await fetch('/api/workspace-scheduling'+query,{cache:'no-store'});const body=await res.json();if(generation!==loadGeneration.current)return;if(!res.ok){setData(null);throw Error(body.error||'Unable to load.');}
   if(actor.current&&actor.current!==body.actorId){setData(null);throw Error('Account changed. Your draft remains here. Sign back into the original account or reload to discard it.');}
   actor.current=body.actorId;setData(body);
+  }catch(e){if(generation!==loadGeneration.current)return;setData(null);throw e;}
  }
- useEffect(()=>{refresh().catch(e=>setError(e.message));},[]);
+ useEffect(()=>{const load=()=>{setError('');void refresh().catch(e=>setError(e.message));};load();window.addEventListener('hashchange',load);return ()=>{window.removeEventListener('hashchange',load);loadGeneration.current++;};},[]);
+ useEffect(()=>{if(data&&window.location.hash){const target=document.getElementById(window.location.hash.slice(1));target?.scrollIntoView({block:'start'});}},[data]);
  async function mutate(body:Record<string,unknown>){
   if(busy||!data)return;setBusy(true);setBusyAction(String(body.action));setError('');setStatus('');
   const payload={...body,expectedActorId:actor.current};const key=JSON.stringify(payload);
@@ -60,7 +70,7 @@ export default function Scheduling(){
   {pending.current&&<button className={button} disabled={disabled} onClick={()=>pending.current&&void mutate(pending.current.body)}>Retry same operation</button>}
   <button disabled={busy} onClick={()=>{setStatus('');void refresh().then(()=>{setError('');setStatus('Records refreshed. Your draft is unchanged.');}).catch(e=>setError(e.message));}}>Refresh records (keep draft)</button>
   {!data&&!error&&<p role="status">Loading private scheduling records…</p>}
-  {data?.truncated&&<p role="alert">Showing the latest 500 records in each section. Older records are not shown. This bounded view is not a complete export.</p>}
+  {data?.truncated&&<p role="alert">Showing up to 500 recent records per section, plus any specifically linked record. Other older records may be omitted. This bounded view is not a complete export.</p>}
   {data&&<SchedulingCalendar bookings={data.bookings} availability={data.availability}/>}
   <div className="grid gap-6 lg:grid-cols-2">
    <form id="availability" onChange={draftChanged} className={section} onSubmit={e=>{e.preventDefault();saveAvailability();}}>

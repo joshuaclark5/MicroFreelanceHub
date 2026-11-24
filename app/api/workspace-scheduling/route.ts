@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { schedulingInput } from '../../lib/workspaceScheduling';
+import { schedulingInput, validId } from '../../lib/workspaceScheduling';
 export const dynamic='force-dynamic';
 const reply=(body:unknown,status=200)=>NextResponse.json(body,{status,headers:{'Cache-Control':'private, no-store'}});
 async function handle(request:Request){
@@ -13,9 +13,28 @@ async function handle(request:Request){
   const cookieStore=cookies();const db=createRouteHandlerClient({cookies:()=>cookieStore});
   const {data:{user},error}=await db.auth.getUser();if(error||!user)return reply({error:'Sign in required. Drafts have not been submitted.'},401);
   if(request.method==='GET'){
+   const params=new URL(request.url).searchParams;
+   const focusKeys=['bookingId','availabilityId'];
+   if(Array.from(params.keys()).some(k=>!focusKeys.includes(k))||focusKeys.some(k=>params.getAll(k).length>1)||focusKeys.filter(k=>params.has(k)).length>1||focusKeys.some(k=>params.has(k)&&!validId(params.get(k))))return reply({error:'Choose one valid scheduling record.'},400);
    const queries=[['availability','id,title,timezone,weekday,start_minute,end_minute,duration,buffer,notice_hours,horizon_days,daily_cap,active,version,recurrence'],['intakes','id,title,consent,fields,version'],['bookings','id,attendee,starts_at,ends_at,timezone,status,version,intake_id,answers']];
    const result:Record<string,unknown>={actorId:user.id,truncated:false};
    for(const [name,columns]of queries){const {data,error}=await db.from('workspace_scheduling_'+name).select(columns).eq('owner_id',user.id).order('created_at',{ascending:false}).order('id',{ascending:false}).limit(501);if(error)throw error;result[name]=(data||[]).slice(0,500);if((data||[]).length>500)result.truncated=true;}
+   const focusKey=focusKeys.find(k=>params.has(k));
+   if(focusKey){
+    const name=focusKey==='bookingId'?'bookings':'availability',id=params.get(focusKey)!;
+    const columns=queries.find(q=>q[0]===name)![1];
+    const {data:focused,error:focusError}=await db.from('workspace_scheduling_'+name).select(columns).eq('owner_id',user.id).eq('id',id).limit(1);
+    if(focusError)throw focusError;
+    if(!focused?.length)return reply({error:'This record is unavailable in the signed-in account. No changes were made.'},404);
+    result[name]=[focused[0],...(result[name] as {id:string}[]).filter(row=>row.id!==id)];
+    const intakeId=(focused[0] as unknown as {intake_id?:unknown}).intake_id;
+    if(name==='bookings'&&!validId(intakeId))throw Error('Invalid linked intake.');
+    if(name==='bookings'&&validId(intakeId)&&!(result.intakes as {id:string}[]).some(row=>row.id===intakeId)){
+     const {data:intake,error:intakeError}=await db.from('workspace_scheduling_intakes').select(queries[1][1]).eq('owner_id',user.id).eq('id',intakeId).limit(1);
+     if(intakeError)throw intakeError;
+     if(intake?.length)result.intakes=[intake[0],...(result.intakes as unknown[])];
+    }
+   }
    return reply(result);
   }
   let body:Record<string,unknown>;
