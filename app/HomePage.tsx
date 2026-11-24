@@ -84,10 +84,10 @@ export default function HomePage() {
                   Log in
                 </Link>
                 <Link
-                  href="/login"
+                  href="/login?mode=signup&next=/workspace/setup"
                   className="bg-blue-600 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg"
                 >
-                  Sign up
+                  Create an account
                 </Link>
               </>
             )}
@@ -125,8 +125,8 @@ export default function HomePage() {
                   <Link href="/login?mode=signin" className="rounded-lg border border-slate-200 px-3 py-2 text-center text-sm font-bold text-slate-700">
                     Log in
                   </Link>
-                  <Link href="/login" className="rounded-lg bg-blue-600 px-3 py-2 text-center text-sm font-bold text-white">
-                    Sign up
+                  <Link href="/login?mode=signup&next=/workspace/setup" className="rounded-lg bg-blue-600 px-3 py-2 text-center text-sm font-bold text-white">
+                    Create an account
                   </Link>
                 </div>
               )}
