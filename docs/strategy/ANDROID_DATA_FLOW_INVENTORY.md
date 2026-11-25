@@ -1,29 +1,43 @@
 # Android data-flow inventory for Play review
 
-Prepared 2026-11-25 from the 0.1.6 candidate source. This is evidence for completing the store form, NOT a submitted Data Safety declaration or a claim of full policy acceptance.
+Updated 2026-11-25 for the integrated 0.1.9/code10 Play candidate source. This is evidence for reviewing store disclosures, NOT a submitted Data Safety declaration or a policy-approval claim. The earlier archived 0.1.9 binary is workspace-only; a new integrated binary and authenticated-device checks remain required.
 
-## 0.1.7 Play-mode delta
+## Distribution and current support scope
 
-The local Play candidate now omits website signup/recovery, project/workspace shortcuts and the general support website link. The table below describes the original direct-download build; its website-shortcut row does not describe Play mode. Google account creation and existing email sign-in remain. Privacy still opens the public website and deletion requests still open an email draft. Support-assisted email-password recovery depends on the unverified support destination. Native project/time data flows, secure sessions and in-memory drafts are unchanged. Downstream privacy navigation, provider behavior and account-request fulfillment still require review; no Data Safety form has been submitted.
+Play mode omits website signup/recovery, project/workspace shortcuts and the general support website link. Google account creation and existing email sign-in remain. Privacy opens the public website; deletion opens an email draft to the approved admin@microfreelancehub.com address. Prior release notes record mailbox access and support/privacy contact deployment. Opening a mail app is not sending, inbox delivery or deletion fulfillment. This lane did not inspect or change current Play Console Data Safety answers.
 
-| Surface | Observed behavior | Evidence / remaining review |
+## Account-linked native flows
+
+| Surface | Observed source behavior | Evidence / disclosure follow-through |
 | --- | --- | --- |
-| Email/password sign-in | Credentials passed to Supabase Auth; password field cleared after successful sign-in | mobile/App.tsx; assess authentication/provider retention separately |
-| Google sign-in | External authorization flow with PKCE; user identity returned through Supabase Auth | mobile/src/googleSignIn.ts; Google consent and provider data handling remain relevant |
-| Saved sign-in | Session stored through Expo SecureStore; no plaintext fallback on secure-store failure | mobile/src/nativeSessionStorage.ts and encryptedSessionStorage.ts; Android backup exclusion rules need final artifact check |
-| Project display | Reads current owner's active project IDs, names and status; bounded to 200 displayed records | mobile/src/workflow.ts; this is account-linked business data |
-| Time history | Reads latest 20 completed entries: project ID, note, duration and start time | workflow.ts; free-text notes may contain personal/customer information |
+| Email/password sign-in | Credentials passed to Supabase Auth; password field cleared after successful sign-in | App.tsx; review authentication/provider handling separately |
+| Google sign-in | Browser authorization with PKCE; identity returned through Supabase Auth | googleSignIn.ts; sign-in is not Gmail, Drive or Calendar authorization |
+| Saved sign-in | Session stored through Expo SecureStore; no plaintext fallback on secure-store failure | nativeSessionStorage.ts and encryptedSessionStorage.ts; verify final artifact backup rules |
+| Clients | Owner-scoped reads and create/update/delete of client name, email, phone and notes | workspaceRecords.ts plus shared workspaceInput; these are user-entered business contacts, not device address-book access |
+| Pipeline stages | Reads/writes stage name and ordering | workspaceRecords.ts; account-linked organizational content |
+| Projects | Reads/writes project name, client/stage references, notes and active/archive status | workspaceRecords.ts; Work uses bounded pages; Home separately shows up to 200 active projects |
+| Tasks | Reads/writes title, project reference, notes, due date and open/done status | workspaceRecords.ts; free-text task content can include customer information |
+| Day appointments | Reads owner/version metadata, attendee label, start/end instants, original timezone and status from saved MFH bookings | agendaData.ts explicitly selects only these fields; intake answers and intake-form IDs are not requested. No booking changes or external calendar-provider calls occur in Day |
+| Day working patterns | Reads active rule titles, timezone, weekday/times, recurrence and scheduling settings from MFH records | agendaData.ts; display is a pattern preview, not available slots or connected-calendar synchronization |
+| Day tasks | Reads open task title, due date, status and identity/version metadata | agendaData.ts; no task notes are fetched by Day. Each agenda category is bounded and incomplete results labeled |
+| Time history | Reads latest 20 completed entries: project ID, note, duration and start time | workflow.ts; notes may contain personal/customer information |
 | Manual time save | Sends owner identity, operation ID, project, note, times and nonbillable accounting fields to Supabase RPC | workspace_time_mutate; no invoice or charge created by native capture |
-| Draft/retry state | Kept in component memory; not a durable offline queue | App.tsx; quitting/signing out can lose retry identifier, disclosed in UI |
-| Website shortcuts | Open external browser for calendar, booking, clients, invoices, signup and account recovery | Website data flows and digital-subscription purchase links require separate Play-policy review |
-| Deletion request action | Opens user's email application with recipient/subject; user chooses whether to send | Does not prove mailbox delivery, fulfillment or automatic deletion; support route remains unresolved |
+| Draft/retry state | Work and Time drafts, pending payloads and retry IDs remain in component memory | App.tsx and RecordWorkspace.tsx; quitting/signing out can lose them. This is not a durable offline queue |
+| Privacy/deletion help | Opens the website privacy resource or the user's mail application with recipient/subject | Does not automatically send content, cancel billing or complete deletion; support handling remains operational |
 
 ## Source permissions and dependencies
 
-Source Android manifest requests INTERNET and VIBRATE; explicitly removes external-storage read/write, overlay and microphone permissions. Final merged APK permissions must be checked, not inferred from this manifest alone. No location/camera/contact access or analytics SDK calls were found in the bounded app-owned source scan. That is NOT proof that no SDK/provider collects diagnostics, IP addresses or other data; release dependencies and provider behavior require review before declaring that in Play.
+No new native dependency or Android permission is introduced for Work or Day. These features use Supabase records already associated with the signed-in account. They do not request the device Contacts or Calendar permission. No native payment, invoice, subscription purchase, camera or media-picker flow is added in this candidate.
 
-Expo update metadata is disabled in the current native manifest. SecureStore is configured with device-only/unlocked semantics; inspect the final Android backup XML and package before asserting device backup treatment. HTTPS endpoints are used in the observed application flows, but this inventory is not a transport audit of every dependency.
+The previously inspected source manifest requests INTERNET and VIBRATE and explicitly removes external-storage read/write, overlay and microphone permissions. Verify the newly built merged APK rather than inferring final permissions from source. No location/camera/contact access or analytics SDK calls were found in the earlier bounded app-owned scan. This is NOT proof that SDKs/providers collect no diagnostics, IP addresses or other technical data.
 
-## Do not submit prematurely
+Expo update metadata is disabled in the existing native manifest. SecureStore uses device-only/unlocked semantics; inspect final Android backup XML before making artifact-level claims. Observed account/workspace requests use HTTPS. This inventory is not an audit of every dependency or provider retention policy.
 
-Resolve actual support receiving/fulfillment, verify privacy/request web resource, review downstream SaaS payment links, confirm applicable SDK/provider data classifications and retention, and complete real-device/reviewer access checks. Do not answer 'no data collected' merely because there is no native analytics code. Do not describe physical-service invoice payments as MFH digital subscription purchases. Neither direct APK availability nor this document establishes Play closed-test opt-ins or production approval.
+## Disclosure review for the update
+
+- Update the Android-specific privacy description to include native client/project/task management, saved appointments/working patterns, and memory-only workspace drafts/retries. The broad privacy collection section already mentions client contact details, notes, tasks, availability and intake answers; do not imply that this candidate reads intake answers merely because the website may process them.
+- Reconcile account identity and user-entered client contact details with the applicable personal-information fields in the current Play form. Document workspace notes, tasks, scheduling and other user-generated content accurately. Device address-book/calendar access is different from reading user-entered business records from Supabase.
+- Review collection/sharing purposes, optionality, processing/retention, service-provider treatment and deletion answers using actual provider behavior and current Console definitions. Do not automatically answer no data collected or no sharing from this source inventory.
+- Keep listing and screenshots consistent with the exact integrated binary; do not advertise native booking changes, external calendar sync, invoice/payment/signature flows or full website parity.
+- Preserve public privacy/request access and monitored-contact handling. A prior successful inbox check does not prove fulfillment of future requests.
+- Current Console declarations, final integrated artifact behavior, authenticated device workflows and reviewer access remain separate verification steps. No forms or operational policies were changed by this document.

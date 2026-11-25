@@ -14,7 +14,7 @@ The first 0.1.9 build was launched from workspace checkpoint `5228fa3`. Follow-u
 Drafts and pending retries remain in memory. Finish or reconcile a save before closing the app. No offline persistence, native invoice/payment flow, subscription purchase, signature flow, or full website parity is claimed.
 
 ## Suggested internal tester release notes
-New Work tab: manage clients, pipeline stages, projects and tasks without opening the website. Review changes before saving, and recover an uncertain save using the same operation. Keep the app open while resolving an unconfirmed save. This remains an early internal test; many website workflows are not yet native.
+For the integrated candidate only: New Work tab: manage clients, pipeline stages, projects and tasks. New Day tab: view saved appointments, working-hour patterns and tasks due next. Times include timezone and duration. Review changes before saving; keep the app open to retry an unconfirmed save. Day is read-only and excludes external calendars. Many website features are not yet native. This update is an early internal test, not full website parity.
 
 ## Evidence required before delivery
 - Production public-anon backend only; no private credential patterns in APK/AAB.
@@ -32,7 +32,7 @@ The Day tab now imports the native read-only month/day agenda and due-next tasks
 
 For the integrated Day-tab candidate, run `python scripts/audit-android-play-bundle.py --require-agenda`. The default audit also supports the archived workspace-only candidate and reports `nativeAgendaPresent: false` for it; passing the default audit alone is not proof of the new Day tab.
 
-## First artifact verification — 2026-11-25 06:32 UTC
+## First artifact verification â€” 2026-11-25 06:32 UTC
 - Gradle assemble/bundle passed in 31m17s. Exact 0.1.9/code10 package identity, dedicated-key continuity, APK alignment, AAB signature and matching Play-mode JS passed. Only the production public anon key was found; its project ref matches the configured production origin. No private credential patterns or prohibited website shortcuts were found.
 - APK SHA-256: `459c5490d6db938311ea812abef9bdef9824ad3e8256e2d02bb4866b709995b6`.
 - AAB SHA-256: `40ea89b62159021105e44dfa2f5bc344f7ebc910ec1faa65d4c3b541ed381159`.
@@ -44,3 +44,7 @@ For the integrated Day-tab candidate, run `python scripts/audit-android-play-bun
 - Reproduced and corrected two native agenda usability gaps after the first artifact: Day's task shortcut now opens the Tasks section via the same draft/uncertain-operation guard as manual Work navigation; repeated daylight-saving clock times now show zone abbreviations/offsets and elapsed minutes.
 - Focused UI checks cover clean navigation, keeping/discarding another section's draft, keeping an uncertain save identity, and preserving an existing task draft. Spring-forward and fall-back duration labels and Day-to-Work integration are covered by fixture regressions.
 - These are follow-up source changes only. The archived workspace-only APK/AAB does not contain Day or these fixes; another signed build with `--require-agenda` audit and authenticated device checks remains required.
+
+## Intake-data minimization and disclosure preparation
+- Native Day booking queries no longer request intake answers or intake-form IDs. The dedicated AgendaBooking type contains only appointment display fields and ownership/version metadata; a regression asserts the exact selected field set.
+- Local Play listing, tester notes and data-flow inventory now describe the integrated 0.1.9 source, retain limits and unverified-device status, and do not claim full website parity. Parent owns the website privacy paragraph update and live verification; no website privacy file or Console form changed in this lane.

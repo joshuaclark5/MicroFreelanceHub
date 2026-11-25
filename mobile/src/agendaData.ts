@@ -1,8 +1,11 @@
 import type {SupabaseClient} from '@supabase/supabase-js';
-import {availabilityMatches,calendarMonthBounds,validId,validLocalDate,weeklyRecurrence,type Availability,type Booking} from '../../app/lib/workspaceScheduling';
+import {availabilityMatches,calendarMonthBounds,validId,validLocalDate,weeklyRecurrence,type Availability} from '../../app/lib/workspaceScheduling';
 import {verifyActor} from './workflow';
 export type AgendaTask={id:string;title:string;due_date:string|null;status:'open';owner_id:string};
-export type AgendaSnapshot={month:string;availability:Availability[];bookings:Booking[];tasks:AgendaTask[];truncated:boolean};
+// Read only the appointment display fields and ownership/version metadata.
+// Intake answers and form identifiers are not needed by this read-only agenda.
+export type AgendaBooking={id:string;owner_id:string;version:number;attendee:string;starts_at:string;ends_at:string;timezone:string;status:'confirmed'|'canceled'};
+export type AgendaSnapshot={month:string;availability:Availability[];bookings:AgendaBooking[];tasks:AgendaTask[];truncated:boolean};
 const formatters=new Map<string,Intl.DateTimeFormat>();
 function formatter(zone:string){let found=formatters.get(zone);if(!found){found=new Intl.DateTimeFormat('en-CA',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit'});if(formatters.size>=64)formatters.clear();formatters.set(zone,found);}return found;}
 export function localDay(instant:string,zone:string){const parts=formatter(zone).formatToParts(new Date(instant));return ['year','month','day'].map(k=>parts.find(p=>p.type===k)!.value).join('-');}
@@ -32,11 +35,11 @@ export async function loadAgenda(db:SupabaseClient,actor:string,month:string):Pr
  const bounds=calendarMonthBounds(month);await verifyActor(db,actor);
  const results=await Promise.all([
   db.from('workspace_scheduling_availability').select('id,owner_id,title,timezone,weekday,start_minute,end_minute,duration,buffer,notice_hours,horizon_days,daily_cap,active,version,recurrence',{count:'exact'}).eq('owner_id',actor).eq('active',true).order('id').limit(501),
-  db.from('workspace_scheduling_bookings').select('id,owner_id,attendee,starts_at,ends_at,timezone,status,version,intake_id,answers',{count:'exact'}).eq('owner_id',actor).gte('starts_at',bounds.start).lt('starts_at',bounds.end).order('starts_at').order('id').limit(501),
+  db.from('workspace_scheduling_bookings').select('id,owner_id,attendee,starts_at,ends_at,timezone,status,version',{count:'exact'}).eq('owner_id',actor).gte('starts_at',bounds.start).lt('starts_at',bounds.end).order('starts_at').order('id').limit(501),
   db.from('workspace_tasks').select('id,owner_id,version,title,due_date,status',{count:'exact'}).eq('owner_id',actor).eq('status','open').order('due_date',{ascending:true,nullsFirst:false}).order('id').limit(501)
  ]);
  await verifyActor(db,actor);
  const validators=[validRule,validBooking,validTask];
  for(let i=0;i<results.length;i++){const r=results[i];if(r.error||!Array.isArray(r.data)||r.count===null||!Number.isSafeInteger(r.count)||r.count<r.data.length||(r.count>r.data.length&&r.data.length<501)||!r.data.every(row=>validators[i](row,actor))||new Set(r.data.map(row=>row.id)).size!==r.data.length)throw Error('Agenda could not be verified. Refresh to try again.');}
- return {month,availability:results[0].data!.slice(0,500) as unknown as Availability[],bookings:results[1].data!.slice(0,500) as unknown as Booking[],tasks:results[2].data!.slice(0,500) as unknown as AgendaTask[],truncated:results.some(r=>r.count!>500)};
+ return {month,availability:results[0].data!.slice(0,500) as unknown as Availability[],bookings:results[1].data!.slice(0,500) as unknown as AgendaBooking[],tasks:results[2].data!.slice(0,500) as unknown as AgendaTask[],truncated:results.some(r=>r.count!>500)};
 }

@@ -7,11 +7,13 @@ const booking={id:actor,owner_id:actor,version:1,attendee:'Fictional attendee',t
 const task={id:actor,owner_id:actor,version:1,title:'Fictional task',status:'open',due_date:'2026-11-01'};
 let signedIn=actor,switchAfterRead=false,foreign=false,malformed=false,missingCount=false,incomplete=false;
 const calls=[];
-const db={auth:{getUser:async()=>({data:{user:{id:signedIn}}})},from(table){const filters=[];let data=table.endsWith('availability')?[rule]:table.endsWith('bookings')?[booking]:[task];const q={select(){return q;},eq(k,v){filters.push([k,v]);return q;},gte(k,v){filters.push([k,v]);return q;},lt(k,v){filters.push([k,v]);return q;},order(){return q;},limit(){return q;},then(resolve,reject){calls.push({table,filters});const rows=data.map(r=>({...r,owner_id:foreign?other:actor,...(malformed?{timezone:'Not/AZone'}:{})}));if(switchAfterRead)signedIn=other;return Promise.resolve({data:rows,error:null,count:missingCount?null:incomplete?100:rows.length}).then(resolve,reject);}};return q;}};
+const db={auth:{getUser:async()=>({data:{user:{id:signedIn}}})},from(table){const filters=[];let selected='';let data=table.endsWith('availability')?[rule]:table.endsWith('bookings')?[booking]:[task];const q={select(columns){selected=columns;return q;},eq(k,v){filters.push([k,v]);return q;},gte(k,v){filters.push([k,v]);return q;},lt(k,v){filters.push([k,v]);return q;},order(){return q;},limit(){return q;},then(resolve,reject){calls.push({table,filters,selected});const rows=data.map(r=>({...r,owner_id:foreign?other:actor,...(malformed?{timezone:'Not/AZone'}:{})}));if(switchAfterRead)signedIn=other;return Promise.resolve({data:rows,error:null,count:missingCount?null:incomplete?100:rows.length}).then(resolve,reject);}};return q;}};
 (async()=>{
  assert.equal(lib.localDay('2026-11-01T02:00:00.000Z','America/New_York'),'2026-10-31','Date must use chosen zone, not UTC');
  let snapshot=await lib.loadAgenda(db,actor,'2026-11');assert.equal(snapshot.truncated,false);
  assert.ok(calls.every(c=>c.filters.some(([k,v])=>k==='owner_id'&&v===actor)));
+ const selectedBooking=calls.find(c=>c.table==='workspace_scheduling_bookings').selected.split(',').sort();
+ assert.deepEqual(selectedBooking,['id','owner_id','attendee','starts_at','ends_at','timezone','status','version'].sort(),'Agenda must not request intake answers, form IDs or wildcard data');
  assert.equal(lib.daySummary(snapshot,'2026-11-01','America/New_York').bookings.length,1,'DST fold remains one appointment');
  const folded=lib.appointmentTimeLabel(booking.starts_at,booking.ends_at,'America/New_York');
  assert.match(folded,/1:30 AM (?:EDT|GMT-4).*1:30 AM (?:EST|GMT-5).*60 min/,'Repeated local times must expose their distinct zone offsets and elapsed duration');
