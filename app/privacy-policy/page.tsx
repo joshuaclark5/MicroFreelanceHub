@@ -17,7 +17,7 @@ export default function PrivacyPolicyPage() {
       <div className="prose prose-blue max-w-none space-y-6 text-gray-700">
         <section>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">1. Introduction</h2>
-          <p>MicroFreelanceHub provides client and project management, business-document tools, invoices, time records and appointment scheduling for independent businesses. This policy explains information processed when you visit our website, create an account, use a workspace, or interact with a document or booking link shared by a workspace owner.</p>
+          <p>MicroFreelanceHub provides client and project management, business-document tools, invoices, time records and appointment scheduling for independent businesses. This policy explains information processed when you visit our website, use our Android companion app, create an account, use a workspace, or interact with a document or booking link shared by a workspace owner.</p>
         </section>
 
         <section>
@@ -55,13 +55,13 @@ export default function PrivacyPolicyPage() {
 
         <section>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">6. Cookies and browser storage</h2>
-          <p>Authentication cookies maintain your session. Browser storage also supports preferences, drafts and the signup-attribution information described above. Clearing browser data can sign you out or remove locally saved work; it does not remove records already saved to your account. Embedded third-party content, such as videos, can involve requests to that provider.</p>
+          <p>Authentication cookies maintain your session. Browser storage also supports preferences, drafts and the signup-attribution information described above. The Android companion stores sign-in sessions using encrypted device storage so you can return to your account. Signing out removes its stored session. Time-entry drafts and uncertain-save retry details remain in app memory and are not retained after the app closes. The companion uses Supabase for sign-in, project viewing and saving time entries; Google sign-in opens a browser authentication flow. Clearing browser data can sign you out or remove locally saved work; it does not remove records already saved to your account. Embedded third-party content, such as videos, can involve requests to that provider.</p>
         </section>
 
         <section>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">7. Retention, access and deletion</h2>
           <p>We retain account and workspace information to provide the service while it is needed for your account, and may retain limited records for billing, dispute resolution, security, backups and applicable legal obligations. Retention depends on the record and the service provider; this policy does not promise immediate removal from every backup or a third-party recipient&apos;s files.</p>
-          <p>You can edit supported records in your workspace and use available export controls to download records. For access, correction, export or deletion requests beyond those controls, email <a href="mailto:support@microfreelancehub.com" className="underline">support@microfreelancehub.com</a>. We may need to verify that you are entitled to the information before acting. Self-service account deletion is temporarily unavailable while we improve billing safeguards. Request deletion through support; you may need to verify account ownership. A deletion request does not cancel a subscription or reverse a payment. Manage your subscription separately in Settings and contact support about active billing.</p>
+          <p>You can edit supported records in your workspace and use available export controls to download records. For access, correction, export or deletion requests beyond those controls, email <a href="mailto:admin@microfreelancehub.com" className="underline">admin@microfreelancehub.com</a>. We may need to verify that you are entitled to the information before acting. Self-service account deletion is temporarily unavailable while we improve billing safeguards. Request deletion through support; you may need to verify account ownership. A deletion request does not cancel a subscription or reverse a payment. Manage your subscription separately in Settings and contact support about active billing.</p>
           <p>If a business entered your details in its workspace, contact that business about its use of your information. You may also contact us to help identify the appropriate request path. Your rights depend on your location and applicable law.</p>
         </section>
 
@@ -77,7 +77,7 @@ export default function PrivacyPolicyPage() {
         </section>
         <section>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">9. Contact and policy changes</h2>
-          <p>For privacy questions, email <a href="mailto:support@microfreelancehub.com" className="underline">support@microfreelancehub.com</a>. We update the date on this page when the policy changes. Review this page for the current explanation of our practices.</p>
+          <p>For privacy questions, email <a href="mailto:admin@microfreelancehub.com" className="underline">admin@microfreelancehub.com</a>. We update the date on this page when the policy changes. Review this page for the current explanation of our practices.</p>
         </section>
       </div>
     </div>

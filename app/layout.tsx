@@ -6,6 +6,7 @@ import Brand from './components/Brand';
 import './direction04.css';
 import './sitewide-design.css';
 import './public-design.css';
+import SitewideSeasonalOffer from './components/SitewideSeasonalOffer';
 import FeedbackWidget from './components/FeedbackWidget';
 import { TrackingInitializer } from './components/TrackingInitializer';
 import Link from 'next/link';
@@ -58,6 +59,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} min-h-screen flex flex-col`}>
         <TrackingInitializer />
+        <SitewideSeasonalOffer/>
 
         {/* MAIN CONTENT */}
         <main className="flex-grow">

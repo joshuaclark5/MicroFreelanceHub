@@ -1,6 +1,7 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
 import SchedulingCalendar from '../../../components/SchedulingCalendar';
+import CalendarBookingLink from '../../../components/CalendarBookingLink';
 import WorkspaceNav from '../../../components/WorkspaceNav';
 import {SchedulingData,calendarMonthBounds} from '../../../lib/workspaceScheduling';
 import '../../../components/workspace-editorial.css';
@@ -27,7 +28,9 @@ export default function CalendarPage(){
  function changeMonth(value:string){try{calendarMonthBounds(value);}catch(e){setError((e as Error).message);return;}if(value===month){void refresh();return;}setBusy(true);setError('');setData(null);generation.current++;setMonth(value);}
  return <div className="editorial-shell"><WorkspaceNav active="scheduling"/><main className="editorial-main">
   <header className="editorial-header"><div><p className="editorial-eyebrow">YOUR WORKSPACE / CALENDAR</p><h1>Your day, in one place.</h1><p>Browse saved bookings and scheduled working-hour patterns. Select a day, then open its management controls.</p></div></header>
-  <nav aria-label="Calendar actions" className="flex flex-wrap gap-4"><a href="/workspace/scheduling#availability">Set working hours</a><a href="/workspace/scheduling/public">Manage customer booking link</a><a href="/workspace/scheduling">Scheduling management</a></nav>
+  <nav aria-label="Calendar actions" className="flex flex-wrap gap-4"><a href="/workspace/scheduling#availability">Set working hours</a><a href="/workspace/scheduling/public">Manage customer booking link</a><a href="/workspace/scheduling/time-off">View and manage time off</a><a href="/workspace/scheduling">Scheduling management</a></nav>
+  <CalendarBookingLink actorId={data?.actorId||''} disabled={busy||!!error||!data}/>
+  <p>Time off is listed separately. Open time off to review dates that block new bookings across your services.</p>
   <label className="block">View month<input className="block rounded border p-2" type="month" min="1900-01" max="2199-12" value={month} onChange={e=>changeMonth(e.target.value)}/></label>
   <button disabled={busy} onClick={()=>void refresh()}>{busy?'Loading calendar...':'Refresh calendar'}</button>
   {error&&<p role="alert">{error}</p>}

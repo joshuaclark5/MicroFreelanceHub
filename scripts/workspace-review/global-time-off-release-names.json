@@ -1,0 +1,14 @@
+{
+  "prototype_time_off_request": "workspace_time_off_request",
+  "prototype_time_off_preview": "workspace_time_off_preview_internal",
+  "prototype_time_off_mutate": "workspace_time_off_mutate_internal",
+  "prototype_time_off_create": "workspace_time_off_create_internal",
+  "prototype_time_off_guard": "workspace_time_off_guard",
+  "prototype_time_off_immutable": "workspace_time_off_immutable",
+  "prototype_day_boundary": "workspace_time_off_day_boundary",
+  "prototype_time_off_operations": "workspace_scheduling_time_off_operations",
+  "prototype_time_off_limits": "workspace_scheduling_time_off_limits",
+  "prototype_time_off_owner_active": "workspace_time_off_owner_active",
+  "prototype_time_off_history": "workspace_time_off_history",
+  "prototype_time_off": "workspace_scheduling_time_off"
+}

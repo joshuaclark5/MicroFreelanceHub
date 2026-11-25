@@ -1,0 +1,14 @@
+﻿.time-off-page { max-width: 1100px; }
+.time-off-page h1 { font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.2; }
+.time-off-page h2 { font-size: 1.3rem; margin-bottom: .7rem; }
+.time-off-page p { margin: .7rem 0; }
+.time-off-page nav, .time-off-actions { display:flex; flex-wrap:wrap; gap:1rem; margin:1rem 0; }
+.time-off-page fieldset { border:0; min-width:0; }
+.time-off-dates { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; margin:1rem 0; }
+.time-off-control { display:block; width:100%; max-width:100%; min-width:0; padding:.7rem; border:1px solid #64748b; border-radius:.4rem; background:white; color:#0f172a; }
+.time-off-page button { white-space:normal; overflow-wrap:anywhere; max-width:100%; padding:.7rem 1rem; }
+.time-off-page button:disabled { cursor:wait; opacity:.65; }
+.time-off-page li { padding:1rem 0; border-bottom:1px solid #cbd5e1; overflow-wrap:anywhere; }
+.time-off-error { border-left:4px solid #b91c1c; padding:.8rem; background:#fff1f2; color:#881337; }
+@media(max-width:600px){.time-off-dates{grid-template-columns:minmax(0,1fr)}.time-off-actions{flex-direction:column}.time-off-actions button{width:100%}.time-off-page nav{flex-direction:column}}
+.time-off-page a { text-decoration:underline; text-underline-offset:.18em; }

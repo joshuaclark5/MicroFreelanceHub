@@ -15,7 +15,7 @@ export function supportDraft(topic: SupportTopic, details: string) {
   const safeTopic = supportTopics.includes(topic) ? topic : 'Something else';
   const subject = `MicroFreelanceHub help: ${safeTopic}`;
   const body = `Topic: ${safeTopic}\n\n${draftDetails(details)}\n\nPlease review this draft before sending. Remove passwords, verification codes, private links, client information and payment details.`;
-  const href = `mailto:support@microfreelancehub.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const href = `mailto:admin@microfreelancehub.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   // Conservative interoperability limit, not a guarantee that an email client opens.
   return { subject, body, href, canOpenEmail: href.length <= 2000 };
 }
