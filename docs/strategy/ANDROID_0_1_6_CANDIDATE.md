@@ -16,3 +16,5 @@ Build completed successfully 2026-11-25T02:36:43Z (15m43s). Package verification
 - AAB SHA256: d5ea77640a5be3af28784844d03ec8e732b6c93e63a181c8b193f80ffa6e0626
 
 Preserved separately under local artifacts/android-0.1.6-candidate. Device acceptance and publication are not established by these package checks.
+
+Device smoke: upgrade install on owned Android15 emulator5560 passed; installed version0.1.6/code7 confirmed, process launched without observed fatal exception and signed-out controls passed. Screenshot reviewed: current logo, readable status bar and sign-in fields. Evidence artifacts/android-0.1.6-device/result.json and launch.png. Authenticated sessions, physical devices, support delivery and Play publication remain unverified.
