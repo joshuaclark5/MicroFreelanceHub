@@ -13,14 +13,14 @@ if(!fs.existsSync(keystore)){
 const dotenv=require('C:/Users/joshu/mfh-first-small-release-20261119/node_modules/dotenv');const config=dotenv.parse(fs.readFileSync('C:/Users/joshu/Downloads/MicroFreelanceHub-GitHubPush/MicroFreelanceHubFrontend/.env.local'));
 assert.equal(config.NEXT_PUBLIC_SUPABASE_URL,'https://rjgttmwrbyjqifodjnqm.supabase.co');assert.equal(JSON.parse(Buffer.from(config.NEXT_PUBLIC_SUPABASE_ANON_KEY.split('.')[1],'base64url')).role,'anon');
 env.EXPO_PUBLIC_SUPABASE_URL=config.NEXT_PUBLIC_SUPABASE_URL;env.EXPO_PUBLIC_SUPABASE_ANON_KEY=config.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const gradle=repo+'/mobile/android/app/build.gradle';let source=fs.readFileSync(gradle,'utf8');assert.ok(source.includes("applicationId 'com.microfreelancehub.mobile'"));assert.match(source,/versionCode 6/);assert.match(source,/versionName "0.1.5"/);
+const gradle=repo+'/mobile/android/app/build.gradle';let source=fs.readFileSync(gradle,'utf8');assert.ok(source.includes("applicationId 'com.microfreelancehub.mobile'"));assert.match(source,/versionCode 7/);assert.match(source,/versionName "0.1.6"/);
 if(!source.includes('signingConfigs.upload')){
  source=source.replace('signingConfigs {',`signingConfigs {\n        upload {\n            storeFile file(System.getenv('MFH_UPLOAD_KEYSTORE'))\n            storePassword System.getenv('MFH_UPLOAD_STORE_PASSWORD')\n            keyAlias System.getenv('MFH_UPLOAD_ALIAS')\n            keyPassword System.getenv('MFH_UPLOAD_KEY_PASSWORD')\n        }`);
  source=source.replace(/(release \{[\s\S]*?)signingConfig signingConfigs.debug/,'$1signingConfig signingConfigs.upload');fs.writeFileSync(gradle,source);
 }
 assert.ok(source.includes('signingConfig signingConfigs.upload'));
-const log=fs.openSync('artifacts/android-0.1.5-release-build.log','w');
+const log=fs.openSync('artifacts/android-0.1.6-release-build.log','w');
 const p=cp.spawn('C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe',['-NoProfile','-Command',"& ./gradlew.bat :app:assembleRelease :app:bundleRelease --no-daemon '-PreactNativeArchitectures=arm64-v8a,x86_64' '-Dorg.gradle.workers.max=2'; exit $LASTEXITCODE"],{cwd:repo+'/mobile/android',env,stdio:['ignore',log,log],windowsHide:true});
 p.on('error',e=>{fs.closeSync(log);console.error('Build process could not start: '+e.message);process.exitCode=1;});
-p.on('exit',code=>{fs.closeSync(log);const receipt={at:new Date().toISOString(),exitCode:code,version:'0.1.5',versionCode:6,applicationId:'com.microfreelancehub.mobile',signing:'dedicated private upload key',signingKeySha256:crypto.createHash('sha256').update(fs.readFileSync(keystore)).digest('hex'),backend:'production public anon only',architectures:['arm64-v8a','x86_64'],deviceVerified:false,storePublished:false};fs.writeFileSync('artifacts/android-0.1.5-build-receipt.json',JSON.stringify(receipt,null,2));console.log(JSON.stringify(receipt));process.exitCode=code||0;});
+p.on('exit',code=>{fs.closeSync(log);const receipt={at:new Date().toISOString(),exitCode:code,version:'0.1.6',versionCode:7,applicationId:'com.microfreelancehub.mobile',signing:'dedicated private upload key',signingKeySha256:crypto.createHash('sha256').update(fs.readFileSync(keystore)).digest('hex'),backend:'production public anon only',architectures:['arm64-v8a','x86_64'],deviceVerified:false,storePublished:false};fs.writeFileSync('artifacts/android-0.1.6-build-receipt.json',JSON.stringify(receipt,null,2));console.log(JSON.stringify(receipt));process.exitCode=code||0;});
 

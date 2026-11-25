@@ -1,7 +1,7 @@
 const cp=require('child_process'),fs=require('fs'),assert=require('assert/strict');
 const adb='C:/Users/joshu/mfh-android-tools/sdk/platform-tools/adb.exe';
 const serial=process.argv[2];assert.match(serial||'',/^emulator-\d+$/,'Explicit emulator serial required');
-const dir='artifacts/android-0.1.5-device';fs.mkdirSync(dir,{recursive:true});
+const dir='artifacts/android-0.1.6-device';fs.mkdirSync(dir,{recursive:true});
 function run(args,opts={}){const r=cp.spawnSync(adb,['-s',serial,...args],{encoding:'utf8',windowsHide:true,timeout:120000,maxBuffer:8*1024*1024,...opts});assert.equal(r.status,0,r.stderr||r.error?.message||'adb failed');return r.stdout;}
 async function main(){
  assert.match(run(['emu','avd','name']),/mfh-tester-20261124/,'Refusing unrelated emulator');

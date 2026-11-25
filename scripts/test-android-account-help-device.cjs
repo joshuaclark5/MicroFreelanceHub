@@ -1,12 +1,12 @@
 const cp=require('child_process'),fs=require('fs'),assert=require('assert/strict');
 const withoutMail=process.argv.includes('--without-mail');let restoreMail=false;
-const adb='C:/Users/joshu/mfh-android-tools/sdk/platform-tools/adb.exe',serial='emulator-5560',dir='artifacts/android-0.1.5-account-help'+(withoutMail?'-without-mail':'');fs.mkdirSync(dir,{recursive:true});
+const adb='C:/Users/joshu/mfh-android-tools/sdk/platform-tools/adb.exe',serial='emulator-5560',dir='artifacts/android-0.1.6-account-help'+(withoutMail?'-without-mail':'');fs.mkdirSync(dir,{recursive:true});
 function run(args,opts={}){const r=cp.spawnSync(adb,['-s',serial,...args],{encoding:'utf8',timeout:60000,windowsHide:true,maxBuffer:4*1024*1024,...opts});assert.equal(r.status,0,r.stderr||r.error?.message||'adb failed');return r.stdout;}
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 function xml(){run(['shell','uiautomator','dump','/sdcard/mfh-account-help.xml']);return run(['shell','cat','/sdcard/mfh-account-help.xml']);}
 function capture(name,content){fs.writeFileSync(dir+'/'+name+'.xml',content);fs.writeFileSync(dir+'/'+name+'.png',run(['exec-out','screencap','-p'],{encoding:null}));}
 (async()=>{
- assert.match(run(['emu','avd','name']),/mfh-tester-20261124/);assert.match(run(['shell','dumpsys','package','com.microfreelancehub.mobile']),/versionCode=6\b/);
+ assert.match(run(['emu','avd','name']),/mfh-tester-20261124/);assert.match(run(['shell','dumpsys','package','com.microfreelancehub.mobile']),/versionCode=7\b/);
  try {
  if(withoutMail){assert.match(run(['shell','pm','disable-user','--user','0','com.google.android.gm']),/disabled/);restoreMail=true;}
  run(['shell','am','start','-W','-n','com.microfreelancehub.mobile/.MainActivity']);await wait(1200);
