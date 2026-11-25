@@ -38,3 +38,19 @@ Joshua confirmed he will monitor admin@microfreelancehub.com and authorized assi
 Changed native support/deletion/recovery text and mailto targets to admin@, with account-help regression and mobile TypeScript passing. Version advanced to 0.1.8/code9; archived prior verified 0.1.7 APK/AAB under artifacts/android-0.1.7-candidate before rebuilding. Bundle audit now requires admin@ and rejects the old support@ address. Signed incremental build started using existing private signing custody and the same explicit Play mode. No claim of package success before a matching receipt.
 
 Website privacy/support surfaces still refer to support@ in this checkout; align on current web main in an isolated release, not by deploying this older Android branch. Authenticated-device acceptance, privacy downstream paths, store declarations, reviewer access and track requirements remain. No Google Play app record or submission yet.
+
+## Play Console app created - 2026-11-25
+Created and verified MicroFreelanceHub app record under developer 9028507775231604360, app ID 4975560790178849588, package com.microfreelancehub.mobile. Console dashboard URL: https://play.google.com/console/u/0/developers/9028507775231604360/app/4975560790178849588/app-dashboard
+Creation navigation timed out at browser authority cleanup, but subsequent tabs and dashboard snapshot verified successful creation; did not resubmit.
+Dashboard confirms production access locked, closed testing required, at least 12 opted-in testers, currently 0. Internal testing can distribute before full store setup. Creation is NOT a test release, review submission, or public Play publication.
+Joshua explicitly accepts minor kinks for initial release and future updates. Continue available testing path without adding discretionary polish gates. Required truthful disclosures, account-specific testing and review still apply.
+Native 0.1.8/code9 build progressing; do not upload stale 0.1.7. Website mailbox/privacy alignment isolated at C:/Users/joshu/mfh-play-contact-20261125 branch openclaw/play-monitored-contact from origin/main 7579060. Support tests passed; web production build running.
+
+## Verified build and web contact deployment
+0.1.8/code9 signed build completed successfully. Package verification and APK/AAB bundle audit passed; corrected admin@ is present and old support@ absent. APK sha256 196caa16d2e8c4f8b3ad2451406f859b4b890684ca1b1dcfd1a97f645eac6d2e; AAB sha256 4c5771b93817c15d833d01e316dcbc7ba671f81679e713df3adb7573a2b1a688.
+Web contact/privacy correction PR41 merged at 8adcf278bc26aba1750775c74c81ca03a5203787. Build, TypeScript, support regressions and production public HTML/chunk verification passed. Evidence C:/Users/joshu/mfh-play-contact-20261125/live-play-contact-verification.json. Live /privacy-policy and /support use admin@; native storage disclosure visible.
+Play internal release draft 1 saved with accurate limited-feature notes. Owner-only testing email list created using the existing Console Google account; selection saved. No other users added or invitations sent. Closed testing is separate and remains 0 opted in.
+
+## Internal Play release published
+Google accepted AAB version 9 (0.1.8); preview showed one nonblocking missing-deobfuscation-file warning and no blocking errors. Save and publish was confirmed. Subsequent Console snapshot verified internal track Active, latest release 0.1.8 — initial companion test, temporary package name marked (unreviewed). This is an internal-testing release, NOT public production or completed Google review.
+Exact-version emulator install/launch/signed-out UI passed after dismissing an Android System UI ANR overlay (not an app crash). Authenticated session still not tested. Local signed APK and Play-re-signed installed artifact are distinct; no device-install-from-Play claim.
