@@ -1,3 +1,11 @@
+# 0.1.4 / code 5 expedited tester candidate
+
+This early Android build covers encrypted sign-in, active-project overview and nonbillable time capture. Calendar and customer booking setup open the existing website, with separate browser sign-in. Those are not native calendar screens. Unsaved drafts and uncertain time-save retries remain in memory: finish/retry before closing the app.
+
+Joshua authorized prioritizing a usable tester artifact within one hour, accepting minor bugs. This does not waive signing, data-isolation or basic runtime checks, and does not guarantee Play approval. APK sideloads do not count toward a Google Play closed-testing requirement. Public-store readiness and closed-test delivery are separate milestones.
+
+Production package com.microfreelancehub.mobile; version0.1.4/code5. Dedicated upload signing material remains in a private backup directory, not this repository. Generated native directories and output binaries are ignored. APK/AAB verification and emulator results must be recorded before calling this artifact tested or delivered.
+
 ## Android Play candidate - secure-session integration (2026-11-24)
 
 Source now restores encrypted device sessions before showing sign-in or workspace. Failed restore shows a retry screen, not a new-account prompt. Native SecureStore stores chunked tokens with recovery journaling; Android backups exclude SecureStore data. Supabase processLock serializes authentication refreshes within the app process. This is local implementation, not device acceptance or a published release.
@@ -36,7 +44,7 @@ Expo SDK 54 / React Native for iOS and Android; not a WebView, PWA, signed binar
 
 ## Core flow
 
-Existing email/password account â†’ active projects â†’ log completed nonbillable time â†’ refresh latest 20 entries. Reuses `app/lib/workspaceTime.ts`. Revalidates account identity before mutation; retries preserve the same operation ID. Existing database constraints/RLS remain the authorization boundary. No service-role key belongs in the app.
+Existing email/password account Ã¢â€ â€™ active projects Ã¢â€ â€™ log completed nonbillable time Ã¢â€ â€™ refresh latest 20 entries. Reuses `app/lib/workspaceTime.ts`. Revalidates account identity before mutation; retries preserve the same operation ID. Existing database constraints/RLS remain the authorization boundary. No service-role key belongs in the app.
 
 Sessions are **memory-only** in this prototype. They are cleared on process exit; the app suspends token refresh in the background. Google OAuth, durable encrypted offline drafts, background sync, push and store distribution remain unfinished. An uncertain save must be retried while the app is open. Closing the app can lose the in-memory retry key/draft; do not market this as offline-safe capture.
 
