@@ -1,6 +1,6 @@
 # 0.1.5 / code 6 candidate ? account help
 
-Local follow-up to the published 0.1.4 early APK: visible privacy/deletion-request controls with adjacent missing-handler errors, and dark status-bar icons. The request action opens an email draft only, not a completed deletion or subscription cancellation. TypeScript and focused account-help/startup/Home tests pass. Signed native build and device checks are still pending; not yet published. Full authenticated-device and Play-policy acceptance remain unfinished. See docs/strategy/ANDROID_PLAY_POLICY_REVIEW.md.
+Local follow-up to the published 0.1.4 early APK: visible privacy/deletion-request controls with adjacent missing-handler errors, and dark status-bar icons. The request action opens an email draft only, not a completed deletion or subscription cancellation. TypeScript and focused account-help/startup/Home tests pass. Signed APK/AAB build, package checks, same-certificate upgrade install and signed-out device checks passed. Privacy controls and the missing-email-handler fallback were visually inspected. The candidate is not published: receiving-route verification remains incomplete. Full authenticated-device and Play-policy acceptance remain unfinished. See docs/strategy/ANDROID_PLAY_POLICY_REVIEW.md.
 
 Historical 0.1.4 preparation follows; its public APK remains unchanged.
 

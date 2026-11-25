@@ -5,6 +5,8 @@ with zipfile.ZipFile(apk) as z:
     names=z.namelist()
     bundle=z.read('assets/index.android.bundle')
     assert b'https://rjgttmwrbyjqifodjnqm.supabase.co' in bundle, 'Expected public backend missing'
+    for marker in [b'Privacy & account requests', b'No request was sent.', b'dark-content']:
+        assert marker in bundle, 'Updated account-help/status-bar code missing'
     roles=[]
     for token in re.findall(rb'eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+', bundle):
         try:
