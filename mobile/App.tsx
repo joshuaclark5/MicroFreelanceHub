@@ -9,6 +9,7 @@ import {nativeSessionStorage} from './src/nativeSessionStorage';
 import {restoreNativeClient} from './src/sessionStartup';
 import * as WebBrowser from 'expo-web-browser';
 import {googleSignIn} from './src/googleSignIn';
+import RecordWorkspace from './src/RecordWorkspace';
 import {sessionAction} from './src/sessionAction';
 import {signOutWarning, sameSession} from './src/sessionExit';
 import {createLoadGate, filterProjects} from './src/projectBrowser';
@@ -37,9 +38,10 @@ function Workspace({db}:{db:SupabaseClient}) {
  const [projects,setProjects]=useState<Project[]>([]),[entries,setEntries]=useState<Entry[]>([]),[projectId,setProjectId]=useState('');
  const [minutes,setMinutes]=useState(''),[description,setDescription]=useState(''),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[truncated,setTruncated]=useState(false);
  const [loadState,setLoadState]=useState<'loading'|'ready'|'error'>('loading'),[loadError,setLoadError]=useState(''),[query,setQuery]=useState(''),[hasLoaded,setHasLoaded]=useState(false);
- const [screen,setScreen]=useState<'home'|'time'>('home');
+ const [screen,setScreen]=useState<'home'|'time'|'workspace'>('home');
  const scroll=useRef<ScrollView>(null);
- function navigate(next:'home'|'time'){setScreen(next);scroll.current?.scrollTo({y:0,animated:false});}
+ const recordDraft=useRef(false);
+ function navigate(next:'home'|'time'|'workspace'){setScreen(next);scroll.current?.scrollTo({y:0,animated:false});}
  const loadGate=useRef(createLoadGate());
  const [review,setReview]=useState<Record<string,unknown>|null>(null);
  const pending=useRef<Record<string,unknown>|null>(null), generation=useRef(0), currentActor=useRef<string|null>(null), acting=useRef(false);
@@ -47,7 +49,7 @@ function Workspace({db}:{db:SupabaseClient}) {
   const {data:{subscription}}=db.auth.onAuthStateChange((_event,session)=>{
    const id=session?.user.id||null;
    setAuthReady(true);
-   if(id!==currentActor.current){generation.current++;loadGate.current.invalidate();setLoadState('loading');setLoadError('');setQuery('');setHasLoaded(false);setScreen('home');currentActor.current=id;pending.current=null;setReview(null);setProjects([]);setEntries([]);setProjectId('');setMinutes('');setDescription('');setMessage('');setActor(id);}
+   if(id!==currentActor.current){generation.current++;loadGate.current.invalidate();setLoadState('loading');setLoadError('');setQuery('');setHasLoaded(false);setScreen('home');currentActor.current=id;recordDraft.current=false;pending.current=null;setReview(null);setProjects([]);setEntries([]);setProjectId('');setMinutes('');setDescription('');setMessage('');setActor(id);}
   });
   const state=AppState.addEventListener('change',value=>{if(value==='active')db.auth.startAutoRefresh();else db.auth.stopAutoRefresh();});
   return()=>{subscription.unsubscribe();state.remove();db.auth.stopAutoRefresh();};
@@ -89,7 +91,7 @@ function Workspace({db}:{db:SupabaseClient}) {
    if(!sameSession(id,epoch,currentActor.current,generation.current)||acting.current)return;
    void action(async()=>{const {error}=await db.auth.signOut({scope:'local'});if(error)throw Error('Sign-out was not confirmed. Please retry.');});
   };
-  const warning=signOutWarning(!!pending.current,!!review,minutes,description);
+  const warning=recordDraft.current?{title:'Leave workspace changes?',message:'You have workspace edits or an unconfirmed operation. Signing out discards the draft and retry identity. Keep working to finish or check the result first.'}:signOutWarning(!!pending.current,!!review,minutes,description);
   if(!warning){finish();return;}
   Alert.alert(warning.title,warning.message,[
    {text:'Keep working',style:'cancel'},
@@ -109,8 +111,8 @@ function Workspace({db}:{db:SupabaseClient}) {
   try{await refresh(id);}catch{if(sameSession(id,g,currentActor.current,generation.current))setMessage('Time saved. Refresh to see your latest entries; do not submit it again.');}
  }
  if(!authReady)return <SafeAreaView style={[styles.safe,styles.content]}><ActivityIndicator accessibilityLabel="Restoring sign-in" color="#194d41"/><Text style={styles.heading}>Opening your workspace</Text></SafeAreaView>;
- return <SafeAreaView style={styles.safe}><KeyboardAvoidingView style={styles.safe} behavior={Platform.OS==='ios'?'padding':undefined}>{actor&&<View style={styles.navigation} accessibilityRole="tablist">{(['home','time'] as const).map(tab=><Pressable key={tab} accessibilityRole="tab" accessibilityState={{selected:screen===tab}} onPress={()=>navigate(tab)} style={[styles.navTab,screen===tab&&styles.navSelected]}><Text style={styles.label}>{tab==='home'?'Home':'Time'}</Text></Pressable>)}</View>}<ScrollView ref={scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-  <View style={styles.brandRow}><Image source={require('./assets/brand-mark.png')} style={{width:44,height:44}} accessible={false}/><View><Text style={styles.brand}>MicroFreelanceHub</Text><Text style={styles.caption}>CLIENT WORK, IN FOCUS</Text></View></View><Text style={styles.heading}>{actor?(screen==='home'?'Your work at a glance':'Log your time'):'Good work. Less admin.'}</Text>
+ return <SafeAreaView style={styles.safe}><KeyboardAvoidingView style={styles.safe} behavior={Platform.OS==='ios'?'padding':undefined}>{actor&&<View style={styles.navigation} accessibilityRole="tablist">{(['home','workspace','time'] as const).map(tab=><Pressable key={tab} accessibilityRole="tab" accessibilityState={{selected:screen===tab}} onPress={()=>navigate(tab)} style={[styles.navTab,screen===tab&&styles.navSelected]}><Text style={styles.label}>{tab==='home'?'Home':tab==='workspace'?'Work':'Time'}</Text></Pressable>)}</View>}<ScrollView ref={scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+  <View style={styles.brandRow}><Image source={require('./assets/brand-mark.png')} style={{width:44,height:44}} accessible={false}/><View><Text style={styles.brand}>MicroFreelanceHub</Text><Text style={styles.caption}>CLIENT WORK, IN FOCUS</Text></View></View><Text style={styles.heading}>{actor?(screen==='home'?'Your work at a glance':screen==='workspace'?'Your workspace':'Log your time'):'Good work. Less admin.'}</Text>
   {message!==''&&<Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.notice}>{message}</Text>}
   {busy&&<ActivityIndicator accessibilityLabel="Working" color="#194d41"/>}
   {!actor?<>
@@ -134,14 +136,15 @@ function Workspace({db}:{db:SupabaseClient}) {
    {loadState==='loading'&&<Text accessibilityLiveRegion="polite" style={styles.notice}>Loading your projects and recent time...</Text>}
    {loadState==='error'&&<Text accessibilityRole="alert" style={styles.notice}>{loadError}</Text>}
    {hasLoaded&&<View style={styles.overview}><View><Text style={styles.metric}>{projects.length}{truncated?'+':''}</Text><Text style={styles.caption}>ACTIVE PROJECTS</Text></View><View><Text style={styles.metric}>{Math.round(entries.reduce((sum,e)=>sum+(e.seconds||0),0)/60)}</Text><Text style={styles.caption}>MINUTES IN LATEST ENTRIES</Text></View></View>}{screen==='home'&&<>
-    <Text style={styles.body}>{playCompanion?'A quick view of your loaded active projects and latest 20 completed time entries.':'A quick view of your loaded active projects and latest 20 completed time entries. Client, agreement and invoice details open in your web workspace.'}</Text>
+    <Text style={styles.body}>{playCompanion?'A quick view of your loaded active projects and latest 20 completed time entries.':'A quick view of your loaded active projects and latest 20 completed time entries. Open Work to manage clients, projects and tasks.'}</Text>
     {(minutes||description||review||pending.current)&&<Text style={styles.notice}>You have an unfinished time entry. Return to Time to {pending.current?'retry the same save':'continue reviewing it'}. It stays here while this app is open.</Text>}
-    <Button title="Log time" onPress={()=>navigate('time')}/>
-    {hasLoaded&&<><Text style={styles.subheading}>Active projects</Text>{projects.length===0?<Text style={styles.body}>{playCompanion?'No active projects yet. This companion shows projects already in your account.':'No active projects yet. Add one in your web workspace, then refresh.'}</Text>:projects.slice(0,5).map(p=><View key={p.id} style={styles.project}><Text style={styles.label}>{p.name}</Text>{!playCompanion&&<Button title="Open project (website)" onPress={()=>void Linking.openURL('https://www.microfreelancehub.com/workspace/projects?project='+p.id).catch(()=>setMessage('Could not open this project in the browser.'))}/>}</View>)}{projects.length>5&&<Text style={styles.body}>Showing 5 of {projects.length}{truncated?'+':''} active projects. Open Time to search loaded projects.</Text>}</>}
+    <Button title="Clients, projects & tasks" onPress={()=>navigate('workspace')}/><Button title="Log time" onPress={()=>navigate('time')}/>
+    {hasLoaded&&<><Text style={styles.subheading}>Active projects</Text>{projects.length===0?<Text style={styles.body}>{playCompanion?'No active projects yet. Open Work to add a client, pipeline stage and project.':'No active projects yet. Open Work to add a client, pipeline stage and project.'}</Text>:projects.slice(0,5).map(p=><View key={p.id} style={styles.project}><Text style={styles.label}>{p.name}</Text>{!playCompanion&&<Button title="Open project (website)" onPress={()=>void Linking.openURL('https://www.microfreelancehub.com/workspace/projects?project='+p.id).catch(()=>setMessage('Could not open this project in the browser.'))}/>}</View>)}{projects.length>5&&<Text style={styles.body}>Showing 5 of {projects.length}{truncated?'+':''} active projects. Open Time to search loaded projects.</Text>}</>}
     {!playCompanion&&<View style={styles.helpCard}><Text style={styles.subheading}>Explore your workspace</Text><Text style={styles.body}>These sections open in your browser and may need a separate sign-in.</Text>{[['Calendar & booking','/workspace/scheduling/calendar'],['Customer booking link','/workspace/scheduling/public'],['Workspace Home','/workspace'],['Customers & notes','/workspace/clients'],['Opportunities','/workspace/crm'],['Projects','/workspace/projects'],['Tasks','/workspace/tasks'],['Agreements','/dashboard'],['Invoices','/workspace/invoices']].map(([title,path])=><Button key={path} title={title+' (website)'} onPress={()=>void Linking.openURL('https://www.microfreelancehub.com'+path).catch(()=>setMessage('Could not open the browser. Visit microfreelancehub.com'+path+'.'))}/>)}</View>}
    </>}
+   <View style={screen!=='workspace'?{display:'none'}:undefined}><RecordWorkspace key={actor} db={db} actor={actor} onDirtyChange={dirty=>{recordDraft.current=dirty;}} onSaved={()=>{void refresh(actor).catch(()=>{});}}/></View>
    <View style={screen!=='time'?{display:'none'}:undefined}><Text style={styles.subheading}>Log completed time</Text><Text style={styles.body}>Record work ending now, up to 24 hours. Entries are nonbillable; no invoice or charge is created.</Text>
-   {projects.length===0&&!pending.current?(loadState==='ready'?<Text style={styles.notice}>{playCompanion?'No active projects are available for time capture. Refresh to check for projects in your account.':'No active projects are available. Create a client and project on the website, then refresh here.'}</Text>:null):<>
+   {projects.length===0&&!pending.current?(loadState==='ready'?<Text style={styles.notice}>{playCompanion?'No active projects are available for time capture. Open Work to create a project, then refresh.':'No active projects are available. Create a client and project on the website, then refresh here.'}</Text>:null):<>
     <Text style={styles.label}>Choose a project</Text><TextInput accessibilityLabel="Search loaded projects" placeholder="Search loaded projects" value={query} onChangeText={setQuery} style={styles.input} maxLength={100}/>
     <Text style={styles.body}>Selected: {projects.find(p=>p.id===projectId)?.name||'Previously selected project'}</Text>
     {filterProjects(projects,query).length===0&&<Text style={styles.notice}>No loaded projects match. Clear your search to see the list; your selection has not changed.</Text>}
