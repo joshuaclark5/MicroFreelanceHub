@@ -60,3 +60,15 @@ Invoice API suite passed 10 groups. Isolated file-backed PGlite suite passed 15 
 Production-rendered fictional UI passed four-width review/retry/accessibility checks but screenshots exposed an issued invoice still labeled as an editable draft. Candidate now disables that retained form when its saved invoice is no longer a draft, explains the state and moves Start another draft outside the disabled fieldset. It does not change snapshots, billing, sends, money calculations or schema. The latest main content update was merged before the final build.
 
 Combined production build and standalone TypeScript passed. Updated local production-browser checks at320/390/768/1440 passed: exact cents, client/project mapping, stable retry operation, explicit reviewed issue, disabled issued form, new-draft reset without an extra saved record, account-switch retention and axe/overflow. Phone/desktop screenshots inspected. Evidence `artifacts/invoice-acceptance` (baseline/API/SQL/build) and `artifacts/invoice-issued-local` (corrected UI). No real invoice mutation or charge. Release still pending at this checkpoint. Post-handoff test/scorecard improvements are included in the same branch; they do not add product features.
+
+## Invoice retry identity recovery - November 24 continuation
+
+Reproduced on production-rendered pages using fictional intercepted invoice APIs: the generic Retry same operation button successfully saves a new invoice but leaves the form labeled New invoice draft. A following Save draft therefore sends another create instead of editing the recovered record. The edit retry path likewise failed to refresh the retained version.
+
+Fix: successful create/edit reconciliation now belongs to the shared mutation handler, so both ordinary Save and explicit retry retain the returned document, ID and version. No API, money calculation, schema, Stripe or invoice-issue policy changes.
+
+Browser regression now simulates committed create/edit operations whose responses are lost, then returns the saved result on the same operation ID. It checks recovered identity/version, exactly one saved invoice, retained memo, exact review total, issued-form lock, new-draft reset and account-change preservation. All records live only in test memory; unexpected writes and external requests are blocked.
+
+Production build and standalone TypeScript passed. Ten invoice API groups and fifteen isolated PGlite SQL groups passed; these do not establish hosted PostgreSQL concurrency or Stripe settlement. Browser and release results follow in the release receipt.
+
+Local browser acceptance passed at 320/390/768/1440 with no axe violations or horizontal overflow. Phone issued-form screenshot inspected. Evidence: artifacts/invoice-retry-after/browser-proof.json and invoices-390.png; production build log artifacts/invoice-retry-build.log. Global navigation is signed out in these fixtures; authenticated global navigation and hosted persistence are not established by this run.
