@@ -1,0 +1,14 @@
+const fs=require('fs'),assert=require('assert/strict');
+const {chromium}=require('C:/Users/joshu/AppData/Roaming/npm/node_modules/openclaw/node_modules/playwright-core');
+const base=process.env.QA_BASE_URL||'http://127.0.0.1:3075',out='artifacts/calendar-hydration-browser',actor='11111111-1111-4111-8111-111111111111';fs.mkdirSync(out,{recursive:true});
+(async()=>{const browser=await chromium.launch({channel:'msedge',headless:true}),results=[];try{for(const zone of ['UTC','America/New_York']){
+ const context=await browser.newContext({viewport:{width:390,height:900},timezoneId:zone}),page=await context.newPage(),errors=[];let writes=0;
+ page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(/hydration|hydrating|did not match|server.rendered/i.test(m.text()))errors.push(m.text());});
+ await page.clock.setFixedTime(new Date('2026-11-25T00:30:00Z'));
+ await page.route('**/*',route=>{const r=route.request(),u=new URL(r.url());if(u.origin!==new URL(base).origin)return route.abort();if(!['GET','HEAD'].includes(r.method())){writes++;return route.abort();}if(u.pathname==='/api/workspace-scheduling')return route.fulfill({json:{actorId:actor,calendarMonth:u.searchParams.get('calendarMonth'),truncated:false,availability:[],bookings:[],intakes:[]}});if(u.pathname==='/api/workspace/tasks')return route.fulfill({json:{ownerId:actor,records:[],hasMore:false,complete:true,nextCursor:null}});if(u.pathname.startsWith('/api/'))return route.fulfill({status:401,json:{error:'Fixture only'}});return route.continue();});
+ await page.goto(base+'/workspace/scheduling/calendar');await page.getByRole('heading',{name:'November 2026',exact:true}).waitFor();await page.getByText('No open tasks. Add one in Tasks to see it here.',{exact:true}).waitFor();
+ const selected=page.locator('.calendar-day[aria-pressed=true]');assert.match(await selected.getAttribute('aria-label'),zone==='UTC'?/November 25, 2026/:/November 24, 2026/);
+ assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:out+'/'+zone.replaceAll('/','-')+'.png',fullPage:true});
+ await page.goto(base+'/support');await page.getByRole('heading',{name:'A clear next step.',exact:true}).waitFor();await page.getByRole('button',{name:'Feedback',exact:true}).click();await page.getByRole('heading',{name:'Report an issue or share an idea',exact:true}).waitFor();assert.deepEqual(errors,[]);assert.equal(writes,0);
+ results.push({zone,hydrationErrors:0,localDateBoundary:true,calendarAndSupport:true,realWrites:0});await context.close();
+ }fs.writeFileSync(out+'/result.json',JSON.stringify(results,null,2));console.log('PASS UTC and America/New_York hydration: calendar/support, local midnight date boundary, no hydration/page errors, no writes');}finally{await browser.close();}})().catch(e=>{console.error(e);process.exitCode=1;});
