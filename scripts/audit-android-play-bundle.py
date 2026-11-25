@@ -16,7 +16,7 @@ with zipfile.ZipFile(apk) as z:
     old_label=bytes.fromhex('c383c692c3a2e282acc5a1c383e2809ac382c2b7').decode('utf8')
     assert all(old_label.encode(encoding) not in bundle for encoding in ['utf8','utf-16le']), 'Old garbled label remains in native bundle'
     for label in [b'Create account on website', b'Recover email password on website', b'Open project (website)', b'Explore your workspace', b'Open web workspace', b'Customer booking link']:
-        assert label not in bundle, 'Direct website navigation remains in Play package'
+        assert all(label.decode('ascii').encode(encoding) not in bundle for encoding in ['utf8','utf-16le']), 'Direct website navigation remains in Play package'
     assert b'For email-password recovery, contact' in bundle, 'Play companion code missing'
     roles=[]
     for token in re.findall(rb'eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+', bundle):
