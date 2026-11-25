@@ -10,7 +10,7 @@
 ## Verification so far
 - node scripts/test-feedback-api.cjs: passed (fictional provider; no emails).
 - node scripts/test-feedback-db.cjs: passed actual migration in isolated PGlite, including anonymous/authenticated denials and limits.
-- TypeScript: passed initial implementation; final pass pending.
+- TypeScript: passed feedback/calendar marker candidate. Due-next follow-up final pass pending.
 - Build/browser/production: pending. Do not claim live.
 
 ## Release prerequisites and operator recovery
@@ -21,5 +21,5 @@
 5. No automatic operator inbox monitor or support SLA is introduced by this change. Reports are operational support records subject to existing retention/deletion handling; do not expose the table in a public dashboard.
 
 ## Remaining scope
-- Due-next task integration is not in this first candidate.
+- Second candidate adds read-only Due next using existing task records. Loads owner-pinned pages before sorting, hides incomplete lists, puts overdue/earliest dates first and undated tasks last. Separate to-do storage is not introduced. Unit checks passed; browser/build pending.
 - Full HoneyBook feature superiority is not established by this UI change.

@@ -1,6 +1,7 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
 import SchedulingCalendar from '../../../components/SchedulingCalendar';
+import CalendarDueNext from '../../../components/CalendarDueNext';
 import CalendarBookingLink from '../../../components/CalendarBookingLink';
 import WorkspaceNav from '../../../components/WorkspaceNav';
 import {SchedulingData,calendarMonthBounds} from '../../../lib/workspaceScheduling';
@@ -36,5 +37,6 @@ export default function CalendarPage(){
   {error&&<p role="alert">{error}</p>}
   {busy&&<p role="status">Loading private calendar records...</p>}
   <div hidden={busy||!!error||!data}><SchedulingCalendar bookings={data?.bookings||[]} availability={data?.availability||[]} managementPath="/workspace/scheduling" displayMonth={month} onMonthChange={changeMonth}/></div>
+  <CalendarDueNext key={data?.actorId||'none'} actorId={!busy&&!error?data?.actorId||'':''}/>
  </main></div>;
 }
