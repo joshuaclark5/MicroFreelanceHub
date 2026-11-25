@@ -1,4 +1,4 @@
-// Local signed tester build. Never prints signing passwords or embeds server credentials.
+﻿// Local signed tester build. Never prints signing passwords or embeds server credentials.
 const fs=require('fs'),cp=require('child_process'),crypto=require('crypto'),assert=require('assert/strict'),path=require('path');
 const repo=process.cwd(),tools='C:/Users/joshu/mfh-android-tools',privateRoot='C:/Users/joshu/mfh-private-backups/android-play-signing-20261124';
 fs.mkdirSync(privateRoot,{recursive:true});fs.mkdirSync('artifacts',{recursive:true});
@@ -20,6 +20,7 @@ if(!source.includes('signingConfigs.upload')){
 }
 assert.ok(source.includes('signingConfig signingConfigs.upload'));
 const log=fs.openSync('artifacts/android-0.1.4-release-build.log','w');
-const p=cp.spawn('C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe',['-NoProfile','-Command',"& ./gradlew.bat assembleRelease bundleRelease --no-daemon '-PreactNativeArchitectures=arm64-v8a,x86_64' '-Dorg.gradle.workers.max=2'; exit $LASTEXITCODE"],{cwd:repo+'/mobile/android',env,stdio:['ignore',log,log],windowsHide:true});
+const p=cp.spawn('C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe',['-NoProfile','-Command',"& ./gradlew.bat :app:assembleRelease :app:bundleRelease --no-daemon '-PreactNativeArchitectures=arm64-v8a,x86_64' '-Dorg.gradle.workers.max=2'; exit $LASTEXITCODE"],{cwd:repo+'/mobile/android',env,stdio:['ignore',log,log],windowsHide:true});
 p.on('error',e=>{fs.closeSync(log);console.error('Build process could not start: '+e.message);process.exitCode=1;});
 p.on('exit',code=>{fs.closeSync(log);const receipt={at:new Date().toISOString(),exitCode:code,version:'0.1.4',versionCode:5,applicationId:'com.microfreelancehub.mobile',signing:'dedicated private upload key',signingKeySha256:crypto.createHash('sha256').update(fs.readFileSync(keystore)).digest('hex'),backend:'production public anon only',architectures:['arm64-v8a','x86_64'],deviceVerified:false,storePublished:false};fs.writeFileSync('artifacts/android-0.1.4-build-receipt.json',JSON.stringify(receipt,null,2));console.log(JSON.stringify(receipt));process.exitCode=code||0;});
+
