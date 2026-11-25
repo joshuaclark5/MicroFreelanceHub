@@ -1,3 +1,4 @@
+import { imageAltText } from './imageAltText';
 import { projectHours } from './projectHours';
 import { clientHandoffGuide } from './clientHandoffGuide';
 import {weeklyProjectReview} from './weeklyProjectReview';
@@ -29,6 +30,7 @@ export type Article = {
 };
 
 export const articles: Article[] = [
+  imageAltText,
   projectHours,
   clientHandoffGuide,
   portfolioSample,
