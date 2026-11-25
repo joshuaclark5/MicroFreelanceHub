@@ -10,7 +10,7 @@ const admin=createClient(url,service,{auth:{persistSession:false,autoRefreshToke
 function mod(file,imports={}){const exports={};vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,{exports,require:n=>imports[n],Date,Set,Map,Error,Intl});return exports;}
 const shared=mod('app/lib/connectedWorkspace.ts'),time=mod('app/lib/workspaceTime.ts'),workflow=mod('mobile/src/workflow.ts',{'../../app/lib/workspaceTime':time});
 const api=mod('mobile/src/workspaceRecords.ts',{'../../app/lib/connectedWorkspace':shared,'./workflow':workflow});
-const scheduling=mod('app/lib/workspaceScheduling.ts'),agenda=mod('mobile/src/nativeAgenda.ts',{'../../app/lib/workspaceScheduling':scheduling,'./workflow':workflow});
+const scheduling=mod('app/lib/workspaceScheduling.ts'),agenda=mod('mobile/src/agendaData.ts',{'../../app/lib/workspaceScheduling':scheduling,'./workflow':workflow});
 const users=[],checks=[],cleanup=[];const ok=r=>{if(r.error)throw Error(r.error.code||'Backend failure');return r.data;};
 function receipt(){fs.writeFileSync(output,JSON.stringify({at:new Date().toISOString(),project:ref,syntheticOnly:true,users:users.map(u=>u.id),checks,cleanup,deviceTest:false},null,2));}
 (async()=>{try{

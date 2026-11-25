@@ -46,7 +46,7 @@ mobile/src/RecordWorkspace.tsx adds the Work tab: four record sections, relation
 - Signed build, actual native form interaction and updated Play release remain unfinished. This ledger is not a claim of full parity.
 
 ## Native agenda follow-up (not yet integrated into published app)
-- `nativeAgenda.ts` reads owner-filtered month bookings and active availability plus open tasks. Exact counts detect incomplete snapshots; each category is capped at 500 with explicit partial-view warnings.
+- `agendaData.ts` reads owner-filtered month bookings and active availability plus open tasks. Exact counts detect incomplete snapshots; each category is capped at 500 with explicit partial-view warnings.
 - `NativeAgenda.tsx` provides month/day selection, green working-pattern markers, amber appointment counts (9+ visually; exact counts in accessibility labels), purple task markers, day details and due-next tasks. Recurrence exclusions and display timezone are preserved. This is a read-only view, not booking creation, calendar provider sync, or full scheduling parity.
 - Fixture checks pass for DST/local-date grouping, recurrence/time off, canceled booking exclusion, foreign records, missing counts, server truncation and account changes. UI checks pass for partial-count accessibility, out-of-order month requests, failed refresh clearing, and hidden-tab loading.
 - Hosted staging agenda queries passed with synthetic task due dates, completed-task exclusion and cross-account isolation. All synthetic users/records were cleaned. No hosted scheduling mutations or authenticated-device test are claimed.

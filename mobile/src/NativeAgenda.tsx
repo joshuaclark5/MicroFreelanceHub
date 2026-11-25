@@ -1,7 +1,7 @@
 import React,{useEffect,useRef,useState} from 'react';
 import {ActivityIndicator,Pressable,StyleSheet,Text,View} from 'react-native';
 import type {SupabaseClient} from '@supabase/supabase-js';
-import {canonicalZone,daySummary,loadAgenda,localDay,type AgendaSnapshot} from './nativeAgenda';
+import {canonicalZone,daySummary,loadAgenda,localDay,type AgendaSnapshot} from './agendaData';
 const dateLabel=(day:string)=>new Intl.DateTimeFormat('en-US',{timeZone:'UTC',weekday:'long',month:'long',day:'numeric'}).format(new Date(day+'T12:00:00Z'));
 function Action({label,onPress,disabled=false}:{label:string;onPress:()=>void;disabled?:boolean}){return <Pressable accessibilityRole="button" accessibilityState={{disabled}} disabled={disabled} onPress={onPress} style={[s.action,disabled&&{opacity:0.5}]}><Text style={s.actionText}>{label}</Text></Pressable>;}
 export default function NativeAgenda({db,actor,visible,onTasks}:{db:SupabaseClient;actor:string;visible:boolean;onTasks:()=>void}){
@@ -21,7 +21,7 @@ export default function NativeAgenda({db,actor,visible,onTasks}:{db:SupabaseClie
  function move(offset:number){setSelected(new Date(Date.UTC(year,number-1+offset,1)).toISOString().slice(0,10));}
  return <View style={s.container}>
   <Text style={s.title}>Plan your day</Text><Text style={s.body}>Saved appointments, working-hour patterns and open tasks. No booking changes are made here.</Text>
-  <View style={s.row}><Action label="Previous month" disabled={month==='1900-01'} onPress={()=>move(-1)}/><Action label="Today" onPress={()=>setSelected(today)}/><Action label="Next month" disabled={month==='2199-12'} onPress={()=>move(1)}/></View>
+  <View style={s.row}><Action label="Previous month" disabled={month==='1900-01'} onPress={()=>move(-1)}/><Action label="Today" onPress={()=>setSelected(localDay(new Date().toISOString(),zone))}/><Action label="Next month" disabled={month==='2199-12'} onPress={()=>move(1)}/></View>
   <Text accessibilityLiveRegion="polite" style={s.heading}>{new Intl.DateTimeFormat('en-US',{timeZone:'UTC',month:'long',year:'numeric'}).format(first)}</Text>
   <Text style={s.body}>Display timezone: {zone}</Text>{zones.length>1&&<View style={s.row}>{zones.map(z=><Action key={z} label={'View '+z} disabled={canonicalZone(z)===canonicalZone(zone)} onPress={()=>setZone(z)}/>)}</View>}
   {loading&&<ActivityIndicator accessibilityLabel="Loading agenda" color="#185443"/>}{error!==''&&<Text accessibilityRole="alert" style={s.warning}>{error}</Text>}
