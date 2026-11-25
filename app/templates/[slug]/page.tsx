@@ -250,7 +250,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
       
       <nav aria-label="Site navigation" className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 bg-white px-5 py-4">
         <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold"><Brand/></Link>
-        <div className="flex flex-wrap items-center gap-4 text-sm"><Link href="/templates">Templates</Link><Link href="/pricing">Pricing</Link><a href="mailto:support@microfreelancehub.com">Help</a><Link href="/login?mode=signin">Sign in</Link></div>
+        <div className="flex flex-wrap items-center gap-4 text-sm"><Link href="/templates">Templates</Link><Link href="/pricing">Pricing</Link><a href="mailto:admin@microfreelancehub.com">Help</a><Link href="/login?mode=signin">Sign in</Link></div>
       </nav>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       {!isReference && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd) }} />}

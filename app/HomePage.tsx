@@ -171,7 +171,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="help" className="scroll-mt-24 max-w-5xl mx-auto px-5 pb-10"><div className="flex flex-wrap items-center justify-between gap-5 rounded-lg border border-slate-200 p-5"><div><h2 className="font-semibold text-slate-900">Start with the work. Connect payments when you need them.</h2><p className="mt-2 text-sm text-slate-600">Review your draft before sharing. Stripe availability, processing fees and plan limits apply.</p></div><Link href="/templates" className="d4-secondary">Choose a template</Link><a href="mailto:support@microfreelancehub.com" className="d4-secondary">Contact support</a></div></section>
+      <section id="help" className="scroll-mt-24 max-w-5xl mx-auto px-5 pb-10"><div className="flex flex-wrap items-center justify-between gap-5 rounded-lg border border-slate-200 p-5"><div><h2 className="font-semibold text-slate-900">Start with the work. Connect payments when you need them.</h2><p className="mt-2 text-sm text-slate-600">Review your draft before sharing. Stripe availability, processing fees and plan limits apply.</p></div><Link href="/templates" className="d4-secondary">Choose a template</Link><a href="mailto:admin@microfreelancehub.com" className="d4-secondary">Contact support</a></div></section>
       <section className="max-w-5xl mx-auto px-5 pb-12"><AgreementExample/></section>
       {/* 3. THE PAIN SECTION */}
       <section className="bg-slate-50 py-14 border-y border-slate-200">

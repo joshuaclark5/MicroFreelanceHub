@@ -350,7 +350,7 @@ export default function SettingsPage() {
                     </h3>
                     <p className="text-red-700 text-sm mt-2">Self-service account deletion is temporarily unavailable while we improve billing safeguards. To request deletion, contact support. This does not cancel a subscription; manage billing separately.</p>
                   </div>
-                  <a href="mailto:support@microfreelancehub.com?subject=Account%20deletion%20request" className="block text-red-900 underline font-semibold">Contact support about deletion</a>
+                  <a href="mailto:admin@microfreelancehub.com?subject=Account%20deletion%20request" className="block text-red-900 underline font-semibold">Contact support about deletion</a>
                   <button type="button" onClick={() => setActiveTab('billing')} className="w-full bg-slate-900 text-white font-bold text-sm py-3 rounded-lg">Review billing and subscription</button>
                 </div>
               </div>
@@ -466,7 +466,7 @@ export default function SettingsPage() {
                   <p className="text-slate-600 text-sm mt-3 leading-relaxed">
                     Waitlist signup is unavailable. This page does not collect your email or register you for updates. No release date is confirmed.
                   </p>
-                  <a className="d4-secondary mt-6" href="mailto:support@microfreelancehub.com?subject=Team%20availability">Ask about team availability</a>
+                  <a className="d4-secondary mt-6" href="mailto:admin@microfreelancehub.com?subject=Team%20availability">Ask about team availability</a>
                   <p className="text-slate-500 text-xs mt-3 leading-relaxed">Opens your email app. Sending a question does not enroll you in a waitlist or change your plan.</p>
                 </div>
 
