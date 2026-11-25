@@ -1,7 +1,7 @@
 import 'react-native-url-polyfill/auto';
 import './src/nativeCrypto';
 import React, {useEffect, useRef, useState} from 'react';
-import {ActivityIndicator, Image, Alert, AppState, Linking, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View} from 'react-native';
+import {ActivityIndicator, Image, Alert, AppState, Linking, StatusBar, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View} from 'react-native';
 import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
 import {createClient, processLock, type SupabaseClient} from '@supabase/supabase-js';
 import * as Crypto from 'expo-crypto';
@@ -16,6 +16,18 @@ import {loadWork, manualTime, saveTime, type Project, type Entry} from './src/wo
 
 function Button({title,onPress,disabled=false}:{title:string;onPress:()=>void;disabled?:boolean}) {
  return <Pressable accessibilityRole="button" accessibilityState={{disabled}} onPress={onPress} disabled={disabled} style={[styles.button,disabled&&styles.disabled]}><Text style={styles.buttonText}>{title}</Text></Pressable>;
+}
+function AccountHelp() {
+ const [error,setError]=useState('');
+ function open(url:string,fallback:string){setError('');void Linking.openURL(url).catch(()=>setError(fallback));}
+ const request='mailto:support@microfreelancehub.com?subject='+encodeURIComponent('MicroFreelanceHub account deletion request');
+ return <View style={styles.helpCard}><Text style={styles.subheading}>Privacy & account requests</Text>
+  <Button title="Read privacy policy" onPress={()=>open('https://www.microfreelancehub.com/privacy-policy','Could not open the privacy policy. Visit microfreelancehub.com/privacy-policy.')}/>
+  <Text style={styles.body}>To request deletion of your account and associated data, email support@microfreelancehub.com from your account email. Do not include your password. Support may need to verify ownership.</Text>
+  <Button title="Email deletion request" onPress={()=>open(request,'Could not open an email app. Send your deletion request to support@microfreelancehub.com. No request was sent.')}/>
+  {error!==''&&<Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.notice}>{error}</Text>}
+  <Text style={styles.body}>This opens an email draft; you choose whether to send it. A request does not cancel a subscription or reverse a payment. Manage active billing in website Settings and contact support. See the privacy policy for retention details.</Text>
+ </View>;
 }
 function Workspace({db}:{db:SupabaseClient}) {
  const [authReady,setAuthReady]=useState(false);
@@ -140,6 +152,7 @@ function Workspace({db}:{db:SupabaseClient}) {
    </View><Text style={styles.subheading}>Latest 20 completed entries</Text>{entries.length===0?(loadState==='ready'?<Text style={styles.body}>No completed time yet. Your first entry will appear here after it is saved.</Text>:null):entries.map(e=><View key={e.id} style={styles.project}><Text style={styles.label}>{projects.find(p=>p.id===e.project_id)?.name||'Project'}</Text><Text style={styles.body}>{Math.round((e.seconds||0)/60)} minutes Ãƒâ€šÃ‚Â· {new Date(e.started_at).toLocaleDateString()}</Text><Text style={styles.body}>{e.description}</Text></View>)}
   </>}
  <View style={styles.helpCard}><Text style={styles.label}>Your wider workspace</Text><Text style={styles.body}>Clients, bookings and invoices are available on the website. These links open your browser; its sign-in is separate.</Text><Button title="Open web workspace" onPress={()=>void Linking.openURL('https://www.microfreelancehub.com/workspace').catch(()=>setMessage('Could not open the browser. Visit microfreelancehub.com/workspace.'))}/><Button title="Help & support" onPress={()=>void Linking.openURL('https://www.microfreelancehub.com/support').catch(()=>setMessage('Could not open support. Email support@microfreelancehub.com.'))}/></View>
+ <AccountHelp/>
  </ScrollView></KeyboardAvoidingView></SafeAreaView>;
 }
 export default function App(){
@@ -159,12 +172,13 @@ export default function App(){
   }).catch(()=>{if(active)setFailure(true);});
   return()=>{active=false;client?.auth.stopAutoRefresh();};
  },[attempt,configured,url,key]);
- return <SafeAreaProvider>{db?<Workspace db={db}/>:<SafeAreaView style={[styles.safe,styles.content]}>
+ return <SafeAreaProvider><StatusBar barStyle="dark-content"/>{db?<Workspace db={db}/>:<SafeAreaView style={styles.safe}><ScrollView contentContainerStyle={styles.content}>
   <View style={styles.brandRow}><Image source={require('./assets/brand-mark.png')} style={{width:44,height:44}} accessible={false}/><Text style={styles.brand}>MicroFreelanceHub</Text></View>
   {!configured?<><Text style={styles.heading}>App setup is incomplete</Text><Text style={styles.body}>This build cannot connect to your workspace. Please contact support@microfreelancehub.com.</Text></>:failure?<>
    <Text style={styles.heading}>Let's restore your sign-in</Text><Text accessibilityRole="alert" style={styles.body}>We couldn't open your saved sign-in. Unlock your device, check your connection and retry. Retrying does not reset your account or delete your work.</Text>
    <Button title="Retry sign-in restore" onPress={()=>setAttempt(value=>value+1)}/>
   </>:<><ActivityIndicator accessibilityLabel="Restoring sign-in" color="#194d41"/><Text accessibilityLiveRegion="polite" style={styles.heading}>Opening your workspace</Text><Text style={styles.body}>Checking your saved sign-in. No need to create another account.</Text></>}
- </SafeAreaView>}</SafeAreaProvider>;
+ <AccountHelp/>
+ </ScrollView></SafeAreaView>}</SafeAreaProvider>;
 }
 const styles=StyleSheet.create({navigation:{flexDirection:'row',padding:12,gap:12,borderBottomWidth:1,borderBottomColor:'#cad6ca'},navTab:{flex:1,minHeight:48,padding:14,alignItems:'center',borderRadius:12},navSelected:{backgroundColor:'#e6eedf',borderWidth:1,borderColor:'#194d41'},brandRow:{flexDirection:'row',alignItems:'center',gap:12,marginBottom:18},monogram:{backgroundColor:'#194d41',borderRadius:14,width:46,height:46,alignItems:'center',justifyContent:'center'},monogramText:{color:'#fff',fontSize:26,fontWeight:'700'},caption:{fontSize:11,letterSpacing:0.7,color:'#50675e',marginTop:5},overview:{flexDirection:'row',flexWrap:'wrap',gap:24,padding:22,backgroundColor:'#eaf0e8',borderRadius:20,marginTop:8},metric:{fontSize:32,fontWeight:'700',color:'#183e34'},helpCard:{marginTop:24,padding:20,borderRadius:20,backgroundColor:'#eef2eb',gap:14},safe:{flex:1,backgroundColor:'#fbfcfa'},content:{padding:24,paddingBottom:48,gap:14},brand:{fontSize:16,fontWeight:'700',color:'#194d41'},heading:{fontSize:28,fontWeight:'700',color:'#183e34'},subheading:{fontSize:22,fontWeight:'700',color:'#183e34',marginTop:16},body:{fontSize:16,lineHeight:24,color:'#244d3b'},label:{fontSize:16,fontWeight:'600',color:'#183e34'},input:{borderWidth:1,borderColor:'#91a999',borderRadius:10,padding:14,fontSize:18,minHeight:48,color:'#183e34',backgroundColor:'#fff'},button:{backgroundColor:'#194d41',padding:14,borderRadius:10,minHeight:48,justifyContent:'center'},buttonText:{color:'#fff',fontSize:16,fontWeight:'600',textAlign:'center'},disabled:{opacity:0.5},notice:{padding:14,backgroundColor:'#eef3e8',color:'#183e34',fontSize:16,lineHeight:24,borderRadius:10},project:{borderWidth:1,borderColor:'#cad6ca',padding:14,borderRadius:10,minHeight:48},selected:{backgroundColor:'#e6eedf',borderColor:'#194d41',borderWidth:2},row:{flexDirection:'row',gap:12,flexWrap:'wrap'}});

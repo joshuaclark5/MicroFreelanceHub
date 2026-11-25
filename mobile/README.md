@@ -1,3 +1,9 @@
+# 0.1.5 / code 6 candidate ? account help
+
+Local follow-up to the published 0.1.4 early APK: visible privacy/deletion-request controls with adjacent missing-handler errors, and dark status-bar icons. The request action opens an email draft only, not a completed deletion or subscription cancellation. TypeScript and focused account-help/startup/Home tests pass. Signed native build and device checks are still pending; not yet published. Full authenticated-device and Play-policy acceptance remain unfinished. See docs/strategy/ANDROID_PLAY_POLICY_REVIEW.md.
+
+Historical 0.1.4 preparation follows; its public APK remains unchanged.
+
 # 0.1.4 / code 5 expedited tester candidate
 
 This early Android build covers encrypted sign-in, active-project overview and nonbillable time capture. Calendar and customer booking setup open the existing website, with separate browser sign-in. Those are not native calendar screens. Unsaved drafts and uncertain time-save retries remain in memory: finish/retry before closing the app.
