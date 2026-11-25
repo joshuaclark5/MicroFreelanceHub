@@ -4,13 +4,13 @@ import type {SupabaseClient} from '@supabase/supabase-js';
 import {canonicalZone,daySummary,loadAgenda,localDay,type AgendaSnapshot} from './agendaData';
 const dateLabel=(day:string)=>new Intl.DateTimeFormat('en-US',{timeZone:'UTC',weekday:'long',month:'long',day:'numeric'}).format(new Date(day+'T12:00:00Z'));
 function Action({label,onPress,disabled=false}:{label:string;onPress:()=>void;disabled?:boolean}){return <Pressable accessibilityRole="button" accessibilityState={{disabled}} disabled={disabled} onPress={onPress} style={[s.action,disabled&&{opacity:0.5}]}><Text style={s.actionText}>{label}</Text></Pressable>;}
-export default function NativeAgenda({db,actor,visible,onTasks}:{db:SupabaseClient;actor:string;visible:boolean;onTasks:()=>void}){
+export default function NativeAgenda({db,actor,visible,refreshKey=0,onTasks}:{db:SupabaseClient;actor:string;visible:boolean;refreshKey?:number;onTasks:()=>void}){
  const [zone,setZone]=useState(()=>Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC');
  const [selected,setSelected]=useState(()=>localDay(new Date().toISOString(),zone));
  const month=selected.slice(0,7),[snapshot,setSnapshot]=useState<AgendaSnapshot|null>(null),[loading,setLoading]=useState(false),[error,setError]=useState('');
  const revision=useRef(0),live=useRef(true);
  useEffect(()=>{live.current=true;return()=>{live.current=false;revision.current++;};},[]);
- useEffect(()=>{if(visible)void refresh();},[db,actor,month,visible]);
+ useEffect(()=>{if(visible)void refresh();},[db,actor,month,visible,refreshKey]);
  async function refresh(){const rev=++revision.current;setLoading(true);setError('');try{const next=await loadAgenda(db,actor,month);if(live.current&&revision.current===rev)setSnapshot(next);}catch{if(live.current&&revision.current===rev){setSnapshot(null);setError('Could not load your agenda. Check your connection and refresh.');}}finally{if(live.current&&revision.current===rev)setLoading(false);}}
  const current=snapshot?.month===month?snapshot:null;
  const day=current?daySummary(current,selected,zone):null;

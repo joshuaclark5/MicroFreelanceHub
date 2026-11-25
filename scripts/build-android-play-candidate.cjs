@@ -16,6 +16,9 @@ const dotenv=require('C:/Users/joshu/mfh-first-small-release-20261119/node_modul
 assert.equal(config.NEXT_PUBLIC_SUPABASE_URL,'https://rjgttmwrbyjqifodjnqm.supabase.co');assert.equal(JSON.parse(Buffer.from(config.NEXT_PUBLIC_SUPABASE_ANON_KEY.split('.')[1],'base64url')).role,'anon');
 env.EXPO_PUBLIC_SUPABASE_URL=config.NEXT_PUBLIC_SUPABASE_URL;env.EXPO_PUBLIC_SUPABASE_ANON_KEY=config.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const gradle=repo+'/mobile/android/app/build.gradle';let source=fs.readFileSync(gradle,'utf8');assert.ok(source.includes("applicationId 'com.microfreelancehub.mobile'"));assert.match(source,/versionCode 10/);assert.match(source,/versionName "0.1.9"/);
+// Gradle worker limits do not cap Metro's separate transform-worker processes.
+// Keep native builds viable on this memory-constrained shared host.
+if(!source.includes("extraPackagerArgs = ['--max-workers', '2']")){source=source.replace('react {',"react {\n    extraPackagerArgs = ['--max-workers', '2']");fs.writeFileSync(gradle,source);}
 if(!source.includes('signingConfigs.upload')){
  source=source.replace('signingConfigs {',`signingConfigs {\n        upload {\n            storeFile file(System.getenv('MFH_UPLOAD_KEYSTORE'))\n            storePassword System.getenv('MFH_UPLOAD_STORE_PASSWORD')\n            keyAlias System.getenv('MFH_UPLOAD_ALIAS')\n            keyPassword System.getenv('MFH_UPLOAD_KEY_PASSWORD')\n        }`);
  source=source.replace(/(release \{[\s\S]*?)signingConfig signingConfigs.debug/,'$1signingConfig signingConfigs.upload');fs.writeFileSync(gradle,source);

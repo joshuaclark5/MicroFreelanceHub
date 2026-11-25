@@ -20,7 +20,7 @@ Bring the website's actual working workflows into native Android/iOS source, usi
 | CSV import/export and workspace setup | Not implemented | Native file sharing/picker and bounded validation |
 | CRM opportunities, follow-ups, activity, imports | Not implemented | Reuse CRM validators and idempotent RPC |
 | Time: running timers, billable settings, timesheets | Partial: manual nonbillable capture only | Preserve billing units and uncertain-operation identity |
-| Scheduling: services, availability, appointments, intake, calendar/day view | Not implemented | Shared timezone/recurrence/slot-validation contracts |
+| Scheduling: services, availability, appointments, intake, calendar/day view | Partial candidate: read-only month/day agenda and working-pattern markers | Native booking, availability/intake mutations and device acceptance remain |
 | Time off and customer booking link/configuration | Not implemented | Native date/time selection, real public-link sharing |
 | Invoices: drafts, items, review/issue, payment status | Not implemented | Versioned invoice workflow; distinguish test billing from live settlement |
 | Agreements: templates, editing, linking, signing and downloads | Partial: no native agreement screens | Keep recipient/public signing boundaries and neutral business copy |
@@ -50,4 +50,4 @@ mobile/src/RecordWorkspace.tsx adds the Work tab: four record sections, relation
 - `NativeAgenda.tsx` provides month/day selection, green working-pattern markers, amber appointment counts (9+ visually; exact counts in accessibility labels), purple task markers, day details and due-next tasks. Recurrence exclusions and display timezone are preserved. This is a read-only view, not booking creation, calendar provider sync, or full scheduling parity.
 - Fixture checks pass for DST/local-date grouping, recurrence/time off, canceled booking exclusion, foreign records, missing counts, server truncation and account changes. UI checks pass for partial-count accessibility, out-of-order month requests, failed refresh clearing, and hidden-tab loading.
 - Hosted staging agenda queries passed with synthetic task due dates, completed-task exclusion and cross-account isolation. All synthetic users/records were cleaned. No hosted scheduling mutations or authenticated-device test are claimed.
-- The 0.1.9 build running from workspace checkpoint 5228fa3 does not import this follow-up component. Integration and another verified binary are still required.
+- The 0.1.9 build running from workspace checkpoint 5228fa3 does not import this follow-up component. The Day tab is now integrated in follow-up source; another verified binary is still required.
