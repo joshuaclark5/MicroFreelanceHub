@@ -1,0 +1,33 @@
+const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict'),ts=require('../mobile/node_modules/typescript');
+function moduleAt(file,imports={}){const exports={};vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,{exports,require:n=>imports[n],Date,Error,Set,Map,BigInt});return exports;}
+const shared=moduleAt('app/lib/workspaceInvoices.ts'),presentation=moduleAt('app/lib/workspacePresentation.ts');
+const lib=moduleAt('mobile/src/invoiceData.ts',{'../../app/lib/workspaceInvoices':shared,'../../app/lib/workspacePresentation':presentation});
+const actor='11111111-1111-4111-8111-111111111111',other='22222222-2222-4222-8222-222222222222',client='33333333-3333-4333-8333-333333333333',operation='44444444-4444-4444-8444-444444444444',id='55555555-5555-4555-8555-555555555555';
+const form={...lib.freshInvoice(new Date('2026-11-25T12:00:00Z')),clientId:client,seller:'Fictional seller',lines:[{description:'Design',quantity:'3',price:'12.50'}]};
+let signedIn=actor,rows=[],countOverride,readHook=()=>{},writes=0,lose=false,badReceipt=false,lastFields='',lastFilters=[],operations=new Map();
+const db={auth:{getUser:async()=>({data:{user:{id:signedIn}},error:null})},from(table){let after='',owner='',limit=101;const q={select(fields,opts){lastFields=fields;assert.equal(opts.count,'exact');return q;},eq(k,v){assert.equal(k,'owner_id');owner=v;lastFilters.push([k,v]);return q;},order(k,opts){assert.equal(k,'id');assert.equal(opts.ascending,true);return q;},limit(n){limit=n;return q;},gt(k,v){assert.equal(k,'id');after=v;return q;},then(resolve,reject){return Promise.resolve().then(()=>{const found=rows.filter(r=>r.id>after);readHook();return {data:found.slice(0,limit),count:countOverride===undefined?found.length:countOverride,error:null};}).then(resolve,reject);}};return q;},async rpc(name,{p}){
+ assert.equal(name,'workspace_invoice_mutate');assert.equal(p.expectedActorId,signedIn);writes++;
+ const old=operations.get(p.operationId);if(old&&JSON.stringify(old.request)!==JSON.stringify(p))return {data:null,error:{code:'40001'}};
+ const receipt=old?.receipt||{id,owner_id:actor,client_id:p.document.clientId,project_id:p.document.projectId,version:1,status:'draft',number:null,snapshot:null,total_minor:shared.totalMinor(p.document),document:JSON.parse(JSON.stringify(p.document))};
+ operations.set(p.operationId,{request:JSON.parse(JSON.stringify(p)),receipt});
+ if(lose){lose=false;throw Error('response lost after commit');}
+ return {data:badReceipt?{...receipt,total_minor:receipt.total_minor+1}:receipt,error:null};
+}};
+(async()=>{
+ const op=lib.prepareInvoiceDraft(actor,operation,form);assert.equal(op.document.lines[0].unitMinor,1250);assert.equal(shared.totalMinor(op.document),3750);assert.ok(Object.isFrozen(op)&&Object.isFrozen(op.document.lines[0]));
+ form.lines[0].price='99.00';assert.equal(op.document.lines[0].unitMinor,1250,'Reviewed object detached from mutable form');
+ for(const [currency,price,minor] of [['JPY','125',125],['KWD','12.345',12345],['USD','0.01',1]])assert.equal(lib.prepareInvoiceDraft(actor,operation,{...form,currency,lines:[{description:'x',quantity:'1',price}]}).document.lines[0].unitMinor,minor);
+ for(const invalid of [{currency:'JPY',lines:[{description:'x',quantity:'1',price:'1.2'}]},{lines:[{description:'x',quantity:'1.5',price:'12'}]},{lines:[{description:'x',quantity:'1',price:'-1'}]},{lines:[{description:'x',quantity:'10001',price:'1'}]},{lines:[{description:'x',quantity:'10000',price:'1000000'}]},{dueDate:'2026-02-30'},{dueDate:'2026-01-01'},{clientId:other,owner_id:other}])assert.throws(()=>lib.prepareInvoiceDraft(actor,operation,{...form,...invalid}));
+ lose=true;await assert.rejects(()=>lib.createInvoiceDraft(db,op));assert.equal(operations.size,1);const receipt=await lib.createInvoiceDraft(db,op);assert.equal(receipt.id,id);assert.equal(operations.size,1,'Same operation recovers single saved draft');
+ badReceipt=true;await assert.rejects(()=>lib.createInvoiceDraft(db,op),/not confirmed/);badReceipt=false;
+ signedIn=other;const before=writes;await assert.rejects(()=>lib.createInvoiceDraft(db,op),/account/);assert.equal(writes,before);signedIn=actor;
+ rows=[receipt];assert.equal((await lib.loadInvoices(db,actor)).rows.length,1);assert.ok(lastFilters.some(([k,v])=>k==='owner_id'&&v===actor));
+ rows=[{...receipt,owner_id:other}];await assert.rejects(()=>lib.loadInvoices(db,actor));rows=[receipt];readHook=()=>signedIn=other;await assert.rejects(()=>lib.loadInvoices(db,actor),/account/);readHook=()=>{};signedIn=actor;
+ rows=Array.from({length:101},(_,i)=>({...receipt,id:'00000000-0000-4000-8000-'+String(i+1).padStart(12,'0')}));const first=await lib.loadInvoices(db,actor);assert.equal(first.rows.length,100);const last=await lib.loadInvoices(db,actor,first.next);assert.equal(last.rows.length,1);assert.equal(last.next,null);
+ countOverride=null;await assert.rejects(()=>lib.loadInvoices(db,actor));countOverride=200;rows=[receipt];await assert.rejects(()=>lib.loadInvoices(db,actor));countOverride=undefined;rows=[receipt,receipt];await assert.rejects(()=>lib.loadInvoices(db,actor));
+ rows=[{id:client,owner_id:actor,name:'Client'}];assert.equal((await lib.loadInvoiceRefs(db,actor,'clients')).rows[0].name,'Client');assert.equal(lastFields,'id,owner_id,name','Do not load unnecessary contact notes');
+ const issued={...receipt,status:'issued',version:2,number:1,snapshot:{...receipt.document,clientSnapshot:{name:'Original client',email:''},totalMinor:3750,number:1,issuedAt:'2026-11-25T17:00:00+00:00'}};
+ assert.equal(lib.validInvoice(issued,actor),true);assert.equal(lib.validInvoice({...issued,status:'void',version:3},actor),true);assert.equal(lib.validInvoice({...issued,snapshot:{...issued.snapshot,totalMinor:3751}},actor),false);assert.equal(lib.validInvoice({...issued,snapshot:{...issued.snapshot,seller:'Different seller'}},actor),false);assert.equal(lib.validInvoice({...issued,snapshot:{...issued.snapshot,clientSnapshot:null}},actor),false);
+ assert.ok(!/legal protection|guaranteed payment|legally binding|enforceable contract|limit liability|prevent lawsuits/i.test(lib.invoiceText('legal protection, guaranteed payment, legally binding, enforceable contract, limit liability, prevent lawsuits')));
+ console.log('PASS native invoices: reviewed immutable payload, exact USD/JPY/KWD conversion, bounds/dates, durable retry receipt, account fences, pagination completeness, minimal refs, issued/void snapshot validation and neutral stored copy. Fixture-only; no remote writes.');
+})().catch(e=>{console.error(e);process.exitCode=1;});

@@ -14,6 +14,8 @@ mods['./src/workflow'].manualTime=(actor,id,project,minutes,note)=>({expectedAct
 mods['./src/workflow'].saveTime=async(_db,payload)=>{saves.push({...payload});if(saveMode==='fail')throw Error('Save was not confirmed');if(saveMode==='deferred')await new Promise(resolve=>finishSave=resolve);};
 const normalLoad=mods['./src/workflow'].loadWork;mods['./src/workflow'].loadWork=async()=>{if(refreshFails)throw Error('Offline');return normalLoad();};
 native.Alert={alert:(...args)=>alerts.push(args)};
+mods['./src/NativeInvoices']=props=>({type:'InvoicesFixture',props,children:[]});
+let signOutCalls=0;db.auth.signOut=async()=>{signOutCalls++;return {error:null};};
 const exportsObject={};const source=fs.readFileSync('mobile/App.tsx','utf8')+'\nexport {Workspace};';
 vm.runInNewContext(ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,target:ts.ScriptTarget.ES2020,esModuleInterop:true}}).outputText,{exports:exportsObject,require:n=>mods[n]||{},process:{env:{}},Date,Number,Error});
 function render(){cursor=0;const tree=exportsObject.Workspace({db});while(effects.length)effects.shift()();return tree;}
@@ -31,7 +33,9 @@ function button(tree,label){return all(tree).find(n=>n.type==='Pressable'&&words
  press(tree,'Sign out');assert.equal(alerts.at(-1)[0],'A save is still uncertain');assert.equal(saves.length,1);
  press(tree,'Home');tree=render();assert.ok(words(tree).includes('retry the same save'));press(tree,'Time');tree=render();
  saveMode='success';refreshFails=true;press(tree,'Retry the same entry');await settle();tree=render();assert.equal(saves.length,2);assert.deepEqual(saves[1],saves[0],'retry must preserve entire reviewed payload');assert.ok(words(tree).includes('Time saved. Refresh to see your latest entries; do not submit it again.'));assert.ok(!button(tree,'Retry the same entry'));assert.equal(all(tree).find(n=>n.props.accessibilityLabel==='Minutes worked').props.value,'');
- refreshFails=false;press(tree,'Refresh');await settle();tree=render();input(tree,'Minutes worked','10');tree=render();press(tree,'Review time entry');tree=render();saveMode='deferred';press(tree,'Confirm and save time');await settle();assert.equal(saves.length,3);
+ refreshFails=false;press(tree,'Refresh projects & time');await settle();tree=render();input(tree,'Minutes worked','10');tree=render();press(tree,'Review time entry');tree=render();saveMode='deferred';press(tree,'Confirm and save time');await settle();assert.equal(saves.length,3);
  authChange('SIGNED_IN',{user:{id:'owner-b'}});render();await settle();finishSave();await settle();tree=render();assert.ok(!words(tree).includes('Time saved.'),'old account receipt must not report in new session');press(tree,'Time');tree=render();assert.equal(all(tree).find(n=>n.props.accessibilityLabel==='Minutes worked').props.value,'');assert.ok(!button(tree,'Retry the same entry'));assert.equal(saves.length,3);
+ press(tree,'Invoices');tree=render();all(tree).find(n=>n.type==='InvoicesFixture').props.onDirtyChange(true);press(tree,'Home');tree=render();press(tree,'Sign out');assert.equal(alerts.at(-1)[0],'Leave workspace changes?');assert.ok(alerts.at(-1)[1].includes('invoice'));assert.equal(signOutCalls,0);
+ const staleSignOut=alerts.at(-1)[2].find(b=>b.text==='Sign out anyway').onPress;authChange('SIGNED_IN',{user:{id:'owner-c'}});render();await settle();staleSignOut();await settle();assert.equal(signOutCalls,0,'Invoice warning from old account cannot sign out newer account');
  console.log('PASS mocked native save lifecycle: rapid double press, stable retry payload, uncertain sign-out warning, navigation preservation, saved-but-refresh-failed recovery, account-switch receipt suppression. No network or customer writes.');
 })().catch(e=>{console.error(e);process.exitCode=1;});

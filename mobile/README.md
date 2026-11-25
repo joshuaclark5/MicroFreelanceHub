@@ -1,12 +1,18 @@
 # Current distribution status (2026-11-25)
 
-Android 0.1.8/code 9 is active on Google Play **internal testing**, not the public production store. The owner tester list includes the two authorized testers. Internal opt-in link: https://play.google.com/apps/internaltest/4700622245370655267. Production access still requires Google's account-specific closed-testing and review gates; internal testing does not satisfy the closed-test clock.
+Android **0.1.9/code 10** was verified active on Google Play **internal testing** at 17:28 UTC on November 25. It is not a public production release. The existing two-person tester list is unchanged. [Install/update](https://play.google.com/apps/internaltest/4700622245370655267). Tester-device installation of the Play-delivered binary was not verified; propagation can take an hour or longer.
 
-Android 0.1.6/code 7 remains the separate early direct-download prerelease: https://github.com/joshuaclark5/MicroFreelanceHub/releases/tag/android-v0.1.6-test.1
+The released build includes native clients, pipeline stages, projects, tasks and the read-only Day agenda. Signed-in Work/Day/save/session restoration passed on an isolated staging variant; sign-out source/mock/storage checks passed. Final on-device sign-out remains unverified because the low-memory emulator froze, as disclosed in the internal release notes. Private release evidence: `C:/Users/joshu/mfh-overnight-evidence-20261125/ANDROID_019_PLAY_RELEASE_RECEIPT.json`.
 
-Current source is the local 0.1.9/code 10 native workspace candidate. Clients, pipeline stages, projects and tasks use the existing owner-scoped backend with versioned writes and same-operation recovery. Drafts remain memory-only. Native calendar/agenda follow-up is under development, not part of the published internal release. See `docs/strategy/MOBILE_WEBSITE_PARITY.md` for the complete gap ledger.
+Published source: `2a94f2a7eff782fcb0a1d4c423a47f867c20a588`. AAB SHA256: `823a5dfb3862155e7f47041dd9852c84e6ab8eb2fe3071dfaa82e3de92085a90`. Prior 0.1.8 artifacts are preserved; its internal release was replaced. Later source changes are **not included** in this binary. Keep the preserved artifact untouched and increment version/code before any future release.
 
-`EXPO_PUBLIC_DISTRIBUTION=play` omits website purchase-path shortcuts. `scripts/build-android-play-candidate.cjs` enforces that mode and reuses existing private signing custody; it does not upload anything. Signed-package audit and device verification are separate gates from TypeScript, JS export and fixture tests. The existing 0.1.8 release is preserved until a replacement is verified.
+Native invoices and iOS readiness are the next source-development slice, not a new released version. See `docs/strategy/MOBILE_WEBSITE_PARITY.md`. iOS has no verified signed build, device acceptance or TestFlight release. JavaScript export is not native compilation.
+
+`EXPO_PUBLIC_DISTRIBUTION=play` (Android) or `appstore` (iOS) suppresses website purchase-path shortcuts. Explicit store mode is not store-policy certification. `scripts/export-ios-readiness.cjs` performs only local iOS JavaScript bundling with one Metro worker; no paid builds, signing, uploads or backend mutations. Apple login/deletion and signing/account prerequisites remain separate gates.
+
+The existing `scripts/build-android-play-candidate.cjs` is frozen to the **old 0.1.9/code10** candidate and private signing custody. Do not run it for newer source: next-release version/artifact handling must first be updated so the already-released package cannot be overwritten.
+
+Android 0.1.6/code7 remains an older direct-download prerelease, not the current internal test: https://github.com/joshuaclark5/MicroFreelanceHub/releases/tag/android-v0.1.6-test.1
 
 The account-request address is the user-confirmed monitored `admin@microfreelancehub.com`. Native request controls open an email draft; they do not complete deletion or subscription cancellation. Automatic assistant mailbox monitoring is not claimed.
 
