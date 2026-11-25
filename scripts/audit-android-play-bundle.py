@@ -1,4 +1,4 @@
-import zipfile, json, re, base64, hashlib, subprocess
+import zipfile, json, re, base64, hashlib, subprocess, sys
 from pathlib import Path
 apk=Path('mobile/android/app/build/outputs/apk/release/app-release.apk')
 config=json.loads(Path('mobile/app.json').read_text())['expo']
@@ -22,6 +22,9 @@ with zipfile.ZipFile(apk) as z:
     assert b'support@microfreelancehub.com' not in bundle, 'Unverified support address remains'
     for marker in [b'Retry same operation', b'Clients, projects & tasks', b'Record completeness could not be verified']:
         assert marker in bundle, 'Native workspace implementation missing'
+    agenda_present=all(marker in bundle for marker in [b'Plan your day', b'Calendar & due next', b'Agenda could not be verified'])
+    if '--require-agenda' in sys.argv:
+        assert agenda_present, 'Native agenda is missing; this is the earlier workspace-only binary'
     roles=[]
     for token in re.findall(rb'eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+', bundle):
         try:
@@ -38,7 +41,7 @@ with zipfile.ZipFile(apk) as z:
     assert any(n.startswith('lib/arm64-v8a/') for n in names)
     assert any(n.startswith('lib/x86_64/') for n in names)
     assert not any(n.endswith(('.jks','.keystore','.env.local','signing.json')) for n in names),'Private signing/config included'
-    report={'distribution':'play','webShortcutLabelsAbsent':True,'publicBackendVerified':True,'jwtRoles':sorted(set(roles)),'architectures':['arm64-v8a','x86_64'],'privateCredentialPatternsFound':False,'bundleSha256':hashlib.sha256(bundle).hexdigest()}
+    report={'distribution':'play','nativeAgendaPresent':agenda_present,'webShortcutLabelsAbsent':True,'publicBackendVerified':True,'jwtRoles':sorted(set(roles)),'architectures':['arm64-v8a','x86_64'],'privateCredentialPatternsFound':False,'bundleSha256':hashlib.sha256(bundle).hexdigest()}
 with zipfile.ZipFile('mobile/android/app/build/outputs/bundle/release/app-release.aab') as z:
     assert z.read('base/assets/index.android.bundle') == bundle, 'AAB and APK JavaScript differ'
     assert not any(n.endswith(('.jks','.keystore','.env.local','signing.json')) for n in z.namelist()), 'Private signing/config included in AAB'

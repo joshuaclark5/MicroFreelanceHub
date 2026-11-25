@@ -29,3 +29,5 @@ The subsequent build script adds a tracked-source hash and refuses a successful 
 
 ## Follow-up source (after first bundle generation)
 The Day tab now imports the native read-only month/day agenda and due-next tasks. Home/Time-only project statistics, refresh controls and time history no longer clutter Work/Day. Native tabs use compact spacing. Navigation regression tests verify that visiting Day preserves an unfinished time draft and does not expose website purchase shortcuts. This source requires another build; do not confuse it with the first workspace-only 0.1.9 artifact.
+
+For the integrated Day-tab candidate, run `python scripts/audit-android-play-bundle.py --require-agenda`. The default audit also supports the archived workspace-only candidate and reports `nativeAgendaPresent: false` for it; passing the default audit alone is not proof of the new Day tab.
