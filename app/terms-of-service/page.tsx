@@ -98,7 +98,7 @@ export default function TermsPage() {
 
         <section className="pt-8 border-t border-gray-200">
           <p className="text-gray-500 text-sm">
-            Contact us: support@microfreelancehub.com
+            Contact us: admin@microfreelancehub.com
           </p>
         </section>
 

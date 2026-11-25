@@ -1,6 +1,7 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
 import SchedulingCalendar from '../../../components/SchedulingCalendar';
+import CalendarDueNext from '../../../components/CalendarDueNext';
 import CalendarBookingLink from '../../../components/CalendarBookingLink';
 import WorkspaceNav from '../../../components/WorkspaceNav';
 import {SchedulingData,calendarMonthBounds} from '../../../lib/workspaceScheduling';
@@ -26,15 +27,17 @@ export default function CalendarPage(){
  useEffect(()=>{const now=new Date();setMonth(String(now.getFullYear())+'-'+String(now.getMonth()+1).padStart(2,'0'));},[]);
  useEffect(()=>{void refresh();return ()=>{generation.current++;};},[month]);
  function changeMonth(value:string){try{calendarMonthBounds(value);}catch(e){setError((e as Error).message);return;}if(value===month){void refresh();return;}setBusy(true);setError('');setData(null);generation.current++;setMonth(value);}
- return <div className="editorial-shell"><WorkspaceNav active="scheduling"/><main className="editorial-main">
+ return <div className="editorial-shell"><WorkspaceNav active="scheduling"/><main className="editorial-main calendar-page">
   <header className="editorial-header"><div><p className="editorial-eyebrow">YOUR WORKSPACE / CALENDAR</p><h1>Your day, in one place.</h1><p>Browse saved bookings and scheduled working-hour patterns. Select a day, then open its management controls.</p></div></header>
   <nav aria-label="Calendar actions" className="flex flex-wrap gap-4"><a href="/workspace/scheduling#availability">Set working hours</a><a href="/workspace/scheduling/public">Manage customer booking link</a><a href="/workspace/scheduling/time-off">View and manage time off</a><a href="/workspace/scheduling">Scheduling management</a></nav>
-  <CalendarBookingLink actorId={data?.actorId||''} disabled={busy||!!error||!data}/>
-  <p>Time off is listed separately. Open time off to review dates that block new bookings across your services.</p>
-  <label className="block">View month<input className="block rounded border p-2" type="month" min="1900-01" max="2199-12" value={month} onChange={e=>changeMonth(e.target.value)}/></label>
-  <button disabled={busy} onClick={()=>void refresh()}>{busy?'Loading calendar...':'Refresh calendar'}</button>
+  <div className="calendar-page-tools">
+   <label>View month<input type="month" min="1900-01" max="2199-12" value={month} onChange={e=>changeMonth(e.target.value)}/></label>
+   <button disabled={busy} onClick={()=>void refresh()}>{busy?'Loading calendar...':'Refresh calendar'}</button>
+   <details className="calendar-share-disclosure"><summary>Share your booking link</summary><CalendarBookingLink actorId={data?.actorId||''} disabled={busy||!!error||!data}/></details>
+  </div>
   {error&&<p role="alert">{error}</p>}
   {busy&&<p role="status">Loading private calendar records...</p>}
   <div hidden={busy||!!error||!data}><SchedulingCalendar bookings={data?.bookings||[]} availability={data?.availability||[]} managementPath="/workspace/scheduling" displayMonth={month} onMonthChange={changeMonth}/></div>
+  <CalendarDueNext key={data?.actorId||'none'} actorId={!busy&&!error?data?.actorId||'':''}/>
  </main></div>;
 }

@@ -7,6 +7,6 @@
 export async function deleteUserAccount() {
   return {
     success: false,
-    error: 'Self-service account deletion is temporarily unavailable. Contact support@microfreelancehub.com to request deletion. Manage your subscription separately in Settings > Billing & Subscription.',
+    error: 'Self-service account deletion is temporarily unavailable. Contact admin@microfreelancehub.com to request deletion. Manage your subscription separately in Settings > Billing & Subscription.',
   };
 }
