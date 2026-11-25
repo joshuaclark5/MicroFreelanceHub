@@ -12,7 +12,7 @@ export default function PrivacyPolicyPage() {
       <Navbar />
       <div className="public-design public-legal max-w-3xl mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>
-      <p className="text-gray-600 mb-8">Last updated: November 24, 2026</p>
+      <p className="text-gray-600 mb-8">Last updated: November 25, 2026</p>
 
       <div className="prose prose-blue max-w-none space-y-6 text-gray-700">
         <section>
@@ -36,6 +36,7 @@ export default function PrivacyPolicyPage() {
         <section>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">3. How We Use Your Information</h2>
           <p>We use this information to authenticate you, save and display your work, provide features you request, manage subscriptions, process payment-related events, deliver requested messages, respond to support requests, prevent abuse and understand how visitors find the service. Public or shared links make the information included in that link available to its intended recipients; only share content you have permission to share.</p>
+          <p>When you submit the Feedback form, we save your report, optional reply email and a report reference, then send the report to our support mailbox through Resend. A keyed, non-plaintext network identifier helps limit spam. The form does not automatically attach your current page address or account details. Do not include passwords, private links, client information or payment details. An email-service acceptance notice is not confirmation that the message reached our inbox. Contact admin@microfreelancehub.com with the report reference for follow-up or a deletion request.</p>
         </section>
 
         <section id="google-data">

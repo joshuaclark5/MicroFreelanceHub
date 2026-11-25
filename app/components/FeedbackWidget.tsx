@@ -1,106 +1,48 @@
 'use client';
+import {useEffect,useRef,useState} from 'react';
+import {MessageSquare,X,Send} from 'lucide-react';
+import {feedbackRecipient} from '../lib/feedbackReport';
 
-import { useState } from 'react';
-import { usePathname } from 'next/navigation';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { MessageSquare, X, Send } from 'lucide-react'; 
-
-export default function FeedbackWidget() {
-  const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
-  const [message, setMessage] = useState('');
-  const [email, setEmail] = useState('');
-  const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(false);
-  
-  const supabase = createClientComponentClient();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!message.trim()) return;
-
-    setSending(true);
-    
-    const { error } = await supabase.from('feedback').insert({
-      message,
-      email,
-      page_url: window.location.pathname
-    });
-
-    setSending(false);
-
-    if (!error) {
-      setSent(true);
-      setTimeout(() => {
-        setSent(false);
-        setIsOpen(false);
-        setMessage('');
-        setEmail('');
-      }, 2000);
-    } else {
-      alert('Failed to send. Please try again.');
-    }
-  };
-
-  return (
-    // 👇 UPDATED CSS: 'bottom-20' on mobile prevents covering the Save button
-    <div className="relative mx-auto w-full max-w-7xl px-4 py-6 flex flex-col items-end">
-      
-      {/* THE FORM BOX */}
-      {isOpen && (
-        <div className="mb-4 w-72 max-w-full bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-          <div className="bg-black p-3 flex justify-between items-center text-white">
-            <span className="font-bold text-sm">Send Feedback</span>
-            <button aria-label="Close feedback" onClick={() => setIsOpen(false)} className="h-11 w-11 flex items-center justify-center hover:text-gray-300">
-              <X size={16} />
-            </button>
-          </div>
-          
-          {sent ? (
-            <div className="p-8 text-center text-green-600 font-bold bg-green-50">
-              Message received! ⚡
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="p-4 space-y-3">
-              <textarea
-                aria-label="Feedback message"
-                className="w-full text-sm p-2 border border-gray-300 rounded-md focus:outline-none focus:border-black resize-none"
-                rows={3}
-                placeholder="Found a bug? Have an idea?"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                required
-              />
-              <input 
-                aria-label="Email (optional)"
-                type="email"
-                placeholder="Email (optional)"
-                className="w-full text-sm p-2 border border-gray-300 rounded-md focus:outline-none focus:border-black"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <button 
-                disabled={sending}
-                className="w-full bg-black text-white text-sm font-bold py-2 rounded-md hover:bg-gray-800 flex justify-center items-center gap-2"
-              >
-                {sending ? 'Sending...' : <><Send size={14} /> Send Feedback</>}
-              </button>
-            </form>
-          )}
-        </div>
-      )}
-
-      {/* THE FLOATING BUTTON */}
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        aria-label={isOpen ? 'Close feedback' : 'Send feedback'}
-        aria-expanded={isOpen}
-        title={isOpen ? 'Close feedback' : 'Send feedback'}
-        className="min-h-11 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-800 hover:bg-gray-100 flex items-center justify-center gap-2"
-      >
-        {isOpen ? <X size={18} /> : <MessageSquare size={18} />} Feedback
-      </button>
-
-    </div>
-  );
+type Report={id:string;message:string;email:string;consent:true;website:string};
+export default function FeedbackWidget(){
+ const [open,setOpen]=useState(false),[message,setMessage]=useState(''),[email,setEmail]=useState(''),[consent,setConsent]=useState(false),[website,setWebsite]=useState('');
+ const [busy,setBusy]=useState(false),[feedback,setFeedback]=useState(''),[pending,setPending]=useState<Report|null>(null),[accepted,setAccepted]=useState(false);
+ const inflight=useRef(false),textarea=useRef<HTMLTextAreaElement>(null);
+ useEffect(()=>{if(!message.trim()||accepted)return;const warn=(e:BeforeUnloadEvent)=>{e.preventDefault();e.returnValue='';};window.addEventListener('beforeunload',warn);return()=>window.removeEventListener('beforeunload',warn);},[message,accepted]);
+ useEffect(()=>{if(open)textarea.current?.focus();},[open]);
+ async function submit(e:React.FormEvent){
+  e.preventDefault();if(inflight.current||accepted)return;
+  const report=pending||{id:crypto.randomUUID(),message:message.trim(),email:email.trim(),consent:true as const,website};
+  inflight.current=true;setBusy(true);setPending(report);setFeedback('Sending your report...');
+  try{
+   const response=await fetch('/api/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(report)}),body=await response.json();
+   if(response.ok&&(body.id!==report.id||!['accepted','unknown','failed'].includes(body.status)))throw Error('receipt');
+   if(!response.ok){if(response.status===400)setPending(null);setFeedback(body.error||'Email could not be confirmed. Keep this report and check its status.');return;}
+   if(body.status==='accepted'){setAccepted(true);setFeedback('The email service accepted your report for admin@microfreelancehub.com. Inbox delivery is not yet confirmed. Thank you for helping us improve.');}
+   else if(body.status==='failed')setFeedback('Your report is saved, but the email service did not accept it. Please contact admin@microfreelancehub.com with the reference below. Do not send the full report again.');
+   else setFeedback((body.saved?'Your report is saved. ':'')+'Email status is not confirmed. Check this same report below; we will not send a duplicate. If it stays unconfirmed, contact admin@microfreelancehub.com with the reference.');
+  }catch{setFeedback('The connection ended before confirmation. Keep this report and check the same report below. Do not start another copy.');}
+  finally{inflight.current=false;setBusy(false);}
+ }
+ return <div className="relative mx-auto flex w-full max-w-7xl flex-col items-end px-4 py-6">
+  {open&&<section id="feedback-panel" aria-labelledby="feedback-title" className="mb-4 w-96 max-w-full overflow-hidden rounded-2xl border border-emerald-200 bg-white shadow-lg">
+   <div className="flex items-center justify-between bg-emerald-950 p-4 text-white"><h2 id="feedback-title" className="font-semibold">Report an issue or share an idea</h2><button type="button" aria-label="Close feedback; keep draft" onClick={()=>setOpen(false)} className="flex h-11 w-11 shrink-0 items-center justify-center"><X size={18}/></button></div>
+   <form onSubmit={submit} className="space-y-3 p-4">
+    <p className="text-sm leading-6">Email the team at <a className="break-all underline" href={'mailto:'+feedbackRecipient}>{feedbackRecipient}</a>. This is not live chat.</p>
+    <label className="block text-sm font-semibold" htmlFor="feedback-message">What happened, or what would help?</label>
+    <p id="feedback-privacy" className="text-xs leading-5 text-slate-600">Do not include passwords, payment details, private links or client information. No page address is attached automatically.</p>
+    <textarea ref={textarea} id="feedback-message" aria-describedby="feedback-privacy" disabled={!!pending} value={message} onChange={e=>setMessage(e.target.value)} maxLength={2000} rows={5} required placeholder="Tell us what you expected and what happened instead." className="w-full rounded-lg border border-slate-300 p-3 text-sm disabled:bg-slate-50"/>
+    <label className="block text-sm font-semibold" htmlFor="feedback-email">Your email (optional, for a reply)</label>
+    <input id="feedback-email" type="email" maxLength={254} disabled={!!pending} value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email" className="w-full rounded-lg border border-slate-300 p-3 text-sm disabled:bg-slate-50"/>
+    <label className="hidden" aria-hidden="true">Website<input tabIndex={-1} autoComplete="off" value={website} onChange={e=>setWebsite(e.target.value)}/></label>
+    <label className="flex items-start gap-3 text-sm leading-6"><input className="mt-1 h-5 w-5 shrink-0" type="checkbox" required disabled={!!pending} checked={consent} onChange={e=>setConsent(e.target.checked)}/>I reviewed this report and want to email it to the team.</label>
+    <p role="status" className="text-sm leading-6">{feedback}</p>
+    {pending&&<p className="break-all rounded-lg bg-slate-50 p-3 text-xs">Report reference: {pending.id}. Keep this reference for follow-up.</p>}
+    {!accepted&&<button disabled={busy||!consent||!message.trim()} className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-emerald-950 px-3 py-3 text-sm font-semibold text-white disabled:opacity-50"><Send size={16}/>{busy?'Checking...':pending?'Check / retry this same report':'Email report'}</button>}
+    {accepted&&<button type="button" onClick={()=>{setMessage('');setEmail('');setPending(null);setAccepted(false);setConsent(false);setFeedback('');textarea.current?.focus();}} className="min-h-11 rounded-lg border border-emerald-900 px-4 py-3 text-sm">Start a different report</button>}
+    <p className="text-xs leading-5 text-slate-600">Unsent drafts stay in this tab only. Closing this panel keeps them; leaving the page can lose them. A support response time has not been established.</p>
+   </form>
+  </section>}
+  <button type="button" onClick={()=>setOpen(!open)} aria-expanded={open} aria-controls="feedback-panel" className="flex min-h-11 items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-800 hover:bg-gray-100">{open?<X size={18}/>:<MessageSquare size={18}/>}Feedback</button>
+ </div>;
 }
