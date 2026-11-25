@@ -35,3 +35,14 @@ Dependency install completed successfully; mobile TypeScript passed. Native stor
 
 ## Secure-session integration follow-up
 The local App now uses the SecureStore adapter, a session preflight/restore gate, process-wide auth lock and safe retry UI. Workspace waits for its auth callback before showing sign-in, avoiding a returning-account flash of signup. Startup tests cover new/returning sessions, locked storage, auth failure and a pending restore. OAuth, session-scoped feedback and Home navigation regressions pass. Mobile TypeScript passes. Actual native storage/restart/offline/sign-out and visual device testing remain unverified; time drafts and pending operations remain memory-only. Earlier statements that App was memory-only describe the earlier candidate only.
+
+## Expedited candidate update (2026-11-25 UTC)
+- Version0.1.4/code5, production package com.microfreelancehub.mobile; Play Console reported Package name available. This is a check, not reservation or app creation.
+- Encrypted session restore is wired and code tests pass. Calendar/time-off is now live on the website from PR36; this Android candidate links to web calendar and booking settings.
+- Dedicated private upload key created; signed APK/AAB build running. Emulator and API35 image preparation underway. No installed-device or store-release claim yet.
+- First candidate is for explicitly labeled early testing, not complete native feature parity. Native time drafts/uncertain-operation IDs remain in memory. See mobile/TESTER_GUIDE.md.
+- Official deletion FAQ reviewed https://support.google.com/googleplay/android-developer/answer/13327111?hl=en. A support-email/form deletion-request pathway can meet the web-resource option; fully automated deletion is not the only permitted design. Do not claim the temporary self-service hold automatically makes all publication impossible. However, the app still needs a prominent working deletion-request pathway, privacy access and truthful data/retention declarations; operational fulfillment must be real. External signup counts as account creation under this policy.
+- Play create form remains unsubmitted; policy, signing and export declarations not accepted. External digital subscription links still need Payments-policy review. No closed-testing opt-in URL exists.
+
+### Local tool note
+The installed 2026 sdkmanager.bat is a shim over Android CLI. Its package loop splits semicolon paths; use slash paths such as system-images/android-35/google_apis/x86_64 for installation. Java avdmanager remains a different tool and uses the installed package ID. Check actual package.xml and exit receipts rather than treating a downloaded emulator as an installed system image.
