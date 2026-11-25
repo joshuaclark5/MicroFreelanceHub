@@ -28,9 +28,9 @@ These are local fixture/source checks, not an authenticated phone or hosted invo
 ## Remaining gates and parity
 
 1. Independent source review and iOS/Android JavaScript exports passed. Signed store build/device checks are separate gates.
-2. Actual staging invoice RPC/read/RLS acceptance with controlled synthetic records and cleanup; authoritative database behavior is established by existing invoice SQL tests, not newly claimed hosted acceptance here.
+2. Hosted acceptance remains incomplete: actual mobile-SDK staging reads, exact USD save and identical-operation recovery passed, but changed-body rejection delivery timed out. All synthetic records/accounts were removed and absence verified. See `NATIVE_INVOICES_HOSTED_ACCEPTANCE.md`; later currency, isolation and unauthorized-write groups were not reached. Staging/production function bodies match source, but this does not substitute for completed hosted acceptance.
 3. Android/iPhone layout, keyboard, long lists, screen-reader checks and signed-in device acceptance; list ordering is UUID pagination, not a chronological sorting promise.
-4. Update Android/iOS privacy inventories for native invoice documents before releasing this candidate.
+4. Android/iOS invoice source inventory completed and independently reviewed in `NATIVE_INVOICES_PRIVACY_REVIEW.md` and the Android inventory addendum. Public policy, final-artifact behavior and applicable store declarations still need reconciliation before release; the proposed policy copy is not published.
 5. Signed replacement build/version, tester deployment and exact release receipt. Existing 0.1.9 remains published until a separately verified release.
 6. Native draft editing/deletion, reviewed issue/void, audit/history, recurring templates, allowance records, downloads and separately implemented payment integrations remain absent. Invoice records themselves do not send messages, collect money or calculate tax/discounts.
 7. Draft/retry identity remains memory-only; app termination/sign-out loses it. UI warns users to check saved invoices before creating another after an unconfirmed operation.

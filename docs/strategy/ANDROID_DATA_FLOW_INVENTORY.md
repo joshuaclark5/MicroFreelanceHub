@@ -1,6 +1,6 @@
 # Android data-flow inventory for Play review
 
-Updated 2026-11-25 for the integrated 0.1.9/code10 Play candidate source. This is evidence for reviewing store disclosures, NOT a submitted Data Safety declaration or a policy-approval claim. The earlier archived 0.1.9 binary is workspace-only; a new integrated binary and authenticated-device checks remain required.
+Updated 2026-11-25. The integrated Work/Day release **0.1.9/code10 is active for internal testers** per the preserved Play release receipt. The table below describes that baseline; the separate invoice addendum describes newer, unreleased source. This is evidence for reviewing store disclosures, NOT a submitted Data Safety declaration or a policy-approval claim. Do not apply candidate claims to the released binary.
 
 ## Distribution and current support scope
 
@@ -27,7 +27,7 @@ Play mode omits website signup/recovery, project/workspace shortcuts and the gen
 
 ## Source permissions and dependencies
 
-No new native dependency or Android permission is introduced for Work or Day. These features use Supabase records already associated with the signed-in account. They do not request the device Contacts or Calendar permission. No native payment, invoice, subscription purchase, camera or media-picker flow is added in this candidate.
+No new native dependency or Android permission was introduced for Work or Day. These features use Supabase records already associated with the signed-in account. They do not request the device Contacts or Calendar permission. No native payment, invoice, subscription purchase, camera or media-picker flow was added to the released 0.1.9 baseline. The newer invoice source is described separately below.
 
 The previously inspected source manifest requests INTERNET and VIBRATE and explicitly removes external-storage read/write, overlay and microphone permissions. Verify the newly built merged APK rather than inferring final permissions from source. No location/camera/contact access or analytics SDK calls were found in the earlier bounded app-owned scan. This is NOT proof that SDKs/providers collect no diagnostics, IP addresses or other technical data.
 
@@ -41,3 +41,15 @@ Expo update metadata is disabled in the existing native manifest. SecureStore us
 - Keep listing and screenshots consistent with the exact integrated binary; do not advertise native booking changes, external calendar sync, invoice/payment/signature flows or full website parity.
 - Preserve public privacy/request access and monitored-contact handling. A prior successful inbox check does not prove fulfillment of future requests.
 - Current Console declarations, final integrated artifact behavior, authenticated device workflows and reviewer access remain separate verification steps. No forms or operational policies were changed by this document.
+
+## Unreleased native invoice addendum
+
+Candidate source: `d9d885494b4c95ab3ea8448d8ac220937286dafb`. The following is a source inventory shared by Android and the iOS JavaScript candidate, not a signed artifact inspection, submitted Apple privacy label, or Play Data Safety answer. Play 0.1.9 does not contain this workflow. See `NATIVE_INVOICES_PRIVACY_REVIEW.md` for exact fields, proposed public copy and remaining disclosure gates.
+
+- The Invoices tab reads account-owned saved invoice documents, amounts, dates, status/version/number and issued snapshots. A saved snapshot includes client name **and email**, even though the current detail view does not display the email. Do not confuse minimized client/project selectors with the complete invoice response.
+- Reference selectors fetch client/project names, IDs and ownership/relationship IDs only; they do not fetch current client email, phone or notes.
+- Reviewed draft creation sends seller details, client/project references, currency, dates, line descriptions/quantities/prices and optional memo through the existing authenticated Supabase invoice RPC. Seller/details/memo may contain personal or business information.
+- Unsaved invoice forms, reviewed payloads and uncertain-save operation IDs remain in app memory across tab changes, not in a durable offline queue. A successful save stores the draft and server deduplication receipt remotely. Leaving the app does not delete those saved records.
+- No invoice email, payment, bank/card entry, tax calculation, invoice editing/issuing/voiding, document download or extra device permission is introduced by this bounded native workflow.
+- Account-linked invoice content and transaction-related amounts need review under each store's current definitions; this inventory does not assume that absence of card collection means absence of financial information. Provider processing/sharing, purposes, retention and deletion semantics need the same review.
+- Public privacy wording, exact replacement artifact/network behavior and applicable Console/App Store answers must be reconciled before release. No store declarations or public policies were changed in this addendum.
