@@ -40,7 +40,7 @@ export default function SupportHandoff({ request }: { request?: {topic: SupportT
   async function copy() {
     const request = ++revision.current;
     try {
-      await navigator.clipboard.writeText(`To: support@microfreelancehub.com\nSubject: ${draft.subject}\n\n${draft.body}`);
+      await navigator.clipboard.writeText(`To: admin@microfreelancehub.com\nSubject: ${draft.subject}\n\n${draft.body}`);
       if (request !== revision.current) return;
       setFeedback('Draft copied. Paste it into your email app, review it and send when ready. Nothing has been sent yet.');
     } catch {
@@ -52,7 +52,7 @@ export default function SupportHandoff({ request }: { request?: {topic: SupportT
   }
   return <section className="mt-10 rounded-2xl bg-emerald-50 p-6 sm:p-7" aria-labelledby="human-support">
     <h2 id="human-support" className="text-xl font-semibold">Need a person?</h2>
-    <p className="my-3 leading-7">Prepare an email for <a className="break-all font-semibold text-emerald-900 underline" href="mailto:support@microfreelancehub.com">support@microfreelancehub.com</a>. This form stays in this tab. It does not submit a ticket, send an email or save a draft after you leave. Your browser may warn before closing or reloading a tab with details entered, but cannot guarantee recovery. Copy anything you want to keep before leaving.</p>
+    <p className="my-3 leading-7">Prepare an email for <a className="break-all font-semibold text-emerald-900 underline" href="mailto:admin@microfreelancehub.com">admin@microfreelancehub.com</a>. This form stays in this tab. It does not submit a ticket, send an email or save a draft after you leave. Your browser may warn before closing or reloading a tab with details entered, but cannot guarantee recovery. Copy anything you want to keep before leaving.</p>
     <label htmlFor="support-topic" className="block font-semibold">What do you need help with?</label>
     <select id="support-topic" value={topic} onChange={e => {revision.current++; setConfirmClear(false); setTopic(e.target.value as SupportTopic); setFeedback('');}} className="my-3 w-full rounded-xl border border-slate-300 bg-white p-3">
       {supportTopics.map(t => <option key={t}>{t}</option>)}
@@ -71,8 +71,8 @@ export default function SupportHandoff({ request }: { request?: {topic: SupportT
       range.selectNodeContents(text);
       selection.removeAllRanges();
       selection.addRange(range);
-      setFeedback('Draft text selected. Use your device’s Copy command, then paste into your email app. Nothing has been sent.');
-    }}>Select draft text</button><pre ref={previewText} tabIndex={-1} aria-label="Full email draft" className="whitespace-pre-wrap break-words font-sans text-sm leading-6">{`To: support@microfreelancehub.com\nSubject: ${draft.subject}\n\n${draft.body}`}</pre></details>
+      setFeedback('Draft text selected. Use your deviceÃ¢â‚¬â„¢s Copy command, then paste into your email app. Nothing has been sent.');
+    }}>Select draft text</button><pre ref={previewText} tabIndex={-1} aria-label="Full email draft" className="whitespace-pre-wrap break-words font-sans text-sm leading-6">{`To: admin@microfreelancehub.com\nSubject: ${draft.subject}\n\n${draft.body}`}</pre></details>
     {!draft.canOpenEmail && <p role="status" className="my-3 text-sm leading-6">This draft is too long for a reliable email link. Use Copy draft, or select the full preview and paste it into your email service. Your details have not been shortened.</p>}
     <div className="flex flex-wrap gap-3">
       {draft.canOpenEmail && <a href={draft.href} onClick={() => { revision.current++; setFeedback('Your email app may open a draft. Review it and press Send there. Opening this link does not confirm delivery.'); }} className="rounded-xl bg-emerald-900 px-4 py-3 font-semibold text-white">Open email draft</a>}
