@@ -43,6 +43,7 @@ function Workspace({db}:{db:SupabaseClient}) {
  const scroll=useRef<ScrollView>(null);
  const recordDraft=useRef(false);
  const [recordsRevision,setRecordsRevision]=useState(0);
+ const [openTasksRequest,setOpenTasksRequest]=useState(0);
  function navigate(next:'home'|'time'|'workspace'|'agenda'){setScreen(next);scroll.current?.scrollTo({y:0,animated:false});}
  const loadGate=useRef(createLoadGate());
  const [review,setReview]=useState<Record<string,unknown>|null>(null);
@@ -51,7 +52,7 @@ function Workspace({db}:{db:SupabaseClient}) {
   const {data:{subscription}}=db.auth.onAuthStateChange((_event,session)=>{
    const id=session?.user.id||null;
    setAuthReady(true);
-   if(id!==currentActor.current){generation.current++;loadGate.current.invalidate();setLoadState('loading');setLoadError('');setQuery('');setHasLoaded(false);setScreen('home');currentActor.current=id;recordDraft.current=false;setRecordsRevision(0);pending.current=null;setReview(null);setProjects([]);setEntries([]);setProjectId('');setMinutes('');setDescription('');setMessage('');setActor(id);}
+   if(id!==currentActor.current){generation.current++;loadGate.current.invalidate();setLoadState('loading');setLoadError('');setQuery('');setHasLoaded(false);setScreen('home');currentActor.current=id;recordDraft.current=false;setRecordsRevision(0);setOpenTasksRequest(0);pending.current=null;setReview(null);setProjects([]);setEntries([]);setProjectId('');setMinutes('');setDescription('');setMessage('');setActor(id);}
   });
   const state=AppState.addEventListener('change',value=>{if(value==='active')db.auth.startAutoRefresh();else db.auth.stopAutoRefresh();});
   return()=>{subscription.unsubscribe();state.remove();db.auth.stopAutoRefresh();};
@@ -144,8 +145,8 @@ function Workspace({db}:{db:SupabaseClient}) {
     {hasLoaded&&<><Text style={styles.subheading}>Active projects</Text>{projects.length===0?<Text style={styles.body}>{playCompanion?'No active projects yet. Open Work to add a client, pipeline stage and project.':'No active projects yet. Open Work to add a client, pipeline stage and project.'}</Text>:projects.slice(0,5).map(p=><View key={p.id} style={styles.project}><Text style={styles.label}>{p.name}</Text>{!playCompanion&&<Button title="Open project (website)" onPress={()=>void Linking.openURL('https://www.microfreelancehub.com/workspace/projects?project='+p.id).catch(()=>setMessage('Could not open this project in the browser.'))}/>}</View>)}{projects.length>5&&<Text style={styles.body}>Showing 5 of {projects.length}{truncated?'+':''} active projects. Open Time to search loaded projects.</Text>}</>}
     {!playCompanion&&<View style={styles.helpCard}><Text style={styles.subheading}>Explore your workspace</Text><Text style={styles.body}>These sections open in your browser and may need a separate sign-in.</Text>{[['Calendar & booking','/workspace/scheduling/calendar'],['Customer booking link','/workspace/scheduling/public'],['Workspace Home','/workspace'],['Customers & notes','/workspace/clients'],['Opportunities','/workspace/crm'],['Projects','/workspace/projects'],['Tasks','/workspace/tasks'],['Agreements','/dashboard'],['Invoices','/workspace/invoices']].map(([title,path])=><Button key={path} title={title+' (website)'} onPress={()=>void Linking.openURL('https://www.microfreelancehub.com'+path).catch(()=>setMessage('Could not open the browser. Visit microfreelancehub.com'+path+'.'))}/>)}</View>}
    </>}
-   <View style={screen!=='agenda'?{display:'none'}:undefined}><NativeAgenda key={actor} db={db} actor={actor} visible={screen==='agenda'} refreshKey={recordsRevision} onTasks={()=>navigate('workspace')}/></View>
-   <View style={screen!=='workspace'?{display:'none'}:undefined}><RecordWorkspace key={actor} db={db} actor={actor} onDirtyChange={dirty=>{recordDraft.current=dirty;}} onSaved={()=>{setRecordsRevision(value=>value+1);void refresh(actor).catch(()=>{});}}/></View>
+   <View style={screen!=='agenda'?{display:'none'}:undefined}><NativeAgenda key={actor} db={db} actor={actor} visible={screen==='agenda'} refreshKey={recordsRevision} onTasks={()=>{setOpenTasksRequest(value=>value+1);navigate('workspace');}}/></View>
+   <View style={screen!=='workspace'?{display:'none'}:undefined}><RecordWorkspace key={actor} db={db} actor={actor} openTasksRequest={openTasksRequest} onDirtyChange={dirty=>{recordDraft.current=dirty;}} onSaved={()=>{setRecordsRevision(value=>value+1);void refresh(actor).catch(()=>{});}}/></View>
    <View style={screen!=='time'?{display:'none'}:undefined}><Text style={styles.subheading}>Log completed time</Text><Text style={styles.body}>Record work ending now, up to 24 hours. Entries are nonbillable; no invoice or charge is created.</Text>
    {projects.length===0&&!pending.current?(loadState==='ready'?<Text style={styles.notice}>{playCompanion?'No active projects are available for time capture. Open Work to create a project, then refresh.':'No active projects are available. Create a client and project on the website, then refresh here.'}</Text>:null):<>
     <Text style={styles.label}>Choose a project</Text><TextInput accessibilityLabel="Search loaded projects" placeholder="Search loaded projects" value={query} onChangeText={setQuery} style={styles.input} maxLength={100}/>

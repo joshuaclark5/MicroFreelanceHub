@@ -10,13 +10,20 @@ const labels:Record<string,string>={name:'Name',email:'Email',phone:'Phone',note
 const empty=():Record<RecordSection,RecordPage>=>({clients:{rows:[],next:null},stages:{rows:[],next:null},projects:{rows:[],next:null},tasks:{rows:[],next:null}});
 const name=(r:WorkspaceRow)=>String(r.name||r.title||'Record');
 function Action({title,onPress,disabled=false}:{title:string;onPress:()=>void;disabled?:boolean}){return <Pressable accessibilityRole="button" accessibilityState={{disabled}} disabled={disabled} onPress={onPress} style={[s.button,disabled&&s.disabled]}><Text style={s.buttonText}>{title}</Text></Pressable>;}
-export default function RecordWorkspace({db,actor,onDirtyChange,onSaved}:{db:SupabaseClient;actor:string;onDirtyChange:(dirty:boolean)=>void;onSaved:()=>void}){
+export default function RecordWorkspace({db,actor,openTasksRequest=0,onDirtyChange,onSaved}:{db:SupabaseClient;actor:string;openTasksRequest?:number;onDirtyChange:(dirty:boolean)=>void;onSaved:()=>void}){
  const [section,setSection]=useState<RecordSection>('clients'),[data,setData]=useState(empty),[loading,setLoading]=useState(true),[loaded,setLoaded]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState(''),[query,setQuery]=useState('');
  const [form,setForm]=useState<Record<string,unknown>|null>(null),[editing,setEditing]=useState<WorkspaceRow|null>(null),[review,setReview]=useState<RecordOperation|null>(null),[pending,setPending]=useState<RecordOperation|null>(null),[busy,setBusy]=useState(false);
  const live=useRef(true),revision=useRef(0),writing=useRef(false);
+ const handledTasksRequest=useRef(0);
  const dirty=!!form||!!review||!!pending;
  useEffect(()=>{onDirtyChange(dirty);},[dirty,onDirtyChange]);
  useEffect(()=>{live.current=true;void refresh();return()=>{live.current=false;revision.current++;};},[db,actor]);
+ useEffect(()=>{
+  if(!openTasksRequest||openTasksRequest===handledTasksRequest.current||busy||writing.current)return;
+  handledTasksRequest.current=openTasksRequest;
+  // A Day shortcut must obey the same unsaved/uncertain-operation guard as tabs.
+  if(section!=='tasks')discard('tasks');
+ },[openTasksRequest,busy]);
  async function refresh(){
   const rev=++revision.current;setLoading(true);setError('');
   try{const pages=await Promise.all(recordSections.map(k=>loadRecordPage(db,k,actor)));if(!live.current||rev!==revision.current)return;setData(Object.fromEntries(recordSections.map((k,i)=>[k,pages[i]])) as Record<RecordSection,RecordPage>);setLoaded(true);}

@@ -1,7 +1,7 @@
 import React,{useEffect,useRef,useState} from 'react';
 import {ActivityIndicator,Pressable,StyleSheet,Text,View} from 'react-native';
 import type {SupabaseClient} from '@supabase/supabase-js';
-import {canonicalZone,daySummary,loadAgenda,localDay,type AgendaSnapshot} from './agendaData';
+import {appointmentTimeLabel,canonicalZone,daySummary,loadAgenda,localDay,type AgendaSnapshot} from './agendaData';
 const dateLabel=(day:string)=>new Intl.DateTimeFormat('en-US',{timeZone:'UTC',weekday:'long',month:'long',day:'numeric'}).format(new Date(day+'T12:00:00Z'));
 function Action({label,onPress,disabled=false}:{label:string;onPress:()=>void;disabled?:boolean}){return <Pressable accessibilityRole="button" accessibilityState={{disabled}} disabled={disabled} onPress={onPress} style={[s.action,disabled&&{opacity:0.5}]}><Text style={s.actionText}>{label}</Text></Pressable>;}
 export default function NativeAgenda({db,actor,visible,refreshKey=0,onTasks}:{db:SupabaseClient;actor:string;visible:boolean;refreshKey?:number;onTasks:()=>void}){
@@ -15,7 +15,6 @@ export default function NativeAgenda({db,actor,visible,refreshKey=0,onTasks}:{db
  const current=snapshot?.month===month?snapshot:null;
  const day=current?daySummary(current,selected,zone):null;
  const today=localDay(new Date().toISOString(),zone),[year,number]=month.split('-').map(Number),first=new Date(Date.UTC(year,number-1,1)),length=new Date(Date.UTC(year,number,0)).getUTCDate();
- const clock=(instant:string)=>new Intl.DateTimeFormat('en-US',{timeZone:zone,hour:'numeric',minute:'2-digit'}).format(new Date(instant));
  const minutes=(value:number)=>String(Math.floor(value/60)).padStart(2,'0')+':'+String(value%60).padStart(2,'0');
  const zones=[...new Set([zone,...(current?.availability.map(r=>r.timezone)||[])])];
  function move(offset:number){setSelected(new Date(Date.UTC(year,number-1+offset,1)).toISOString().slice(0,10));}
@@ -32,7 +31,7 @@ export default function NativeAgenda({db,actor,visible,refreshKey=0,onTasks}:{db
   <View style={s.card}><Text style={s.heading}>{dateLabel(selected)}</Text><Text style={s.body}>Times in {zone}</Text>{!current?<Text style={s.body}>Load this month to see your day.</Text>:<>
    <Text style={s.subheading}>Working hours</Text><Text style={s.caption}>Pattern preview, not available booking slots. Conflicts, notice and limits are checked when booking.</Text>
    {day!.working.length?day!.working.map(r=><View key={r.id} style={s.item}><Text style={s.strong}>{r.title}</Text><Text style={s.body}>{minutes(r.start_minute)} – {minutes(r.end_minute)}</Text></View>):<Text style={s.body}>No working-hour pattern in this timezone.</Text>}
-   <Text style={s.subheading}>Appointments</Text>{day!.bookings.length?day!.bookings.map(b=><View key={b.id} style={s.item}><Text style={s.strong}>{clock(b.starts_at)} – {clock(b.ends_at)}{localDay(b.ends_at,zone)!==selected?' (next day)':''}</Text><Text style={s.body}>{b.attendee}</Text><Text style={s.caption}>Confirmed</Text></View>):<Text style={s.body}>No confirmed appointments in the loaded records.</Text>}
+   <Text style={s.subheading}>Appointments</Text>{day!.bookings.length?day!.bookings.map(b=><View key={b.id} style={s.item}><Text style={s.strong}>{appointmentTimeLabel(b.starts_at,b.ends_at,zone)}{localDay(b.ends_at,zone)!==selected?' (next day)':''}</Text><Text style={s.body}>{b.attendee}</Text><Text style={s.caption}>Confirmed</Text></View>):<Text style={s.body}>No confirmed appointments in the loaded records.</Text>}
    <Text style={s.subheading}>Tasks due this day</Text>{day!.tasks.length?day!.tasks.map(t=><Text key={t.id} style={s.item}>{t.title}</Text>):<Text style={s.body}>No open tasks due in the loaded records.</Text>}
   </>}</View>
   {current&&<View style={s.card}><Text style={s.heading}>Due next</Text><Text style={s.caption}>Earliest due first, including overdue tasks. Up to 20 open tasks shown.</Text>{current.tasks.filter(t=>t.due_date).slice(0,20).map(t=><View key={t.id} style={s.item}><Text style={s.strong}>{t.title}</Text><Text style={s.body}>{t.due_date}{t.due_date!<today?' · Overdue':''}</Text></View>)}{!current.tasks.some(t=>t.due_date)&&<Text style={s.body}>No dated open tasks in the loaded records.</Text>}<Action label="Manage tasks in Work" onPress={onTasks}/></View>}

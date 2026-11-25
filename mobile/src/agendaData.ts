@@ -7,6 +7,11 @@ const formatters=new Map<string,Intl.DateTimeFormat>();
 function formatter(zone:string){let found=formatters.get(zone);if(!found){found=new Intl.DateTimeFormat('en-CA',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit'});if(formatters.size>=64)formatters.clear();formatters.set(zone,found);}return found;}
 export function localDay(instant:string,zone:string){const parts=formatter(zone).formatToParts(new Date(instant));return ['year','month','day'].map(k=>parts.find(p=>p.type===k)!.value).join('-');}
 export function canonicalZone(zone:string){return formatter(zone).resolvedOptions().timeZone;}
+export function appointmentTimeLabel(start:string,end:string,zone:string){
+ const clock=new Intl.DateTimeFormat('en-US',{timeZone:zone,hour:'numeric',minute:'2-digit',timeZoneName:'short'});
+ const minutes=new Intl.NumberFormat('en-US',{maximumFractionDigits:1}).format((Date.parse(end)-Date.parse(start))/60000);
+ return `${clock.format(new Date(start))} – ${clock.format(new Date(end))} · ${minutes} min`;
+}
 export function daySummary(snapshot:AgendaSnapshot,day:string,zone:string){
  if(!validLocalDate(day))throw Error('Choose a valid day.');
  const canonical=canonicalZone(zone);

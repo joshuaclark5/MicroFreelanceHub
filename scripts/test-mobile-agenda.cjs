@@ -13,6 +13,9 @@ const db={auth:{getUser:async()=>({data:{user:{id:signedIn}}})},from(table){cons
  let snapshot=await lib.loadAgenda(db,actor,'2026-11');assert.equal(snapshot.truncated,false);
  assert.ok(calls.every(c=>c.filters.some(([k,v])=>k==='owner_id'&&v===actor)));
  assert.equal(lib.daySummary(snapshot,'2026-11-01','America/New_York').bookings.length,1,'DST fold remains one appointment');
+ const folded=lib.appointmentTimeLabel(booking.starts_at,booking.ends_at,'America/New_York');
+ assert.match(folded,/1:30 AM (?:EDT|GMT-4).*1:30 AM (?:EST|GMT-5).*60 min/,'Repeated local times must expose their distinct zone offsets and elapsed duration');
+ assert.match(lib.appointmentTimeLabel('2026-03-08T06:30:00Z','2026-03-08T07:30:00Z','America/New_York'),/1:30 AM (?:EST|GMT-5).*3:30 AM (?:EDT|GMT-4).*60 min/,'Spring-forward clock gap must retain true elapsed duration');
  assert.equal(lib.daySummary(snapshot,'2026-11-01','America/New_York').working.length,1);
  assert.equal(lib.daySummary(snapshot,'2026-11-08','America/New_York').working.length,0,'Time off excludes work pattern');
  assert.equal(lib.daySummary(snapshot,'2026-11-01','UTC').working.length,0,'Do not show another zone working hours as local hours');
