@@ -10,7 +10,7 @@ export function calendarDate(instant:string, zone:string){
  return `${get('year')}-${get('month')}-${get('day')}`;
 }
 const key=(d:Date)=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-export default function SchedulingCalendar({bookings,availability,managementPath='',displayMonth,onMonthChange}:{bookings:Booking[];availability?:Availability[];managementPath?:string;displayMonth?:string;onMonthChange?:(month:string)=>void}){
+export default function SchedulingCalendar({bookings,availability,managementPath='',displayMonth,onMonthChange,compactControls=false}:{bookings:Booking[];availability?:Availability[];managementPath?:string;displayMonth?:string;onMonthChange?:(month:string)=>void;compactControls?:boolean}){
  const [zone,setZone]=useState('UTC');
  const [mounted,setMounted]=useState(false);
  const today=mounted?calendarDate(new Date().toISOString(),zone):'2000-01-01';
@@ -29,11 +29,13 @@ export default function SchedulingCalendar({bookings,availability,managementPath
  function move(offset:number){const next=new Date(year,number-1+offset,1);onMonthChange?.(key(next).slice(0,7));setMonth(key(next).slice(0,7));setSelected(key(next));}
  const label=(day:string)=>new Date(day+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
  const clock=(iso:string)=>new Intl.DateTimeFormat('en-US',{timeZone:zone,hour:'numeric',minute:'2-digit'}).format(new Date(iso));
+ const controls=<><div className="calendar-filters"><label>Find an attendee<input type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search appointments"/></label><TimezoneSelect label="Display timezone" value={zone} onChange={setZone}/><label className="calendar-check"><input type="checkbox" checked={showCanceled} onChange={e=>setShowCanceled(e.target.checked)}/>Include canceled</label></div>
+  <div className="calendar-legend" aria-label="Calendar key"><span><i className="calendar-availability-dot" aria-hidden="true"/>Working-hour pattern</span><span><i className="calendar-appointment-dot" aria-hidden="true"/>Appointment count</span><span>Counts follow your filters. Hours use {zone}.</span></div></>;
  if(!mounted)return <p role="status">Loading your calendar...</p>;
  return <section className="schedule-calendar" aria-label="Appointment calendar">
   <div className="calendar-heading"><div><p className="calendar-eyebrow">PLAN YOUR WORKDAY</p><h2>Your calendar</h2><p>Saved appointments{availability?' and scheduled working hours':''}.</p></div><a href={managementPath+"#new-booking"} className="primary-action">New booking</a></div>
-  <div className="calendar-filters"><label>Find an attendee<input type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search appointments"/></label><TimezoneSelect label="Display timezone" value={zone} onChange={setZone}/><label className="calendar-check"><input type="checkbox" checked={showCanceled} onChange={e=>setShowCanceled(e.target.checked)}/>Include canceled</label></div>
-  <div className="calendar-legend" aria-label="Calendar key"><span><i className="calendar-availability-dot" aria-hidden="true"/>Working-hour pattern</span><span><i className="calendar-appointment-dot" aria-hidden="true"/>Appointment count</span><span>Counts follow your filters. Hours use {zone}.</span></div><div className="calendar-layout"><div className="calendar-month">
+  {compactControls?<details className="calendar-filter-disclosure"><summary>Calendar filters and key</summary>{controls}</details>:controls}
+  <div className="calendar-layout"><div className="calendar-month">
    <div className="calendar-toolbar"><h3 aria-live="polite">{first.toLocaleDateString('en-US',{month:'long',year:'numeric'})}</h3><div><button aria-label="Previous month" disabled={!!onMonthChange&&month==='1900-01'} onClick={()=>move(-1)}>←</button><button onClick={()=>{onMonthChange?.(today.slice(0,7));setMonth(today.slice(0,7));setSelected(today);}}>Today</button><button aria-label="Next month" disabled={!!onMonthChange&&month==='2199-12'} onClick={()=>move(1)}>→</button></div></div>
    <div className="calendar-grid">{['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=><span className="calendar-weekday" key={d}>{d}</span>)}
     {Array.from({length:first.getDay()},(_,i)=><span aria-hidden="true" key={'blank'+i}/>)}
