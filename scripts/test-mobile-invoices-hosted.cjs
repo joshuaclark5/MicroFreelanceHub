@@ -102,7 +102,7 @@ async function measuredFetch(input, init = {}) {
 }
 function rpcDiagnostic(name, response, op) {
   diagnostics.push({ at: new Date().toISOString(), name, status: response.status, errorCode: response.error?.code || null,
-    category: response.error?.code === '40001' ? 'database conflict' : response.status === 0 ? 'transport failure' : response.error ? 'backend rejection' : 'success',
+    category: response.error?.code === 'P0001' ? 'terminal application rejection' : response.status === 0 ? 'transport failure' : response.error ? 'backend rejection' : 'success',
     operationId: op.operationId,
     returnedInvoiceId: /^[0-9a-f-]{36}$/.test(response.data?.id || '') ? response.data.id : null,
     operationDigest: createHash('sha256').update(JSON.stringify(op)).digest('hex') }); save();
@@ -203,6 +203,28 @@ commit;`;
         memo: 'Synthetic acceptance only', lines: [{ description: 'Fictional design work', quantity: '3', price }],
       });
     }
+    async function ownerInvoiceFingerprint(actor) {
+      const rows = {};
+      for (const table of tables.filter(table => table.startsWith('workspace_invoice_'))) {
+        const data = ok(await admin.from(table).select('*').eq('owner_id', actor));
+        rows[table] = data.map(row => JSON.stringify(row)).sort();
+      }
+      return createHash('sha256').update(JSON.stringify(rows)).digest('hex');
+    }
+    async function terminalConflict(db, op, label, actors = [a.id]) {
+      const before = []; for (const actor of actors) before.push(await ownerInvoiceFingerprint(actor));
+      const began = Date.now();
+      const result = await db.rpc('workspace_invoice_mutate', { p: op });
+      const elapsedMs = Date.now() - began;
+      rpcDiagnostic(label, result, op);
+      const diagnostic = diagnostics.at(-1); diagnostic.elapsedMs = elapsedMs; save();
+      assert.equal(result.status, 400, 'Permanent application conflict must return terminal HTTP 400.');
+      assert.equal(result.error?.code, 'P0001');
+      assert.ok(elapsedMs < 5000, 'Permanent conflict response exceeded five seconds.');
+      const after = []; for (const actor of actors) after.push(await ownerInvoiceFingerprint(actor));
+      assert.deepEqual(after, before, 'Rejected operation changed invoice rows, counters, snapshots or deduplication records.');
+      diagnostic.invoiceRowsUnchanged = true; diagnostic.beforeOwnerHashes = before; diagnostic.afterOwnerHashes = after; save();
+    }
     let usdOp, usd;
     await check('Actual native reviewed USD draft save and exact total', async () => {
       usdOp = operation(); usd = await api.createInvoiceDraft(a.db, usdOp);
@@ -223,9 +245,10 @@ commit;`;
     });
     await check('Changed-body operation reuse rejected by hosted RPC', async () => {
       const changedOp = { ...usdOp, document: { ...usdOp.document, memo: 'Different request' } };
-      const result = await a.db.rpc('workspace_invoice_mutate', { p: changedOp });
-      rpcDiagnostic('changed-body reuse', result, changedOp);
-      assert.equal(result.error?.code, '40001');
+      await terminalConflict(a.db, changedOp, 'changed-body reuse');
+      const page = await api.loadInvoices(a.db, a.id);
+      assert.equal(page.rows.length, 1); assert.equal(page.rows[0].id, usd.id);
+      assert.equal(page.rows[0].document.memo, usdOp.document.memo);
     });
     await check('JPY and KWD exact minor-unit conversions survive hosted receipts', async () => {
       const jpy = await api.createInvoiceDraft(a.db, operation('JPY', '125'));
@@ -252,9 +275,7 @@ commit;`;
     await check('Native actor fence and hosted actor/relationship checks reject foreign writes', async () => {
       await assert.rejects(() => api.createInvoiceDraft(b.db, usdOp), api.InvoiceAccountChanged);
       await assert.rejects(() => api.loadInvoices(b.db, a.id), api.InvoiceAccountChanged);
-      const actorMismatch = await b.db.rpc('workspace_invoice_mutate', { p: usdOp });
-      rpcDiagnostic('actor mismatch', actorMismatch, usdOp);
-      assert.equal(actorMismatch.error?.code, '40001');
+      await terminalConflict(b.db, usdOp, 'actor mismatch', [a.id, b.id]);
       const foreign = { ...usdOp, expectedActorId: b.id, operationId: randomUUID(), document: { ...usdOp.document, projectId: null } };
       const foreignResult = await b.db.rpc('workspace_invoice_mutate', { p: foreign });
       rpcDiagnostic('foreign client', foreignResult, foreign);
@@ -269,6 +290,24 @@ commit;`;
       assert.equal((await anonDb.rpc('workspace_invoice_mutate', { p: usdOp })).error?.code, '42501');
       assert.equal((await a.db.from('workspace_invoice_drafts').delete().eq('id', usd.id)).error?.code, '42501');
       assert.equal((await api.loadInvoices(a.db, a.id)).rows.length, 4);
+    });
+    await check('Remaining four permanent conflict branches return promptly without changing rows', async () => {
+      const rawOperation = values => ({ operationId: randomUUID(), expectedActorId: a.id, ...values });
+      await terminalConflict(a.db, rawOperation({ action: 'edit', id: usd.id, version: 2, document: usdOp.document }), 'stale invoice version');
+      await terminalConflict(a.db, rawOperation({ action: 'issue', id: usd.id, version: 1, reviewedTotalMinor: 3749 }), 'review total mismatch');
+      const issueOp = rawOperation({ action: 'issue', id: usd.id, version: 1, reviewedTotalMinor: 3750 });
+      const issued = ok(await a.db.rpc('workspace_invoice_mutate', { p: issueOp }));
+      assert.equal(issued.status, 'issued'); assert.equal(issued.version, 2);
+      const again = ok(await a.db.rpc('workspace_invoice_mutate', { p: issueOp }));
+      assert.equal(again.id, issued.id); assert.deepEqual(again.snapshot, issued.snapshot);
+      await terminalConflict(a.db, rawOperation({ action: 'edit', id: issued.id, version: 2, document: { ...usdOp.document, memo: 'Attempted issued change' } }), 'non-draft mutation');
+      const scheduleOp = rawOperation({ action: 'schedule', document: usdOp.document, frequency: 'weekly', anchor: '2026-11-25' });
+      const schedule = ok(await a.db.rpc('workspace_invoice_mutate', { p: scheduleOp }));
+      assert.equal(schedule.version, 1);
+      await terminalConflict(a.db, rawOperation({ action: 'pause', id: schedule.id, version: 2 }), 'stale schedule version');
+      const page = await api.loadInvoices(a.db, a.id);
+      assert.equal(page.rows.length, 4);
+      assert.deepEqual(page.rows.find(row => row.id === issued.id).snapshot, issued.snapshot);
     });
   } catch (e) {
     failed = true;
