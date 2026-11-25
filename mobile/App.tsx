@@ -156,28 +156,29 @@ function Workspace({db}:{db:SupabaseClient}) {
  </ScrollView></KeyboardAvoidingView></SafeAreaView>;
 }
 export default function App(){
- const [db,setDb]=useState<SupabaseClient|null>(null),[failure,setFailure]=useState(false),[attempt,setAttempt]=useState(0);
+ const [db,setDb]=useState<SupabaseClient|null>(null),[failure,setFailure]=useState(false),[attempt,setAttempt]=useState(0),[slowRestore,setSlowRestore]=useState(false);
  const url=process.env.EXPO_PUBLIC_SUPABASE_URL,key=process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
  const configured=!!url&&!!key&&/^https:\/\/[a-z0-9]+\.supabase\.co$/.test(url);
  useEffect(()=>{
   if(!configured||!url||!key)return;
   let active=true,client:SupabaseClient|null=null;
-  setDb(null);setFailure(false);
+  setDb(null);setFailure(false);setSlowRestore(false);
+  const slowTimer=setTimeout(()=>{if(active)setSlowRestore(true);},15000);
   const storageKey='sb-'+new URL(url).hostname.split('.')[0]+'-auth-token';
   void restoreNativeClient(()=>nativeSessionStorage.getItem(storageKey),()=>createClient(url,key,{auth:{
    flowType:'pkce',persistSession:true,storage:nativeSessionStorage,storageKey,
    autoRefreshToken:true,detectSessionInUrl:false,lock:processLock,
   }})).then(restored=>{
-   client=restored;if(active)setDb(restored);else restored.auth.stopAutoRefresh();
-  }).catch(()=>{if(active)setFailure(true);});
-  return()=>{active=false;client?.auth.stopAutoRefresh();};
+   clearTimeout(slowTimer);client=restored;if(active)setDb(restored);else restored.auth.stopAutoRefresh();
+  }).catch(()=>{clearTimeout(slowTimer);if(active)setFailure(true);});
+  return()=>{active=false;clearTimeout(slowTimer);client?.auth.stopAutoRefresh();};
  },[attempt,configured,url,key]);
  return <SafeAreaProvider><StatusBar barStyle="dark-content"/>{db?<Workspace db={db}/>:<SafeAreaView style={styles.safe}><ScrollView contentContainerStyle={styles.content}>
   <View style={styles.brandRow}><Image source={require('./assets/brand-mark.png')} style={{width:44,height:44}} accessible={false}/><Text style={styles.brand}>MicroFreelanceHub</Text></View>
   {!configured?<><Text style={styles.heading}>App setup is incomplete</Text><Text style={styles.body}>This build cannot connect to your workspace. Please contact support@microfreelancehub.com.</Text></>:failure?<>
    <Text style={styles.heading}>Let's restore your sign-in</Text><Text accessibilityRole="alert" style={styles.body}>We couldn't open your saved sign-in. Unlock your device, check your connection and retry. Retrying does not reset your account or delete your work.</Text>
    <Button title="Retry sign-in restore" onPress={()=>setAttempt(value=>value+1)}/>
-  </>:<><ActivityIndicator accessibilityLabel="Restoring sign-in" color="#194d41"/><Text accessibilityLiveRegion="polite" style={styles.heading}>Opening your workspace</Text><Text style={styles.body}>Checking your saved sign-in. No need to create another account.</Text></>}
+  </>:<><ActivityIndicator accessibilityLabel="Restoring sign-in" color="#194d41"/><Text accessibilityLiveRegion="polite" style={styles.heading}>Opening your workspace</Text><Text style={styles.body}>Checking your saved sign-in. No need to create another account.</Text>{slowRestore&&<Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.notice}>This is taking longer than usual. Check your connection and make sure your device is unlocked. We are still waiting for sign-in restoration; this screen has not reset your account.</Text>}</>}
  <AccountHelp/>
  </ScrollView></SafeAreaView>}</SafeAreaProvider>;
 }
