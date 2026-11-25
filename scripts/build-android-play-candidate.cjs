@@ -13,7 +13,7 @@ const signing=JSON.parse(fs.readFileSync(credentials));
 const env={...process.env,JAVA_HOME:tools+'/java/jdk-17.0.21.1+2',ANDROID_HOME:tools+'/sdk',ANDROID_SDK_ROOT:tools+'/sdk',MFH_UPLOAD_KEYSTORE:keystore,MFH_UPLOAD_STORE_PASSWORD:signing.storePassword,MFH_UPLOAD_KEY_PASSWORD:signing.keyPassword,MFH_UPLOAD_ALIAS:signing.alias,NODE_ENV:'production',CI:'1',EXPO_NO_TELEMETRY:'1',EXPO_PUBLIC_DISTRIBUTION:'play'};
 env.PATH=env.JAVA_HOME+'/bin;'+(process.env.PATH||process.env.Path||'');delete env.Path;
 const dotenv=require('C:/Users/joshu/mfh-first-small-release-20261119/node_modules/dotenv');const config=dotenv.parse(fs.readFileSync('C:/Users/joshu/Downloads/MicroFreelanceHub-GitHubPush/MicroFreelanceHubFrontend/.env.local'));
-assert.equal(config.NEXT_PUBLIC_SUPABASE_URL,'https://rjgttmwrbyjqifodjnqm.supabase.co');assert.equal(JSON.parse(Buffer.from(config.NEXT_PUBLIC_SUPABASE_ANON_KEY.split('.')[1],'base64url')).role,'anon');
+assert.equal(config.NEXT_PUBLIC_SUPABASE_URL,'https://rjgttmwrbyjqifodjnqm.supabase.co');const publicClaims=JSON.parse(Buffer.from(config.NEXT_PUBLIC_SUPABASE_ANON_KEY.split('.')[1],'base64url'));assert.equal(publicClaims.role,'anon');assert.equal(publicClaims.ref,'rjgttmwrbyjqifodjnqm','Public backend key project mismatch');
 env.EXPO_PUBLIC_SUPABASE_URL=config.NEXT_PUBLIC_SUPABASE_URL;env.EXPO_PUBLIC_SUPABASE_ANON_KEY=config.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const gradle=repo+'/mobile/android/app/build.gradle';let source=fs.readFileSync(gradle,'utf8');assert.ok(source.includes("applicationId 'com.microfreelancehub.mobile'"));assert.match(source,/versionCode 10/);assert.match(source,/versionName "0.1.9"/);
 // Gradle worker limits do not cap Metro's separate transform-worker processes.

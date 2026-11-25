@@ -32,6 +32,7 @@ with zipfile.ZipFile(apk) as z:
         if 'role' in claims:
             roles.append(claims['role'])
             assert claims['role']=='anon','Nonpublic backend credential detected'
+            assert claims.get('ref')=='rjgttmwrbyjqifodjnqm','Public backend key project mismatch'
     assert 'anon' in roles, 'Public anon credential not found'
     assert not re.search(rb'(?:sk_live_|sk_test_|sb_secret_)[A-Za-z0-9]{20,}',bundle), 'Server credential pattern detected'
     assert any(n.startswith('lib/arm64-v8a/') for n in names)
