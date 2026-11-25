@@ -1,4 +1,14 @@
-# 0.1.5 / code 6 candidate ? account help
+# Current distribution status
+
+Android 0.1.6/code 7 is published as an early direct-download prerelease, not on Google Play: https://github.com/joshuaclark5/MicroFreelanceHub/releases/tag/android-v0.1.6-test.1
+
+The current source is a local 0.1.7/code 8 Play companion candidate. `EXPO_PUBLIC_DISTRIBUTION=play` omits website purchase-path shortcuts while retaining project viewing and nonbillable time capture. The dedicated `scripts/build-android-play-candidate.cjs` enforces that mode and reuses the existing private signing custody; it does not upload anything. The historical tester build script is pinned to the earlier release and is not the Play build recipe.
+
+Before any submission, complete the gates in `docs/strategy/ANDROID_PLAY_COMPANION_CANDIDATE.md`: exact signed-package/device verification, monitored account-request handling and recovery, downstream policy review, declarations and account-specific testing requirements. Passing a JavaScript export does not establish those gates. No new binary has been published for 0.1.7.
+
+Historical preparation notes follow; their statements about unpublished 0.1.5 or memory-only 0.1.3 do not describe the published 0.1.6 release.
+
+# 0.1.5 / code 6 candidate — account help
 
 Local follow-up to the published 0.1.4 early APK: visible privacy/deletion-request controls with adjacent missing-handler errors, and dark status-bar icons. The request action opens an email draft only, not a completed deletion or subscription cancellation. TypeScript and focused account-help/startup/Home tests pass. Signed APK/AAB build, package checks, same-certificate upgrade install and signed-out device checks passed. Privacy controls and the missing-email-handler fallback were visually inspected. The candidate is not published: receiving-route verification remains incomplete. Full authenticated-device and Play-policy acceptance remain unfinished. See docs/strategy/ANDROID_PLAY_POLICY_REVIEW.md.
 

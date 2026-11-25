@@ -2,6 +2,10 @@
 
 Prepared 2026-11-25 from the 0.1.6 candidate source. This is evidence for completing the store form, NOT a submitted Data Safety declaration or a claim of full policy acceptance.
 
+## 0.1.7 Play-mode delta
+
+The local Play candidate now omits website signup/recovery, project/workspace shortcuts and the general support website link. The table below describes the original direct-download build; its website-shortcut row does not describe Play mode. Google account creation and existing email sign-in remain. Privacy still opens the public website and deletion requests still open an email draft. Support-assisted email-password recovery depends on the unverified support destination. Native project/time data flows, secure sessions and in-memory drafts are unchanged. Downstream privacy navigation, provider behavior and account-request fulfillment still require review; no Data Safety form has been submitted.
+
 | Surface | Observed behavior | Evidence / remaining review |
 | --- | --- | --- |
 | Email/password sign-in | Credentials passed to Supabase Auth; password field cleared after successful sign-in | mobile/App.tsx; assess authentication/provider retention separately |

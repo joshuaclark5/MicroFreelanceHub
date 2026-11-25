@@ -3,7 +3,7 @@
     "name": "MicroFreelanceHub",
     "slug": "microfreelancehub-mobile",
     "scheme": "microfreelancehub",
-    "version": "0.1.6",
+    "version": "0.1.7",
     "orientation": "default",
     "userInterfaceStyle": "light",
     "ios": {
@@ -12,7 +12,7 @@
     },
     "android": {
       "package": "com.microfreelancehub.mobile",
-      "versionCode": 7,
+      "versionCode": 8,
       "blockedPermissions": [
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",

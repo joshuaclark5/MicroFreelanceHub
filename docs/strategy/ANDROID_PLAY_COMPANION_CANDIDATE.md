@@ -23,3 +23,9 @@ Play mode omits external website signup/recovery, project links, the workspace s
 5. Finish store listing/data safety/reviewer access, testing-track requirements and review.
 
 No new binary has been published. The broader overnight goal remains active, including authenticated competitor auditing and payment/signature acceptance.
+
+## Signed build continuation — 0.1.7/code 8
+
+Version configuration advanced to 0.1.7/code 8. Dedicated build script `scripts/build-android-play-candidate.cjs` forces Play mode and requires existing signing custody (no new key generation). `scripts/verify-android-play-package.cjs` checks package/version, non-debug signing and certificate continuity, restricted permissions, zip alignment and AAB signature. `scripts/audit-android-play-bundle.py` checks public-only backend configuration, absence of direct-navigation labels, and identical APK/AAB JavaScript. `scripts/smoke-android-play-device.cjs` targets only the existing test AVD and validates installation, version and signed-out launch; it does not claim authenticated acceptance.
+
+Build launched with output in `artifacts/android-0.1.7-release-build.log`; completion receipt is `artifacts/android-0.1.7-build-receipt.json`. Native build initially slowed under low available RAM. The task-owned emulator was stopped to free memory; unrelated processes were not stopped. Restart the mfh-tester-20261124 AVD after package verification. Do not run verification against stale 0.1.6 build outputs or claim success before the matching receipt and exact-version checks pass. Existing published artifacts remain preserved under `artifacts/android-0.1.6-candidate`.
