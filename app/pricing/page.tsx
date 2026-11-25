@@ -1,6 +1,6 @@
 'use client';
 
-import SeasonalOfferBanner, {useSeasonalOffer} from '../components/SeasonalOffer';
+import {useSeasonalOffer} from '../components/SeasonalOffer';
 import {offerFirstPayment} from '../lib/seasonalOffers';
 import {BrandMark} from '../components/Brand';
 import { PLAN_PRICES, PaidPlan, BillingCycle, planQuote } from '../lib/planPricing';
@@ -27,6 +27,8 @@ export default function PricingPage() {
     checkAuth();
   }, [supabase]);
 
+  useEffect(()=>{if(new URLSearchParams(window.location.search).get('billing')==='annual')setBillingCycle('annual');},[]);
+
   // --- STRIPE CHECKOUT HANDLER ---
   const handlePricingClick = (plan: PaidPlan) => {
     const { landing_page, lead_source } = getTrackedData();
@@ -51,7 +53,7 @@ export default function PricingPage() {
 
   return (
     <div className="public-design public-pricing d4-pricing min-h-screen bg-[#f6f8f7] font-sans text-slate-900 selection:bg-blue-100 pb-24">
-      <SeasonalOfferBanner/>
+
       {/* NAVBAR */}
       <nav className="border-b border-gray-200 bg-white sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center">
