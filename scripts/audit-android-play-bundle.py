@@ -18,6 +18,8 @@ with zipfile.ZipFile(apk) as z:
     for label in [b'Create account on website', b'Recover email password on website', b'Open project (website)', b'Explore your workspace', b'Open web workspace', b'Customer booking link']:
         assert all(label.decode('ascii').encode(encoding) not in bundle for encoding in ['utf8','utf-16le']), 'Direct website navigation remains in Play package'
     assert b'For email-password recovery, contact' in bundle, 'Play companion code missing'
+    assert b'admin@microfreelancehub.com' in bundle, 'Monitored account-request address missing'
+    assert b'support@microfreelancehub.com' not in bundle, 'Unverified support address remains'
     roles=[]
     for token in re.findall(rb'eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+', bundle):
         try:
@@ -38,5 +40,5 @@ with zipfile.ZipFile('mobile/android/app/build/outputs/bundle/release/app-releas
     assert z.read('base/assets/index.android.bundle') == bundle, 'AAB and APK JavaScript differ'
     assert not any(n.endswith(('.jks','.keystore','.env.local','signing.json')) for n in z.namelist()), 'Private signing/config included in AAB'
 report['aabBundleMatchesApk']=True
-Path('artifacts/android-0.1.7-bundle-audit.json').write_text(json.dumps(report,indent=2))
+Path('artifacts/android-0.1.8-bundle-audit.json').write_text(json.dumps(report,indent=2))
 print(json.dumps(report))

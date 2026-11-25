@@ -20,11 +20,11 @@ function Button({title,onPress,disabled=false}:{title:string;onPress:()=>void;di
 function AccountHelp() {
  const [error,setError]=useState('');
  function open(url:string,fallback:string){setError('');void Linking.openURL(url).catch(()=>setError(fallback));}
- const request='mailto:support@microfreelancehub.com?subject='+encodeURIComponent('MicroFreelanceHub account deletion request');
+ const request='mailto:admin@microfreelancehub.com?subject='+encodeURIComponent('MicroFreelanceHub account deletion request');
  return <View style={styles.helpCard}><Text style={styles.subheading}>Privacy & account requests</Text>
   <Button title="Read privacy policy" onPress={()=>open('https://www.microfreelancehub.com/privacy-policy','Could not open the privacy policy. Visit microfreelancehub.com/privacy-policy.')}/>
-  <Text style={styles.body}>To request deletion of your account and associated data, email support@microfreelancehub.com from your account email. Do not include your password. Support may need to verify ownership.</Text>
-  <Button title="Email deletion request" onPress={()=>open(request,'Could not open an email app. Send your deletion request to support@microfreelancehub.com. No request was sent.')}/>
+  <Text style={styles.body}>To request deletion of your account and associated data, email admin@microfreelancehub.com from your account email. Do not include your password. Support may need to verify ownership.</Text>
+  <Button title="Email deletion request" onPress={()=>open(request,'Could not open an email app. Send your deletion request to admin@microfreelancehub.com. No request was sent.')}/>
   {error!==''&&<Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.notice}>{error}</Text>}
   <Text style={styles.body}>This opens an email draft; you choose whether to send it. A request does not cancel a subscription or reverse a payment. Manage active billing in website Settings and contact support. See the privacy policy for retention details.</Text>
  </View>;
@@ -128,7 +128,7 @@ function Workspace({db}:{db:SupabaseClient}) {
    {!playCompanion&&<>
    <Button title="Create account on website" disabled={busy} onPress={()=>void Linking.openURL('https://www.microfreelancehub.com/login').catch(()=>setMessage('Could not open signup. Visit microfreelancehub.com/login.'))}/>
    <Button title="Recover email password on website" disabled={busy} onPress={()=>void Linking.openURL('https://www.microfreelancehub.com/login').catch(()=>setMessage('Could not open recovery. Visit microfreelancehub.com/login.'))}/></>}
-   {playCompanion&&<Text style={styles.body}>For email-password recovery, contact support@microfreelancehub.com. Never send your password.</Text>}
+   {playCompanion&&<Text style={styles.body}>For email-password recovery, contact admin@microfreelancehub.com. Never send your password.</Text>}
   </>:<>
    <View style={styles.row}><Button title="Refresh" disabled={busy||!!review} onPress={()=>void action(()=>refresh(actor))}/><Button title="Sign out" disabled={busy} onPress={requestSignOut}/></View>
    {loadState==='loading'&&<Text accessibilityLiveRegion="polite" style={styles.notice}>Loading your projects and recent time...</Text>}
@@ -155,7 +155,7 @@ function Workspace({db}:{db:SupabaseClient}) {
    </>}
    </View><Text style={styles.subheading}>Latest 20 completed entries</Text>{entries.length===0?(loadState==='ready'?<Text style={styles.body}>No completed time yet. Your first entry will appear here after it is saved.</Text>:null):entries.map(e=><View key={e.id} style={styles.project}><Text style={styles.label}>{projects.find(p=>p.id===e.project_id)?.name||'Project'}</Text><Text style={styles.body}>{Math.round((e.seconds||0)/60)} minutes - {new Date(e.started_at).toLocaleDateString()}</Text><Text style={styles.body}>{e.description}</Text></View>)}
   </>}
- {!playCompanion&&<View style={styles.helpCard}><Text style={styles.label}>Your wider workspace</Text><Text style={styles.body}>Clients, bookings and invoices are available on the website. These links open your browser; its sign-in is separate.</Text><Button title="Open web workspace" onPress={()=>void Linking.openURL('https://www.microfreelancehub.com/workspace').catch(()=>setMessage('Could not open the browser. Visit microfreelancehub.com/workspace.'))}/><Button title="Help & support" onPress={()=>void Linking.openURL('https://www.microfreelancehub.com/support').catch(()=>setMessage('Could not open support. Email support@microfreelancehub.com.'))}/></View>}
+ {!playCompanion&&<View style={styles.helpCard}><Text style={styles.label}>Your wider workspace</Text><Text style={styles.body}>Clients, bookings and invoices are available on the website. These links open your browser; its sign-in is separate.</Text><Button title="Open web workspace" onPress={()=>void Linking.openURL('https://www.microfreelancehub.com/workspace').catch(()=>setMessage('Could not open the browser. Visit microfreelancehub.com/workspace.'))}/><Button title="Help & support" onPress={()=>void Linking.openURL('https://www.microfreelancehub.com/support').catch(()=>setMessage('Could not open support. Email admin@microfreelancehub.com.'))}/></View>}
  <AccountHelp/>
  </ScrollView></KeyboardAvoidingView></SafeAreaView>;
 }
@@ -179,7 +179,7 @@ export default function App(){
  },[attempt,configured,url,key]);
  return <SafeAreaProvider><StatusBar barStyle="dark-content"/>{db?<Workspace db={db}/>:<SafeAreaView style={styles.safe}><ScrollView contentContainerStyle={styles.content}>
   <View style={styles.brandRow}><Image source={require('./assets/brand-mark.png')} style={{width:44,height:44}} accessible={false}/><Text style={styles.brand}>MicroFreelanceHub</Text></View>
-  {!configured?<><Text style={styles.heading}>App setup is incomplete</Text><Text style={styles.body}>This build cannot connect to your workspace. Please contact support@microfreelancehub.com.</Text></>:failure?<>
+  {!configured?<><Text style={styles.heading}>App setup is incomplete</Text><Text style={styles.body}>This build cannot connect to your workspace. Please contact admin@microfreelancehub.com.</Text></>:failure?<>
    <Text style={styles.heading}>Let's restore your sign-in</Text><Text accessibilityRole="alert" style={styles.body}>We couldn't open your saved sign-in. Unlock your device, check your connection and retry. Retrying does not reset your account or delete your work.</Text>
    <Button title="Retry sign-in restore" onPress={()=>setAttempt(value=>value+1)}/>
   </>:<><ActivityIndicator accessibilityLabel="Restoring sign-in" color="#194d41"/><Text accessibilityLiveRegion="polite" style={styles.heading}>Opening your workspace</Text><Text style={styles.body}>Checking your saved sign-in. No need to create another account.</Text>{slowRestore&&<Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.notice}>This is taking longer than usual. Check your connection and make sure your device is unlocked. We are still waiting for sign-in restoration; this screen has not reset your account.</Text>}</>}

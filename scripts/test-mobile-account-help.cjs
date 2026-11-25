@@ -10,7 +10,7 @@ function words(n){return typeof n==='string'?n:!n||typeof n!=='object'?'':Array.
  let tree=exportsObject.AccountHelp();
  function press(label){const button=all(tree).find(n=>n.type==='Pressable'&&words(n)===label);assert.ok(button);button.props.onPress();}
  press('Read privacy policy');await new Promise(r=>setImmediate(r));assert.equal(links.pop(),'https://www.microfreelancehub.com/privacy-policy');
- press('Email deletion request');await new Promise(r=>setImmediate(r));const target=new URL(links.pop());assert.equal(target.protocol,'mailto:');assert.equal(target.pathname,'support@microfreelancehub.com');assert.equal(target.searchParams.get('subject'),'MicroFreelanceHub account deletion request');assert.equal(errorState,'');
+ press('Email deletion request');await new Promise(r=>setImmediate(r));const target=new URL(links.pop());assert.equal(target.protocol,'mailto:');assert.equal(target.pathname,'admin@microfreelancehub.com');assert.equal(target.searchParams.get('subject'),'MicroFreelanceHub account deletion request');assert.equal(errorState,'');
  assert.match(words(tree),/does not cancel a subscription/);assert.match(words(tree),/you choose whether to send/);
  fail=true;press('Email deletion request');await new Promise(r=>setImmediate(r));tree=exportsObject.AccountHelp();assert.match(words(tree),/No request was sent/);assert.ok(all(tree).some(n=>n.props.accessibilityRole==='alert'));
  press('Read privacy policy');await new Promise(r=>setImmediate(r));tree=exportsObject.AccountHelp();assert.match(words(tree),/microfreelancehub.com\/privacy-policy/);
