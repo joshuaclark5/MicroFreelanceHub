@@ -1,13 +1,16 @@
-# Current distribution status
+# Current distribution status (2026-11-25)
 
-Android 0.1.6/code 7 is published as an early direct-download prerelease, not on Google Play: https://github.com/joshuaclark5/MicroFreelanceHub/releases/tag/android-v0.1.6-test.1
+Android 0.1.8/code 9 is active on Google Play **internal testing**, not the public production store. The owner tester list includes the two authorized testers. Internal opt-in link: https://play.google.com/apps/internaltest/4700622245370655267. Production access still requires Google's account-specific closed-testing and review gates; internal testing does not satisfy the closed-test clock.
 
-The current source is a local 0.1.7/code 8 Play companion candidate. `EXPO_PUBLIC_DISTRIBUTION=play` omits website purchase-path shortcuts while retaining project viewing and nonbillable time capture. The dedicated `scripts/build-android-play-candidate.cjs` enforces that mode and reuses the existing private signing custody; it does not upload anything. The historical tester build script is pinned to the earlier release and is not the Play build recipe.
+Android 0.1.6/code 7 remains the separate early direct-download prerelease: https://github.com/joshuaclark5/MicroFreelanceHub/releases/tag/android-v0.1.6-test.1
 
-Before any submission, complete the gates in `docs/strategy/ANDROID_PLAY_COMPANION_CANDIDATE.md`: exact signed-package/device verification, monitored account-request handling and recovery, downstream policy review, declarations and account-specific testing requirements. Passing a JavaScript export does not establish those gates. No new binary has been published for 0.1.7.
+Current source is the local 0.1.9/code 10 native workspace candidate. Clients, pipeline stages, projects and tasks use the existing owner-scoped backend with versioned writes and same-operation recovery. Drafts remain memory-only. Native calendar/agenda follow-up is under development, not part of the published internal release. See `docs/strategy/MOBILE_WEBSITE_PARITY.md` for the complete gap ledger.
 
-Historical preparation notes follow; their statements about unpublished 0.1.5 or memory-only 0.1.3 do not describe the published 0.1.6 release.
+`EXPO_PUBLIC_DISTRIBUTION=play` omits website purchase-path shortcuts. `scripts/build-android-play-candidate.cjs` enforces that mode and reuses existing private signing custody; it does not upload anything. Signed-package audit and device verification are separate gates from TypeScript, JS export and fixture tests. The existing 0.1.8 release is preserved until a replacement is verified.
 
+The account-request address is the user-confirmed monitored `admin@microfreelancehub.com`. Native request controls open an email draft; they do not complete deletion or subscription cancellation. Automatic assistant mailbox monitoring is not claimed.
+
+Historical preparation notes follow and do not supersede the current distribution status above.
 # 0.1.5 / code 6 candidate — account help
 
 Local follow-up to the published 0.1.4 early APK: visible privacy/deletion-request controls with adjacent missing-handler errors, and dark status-bar icons. The request action opens an email draft only, not a completed deletion or subscription cancellation. TypeScript and focused account-help/startup/Home tests pass. Signed APK/AAB build, package checks, same-certificate upgrade install and signed-out device checks passed. Privacy controls and the missing-email-handler fallback were visually inspected. The candidate is not published: receiving-route verification remains incomplete. Full authenticated-device and Play-policy acceptance remain unfinished. See docs/strategy/ANDROID_PLAY_POLICY_REVIEW.md.
