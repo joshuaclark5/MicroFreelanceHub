@@ -48,3 +48,13 @@ For the integrated Day-tab candidate, run `python scripts/audit-android-play-bun
 ## Intake-data minimization and disclosure preparation
 - Native Day booking queries no longer request intake answers or intake-form IDs. The dedicated AgendaBooking type contains only appointment display fields and ownership/version metadata; a regression asserts the exact selected field set.
 - Local Play listing, tester notes and data-flow inventory now describe the integrated 0.1.9 source, retain limits and unverified-device status, and do not claim full website parity. Parent owns the website privacy paragraph update and live verification; no website privacy file or Console form changed in this lane.
+
+## Integrated artifact verification - 2026-11-25 07:05 UTC
+- Built exactly once from source commit `2a94f2a7eff782fcb0a1d4c423a47f867c20a588`; tracked mobile/shared-source SHA-256 `200fee3d8401f37f23ec758ba2a65c95eaf73b62601d5b804e64fa7cad1282cb`. Build receipt confirms `sourceUnchanged: true`, 0.1.9/code10, Play mode, and successful completion at 07:02:18Z.
+- Package identity, dedicated-key certificate continuity, APK alignment and AAB signature passed. `audit-android-play-bundle.py --require-agenda` passed with `nativeAgendaPresent: true`, matching APK/AAB JavaScript, expected production public-anon backend, absent website purchase shortcuts and no private credential patterns found.
+- Integrated APK SHA-256: `2f876bfb8059c8fa7289557e2b9b9d922d917d0a76111d4d255ef44af81625bf` (34,843,447 bytes).
+- Integrated AAB SHA-256: `823a5dfb3862155e7f47041dd9852c84e6ab8eb2fe3071dfaa82e3de92085a90` (23,829,093 bytes).
+- Emulator replacement installation, launch and signed-out UI smoke passed at 07:05:28Z. Screenshot visually inspected: readable sign-in screen, empty credential fields, no System UI overlay or observed clipping in the captured viewport. No authenticated Day/Work interaction, login/session restoration, save/retry or screen-reader acceptance is claimed by this smoke.
+- Integrated binaries, package/build/agenda receipts, complete build log and device evidence preserved in `artifacts/android-0.1.9-integrated/`. Archive hashes independently matched the package-verification hashes. The first workspace-only artifacts and original build log remain under `artifacts/android-0.1.9-workspace-only/`.
+- Owned AVD stopped after the smoke to release memory. No Play upload or rollout occurred; 0.1.8 remains the last verified published internal release. Store/disclosure review and authenticated-device acceptance remain separate work.
+- Durable controller receipt: `C:/Users/joshu/mfh-overnight-evidence-20261125/ANDROID_INTEGRATED_BUILD_STATE.json`. Later documentation commits do not change the recorded build source commit or source digest.

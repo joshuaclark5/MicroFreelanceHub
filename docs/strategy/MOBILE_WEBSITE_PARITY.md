@@ -43,11 +43,11 @@ mobile/src/RecordWorkspace.tsx adds the Work tab: four record sections, relation
 - Mocked native UI tests cover draft navigation, review without mutation, locked pending payload, exact-operation retry, success reset and missing relation guidance.
 - Existing Home tests passed in Play/direct mode; account-help target test passed.
 - Isolated hosted staging tests passed for all four record types, completion/version conflicts, idempotent reconciliation, cross-account rejection and deletion. Synthetic accounts/records cleaned up. Hosted evidence retained privately, no device-test claim.
-- Signed build, actual native form interaction and updated Play release remain unfinished. This ledger is not a claim of full parity.
+- Integrated 0.1.9/code10 signed APK/AAB, agenda-presence audit and signed-out emulator installation/launch passed on 2026-11-25. Actual authenticated native form interaction and updated Play release remain unfinished. See ANDROID_019_NATIVE_WORKSPACE.md for exact source and artifact hashes; this ledger is not a claim of full parity.
 
 ## Native agenda follow-up (not yet integrated into published app)
 - `agendaData.ts` reads owner-filtered month bookings and active availability plus open tasks. Exact counts detect incomplete snapshots; each category is capped at 500 with explicit partial-view warnings.
 - `NativeAgenda.tsx` provides month/day selection, green working-pattern markers, amber appointment counts (9+ visually; exact counts in accessibility labels), purple task markers, day details and due-next tasks. Recurrence exclusions and display timezone are preserved. This is a read-only view, not booking creation, calendar provider sync, or full scheduling parity.
 - Fixture checks pass for DST/local-date grouping, recurrence/time off, canceled booking exclusion, foreign records, missing counts, server truncation and account changes. UI checks pass for partial-count accessibility, out-of-order month requests, failed refresh clearing, and hidden-tab loading.
 - Hosted staging agenda queries passed with synthetic task due dates, completed-task exclusion and cross-account isolation. All synthetic users/records were cleaned. No hosted scheduling mutations or authenticated-device test are claimed.
-- The 0.1.9 build running from workspace checkpoint 5228fa3 does not import this follow-up component. The Day tab is now integrated in follow-up source; another verified binary is still required.
+- The first 0.1.9 build from checkpoint 5228fa3 does not import Day and remains archived as workspace-only. A separate integrated binary from 2a94f2a now passed signing, bundle/agenda checks and signed-out emulator smoke. Authenticated Day/Work device acceptance and store publication remain unverified.
