@@ -32,7 +32,7 @@ export async function POST(request:Request){
  const {data,error}=await db.rpc('workspace_time_mutate',{payload});
  if(error){
  if(error.code==='P0002')return reply({error:'Time entry not found.'},404);
- if(['40001','23505','23503'].includes(error.code))return reply({error:'Conflict: account, project, timer or entry changed. Reload saved time before retrying.'},409);
+ if(['P0001','40001','23505','23503'].includes(error.code))return reply({error:'Conflict: account, project, timer or entry changed. Reload saved time before retrying.'},409);
  if(['22023','22007','22008','22P02','23514','22003'].includes(error.code))return reply({error:'Check time details. Completed time must end in the past; duration is 1 second to 31 days.'},400);
  throw error;
  }
