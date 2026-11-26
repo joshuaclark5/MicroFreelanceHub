@@ -1,0 +1,98 @@
+M24 DETAILED REQUIREMENTS
+
+Team roles assignments and resource capacity
+
+P1 expansion  |  Dependencies: M02, M05
+
+Give each teammate the correct access and make staff and equipment capacity visible without exposing private business records.
+
+Inspect and organize team management
+
+[ ] M24-001  Inspect existing solo records, separate team-planning workspaces, invitations, membership checks and allocation tables. Prove each requested behavior before editing; preserve verified private boundaries and never copy all solo clients or finances into a shared team automatically.
+
+[ ] M24-002  Place Members, Invitations and Roles under Settings > Team. Place Workload and Equipment under the existing Projects or Calendar resource view with a link from Team; avoid a separate disconnected roster.
+
+[ ] M24-003  List Member name, Verified email, Role, Access scope, Invitation state and Last active where supported. Filter Active, Invited and Deactivated; provide View access, Change role and Remove access only to permitted administrators.
+
+[ ] M24-004  Provide Invite member with Email required, Role default Member and optional assigned projects. Offer Save invitation, Copy invitation link and Send invitation through a verified provider; saving an invitation must not claim an email was delivered.
+
+[ ] M24-005  Show the actual seat allowance, current active seats and any price impact before adding paid seats. Do not charge or change a subscription from a role editor; route authorized plan changes through M17.
+
+Roles invitation lifecycle and record sharing
+
+[ ] M24-006  Enforce Owner as the role that controls ownership and subscription changes. Provide ownership transfer only through its existing explicit verified workflow; an Admin or modified client request must not promote itself to Owner.
+
+[ ] M24-007  Enforce Admin access to authorized business operations and team management while withholding ownership transfer and subscription mutation. Display Billing read-only only with an authorized billing-view grant, and route subscription changes to the Owner under M17.
+
+[ ] M24-008  Enforce Manager access to assigned projects/clients and document drafts. Keep global billing/security and refund actions unavailable by default; assigning one project must not reveal all customer projects or private financial records.
+
+[ ] M24-009  Enforce Member access to assigned work and their permitted time records. Require an explicit financial/internal permission before exposing prices, invoices, internal notes or communications beyond what is needed for that assignment.
+
+[ ] M24-010  Enforce Bookkeeper access to authorized invoices, payments, expenses and reports without private conversations. Do not grant document-signature authority, client messaging or private calendar access merely because the role can see financial totals.
+
+[ ] M24-011  Keep Client as an external portal participant, never a team role granting internal access. A client invitation exposes only selected shared project data and cannot be used to accept an internal team invitation.
+
+M24 DETAILED REQUIREMENTS
+
+Team roles assignments and resource capacity continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Roles invitation lifecycle and record sharing
+
+[ ] M24-012  Provide an effective-access preview for View project, Edit project, View financials, Draft invoices, Publish invoices, Send payment requests, Manage recurring collection, Issue refunds, Manage holds, View internal notes and Communicate with clients. Separate inherited permissions from explicit grants, enforce both server-side, and preserve M11–M18 role restrictions.
+
+[ ] M24-013  When sharing a formerly private project, preview the exact records and permissions being shared. Do not include other projects, private conversations or financial records by default; reuse existing scoped links rather than cloning a divergent project.
+
+[ ] M24-014  Use invitation states Pending, Accepted, Expired and Revoked with a proposed seven-day expiry. Require acceptance by the invited verified email, invalidate revoked/expired tokens and make resend create one controlled replacement rather than duplicate memberships.
+
+[ ] M24-015  Record who changed a role/access grant, when and the before/after values. Re-evaluate permissions immediately and prevent a manager/member from changing their own role or granting access beyond their delegated scope.
+
+[ ] M24-016  On removal, revoke active access and future jobs performed as that member, preserve their historical authorship and present open assignments for reassignment. Do not delete completed time, signed documents or client history to remove a teammate.
+
+People and equipment capacity
+
+[ ] M24-017  Provide each active worker's capacity settings with Timezone, Working weekdays and Hours per weekday. Leave new capacity Unconfigured until reviewed; do not silently assume that every invitee is available forty hours each week.
+
+[ ] M24-018  Accept daily capacity from 0 to 24 hours with an explicit effective date and week-start preference. Distinguish capacity hours from the appointment windows in M20; changing weekly capacity alone must not move client appointments.
+
+[ ] M24-019  Calculate available capacity as scheduled capacity minus applicable time-off hours, floored at zero. Show original capacity, time off and remaining available hours separately, using the worker's timezone for day/week boundaries.
+
+[ ] M24-020  Calculate planned load from linked task allocations and service appointments without counting the same linked visit twice. Show the contributing records and distinguish planned effort from billable hours or recorded actual time.
+
+[ ] M24-021  Provide Day and Week workload views with Member, Available hours, Planned hours, Remaining hours and Utilization columns. Compute utilization only when available hours exceed zero; show No capacity rather than dividing by zero.
+
+[ ] M24-022  Provide Assign work with an existing Project, optional Task or Visit, Staff member, Date range and Estimated hours. Require positive estimates in quarter-hour increments and save one linked allocation rather than an unrelated billing record.
+
+M24 DETAILED REQUIREMENTS
+
+Team roles assignments and resource capacity continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+People and equipment capacity
+
+[ ] M24-023  Flag over-allocation with the actual excess hours and text, not color alone. Offer Reassign, Change dates and Adjust estimate; an authorized planning override must remain visibly over capacity and must not bypass appointment conflict protection.
+
+[ ] M24-024  Reuse M19/M20 time-off records in workload calculations and show already scheduled work affected by a new absence. Keep cancellation or reassignment explicit; do not treat a capacity reduction as permission to cancel client bookings.
+
+[ ] M24-025  Provide Equipment records with Name, optional Category/Location, Available quantity and Active state. Require whole quantities of at least one; deactivation prevents new reservations while preserving historical and future affected assignments for review.
+
+[ ] M24-026  Reserve required equipment quantities for actual appointment intervals plus applicable setup buffers. Support maintenance/unavailable intervals and reject simultaneous reservations exceeding stock; show staff-only resource names without leaking another client's booking details.
+
+[ ] M24-027  When M15 actual time is available, add a permission-scoped Planned versus Actual display with its calculation period. Do not label planned capacity as payroll, paid work or profit, and do not disclose cost rates to ordinary members.
+
+Observable team and capacity acceptance checks
+
+[ ] M24-028  Invite a controlled test member, accept once and replay acceptance. Confirm one membership is created, an expired/revoked link fails and an invitation for another verified email cannot be accepted by the wrong user.
+
+[ ] M24-029  Test Owner, Admin, Manager, Member and Bookkeeper through direct API requests as well as navigation. Confirm ownership transfer, refunds, private conversations and unassigned projects obey the defined effective permissions.
+
+[ ] M24-030  Share one project with a member and leave a second project private. Confirm the member can use assigned work but cannot fetch the private project, its client notes or invoice records by changing an identifier.
+
+[ ] M24-031  Set weekly capacity to 40 hours, time off to 8 hours and planned work to 36 hours. Confirm available capacity is 32, over-allocation is 4 and utilization is 112.5 percent, with no duplicate linked-visit counting.
+
+[ ] M24-032  Reserve the last unit of equipment with two simultaneous booking requests. Confirm only one reservation succeeds and cancelling it restores available quantity without changing a completed historical reservation.
+
+[ ] M24-033  Remove a test teammate with open assignments and an active session. Confirm access stops immediately, reassignment controls preserve the work and their past authorship, signatures and time records remain intact.
+

@@ -1,0 +1,96 @@
+M15 DETAILED REQUIREMENTS
+
+Time expenses and job profitability
+
+P1 expansion  |  Dependencies: M02, M05, M11, M14
+
+Connect accurate time and expense records to invoiceable work and explain project profit using visible revenue, cost and currency assumptions.
+
+Inspect records and build on existing time tools
+
+[ ] M15-001  Inspect current manual time entries, billable flags, rates, currencies and timesheets before editing; test each requirement, retain existing records and source IDs, and add only missing timer, expense or profitability behavior.
+
+[ ] M15-002  Place Time log and Expenses under Time and expenses; add a project Financials tab with Time, Expenses and Profit views, and keep private labor costs separate from any client-shared progress information.
+
+[ ] M15-003  List time entries with Date, Person, Client, Project, Task, Duration, Billable, Rate, Currency, Approval and Invoiced status; provide date, person, project, billable, approval and invoiced filters plus saved personal views.
+
+[ ] M15-004  Show No time recorded with Add time or Start timer and No expenses yet with Add expense; distinguish no matching filters, missing source data and load errors, and never substitute zero costs when the expense query fails.
+
+Manual time timer and invoicing
+
+[ ] M15-005  Provide Add time with required Date, Duration and Project, optional Task and Description, and Billable toggle; default Person to the current user, reject nonpositive durations, and restrict project/person choices to authorized records.
+
+[ ] M15-006  Provide Start timer, Pause, Resume and Stop and save controls with selected Project and optional Task; persist elapsed time on the server, show a running indicator across pages, and recover state after refresh or temporary disconnection.
+
+[ ] M15-007  Permit only one active timer per person; when another timer exists, offer Return to running timer or Stop current and start here, preserving its recorded duration and preventing two devices from silently double-counting the same interval.
+
+[ ] M15-008  Store actual duration in seconds; offer billing rounding None, Round up to 6 minutes or Round up to 15 minutes, default None, and display Actual time and Billable time separately without overwriting the original work duration.
+
+[ ] M15-009  Resolve Billable rate from explicit entry override, project rate, person rate then business default; show the selected source, require currency, and permit only authorized users to edit rates or view private internal cost rates.
+
+[ ] M15-010  Provide timesheet states Draft, Submitted, Approved and Rejected with Submit, Approve, Reject and Return to draft actions; require a rejection reason, lock approved entries against silent edits, and retain revision history.
+
+M15 DETAILED REQUIREMENTS
+
+Time expenses and job profitability continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Manual time timer and invoicing
+
+[ ] M15-011  Provide Create invoice from time with Date range, Project and approved/uninvoiced selection; offer Detail choices One line per entry, Group by task or Group by person, preview dates/descriptions/hours/rates, and link every billed entry to its invoice line.
+
+[ ] M15-012  Calculate billable amount as selected billable seconds divided by 3600 multiplied by the snapshotted hourly rate, rounded half-up in currency minor units; do not change invoiced amounts when rates or rounding preferences later change.
+
+Expense fields approvals and imports
+
+[ ] M15-013  List expenses with Date, Merchant, Category, Project, Currency, Amount, Billable, Approval, Receipt and Reimbursement status; provide date, merchant, category, project, billable, approval, receipt-missing and reimbursement filters.
+
+[ ] M15-014  Provide Add expense with required Expense date, Merchant, Amount and Currency; include optional Project, Description and Receipt, Payment method choices Card, Bank transfer, Cash or Other, and Billable to client default Off.
+
+[ ] M15-015  Offer default Category choices Travel, Meals, Supplies, Software, Subcontractors, Equipment, Payment fees and Other plus authorized custom categories; preserve stable category IDs and historical labels when a category is renamed or archived.
+
+[ ] M15-016  Allow receipt attachments JPG, PNG and PDF up to 10 MB each and five per expense unless an existing verified limit applies; validate actual file type, show upload progress, provide Retry, and restrict downloads to authorized users.
+
+[ ] M15-017  Provide optional Included tax amount and Tax treatment choices Included in cost or Excluded recoverable tax; default Included in cost, validate tax does not exceed the expense, and label the classification as the business's configured accounting treatment.
+
+[ ] M15-018  Use expense approval states Draft, Submitted, Approved and Rejected; provide Submit, Approve and Reject with a required rejection reason, keep original receipts immutable, and separate approval from whether money was actually paid or reimbursed.
+
+[ ] M15-019  Provide Paid status choices Paid and Unpaid with required Paid date when paid; track employee reimbursement separately as Not requested, Requested, Processing or Reimbursed, and require a real payment/reference before recording reimbursement completion.
+
+[ ] M15-020  For imported bank/card expenses, show source account, provider transaction ID, Pending or Posted source status and suggested category; deduplicate imports, require review of uncertain matches, and leave unsupported bank connections visibly blocked under M31.
+
+[ ] M15-021  Provide Add reimbursable expenses to invoice with selected approved/uninvoiced expenses, optional markup None, Fixed or Percentage, and a preview of client-facing descriptions; preserve original cost and prevent re-invoicing the same reimbursement obligation.
+
+M15 DETAILED REQUIREMENTS
+
+Time expenses and job profitability continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Project profitability and permissions
+
+[ ] M15-022  Show project Profit basis choices Collected and Billed; default Collected, define collected income from successful net receipts after refunds and billed income from issued invoice principal after credits, and exclude tips unless explicitly included.
+
+[ ] M15-023  Calculate project profit as selected income minus approved project expenses, attributed payment fees and the selected labor cost basis; label Actual payroll cost or Estimated time cost, never count both for the same labor, and show unallocated costs separately.
+
+[ ] M15-024  Provide project Labor cost basis choices None, Estimated time cost or Actual payroll allocations; default None until rates or real payroll allocations exist, require currency alignment, and show Missing cost data instead of presenting incomplete profit as final.
+
+[ ] M15-025  Display Income, Expenses, Labor, Payment fees, Profit and Margin with drill-down rows; calculate margin as profit divided by income only when income is positive, otherwise show Not applicable, and group unmatched currencies separately.
+
+[ ] M15-026  Allow Members to record their own assigned work and submit expenses; allow Managers to review assigned-project entries, reserve private rates/costs for explicit financial grants, and give Bookkeepers only authorized financial records without private conversations.
+
+Errors and observable acceptance checks
+
+[ ] M15-027  Preserve unsaved entries on validation or network errors; identify missing project, invalid duration, unsupported currency, unavailable receipt and stale approval separately, and offer retry without duplicating time, expenses or uploaded files.
+
+[ ] M15-028  Verify a timer survives refresh and another-device access, stopping creates one entry, and a rejected timesheet returns with its reason; editing an already invoiced entry must require a correction instead of rewriting billed history.
+
+[ ] M15-029  Verify 2.5 approved billable hours at 120.00 create a 300.00 invoice with traceable entry detail; changing the catalog rate afterward leaves that invoice unchanged and excludes those entries from a second normal import.
+
+[ ] M15-030  Verify 2.5 hours at an internal cost rate of 40.00, collected income of 300.00, expenses of 50.00 and payment fees of 9.00 produce 141.00 profit and 47% margin using Estimated time cost.
+
+[ ] M15-031  Verify an unpaid 50.00 expense remains identifiable as an obligation rather than a bank withdrawal, a duplicated imported transaction is flagged, and an expense reimbursement never creates an extra business expense for the same cost.
+
+[ ] M15-032  Verify a client cannot see internal rates, margins or receipts; a Member cannot read a colleague's private cost rate, and a multi-currency project cannot display a fabricated single-currency profit without an explicit conversion basis.
+

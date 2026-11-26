@@ -1,0 +1,110 @@
+M16 DETAILED REQUIREMENTS
+
+Reports exports and forecasts
+
+P1 expansion  |  Dependencies: M11, M14, M15
+
+Provide explainable reports and exportable source records while separating invoice face value, actual collections, outstanding obligations and forecast assumptions.
+
+Inspect existing reporting definitions
+
+[ ] M16-001  Inspect every existing report, aggregation and CSV export against source records before editing; retain verified behavior and explicitly relabel invoice face value or recorded activity that is currently presented as cash received, profit or forecast.
+
+[ ] M16-002  Provide Reports choices Overview, Collections, Receivables, Expenses, Project profit, Time, Client value, Team and Cash forecast; show metric definitions, No matching records with Clear filters, and distinct Loading or Failed with Retry states rather than fabricated zero totals.
+
+[ ] M16-003  Place Date range, Client, Project and Currency filters above results with This month, Last month, This quarter, This year and Custom choices; add As-of date, default today, for balance/aging snapshots and preserve authorized URL filters and business timezone.
+
+Financial report definitions and drill downs
+
+[ ] M16-004  Label each report's Date basis explicitly: Invoice issued date, Invoice due date, Payment received date, Expense incurred date or Time entry date as applicable; default by report purpose and never switch bases without refreshing the explanatory label.
+
+[ ] M16-005  Show Overview metrics Gross invoiced, Invoice credits, Net collected, Outstanding and Overdue from authoritative records; exclude Draft/Void principal, label period flows versus As-of balances, reconstruct snapshots using effective ledger timestamps, and link each metric to contributing rows.
+
+[ ] M16-006  Define Net collected as succeeded gross receipts less successful refunds, excluding pending/failed payments; show processor fees, net settlement and tips separately, and prevent payouts or recorded invoice totals from becoming a second copy of collection revenue.
+
+[ ] M16-007  Define Outstanding from M14's adjusted unpaid principal across eligible invoices at the selected As-of date; derive Overdue when the due date precedes that local date, show Due today separately, and exclude later ledger events from historical snapshots.
+
+[ ] M16-008  Provide invoice status choices All, Draft, Open, Partially paid, Paid, Overdue, Void and Uncollectible; define Partially paid as positive applied receipts below collectible principal and Overdue as the due predicate, while retaining the underlying lifecycle.
+
+M16 DETAILED REQUIREMENTS
+
+Reports exports and forecasts continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Financial report definitions and drill downs
+
+[ ] M16-009  Show Receivables aging buckets Current, 1–30 days, 31–60 days, 61–90 days and 91+ days; calculate age against the selected business-local As-of date, allocate installment balances by their own due dates, and show uncollectible amounts separately.
+
+[ ] M16-010  List collection rows with Received date, Client, Invoice, Method, Currency, Gross, Refunds, Fees and Net settlement; drill through to immutable payment events and label externally recorded receipts distinctly from provider-confirmed transactions.
+
+[ ] M16-011  Group expense reports by Category, Project, Merchant or Month with incurred and paid dates available; exclude duplicate fee imports and internal transfers, and show recoverable-tax treatment and reimbursement status without claiming automatic tax filing.
+
+[ ] M16-012  Reuse M15's explicit profitability basis and cost definitions in Project profit reports; display Missing costs or Unallocated costs warnings beside affected totals, and never add estimated labor on top of equivalent actual payroll allocations.
+
+[ ] M16-013  Offer Time report columns Person, Project, Task, Actual duration, Billable duration, Billable value, Approval and Invoiced status; sum actual seconds separately from rounded billable durations and group monetary values by currency.
+
+[ ] M16-014  Provide Client value and Team reports using authorized projects only; define client lifetime collections from net receipts across projects, show date scope, and restrict staff cost rates, performance breakdowns and private financial exports to explicit grants.
+
+[ ] M16-015  For Currency All, show separate subtotals per ISO code; offer converted display only after a configured exchange-rate source, rate date and conversion basis exist, preserve original amounts, and label converted totals as estimates where appropriate.
+
+Forecast inputs and scenario behavior
+
+[ ] M16-016  Place Cash forecast inputs above the chart: Currency, As-of date, Opening available cash, Horizon and Scenario; offer horizons 4 weeks, 13 weeks, 12 months or Custom, and require a stated source for opening cash.
+
+M16 DETAILED REQUIREMENTS
+
+Reports exports and forecasts continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Forecast inputs and scenario behavior
+
+[ ] M16-017  Provide Opening cash source choices Manual balance or Connected account balance when verified; show source account and retrieval timestamp, exclude credit limits/holds from available cash, and never claim a manual value is synchronized bank data.
+
+[ ] M16-018  Include expected unpaid-invoice collections, approved outgoing obligations and reviewed recurring-plan estimates with editable expected dates; exclude already paid records and deduplicate a generated invoice against its previously forecast recurring occurrence.
+
+[ ] M16-019  Keep pipeline opportunities out of the default cash forecast; offer Include weighted opportunities as an explicit scenario toggle with per-opportunity probability and expected collection date, clearly labeled uncertain and excluded from actual revenue reports.
+
+[ ] M16-020  Offer scenario choices Baseline, Optimistic and Conservative with visible editable collection-delay and probability assumptions; calculate closing cash as opening cash plus forecast inflows minus forecast outflows, and show the source rows behind each period.
+
+[ ] M16-021  Provide Add forecast item with required Label, Inflow or Outflow, Amount, Currency and Expected date plus optional recurrence and note; mark manual items as estimates and prevent a forecast item from creating a real invoice, payment or bank transfer.
+
+[ ] M16-022  Show overdue receivables, missing dates and negative projected cash with explanatory warnings; offer Review assumptions and View contributing items, and state that the forecast is a scenario calculation rather than a promise of future collections.
+
+Exports accounting and access
+
+[ ] M16-023  Provide Export CSV and Download PDF with an export preview showing report, date basis, filters, currency groups, row count and Included columns; export all matching authorized rows across pagination and explain any actual system limit before starting.
+
+[ ] M16-024  Preserve currency codes, original record IDs, ISO dates and amount precision in exports; escape spreadsheet formula-leading text safely, omit secrets and hidden private fields, and include report definitions and generated timestamp in downloadable PDFs.
+
+[ ] M16-025  Show export states Queued, Generating, Ready, Failed and Expired with Retry and Download actions; use access-controlled downloads with displayed expiry, and log who exported which report without exposing the file to another business.
+
+M16 DETAILED REQUIREMENTS
+
+Reports exports and forecasts continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Exports accounting and access
+
+[ ] M16-026  Provide Accounting export fields for client, invoice, line, tax/category, payment and adjustment identifiers; route native QuickBooks Online connection, mapping and sync execution to M31, and never label a CSV download as a working accounting integration.
+
+[ ] M16-027  For QuickBooks-linked reports, show last successful sync, source record IDs and pending exceptions supplied by M31; expose Review mapping or Retry failed sync only to authorized users and avoid posting duplicated invoice or payment records.
+
+[ ] M16-028  Offer period comparison None, Previous same-length period or Previous calendar period; disable the last choice for custom ranges, show both date ranges, display No baseline when prior value is zero, and preserve equal currency and metric definitions.
+
+[ ] M16-029  Restrict global financial reports to Owner/Admin and authorized Bookkeepers; scope Managers to granted assigned-project financials, Members to permitted personal time, and Clients to their own shared invoices or statements rather than internal analytics.
+
+Observable acceptance checks
+
+[ ] M16-030  Verify issued invoices of 100.00 and 200.00, one 60.00 payment and a 10.00 refund retaining the obligation produce 300.00 gross invoiced, 50.00 net collected and 250.00 outstanding, with refund and fee details separately visible.
+
+[ ] M16-031  Verify a due-today invoice remains Current and moves to 1–30 days only after local midnight; an installment paid before a report refresh disappears from outstanding balances without changing historical receipt dates.
+
+[ ] M16-032  Verify a forecast with 500.00 opening cash, 300.00 expected inflows and 200.00 expected outflows closes at 600.00; converting a recurring estimate into its real invoice must not add the 300.00 a second time.
+
+[ ] M16-033  Verify filtered CSV row counts match drill-down results across multiple pages, totals reproduce the visible report, spreadsheet-leading malicious text stays inert, and a 2.5-hour plus 1.5-hour time sample totals 4 actual hours.
+
+[ ] M16-034  Verify USD and CAD records remain separate without configured rates, revoked report permissions invalidate existing export access, and a simulated accounting outage leaves a visible sync exception rather than a false success badge.
+

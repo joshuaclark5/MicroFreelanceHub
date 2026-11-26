@@ -1,0 +1,116 @@
+M17 DETAILED REQUIREMENTS
+
+Subscription billing and entitlements
+
+P0 core  |  Dependencies: M01
+
+Make MFH plan prices, usage limits and subscription changes transparent while enforcing real provider-backed entitlements and preserving existing customer agreements.
+
+Inspect existing billing and separate it from client payments
+
+[ ] M17-001  Inspect existing subscription provider products, checkout sessions, price IDs, customer records and entitlement checks before editing; record working evidence and preserve customer/subscription identifiers, treating existing subscription changes as unauthorized unless standing authorization covers them.
+
+[ ] M17-002  Place subscription controls in Settings > Billing with Plan, Usage, Payment method and Billing history tabs; clearly identify charges for MicroFreelanceHub membership rather than the business's client invoice payments.
+
+[ ] M17-003  Show Current plan, Billing interval, Subscription status, Next renewal date, Next expected charge and provider connection state; derive financial dates/amounts from the provider and label missing or stale synchronization with a corrective action.
+
+[ ] M17-004  Show Free with Choose a plan when no paid subscription exists and No billing charges yet for confirmed empty history; distinguish a failed billing lookup from no subscription, and retain the last verified plan with its sync timestamp.
+
+Plan pricing and entitlements
+
+[ ] M17-005  Configure the published target plans Free, Starter at USD 31 per month and Professional at USD 54 per month only after matching actual provider prices; display billing frequency and applicable additional charges before checkout.
+
+[ ] M17-006  Define Free allowance as the first three distinct published agreements per business; drafts and previews consume nothing, retries and versions of one agreement count once, and display Agreements used with links to the counted records.
+
+[ ] M17-007  Give paid plans unlimited ordinary active projects as the recommended entitlement; remove an obsolete one-active-project restriction only after inspecting its enforcement, and keep provider-backed AI, storage and messaging allowances separately visible.
+
+[ ] M17-008  Create one authoritative entitlement table containing Feature key, Enabled plans, Limit type, Limit amount and Effective plan version; populate it from approved offers and existing commitments rather than letting page labels independently determine access.
+
+[ ] M17-009  Keep proposed annual prices USD 300 and USD 540 unavailable for purchase until confirmed and backed by real annual provider prices; hide or disable annual checkout controls with a clear unavailable explanation and never market them as active offers.
+
+M17 DETAILED REQUIREMENTS
+
+Subscription billing and entitlements continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Plan pricing and entitlements
+
+[ ] M17-010  Preserve legacy plan and price versions for current subscribers; show Current price and any approved Future price/effective date separately, and do not migrate existing subscriptions or increase charges merely because the public pricing configuration changes.
+
+[ ] M17-011  For AI, storage and SMS allowances, require an actual cost/source basis, reset period and overage behavior choices Stop at limit or Approved paid overage; default Stop at limit and show any real overage price before enabling it.
+
+Checkout details and billing records
+
+[ ] M17-012  Provide Compare plans, Upgrade, Schedule downgrade, Cancel subscription, Manage payment method and View billing history actions according to current state; restrict subscription mutations to Owner and show read-only explanations for other authorized viewers.
+
+[ ] M17-013  Before plan checkout, show selected plan, interval, subtotal, provider-calculated tax/fees if any, due now, proration adjustments and next renewal amount/date; require an explicit Confirm plan change action for the displayed financial terms.
+
+[ ] M17-014  Create checkout or plan-change sessions server-side using approved provider price IDs and the authenticated business; reject client-supplied prices or entitlement flags, and use provider-hosted payment entry rather than collecting raw card information.
+
+[ ] M17-015  Provide Billing contact fields Name, Email, Business name and Address fields requested by the provider, with Country and tax identifiers when applicable; validate required fields and do not promise tax exemptions without verified provider configuration.
+
+[ ] M17-016  Provide Add payment method, Replace payment method and Set as default through the provider's authorized flow; show masked descriptors and expiry, preserve the previous default until replacement succeeds, and explain provider restrictions on removing a required method.
+
+[ ] M17-017  List billing history with Document date, Period, Plan, Currency, Subtotal, Tax, Total, Provider status and Download receipt/invoice; show refunds and credits separately and never mix these records into the business's client-sales reports.
+
+[ ] M17-018  Provide Billing notifications recipients using verified authorized billing contacts and choices Renewal receipt, Payment failed and Plan changed; default to the Owner, log delivery outcomes and test only with approved recipients.
+
+M17 DETAILED REQUIREMENTS
+
+Subscription billing and entitlements continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Subscription lifecycle and changes
+
+[ ] M17-019  Normalize subscription status as None, Trialing, Active, Past due, Paused, Cancelled or Expired while retaining raw provider status; show an Attention required badge for unmapped states, and enable trials only if an actual configured offer exists.
+
+[ ] M17-020  Activate paid entitlements only after verified provider state or an explicitly recorded authorized grant; a checkout redirect or client-side success message alone must not unlock paid features.
+
+[ ] M17-021  Show Checkout pending, Payment action required or Checkout failed when applicable, with Resume checkout or Retry; retain the prior plan until the provider confirms the new subscription and prevent repeated clicks from creating duplicate memberships.
+
+[ ] M17-022  For Upgrade, preview effective date, remaining-period credit and amount due using provider calculations; support immediate application only when confirmed, and leave the current plan unchanged after failed payment or abandoned confirmation.
+
+[ ] M17-023  For Schedule downgrade, default to the current period end, list affected features and usage before confirmation, and preserve data and export access; disable unsupported new actions after the effective date without deleting existing projects or agreements.
+
+[ ] M17-024  For Cancel subscription, default to Cancel at period end and show access end date, remaining charges and data-access policy; request confirmation, retain records, and do not describe cancellation as an automatic refund.
+
+[ ] M17-025  Provide Undo scheduled cancellation before the provider cutoff and Reactivate when supported; preview any new charge, restore access only after confirmation, and show why reactivation is unavailable for a closed provider subscription.
+
+[ ] M17-026  Configure a visible past-due grace period, recommended seven calendar days unless an existing policy applies; show the exact access-change date, keep permitted read/export access, and recover entitlements automatically after confirmed payment without duplicate billing.
+
+Usage metering permissions and failure handling
+
+[ ] M17-027  Record billable usage with business, feature, quantity, unit, occurrence ID and billing period; deduplicate retries, distinguish successful provider usage from failed requests, and show Usage history with date and source links.
+
+M17 DETAILED REQUIREMENTS
+
+Subscription billing and entitlements continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Usage metering permissions and failure handling
+
+[ ] M17-028  Display allowance, used amount, remaining amount and reset date for each limited feature; show in-app notices at 80% and 100%, explain the blocked action at the limit, and offer an accurate permitted plan or overage choice.
+
+[ ] M17-029  Reset monthly usage against the actual subscription billing period rather than calendar-month assumptions; keep lifetime Free agreement usage cumulative, and define any carryover explicitly instead of silently discarding paid entitlements.
+
+[ ] M17-030  Enforce plan and role permissions on server actions, background jobs and APIs; a tenant Owner may manage their subscription but cannot edit the platform's entitlement catalog, provider prices or another business's usage records.
+
+[ ] M17-031  Deduplicate subscription webhooks and reconciliation jobs, handle delayed events without reverting newer plan state, and show a supportable billing-sync error with last successful sync instead of inventing a renewal, refund or entitlement grant.
+
+Observable acceptance checks
+
+[ ] M17-032  Verify three distinct published agreements consume the Free allowance, repeated saves and amendment versions do not, and the fourth new agreement shows an accurate upgrade path while drafts and existing records remain accessible.
+
+[ ] M17-033  Verify Starter checkout shows USD 31 monthly and Professional USD 54 monthly when backed by matching live configuration; annual purchase remains unavailable, and a tampered client request cannot buy an unapproved price or unlock features.
+
+[ ] M17-034  Verify a paid tenant can create multiple ordinary projects, a failed upgrade retains its old plan, and a duplicate checkout callback does not produce a second subscription or charge.
+
+[ ] M17-035  Verify scheduled cancellation preserves access until the displayed date, Undo scheduled cancellation clears the provider schedule, and downgrade restricts only the appropriate future actions without deleting existing business records.
+
+[ ] M17-036  Verify provider-confirmed payment recovery restores access after a past-due restriction, usage resets on the correct billing boundary, and repeated usage events count once against the allowance.
+
+[ ] M17-037  Verify only the Owner can confirm plan/cancellation changes, authorized Bookkeepers can download granted billing records without changing the plan, legacy prices remain unchanged, and provider test events cannot grant production entitlements.
+

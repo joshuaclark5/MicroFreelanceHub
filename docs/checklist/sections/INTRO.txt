@@ -1,0 +1,24 @@
+PREPARED FOR JOSHUA CLARK
+
+MicroFreelanceHub OpenClaw Detailed Implementation Checklist
+
+Inspect existing features then build only the gaps
+
+November 25 2026
+
+OpenClaw must inspect and test each requirement before building it. If the feature already satisfies the requirement, record proof, check the box and move on. If it is partial, add only the missing behavior. Preserve working code and records.
+
+This execution workbook contains 1,220 initially empty checkboxes across 35 product modules and the initial operating instructions. It specifies screens, menus, fields, dropdown choices, defaults, validation, permissions, failure states and acceptance checks. All 113 earlier inventory items are mapped to these modules.
+
+The detailed UI choices are proposed MicroFreelanceHub requirements. Equivalent existing behavior qualifies; these are not assertions about HoneyBook having the same screen labels or dropdowns. Use the earlier comparison as research context and this workbook as the execution checklist.
+
+After each individual feature or fix is published and safely verified live, immediately message Joshua in the established private OpenClaw conversation. Include the change, link, verification and next item. Continue without waiting for a reply.
+
+How to begin
+
+Read G00 first. Scan the module index, then process requirements in order while resolving dependencies from existing verified capabilities. Save a durable progress record. The 24-hour and 48-hour reports are checkpoints of actual results; the full specification is not a two-day completion guarantee.
+
+Checkbox rule
+
+Every box starts empty. Mark a requirement complete only after its acceptance passes in the named environment. Existing verified and newly implemented work must remain distinguishable in the progress record. Partial, blocked and deferred work stays unchecked.
+

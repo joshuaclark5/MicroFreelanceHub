@@ -1,0 +1,118 @@
+M12 DETAILED REQUIREMENTS
+
+Invoice collection and pay links
+
+P0 core  |  Dependencies: M11, M14
+
+Turn verified invoices into clear payment requests, schedules and client-specific checkout links without confusing drafts, authorizations or pending funds with collected money.
+
+Inspect collection and expose honest readiness
+
+[ ] M12-001  Trace the existing invoice, agreement and Stripe Connect collection paths before editing; test each requirement with synthetic data and actual provider test mode where available, preserve working controls, and record unavailable credentials as blockers.
+
+[ ] M12-002  Add Collection and Payment schedule tabs to invoice detail; show provider readiness as Disabled, Not connected, Connecting, Connected or Attention required, with Set up payments or Review connection actions for permitted business administrators.
+
+[ ] M12-003  Show invoice lifecycle, payment progress and due condition separately above Total, Paid, Credits and Amount due; make Pay invoice unavailable for Draft, Void or Uncollectible records and explain the reason beside the control.
+
+Payment schedule and deposits
+
+[ ] M12-004  Provide Payment schedule choices Full amount, Deposit and balance, Equal installments and Custom installments; default to Full amount, and link Recurring billing to M13 without turning an installment schedule into a subscription.
+
+[ ] M12-005  For Deposit and balance, require Deposit type Fixed amount or Percentage and a positive value; default the remaining balance to the invoice due date, and block deposits exceeding the collectible invoice principal.
+
+[ ] M12-006  For Equal installments, require Count between 2 and 24, First due date and Interval Weekly, Every 2 weeks or Monthly; clamp unavailable monthly days while retaining the original anchor and preview every date/amount before Save schedule.
+
+[ ] M12-007  For each custom installment, require Label, Amount type Fixed or Percentage and Due rule On receipt, Specific date, Days after issue, Days before project date or Days after project date; request required date/offset inputs conditionally.
+
+[ ] M12-008  Reject missing project dates, duplicate installment identifiers, nonpositive amounts and schedules whose amounts do not equal the invoice balance; use currency minor units and assign rounding remainder to the final unpaid installment.
+
+[ ] M12-009  Provide Edit schedule only for unpaid portions; preserve paid installments and historical versions, show before/after dates and amounts, and require a reason before applying changes that affect an already shared invoice.
+
+M12 DETAILED REQUIREMENTS
+
+Invoice collection and pay links continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Payment schedule and deposits
+
+[ ] M12-010  Show a schedule table with Installment, Due date, Amount, Paid, Remaining and derived Due condition; provide Collect installment, Copy payment link and View payment history only when the selected installment can accept funds.
+
+Send and share payment requests
+
+[ ] M12-011  Provide Send invoice with recipients selected from authorized client billing contacts, required Subject and Message fields, a rendered preview and Send action; allow Copy link separately and add SMS only after M25 verifies sending support.
+
+[ ] M12-012  Persist each send request with invoice version, recipients, channel and an idempotency key; show Queued, Sent, Delivered when confirmed, or Failed, retain Retry for failures, and do not infer delivery from queue acceptance.
+
+[ ] M12-013  Create client-specific pay links from Payments > Pay links > Create pay link; require Client, Amount, Currency and Description, allow optional Project or Open invoice, and default expiry to 24 hours with an editable date/time.
+
+[ ] M12-014  Offer supported payment methods per link from actual provider capabilities; present Card, Bank transfer, Apple Pay or Google Pay only when enabled for that merchant, country and checkout, and explain disabled choices instead of promising availability.
+
+[ ] M12-015  List pay links with Client, Purpose, Amount, Currency, Created, Expires, Status and Paid amount; offer All, Active, Paid, Expired and Revoked filters, treating partial links as Active, with Copy link, View checkout, Revoke and Create replacement actions.
+
+[ ] M12-016  Bind each link to its intended client and payable purpose; reject tampered amounts, expired/revoked links and double submission, use idempotent checkout creation, and distinguish unallocated client payments from payments applied to an invoice.
+
+[ ] M12-017  Show branded checkout with business identity, client-visible invoice or description, currency, amount, due date and supported methods; include View invoice and payment-support contact controls without exposing other clients or internal costs.
+
+Client payment options
+
+[ ] M12-018  Provide Pay amount due and, where enabled, Pay selected installment; allow optional partial payments only when the business enables them and supplies a positive minimum, never accepting more than the current outstanding balance without explicit credit handling.
+
+M12 DETAILED REQUIREMENTS
+
+Invoice collection and pay links continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Client payment options
+
+[ ] M12-019  Offer tipping controls Off or On with business-configurable suggested percentages and Custom amount; default Off, make tips optional and deselectable, and record tips separately from invoice principal, taxes and remaining installments.
+
+[ ] M12-020  Use provider-hosted or tokenized payment entry; display only permitted card brand/last-four or bank descriptors, request explicit saved-method consent separately, and never store raw card numbers, security codes or bank login credentials.
+
+[ ] M12-021  Show bank payments as Pending while processing and keep their funds separate from settled receipts; prevent duplicate collection attempts against an already reserved obligation, and allow a controlled new attempt after confirmed failure or cancellation.
+
+[ ] M12-022  At payment completion, show Succeeded only from authoritative provider confirmation; otherwise show Processing with a refreshable status, receipt link when available, and clear Retry or Choose another method actions after failure.
+
+Reminders and late fees
+
+[ ] M12-023  Provide Payment reminders toggle default Off, channel Email with SMS conditional on M25, editable offsets Before due, On due date and After due, and default suggested offsets of 3 days before, due day, 3 and 7 days after.
+
+[ ] M12-024  Let the reminder editor require sender identity and message template, preview resolved client/invoice/amount/date variables, choose business-timezone send time, and reject unresolved variables or overlapping duplicate reminder steps before activation.
+
+[ ] M12-025  Suppress reminders for paid, void, uncollectible, disputed or paused-collection records and pending attempts covering the due amount; log each evaluated/sent/skipped event and deduplicate retries by installment, reminder step and scheduled occurrence.
+
+[ ] M12-026  Provide Pause collection reminders and Resume reminders with a reason and optional resume date; make Send reminder now show the exact recipient and amount for review, subject to notification permissions and existing authorization.
+
+[ ] M12-027  Expose late fees only after business policy configuration, with Off or On, Fixed or Percentage, Grace days, One-time or Per unpaid interval, interval Weekly or Monthly, and a maximum total fee; default Off and prohibit compounding.
+
+M12 DETAILED REQUIREMENTS
+
+Invoice collection and pay links continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Reminders and late fees
+
+[ ] M12-028  Base each late fee on eligible overdue principal and configured effective terms; preview the charge, post it as a linked adjustment with its own immutable calculation record, and provide Waive fee with permission and reason.
+
+Permissions and observable acceptance
+
+[ ] M12-029  Allow Owner/Admin and explicitly authorized Bookkeepers to configure collection; allow Managers to send assigned invoices only with permission, prevent Members changing payment settings, and restrict Clients to their own shared payable records.
+
+[ ] M12-030  Show actionable errors for merchant restrictions, unsupported currency, invalid recipient, missing due date, expired link and provider outage; retain the unpaid obligation, preserve the draft request, and never mark it paid to dismiss an error.
+
+[ ] M12-031  Show No pay links yet with Create pay link and No matching results with Clear filters; show No payment schedule until one exists, and distinguish a failed provider lookup from a confirmed zero amount due.
+
+[ ] M12-032  Verify a 100.00 invoice split into three equal installments produces 33.33, 33.33 and 33.34; paying the first installment leaves 66.67 and preserves the two remaining original due dates.
+
+[ ] M12-033  Verify a 25% deposit on a 200.00 invoice creates a 50.00 payable deposit and 150.00 balance; an authorization hold alone must leave the deposit unpaid, while a succeeded payment reduces it exactly once.
+
+[ ] M12-034  Create and revoke a synthetic pay link, then verify checkout rejects it; verify its replacement has a new token, expires at the displayed business-local time, and cannot be edited through URL parameters.
+
+[ ] M12-035  Verify duplicate checkout submissions and repeated provider events create one payment application; a pending bank payment displays Processing, failure reopens collection, and a late success cannot overcollect an already settled invoice.
+
+[ ] M12-036  Verify paying an overdue installment cancels its queued reminders before delivery; test reminder timezone boundaries, pause/resume, duplicate jobs and provider-send failure using authorized test recipients only.
+
+[ ] M12-037  Verify a 100.00 invoice plus an optional 10.00 tip records 100.00 invoice principal and 10.00 tip; waiving a separate late fee preserves its history and never masquerades as a client payment.
+

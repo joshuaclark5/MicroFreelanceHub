@@ -1,0 +1,100 @@
+M02 DETAILED REQUIREMENTS
+
+Clients custom fields and imports
+
+P0 core  |  Dependencies: M01
+
+Maintain one reliable client record with structured details and safe import behavior.
+
+Inspect client records first
+
+[ ] M02-001  Inspect the current client table, detail routes, contact relationships, notes, tags, custom fields and import handlers; test persistence and access before adding another customer model.
+
+[ ] M02-002  Compare each requirement below with saved client records and real handlers; document verified equivalents and skip rebuilding them, extend only missing behavior and keep inaccessible provider work unchecked.
+
+Client list and profile fields
+
+[ ] M02-003  Provide Clients with search and columns Name, Company, Email, Phone, Assigned owner, Tags, Active projects and Updated; let users choose visible optional columns without changing shared data.
+
+[ ] M02-004  Provide filters Status with Active or Archived, Assigned owner, Tags and Has open project with Any, Yes or No; combine filters with AND and offer Clear filters.
+
+[ ] M02-005  Provide sort options Name A to Z, Name Z to A, Recently updated and Oldest updated; default Recently updated and preserve the choice when returning from a client.
+
+[ ] M02-006  Provide New client with Client type options Individual and Company, default Individual; require Display name as 1–120 trimmed characters and save a stable internal client identifier.
+
+[ ] M02-007  Provide optional First name, Last name and Company name fields; require Company name for Company records, and never require an invented surname for an organization.
+
+[ ] M02-008  Provide Email as an optional validated address. For Company records, expose Contacts with Add contact, Edit, Archive and Primary contact selection; each contact has Display name, Email, Phone and Role/title. Reuse canonical contact IDs. Require a usable recipient before sending; duplicate emails warn and never auto-merge distinct contacts.
+
+[ ] M02-009  Provide Phone as optional text with country selector; normalize a validated number where possible, preserve entered display formatting and do not infer permission to send SMS.
+
+[ ] M02-010  Provide Billing address fields Address line 1, Address line 2, City, Region, Postal code and Country; support Copy from service address without overwriting until confirmed.
+
+[ ] M02-011  Provide optional Service address using the same fields and a Same as billing toggle; storing an address alone must not expose it on public pages.
+
+M02 DETAILED REQUIREMENTS
+
+Clients custom fields and imports continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Client list and profile fields
+
+[ ] M02-012  Provide Preferred contact channel options Email, Phone, SMS and No preference, default No preference; explain that a preference is separate from consent or provider availability.
+
+[ ] M02-013  Provide Assigned owner as a selector of authorized business members, default the creator when allowed; reassignment updates access according to the established permission rules.
+
+[ ] M02-014  Provide Tags as a searchable multi-select; Owner and Admin may create unique trimmed names of 1–30 characters, while removing a tag from one client does not delete it globally.
+
+[ ] M02-015  Provide client tabs Overview, Projects, Documents, Invoices, Activity and Notes; show only authorized tabs, with clear counts and links to the existing canonical records.
+
+[ ] M02-016  Calculate lifetime collected value from successful allocated payments minus refunds, grouped by currency; exclude quotes and unpaid invoices, and show Unavailable when payment data is not trustworthy.
+
+Notes and custom fields
+
+[ ] M02-017  Provide Add note with required plain or safely formatted text, author and timestamp; default visibility Internal and require explicit Share with client plus a selected portal project for shared notes.
+
+[ ] M02-018  Offer note actions Edit and Delete only to permitted authors or administrators; record edits and deletions in activity, and prevent internal notes from entering client-facing exports.
+
+[ ] M02-019  Provide Settings or Clients field management with New field: Name, Applies to and Type; Applies to offers Clients, Opportunities or Projects, and Type offers Text, Long text, Number, Date, Checkbox, Single select, Multi-select or URL.
+
+[ ] M02-020  Require each custom field to have a stable key and unique name within its scope; provide Required and Show in client portal toggles, both off by default.
+
+[ ] M02-021  For Single select and Multi-select, require at least one uniquely named option, support drag or keyboard reordering and an optional default; preserve old stored values when options are retired.
+
+[ ] M02-022  For Number fields, expose Allow decimals and optional Minimum and Maximum; reject invalid bounds and values outside them without converting blank optional values to zero.
+
+[ ] M02-023  Allow Archive field instead of destructive removal when values exist; retain historical values and exports, and require a deliberate migration before changing a field's data type.
+
+M02 DETAILED REQUIREMENTS
+
+Clients custom fields and imports continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Import preview and commit
+
+[ ] M02-024  Provide Import clients accepting UTF-8 CSV up to 5 MB or 5,000 rows; offer Download sample with documented headers and reject unsupported files before creating any records.
+
+[ ] M02-025  Show a mapping step listing each source column and destination options including Skip, Display name, First name, Last name, Company, Email, Phone, address fields and existing custom fields.
+
+[ ] M02-026  Show a validation preview with total rows, ready rows, warnings and errors; require Display name mapping or a stated name-combination rule, and offer Download errors with original row numbers.
+
+[ ] M02-027  Duplicate handling choices are Skip matching, Update selected fields and Create separately; default Skip matching. Review ambiguous matches and selected overwrite fields explicitly; never merge solely by name.
+
+[ ] M02-028  Require explicit confirmation before applying updates; default Preserve existing nonempty values, allow selected fields to overwrite, and never change signed document snapshots during a client import.
+
+[ ] M02-029  Commit imports with a unique import identifier and row-level results; interrupted retries resume or safely skip committed rows, and failed rows remain downloadable without duplicating successful clients.
+
+Access actions and acceptance
+
+[ ] M02-030  Offer Archive and Restore on client records; prevent hard deletion while linked business records exist and explain the linked records rather than silently cascading their removal.
+
+[ ] M02-031  Enforce client visibility on the server for every list, detail, note, import and export; Managers access assigned clients, Members need explicit assignment and Clients cannot open the owner directory.
+
+[ ] M02-032  Using canonical company and related-contact records, test a company with two contacts, shared email and distinct projects. Verify portal participants and signers reference those contacts; reload and confirm identity links, custom fields, assignments and invoice recipients remain intact.
+
+[ ] M02-033  Test a CSV containing one valid row, one duplicate and one invalid email; preview creates nothing, commit follows the chosen policy and repeating the import creates no unintended duplicate.
+
+[ ] M02-034  Test a restricted member, unrelated business and portal client against direct client URLs and export requests; internal notes, lifetime value and hidden custom fields must remain inaccessible.
+

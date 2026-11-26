@@ -1,0 +1,122 @@
+M21 DETAILED REQUIREMENTS
+
+Booking links reminders and book and pay
+
+P0 core  |  Dependencies: M20
+
+Let clients book and manage appointments through a clear public flow with reliable capacity, payment and notification states.
+
+Inspect and configure public links
+
+[ ] M21-001  Inspect existing public booking, intake, link-token, reminder queue and payment handlers. Test each required behavior before building; preserve working client links and skip verified equivalents instead of forcing clients onto a replacement route.
+
+[ ] M21-002  Provide Calendar > Booking links with Name, Session type, Public state, Booking count and Updated columns. Offer New link, Preview, Copy link, Disable and Link settings; hide unavailable actions rather than simulating a working result.
+
+[ ] M21-003  Require a saved session type and published intake version where questions are enabled. Allow a link display name and public slug with lowercase letters, numbers and hyphens; enforce uniqueness within the appropriate business URL namespace.
+
+[ ] M21-004  Keep new links Disabled until explicitly enabled by an authorized owner/admin or permitted manager. Show the exact public URL and preview before activation; configuration changes alone must not opt existing customers into bookings.
+
+[ ] M21-005  Provide Copy link with a success message and Open preview in a separate view. If link regeneration is supported, explain that the previous booking URL will stop working and preserve confirmed clients' separate appointment-management links.
+
+Client booking form and confirmation
+
+[ ] M21-006  Display the business name, session name, duration, selected location choices, public description and policy summary on the booking page. Exclude internal notes, unrelated projects, private host calendars and unavailable capabilities.
+
+[ ] M21-007  Detect a client display timezone, label it clearly and allow a searchable IANA timezone change. Keep the host timezone visible in the review summary when different; changing display timezone must preserve the selected actual slot.
+
+[ ] M21-008  Provide available-date navigation with Previous dates, Next dates and a date picker bounded by the session horizon. Distinguish No dates available from Could not load availability; retry errors without presenting unverified empty/free calendars.
+
+[ ] M21-009  Show selectable start times with duration and remaining seats only where appropriate. Revalidate a slot on selection and on confirmation; do not rely on the availability response fetched when the page first opened.
+
+[ ] M21-010  Require Full name and Email, trimming whitespace and validating length and syntax. Offer Phone only when needed for the selected channel or optional SMS; do not disclose whether a matching contact already exists in the business account.
+
+M21 DETAILED REQUIREMENTS
+
+Booking links reminders and book and pay continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Client booking form and confirmation
+
+[ ] M21-011  Render the saved intake version with required-field markers and per-field errors. Preserve answers after a failed booking attempt and limit text lengths as defined by the form; never replace historical answers with a newly edited question version.
+
+[ ] M21-012  When several channels are enabled, require one Location or meeting channel selection before confirmation. Show the resulting address, call instructions or verified conference setup status; do not default silently to a different channel after a failure.
+
+[ ] M21-013  Provide a Review booking step containing date, time, timezone, duration, selected channel, price/currency if any, cancellation/reschedule cutoffs and client details. Offer Back and Confirm booking or Continue to payment as appropriate.
+
+[ ] M21-014  Confirm a free booking only after the server atomically reserves the slot and persists the appointment and intake answers. Show a durable booking reference and management link; a failed confirmation email must not erase a successfully saved booking.
+
+[ ] M21-015  Associate bookings through canonical business-scoped client/contact rules. Shared-email or other ambiguous matches remain unmerged for review; never match solely by name, overwrite an unrelated contact, create unnecessary dummy projects or enroll the contact in marketing.
+
+[ ] M21-016  After confirmation show Add to calendar, View appointment, Reschedule and Cancel where allowed. Show real email delivery status separately from booking status; never display Email delivered merely because a message entered the queue.
+
+Payment dependent booking
+
+[ ] M21-017  Enable book-and-pay only after M12 can collect for the business and reconcile payment results. For an unavailable provider show a truthful setup blocker to the owner; public sessions must not pretend a required deposit can be collected.
+
+[ ] M21-018  For paid sessions configure Full payment or Deposit, with deposit as a positive fixed amount or percentage greater than zero and at most 100. Display amount due now and remaining amount in one fixed currency before checkout.
+
+[ ] M21-019  Use a ten-minute checkout slot/seat hold capped by provider session expiry. For delayed methods such as bank payments, require a verified asynchronous reservation policy; otherwise disable that method for required-payment bookings. Expire abandoned unpaid holds and display the hold deadline.
+
+[ ] M21-020  Use provider-hosted or approved payment components from M12. Send server-calculated amount, currency, booking and invoice references; prevent the client browser from changing the price or converting an authorization hold into a paid booking.
+
+M21 DETAILED REQUIREMENTS
+
+Booking links reminders and book and pay continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Payment dependent booking
+
+[ ] M21-021  Treat a verified provider success event or authoritative provider reconciliation as the payment source of truth. Validate amount, currency and linked booking before confirming payment; returning to a success URL alone is insufficient.
+
+[ ] M21-022  Process repeated or out-of-order payment events idempotently. If payment succeeds after a hold expired and another booking acquired the slot, mark Attention required and offer an authorized refund/rebooking resolution rather than double-booking.
+
+[ ] M21-023  On checkout failure or cancellation, explain the current booking/hold state and provide a safe retry or fresh slot selection. If payment outcome is unknown, show Check payment status and reconcile before allowing another charge attempt.
+
+[ ] M21-024  Keep booking cancellation and payment refund distinct. Display the actual payment/refund state and relevant business policy; cancelling an appointment must not silently trigger a refund, retain money under an invented policy or mark the invoice Paid.
+
+Reminders and client appointment management
+
+[ ] M21-025  Provide Confirmation email as an explicit business setting enabled only with a verified transactional provider. Offer Reminder channels None, Email, SMS or Email and SMS; default reminders to None until the owner saves their notification preferences.
+
+[ ] M21-026  Offer up to three reminder offsets: At start, 5 minutes, 15 minutes, 30 minutes, 1 hour, 24 hours, 48 hours or Custom from 1 to 10,080 minutes. Reject duplicates and omit reminders already in the past.
+
+[ ] M21-027  Offer reminder Recipients Client, Hosts or Both, default Both. Provide an editable template and Preview using synthetic data; resolve all variables before scheduling and exclude internal notes, financial costs and unrelated records.
+
+[ ] M21-028  Gate SMS reminders on M25 provider capability, a valid recipient phone number, recorded consent and current opt-out state. Explain unavailable SMS without disabling working email; do not infer marketing consent from an appointment booking.
+
+[ ] M21-029  Store scheduled messages with booking/version references and truthful Queued, Provider accepted, Delivered, Failed, Cancelled or Unknown states. Recheck booking status, recipient eligibility and current appointment time immediately before dispatch.
+
+[ ] M21-030  On reschedule, cancel superseded pending reminders and schedule replacements once for the new occurrence version. Cancel future reminders on appointment cancellation; an old worker job must not send an outdated time after the change.
+
+M21 DETAILED REQUIREMENTS
+
+Booking links reminders and book and pay continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Reminders and client appointment management
+
+[ ] M21-031  Use stable calendar invitation identifiers for appointment updates and cancellation notices. Keep event timezone and actual instant consistent; do not generate a new unrelated calendar event each time a client reschedules.
+
+[ ] M21-032  Provide Reschedule through an unguessable, scoped management link. Participant-issued links respect portal revocation; independent guest-booking links follow their own expiry/revocation. Show cutoffs and payment status; acquire the new slot atomically before releasing the old, without another automatic charge.
+
+[ ] M21-033  Provide client Cancel with a clear confirmation, optional reason and any recorded policy. Outside the allowed cutoff show Contact business rather than an ineffective Cancel button; preserve appointment and payment history.
+
+[ ] M21-034  Provide a read-only public availability calendar only when explicitly enabled. Offer View-only link and Embed code, expose available/busy periods without names, titles, notes, prices or attendee lists, and support revoking access.
+
+Observable booking acceptance checks
+
+[ ] M21-035  Test two synthetic clients confirming the same final slot or group seat at the same moment. Confirm one succeeds, the other receives alternatives, and neither receives a false payment or booking confirmation.
+
+[ ] M21-036  Complete a free booking with the email provider unavailable. Confirm the appointment persists, the client sees its reference, the owner sees a notification issue and retrying the confirmation page creates no duplicate event.
+
+[ ] M21-037  Complete a provider test payment, replay its webhook and reload the success page. Confirm one payment, one invoice update and one booking confirmation; simulate a failed/unknown outcome and verify no second charge is attempted automatically.
+
+[ ] M21-038  Reschedule and then cancel an appointment with queued reminders. Confirm the original slot releases correctly, obsolete jobs do not send and generated calendar updates use the same appointment identity.
+
+[ ] M21-039  Open the public availability link and an invalid management token from an unrelated browser. Confirm busy-calendar privacy and token scoping; the visitor cannot enumerate client records or modify another appointment.
+
+[ ] M21-040  Inspect provider logs for the controlled test recipient and correlate each accepted/delivered message with its outbox record. Configuration, queue success and provider acceptance must remain distinguishable from confirmed delivery.
+

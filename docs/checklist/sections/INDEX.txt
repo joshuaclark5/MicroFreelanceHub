@@ -1,0 +1,88 @@
+EXECUTION NAVIGATION
+
+Module index
+
+Use the module ID and checkbox ID in your progress record and publication messages. P0 is core work; P1 expands it; P2 depends on a provider or specialized use case. Verify existing capabilities at every priority.
+
+ID | Screen or capability | Boxes | Module reference
+
+M01 | Navigation and onboarding | 31 | M01
+
+M02 | Clients custom fields and imports | 34 | M02
+
+M03 | Pipeline and opportunities | 33 | M03
+
+M04 | Lead forms and attribution | 34 | M04
+
+M05 | Projects and tasks | 33 | M05
+
+M06 | Client portal | 33 | M06
+
+M07 | Templates and service catalog | 31 | M07
+
+M08 | Proposals and questionnaires | 34 | M08
+
+M09 | Contracts and signatures | 33 | M09
+
+M10 | Scope changes and approvals | 34 | M10
+
+M11 | Invoice editor and document controls | 40 | M11
+
+M12 | Invoice collection and pay links | 37 | M12
+
+M13 | Recurring billing | 36 | M13
+
+M14 | Payments refunds payouts and disputes | 37 | M14
+
+M15 | Time expenses and job profitability | 32 | M15
+
+M16 | Reports exports and forecasts | 34 | M16
+
+M17 | Subscription billing and entitlements | 37 | M17
+
+M18 | Financial partner services | 34 | M18
+
+EXECUTION NAVIGATION
+
+Module index continued
+
+Use the module ID and checkbox ID in your progress record and publication messages. P0 is core work; P1 expands it; P2 depends on a provider or specialized use case. Verify existing capabilities at every priority.
+
+ID | Screen or capability | Boxes | Module reference
+
+M19 | Calendar views and event editor | 40 | M19
+
+M20 | Availability and session types | 40 | M20
+
+M21 | Booking links reminders and book and pay | 40 | M21
+
+M22 | Recurring service appointments | 36 | M22
+
+M23 | Calendar and video integrations | 34 | M23
+
+M24 | Team roles assignments and resource capacity | 33 | M24
+
+M25 | Inbox email SMS and business phone | 33 | M25
+
+M26 | Responsive mobile and native applications | 30 | M26
+
+M27 | Automation runner recipes and execution history | 30 | M27
+
+M28 | Visual automation builder | 31 | M28
+
+M29 | AI business and communication assistance | 32 | M29
+
+M30 | AI meeting preparation and notes | 27 | M30
+
+M31 | Integrations API webhooks and assistant connections | 38 | M31
+
+M32 | Event planning and media tools | 31 | M32
+
+M33 | Business settings branding and support | 33 | M33
+
+M34 | Data migration recovery and audit history | 31 | M34
+
+M35 | Final verification publishing and individual notifications | 31 | M35
+
+A feature may span several modules. The coverage register at the end maps every original comparison item to its detailed implementation modules. Publication checks in M35 apply after each improvement, throughout the work.
+

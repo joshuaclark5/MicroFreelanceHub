@@ -1,0 +1,124 @@
+M11 DETAILED REQUIREMENTS
+
+Invoice editor and document controls
+
+P0 core  |  Dependencies: M02, M05, M07
+
+Create accurate, versioned invoices from existing project data and preserve the exact document that each client receives.
+
+Inspect existing invoices before changing them
+
+[ ] M11-001  Inspect each existing invoice route, editor, schema, calculation and PDF against this module; record working evidence and skip matching behavior, extend partial behavior, and preserve existing invoice IDs and project links.
+
+[ ] M11-002  Compare the current internal invoice workspace with the agreement payment flow using synthetic records; identify the authoritative invoice and ledger IDs before connecting them, and prevent a second invoice for an existing obligation.
+
+[ ] M11-003  Place the invoice list under Invoices with Create invoice, Search and Filters; show Number, Client, Project, Issue date, Due date, Currency, Total, Applied payments, Balance and derived Status columns.
+
+[ ] M11-004  Provide invoice filters Client, Project, Currency, Issue date range, Due date range and Status choices All, Draft, Open, Partially paid, Paid, Overdue, Void and Uncollectible; apply M14/M16 predicates and offer Clear filters.
+
+[ ] M11-005  Show No invoices yet with Create invoice before any records exist and No matching invoices with Clear filters for an empty search; distinguish loading from load failure and provide Retry without discarding current filters.
+
+Invoice fields and line items
+
+[ ] M11-006  Make Create invoice require Client and Currency; make Project optional and restricted to that client's projects, prefill business currency without silently replacing a project's existing currency, and offer Create client through M02.
+
+[ ] M11-007  Provide Number mode Automatic or Custom, default Automatic and require a number only for Custom; require Issue date, default today in business timezone, and Due rule On receipt, Net 7, Net 14, Net 30 or Custom date.
+
+[ ] M11-008  Provide optional Purchase order/reference, Invoice title, Client message, Payment terms and Internal note fields; label Internal note as business-only and exclude it from client screens, emails and exported documents.
+
+[ ] M11-009  Assign unique tenant-scoped invoice numbers on publication using the existing sequence; allow an authorized unused custom number, show conflicts inline, and never reuse a voided number or silently renumber a published invoice.
+
+[ ] M11-010  Offer a searchable ISO Currency dropdown containing supported business currencies; show the code beside amounts, enforce that currency's minor-unit precision, and lock currency after publication or any associated payment event.
+
+M11 DETAILED REQUIREMENTS
+
+Invoice editor and document controls continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Invoice fields and line items
+
+[ ] M11-011  Require Description, Quantity and Unit price on each line; default Quantity to 1, allow positive quantities up to four decimal places, reject negative prices, and include optional Service, Category and line note fields.
+
+[ ] M11-012  Provide Add item choices Service catalog, Custom item, Time entries and Reimbursable expenses; preview linked source records, snapshot selected descriptions and rates, and block selecting records already invoiced without an explicit reversal.
+
+[ ] M11-013  Add Duplicate line, Remove line and keyboard-accessible Move up/Move down controls; preserve stable line IDs while reordering, require at least one billable line to publish, and retain tax selections on duplication.
+
+Discounts taxes charges and rounding
+
+[ ] M11-014  Provide Invoice discount choices None, Percentage and Fixed amount; default to None, require a value for the latter choices, limit percentages to 0–100, and reject discounts exceeding the eligible item subtotal.
+
+[ ] M11-015  Give each line a Tax dropdown containing No tax and active saved rates, plus Create tax rate for Owner/Admin; require rate name and percentage, allow four decimal places, and preserve historical rate snapshots.
+
+[ ] M11-016  Provide Tax calculation choices Exclusive and Inclusive, defaulting to the business setting; show a plain-language preview of whether entered prices include tax, and require review before changing a draft's existing calculation mode.
+
+[ ] M11-017  Provide Service charge choices None, Fixed amount and Percentage with a required label and optional saved tax rate; calculate percentage charges on discounted pre-tax items, apply the invoice tax mode, and treat fixed charges as gross in Inclusive mode or net in Exclusive mode.
+
+[ ] M11-018  Calculate each line extension from quantity multiplied by unit price using decimal arithmetic; round monetary results half-up to currency minor units, never use binary floating-point totals, and persist calculation inputs with the published version.
+
+[ ] M11-019  Apply invoice discounts before tax; allocate their minor units proportionally across eligible line extensions using largest remainders and stable line-ID tie-breaking, so allocated discounts exactly equal the displayed invoice discount.
+
+[ ] M11-020  For Exclusive tax, round each discounted line's tax separately; for Inclusive tax, derive rounded net as discounted gross divided by one plus rate and define tax as gross minus net, without compound taxes.
+
+M11 DETAILED REQUIREMENTS
+
+Invoice editor and document controls continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Discounts taxes charges and rounding
+
+[ ] M11-021  Display Subtotal, Discount, Service charge, Tax by rate, Invoice total, Applied payments and Balance; keep tips and processing fees outside invoice principal, and explain any separate credit adjustment instead of silently changing the original total.
+
+[ ] M11-022  Provide promotion fields Code, Discount type, Value, Starts at, Ends at, Minimum subtotal and Redemption limit in the authorized promotion editor; treat blank limits as unlimited, reject conflicting codes, and permit one invoice promotion by default.
+
+[ ] M11-023  Expose Redeem gift credit only when an authoritative funded gift-credit ledger or connected provider exists; validate currency and available balance, reserve redemption atomically, and distinguish discounts from stored-value payments and manual allowance records.
+
+Document controls and publication
+
+[ ] M11-024  Add document controls Logo, Accent color, Business address, Tax identifier, Client address, Item detail and Terms; default from business branding, label optional sections, and show exactly the same enabled fields in Preview and PDF.
+
+[ ] M11-025  Provide Save draft, Preview, Download PDF and Publish invoice buttons; display Saving, Saved at and Unsaved changes states, preserve recoverable drafts after network failures, and disable duplicate publication while a request is pending.
+
+[ ] M11-026  Publish only after required fields and totals validate; transition Draft to Open, assign a version and immutable financial snapshot, and explain that sending the invoice is a separate explicit action in M12.
+
+[ ] M11-027  For published corrections, offer Create corrected draft and Void unpaid invoice; require a reason and preserve the original, and route credited or paid corrections through linked credit adjustments and M14 refund controls.
+
+[ ] M11-028  Record document Created, Published, Sent, Viewed and Downloaded events with actor and timestamp; keep view events separate from invoice lifecycle and label automated email scanners or uncertain viewer identity rather than claiming a confirmed human view.
+
+[ ] M11-029  Allow proposal service selections and M10 approved scope changes to create a reviewed invoice draft with source links; preserve original accepted selections, avoid duplicate charges, and keep unsigned changes out of collectible totals.
+
+[ ] M11-030  In combined proposal/agreement checkout, expose Require signature before payment and Require payment before booking completion controls when supported; show the configured sequence in Preview and never treat a view or partial signature as completion.
+
+M11 DETAILED REQUIREMENTS
+
+Invoice editor and document controls continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Document controls and publication
+
+[ ] M11-031  Generate downloadable PDFs from the published snapshot, including number, dates, currency, itemized calculations, payment schedule and business details; use safe filenames and prevent later catalog or branding edits from rewriting historical versions.
+
+Access failures and assisted editing
+
+[ ] M11-032  Permit Owner/Admin and authorized Bookkeepers to manage invoices; permit Managers to draft assigned-project invoices and publish only with a grant, restrict Members to explicit financial access, and expose Clients only to shared versions.
+
+[ ] M11-033  Reject stale concurrent saves with Invoice changed elsewhere and Reload latest or Review my changes actions; preserve the user's unsaved draft and require reconciliation before overwriting a newer version.
+
+[ ] M11-034  Show specific inline errors for missing client, duplicate number, invalid due date, unsupported currency, excessive discount and unavailable source records; preserve valid fields and provide Create client or Retry where appropriate.
+
+[ ] M11-035  Offer AI edit invoice only when the configured AI service is available; accept natural-language changes to draft descriptions, quantities, prices, taxes and discounts, then show a before/after diff with Apply changes and Discard.
+
+[ ] M11-036  Validate AI output through the same permissions and calculation rules as manual edits; reject unsupported instructions, preserve the original on service errors, and never let AI publish, send, collect or change a paid invoice automatically.
+
+Observable acceptance checks
+
+[ ] M11-037  Verify a draft with two 100.00 items, a 10% invoice discount, 10% exclusive tax and a non-taxable 20.00 service charge displays subtotal 200.00, discount 20.00, tax 18.00 and total 218.00.
+
+[ ] M11-038  Verify inclusive pricing of 110.00 at 10% tax displays net 100.00 and tax 10.00; verify quantity 0.3333 at 10.00 rounds to 3.33, and validate zero- and three-decimal currencies separately.
+
+[ ] M11-039  Publish a synthetic invoice, change its catalog price and branding, then confirm its historical PDF and totals remain unchanged; verify a viewed event leaves lifecycle Open and a refund never silently edits the issued total.
+
+[ ] M11-040  Verify refresh preserves a saved draft, concurrent edits trigger review, imported time cannot be charged twice, client PDFs contain no internal notes, and unrelated-business requests cannot read or mutate the invoice.
+

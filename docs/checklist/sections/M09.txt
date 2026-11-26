@@ -1,0 +1,100 @@
+M09 DETAILED REQUIREMENTS
+
+Contracts and signatures
+
+P0 core  |  Dependencies: M02, M05, M07
+
+Capture intentional signatures on exact document versions and retain trustworthy records of what each participant accepted.
+
+Inspect signing before changing it
+
+[ ] M09-001  Inspect current contract storage, template expansion, signing links, provider integrations and signature evidence; test a synthetic agreement and determine which component establishes signer identity and document integrity.
+
+[ ] M09-002  Compare every requirement below with that working path; retain verified equivalents, extend missing controls only and leave signing disabled if immutable content or trustworthy acceptance recording is unavailable.
+
+Contract draft fields and content
+
+[ ] M09-003  Provide Documents then Contracts with New contract and From template actions; require Title of 1–150 characters, Client and Project, and default a new agreement to Draft.
+
+[ ] M09-004  Provide business party and client party panels with required display or legal name and signatory email; include optional address and representative title without inventing legal entity details.
+
+[ ] M09-005  Show the linked project, document currency where amounts appear and version number; changing draft parties must revalidate merge fields and intended signers before sharing.
+
+[ ] M09-006  Provide contract sections Scope, Deliverables, Schedule, Fees, Payment terms and Additional terms; allow editing and reordering original business text without labeling a template as universally legally sufficient.
+
+[ ] M09-007  Insert saved client, business and project values through the approved merge-field picker; block sharing when required fields remain unresolved and show the exact source field to correct.
+
+[ ] M09-008  Offer Add attachment for PDF, JPEG, PNG or WebP within configured limits; list each included attachment and preserve its exact content alongside the contract version.
+
+[ ] M09-009  Provide Preview document and Download draft controls with a visible Draft label; preview must not create a signature, send an invitation or mark the document as accepted.
+
+Recipients and signature controls
+
+[ ] M09-010  Provide a recipients table with Name, Email, Recipient type and Status; Recipient type options Signer and Copy recipient, default Signer, with at least one required signer.
+
+[ ] M09-011  For each signer, require Name and valid Email, plus Signer capacity options Client, Business representative and Additional signer; show this label in the review screen without treating it as verified legal authority.
+
+M09 DETAILED REQUIREMENTS
+
+Contracts and signatures continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Recipients and signature controls
+
+[ ] M09-012  Provide Signing order options Any order and In sequence, default Any order; In sequence requires a unique positive order position and invites only the currently eligible signer.
+
+[ ] M09-013  Provide signature-field placement with Assigned signer, Field label and Required checkbox default on; reject required fields without a signer and show remaining fields before submission.
+
+[ ] M09-014  Offer signature method Typed name and Drawn signature only where implemented and tested; default Typed name, preserve the chosen mark and never substitute a stored signature without the signer's action.
+
+[ ] M09-015  Require an unchecked agreement-to-sign-electronically control beside the final signing action; show the exact consent wording and record its accepted version with the signature event.
+
+[ ] M09-016  Show the signer their name, recipient email and complete document before Sign agreement; allow correction through the business when identity is wrong rather than silently changing the intended signer.
+
+[ ] M09-017  Before sharing, freeze the rendered text, merge values and attachments into one immutable version with a server-verifiable integrity identifier; the signer must accept that same version.
+
+[ ] M09-018  Provide Share with Subject, Message, intended recipient review and Send; offer Copy signer link only with the same recipient scope and display whether identity verification is required.
+
+[ ] M09-019  Provide optional Expiration date and time with visible business timezone, default none; expire new signing actions at the chosen instant without deleting existing completed signature evidence.
+
+[ ] M09-020  Provide reminder options None, One reminder after three days and Custom schedule, default None; enable delivery only through an authorized verified M25/M27 channel and stop reminders after completion.
+
+Signing lifecycle and evidence
+
+[ ] M09-021  Display Partially signed after some required signers complete and Signed only after every required signer completes; a copy recipient never counts toward signature completion.
+
+[ ] M09-022  Provide Decline to sign with optional reason up to 500 characters and a confirmation step; notify the owner through the configured channel and preserve the declined version and prior signatures.
+
+M09 DETAILED REQUIREMENTS
+
+Contracts and signatures continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Signing lifecycle and evidence
+
+[ ] M09-023  Provide Void to Owner or Admin with a required reason; invalidate outstanding signing actions, retain the historical version and clearly distinguish voiding from deleting a record.
+
+[ ] M09-024  After a sent document requires changes, use Create revised version and revoke stale signing access; never modify a version that any participant has already signed.
+
+[ ] M09-025  After full signature, make contract content, signer marks and included attachments immutable; proposed changes use M10 or a new linked agreement, retaining the signed original.
+
+[ ] M09-026  Record document version, integrity identifier, signer identity evidence, consent wording, event time and provider reference where available; accurately label the evidence method rather than claim a legal certification.
+
+[ ] M09-027  Provide Download signed document and Download activity record to authorized parties; include the signed version and readable event times without exposing unrelated signers' sensitive technical data.
+
+[ ] M09-028  Provide lifecycle filters Draft, Sent, Viewed, Partially signed, Signed, Declined, Expired and Voided; calculate each state from valid events and explain when a previous version has been superseded.
+
+Permissions states and acceptance
+
+[ ] M09-029  Permit Owner and Admin to manage all authorized contracts and Managers to draft assigned-project contracts; signature execution belongs to the intended signer, and Members or Bookkeepers do not gain signing authority through financial access.
+
+[ ] M09-030  Show No contracts yet, No matching contracts, Signature pending and Signing unavailable as distinct states; failed saves or provider requests preserve the draft and never claim a completed signature.
+
+[ ] M09-031  Test a two-signer agreement in both signing-order modes; confirm only eligible signers can act, partial status persists after reload and the final PDF matches the reviewed version.
+
+[ ] M09-032  Attempt repeated signing, a stale revised link and a changed document payload; produce one acceptance event, reject stale or mismatched versions and retain the correct current status.
+
+[ ] M09-033  Test an unrelated owner, wrong recipient and revoked participant requesting the signed file or activity record; reject unauthorized access while preserving each legitimate recipient's allowed historical copy.
+

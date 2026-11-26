@@ -1,0 +1,114 @@
+M13 DETAILED REQUIREMENTS
+
+Recurring billing
+
+P1 expansion  |  Dependencies: M11, M12, M14
+
+Operate transparent recurring invoice schedules and authorized recurring collection with one traceable invoice per billing occurrence and client-visible future obligations.
+
+Inspect existing recurrence and expose the plan list
+
+[ ] M13-001  Inspect existing weekly/monthly recurring templates, generation buttons and background jobs; verify each behavior before editing, preserve working templates, and label manual draft generation honestly until scheduled generation and collection are independently verified.
+
+[ ] M13-002  Add Invoices > Recurring plans with Create recurring plan and columns Plan, Client, Project, Currency, Amount, Cadence, Next invoice, Next collection and Status; provide All, Draft, Active, Paused, Completed and Cancelled filters.
+
+[ ] M13-003  Give plan detail Overview, Future schedule, Invoices, Payment method and Activity tabs; show any Attention required badge separately from lifecycle, and explain missing provider permission, consent or payment method beside a corrective action.
+
+[ ] M13-004  Show No recurring plans yet with Create recurring plan and No matching plans with Clear filters; show No invoices generated on a new plan and preserve the schedule preview when invoice-history loading fails.
+
+Plan fields and recurrence rules
+
+[ ] M13-005  Require Plan name, Client, Currency, First invoice date and business IANA Timezone; make Project optional, default timezone from business settings, and prevent mixed-currency items or changes to currency after the first published occurrence.
+
+[ ] M13-006  Provide Cadence choices Weekly, Every 2 weeks, Monthly, Every 3 months and Yearly; default Monthly, persist the original anchor, and display a readable sentence describing the selected schedule before activation.
+
+[ ] M13-007  For monthly schedules, offer Billing day choices 1 through 31 and Last day; clamp unavailable days while retaining the anchor, so January 31 returns to March 31, and apply equivalent clamping to quarterly/yearly anchors including February 29.
+
+[ ] M13-008  Require local Generation time, default 09:00; calculate occurrences in the saved timezone before storing UTC, use the earlier offset for repeated clock times and the first valid instant after a nonexistent local time, and show that adjustment.
+
+M13 DETAILED REQUIREMENTS
+
+Recurring billing continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Plan fields and recurrence rules
+
+[ ] M13-009  Provide End condition choices Never, After a number of invoices and On a date; require a positive count or inclusive local end date, count generated invoices once and exclude failed/skipped occurrences, and preview the projected final occurrence.
+
+[ ] M13-010  Provide Run mode choices Create draft for review, Publish and send invoice, and Publish and automatically collect; default Create draft for review, and display separate requirements for authorized sending and saved-method collection.
+
+[ ] M13-011  Require Due rule choices On receipt, Net 7, Net 14, Net 30 or Custom number of days; default On receipt, allow nonnegative custom days, and show the resulting collection date separately from invoice generation.
+
+[ ] M13-012  Use the M11 item, discount, tax and service-charge editor for the plan template; preview an occurrence's exact total and flag variable usage items as review-required unless a verified, bounded usage source supplies them.
+
+[ ] M13-013  Show the next six occurrences with local date/time, covered service period, estimated amount, due date and planned action; label future values Scheduled estimates until actual invoice snapshots exist.
+
+Activation execution and payment consent
+
+[ ] M13-014  Require Review and activate to validate fields and only the dependencies needed by the selected run mode; show the first invoice/charge date and cancellation controls, and keep the plan Draft when a required dependency is unavailable.
+
+[ ] M13-015  For automatic collection, require a provider-tokenized payment method and a recorded consent/mandate reference with client, terms version, amount or calculation basis and effective date; never infer recurring authorization from a previous one-time payment.
+
+[ ] M13-016  Deduplicate each occurrence by business, plan and scheduled occurrence ID; persist generation attempts, reuse the existing invoice after retries, and prevent parallel workers from creating or charging the same billing occurrence twice.
+
+[ ] M13-017  Show run states Scheduled, Generating, Awaiting review, Awaiting payment, Processing, Succeeded, Failed and Skipped, distinct from invoice/payment states; record actual timestamps, error details and a link to the created invoice.
+
+M13 DETAILED REQUIREMENTS
+
+Recurring billing continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Activation execution and payment consent
+
+[ ] M13-018  Default missed-occurrence handling to Review missed occurrences; offer Generate missing drafts after a preview, and prohibit automatic retroactive collection merely because a scheduler resumes after an outage.
+
+[ ] M13-019  Provide Retry generation only for failed generation, and Retry payment only after M14 confirms a recoverable payment failure; retain the original occurrence and invoice IDs instead of regenerating duplicate obligations.
+
+[ ] M13-020  Provide payment retry policy Manual only or Limited retries at 1, 3 and 7 days when the provider and mandate allow them; default Manual only, stop after success/cancellation, and show pending attempts before another collection.
+
+[ ] M13-021  Apply M12 reminder and receipt preferences per occurrence; suppress duplicate dunning while a payment is processing, stop retrying revoked mandates, and move the plan's attention badge to Payment method required without inventing a successful charge.
+
+Plan changes and client self service
+
+[ ] M13-022  Provide Pause, Resume, Edit future invoices and Cancel plan buttons according to state; require a reason for business-initiated changes, retain the full event history, and never delete generated invoices or completed payments.
+
+[ ] M13-023  For Pause, offer From next ungenerated occurrence with an optional Resume date; explain that existing invoices and processing payments remain active, mark skipped occurrences, and require separate actions to cancel an eligible pending payment.
+
+[ ] M13-024  For Resume, show Keep original schedule or Choose new start date and preview the next occurrence; default Keep original schedule, and leave paused periods unbilled unless an authorized user creates reviewed catch-up invoices.
+
+[ ] M13-025  For Cancel plan, offer Immediately or After current service period, show the effective date and affected future occurrences, and state the status of existing unpaid invoices; do not imply cancellation automatically issues a refund.
+
+[ ] M13-026  Allow future price, quantity and cadence edits only through a versioned change preview with an effective occurrence; default to the next ungenerated occurrence, obtain any required fresh authorization, and preserve every existing invoice snapshot.
+
+M13 DETAILED REQUIREMENTS
+
+Recurring billing continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Plan changes and client self service
+
+[ ] M13-027  Provide change treatment No proration or Reviewed prorated adjustment; default No proration, calculate any proposed credit/charge explicitly, and require confirmation before creating a linked adjustment or altering a provider subscription.
+
+[ ] M13-028  In the client portal, show Billing plans with current amount, cadence, next six dates, saved-method descriptor and invoices; provide Update payment method through a scoped provider flow and preserve the old method until replacement succeeds.
+
+[ ] M13-029  Give businesses separate Allow client pause and Allow client cancellation controls, default On for the recommended self-service experience; show effective dates and confirmations, and ensure client actions use the same authorized state transitions as staff actions.
+
+Permissions errors and observable acceptance
+
+[ ] M13-030  Permit Owner/Admin and authorized Bookkeepers to activate collection plans; let Managers draft plans for assigned projects, require a collection-management grant for activation or cancellation, and limit Clients to explicitly shared plans and allowed self-service actions.
+
+[ ] M13-031  Return specific errors for expired payment method, revoked mandate, unsupported currency, unavailable provider, invalid end date and stale edits; preserve the plan and next occurrence, and never silently switch automatic collection to a different method.
+
+[ ] M13-032  Verify a January 31 monthly plan generates February's last-day occurrence and then March 31; verify daylight-saving transitions retain the displayed local rule and never create two invoices for a repeated clock hour.
+
+[ ] M13-033  Verify After 3 invoices creates exactly three occurrences even when workers retry; an outage followed by recovery must present missed drafts for review without immediately charging all missed periods.
+
+[ ] M13-034  Verify pausing skips future generation, resuming preserves or deliberately changes the anchor, and cancelling after the current period stops later occurrences while retaining issued invoices and auditable prior payments.
+
+[ ] M13-035  Verify a client can replace a failed card and see the next due amount before an authorized retry; the old token must not be charged after successful replacement or mandate revocation.
+
+[ ] M13-036  Verify editing the next month's price leaves the current issued invoice unchanged, a processing payment blocks duplicate retries, and a different client's plan URL cannot reveal invoice history or saved-method descriptors.
+

@@ -1,0 +1,116 @@
+M14 DETAILED REQUIREMENTS
+
+Payments refunds payouts and disputes
+
+P0 core  |  Dependencies: M02, M11
+
+Maintain an auditable payment ledger that reconciles collections, external payments, refunds, disputes and payouts without treating authorization, processing or transfer states as interchangeable.
+
+Inspect money movement and establish the payment workspace
+
+[ ] M14-001  Trace current provider account connections, checkout creation, webhook handling, ledger entries and invoice settlement before editing; reuse verified paths, document every failing or missing requirement, and keep business collection separate from MFH subscription billing.
+
+[ ] M14-002  Add Payments tabs Transactions, Payouts, Disputes and Pay links with Connection settings accessible only to permitted administrators; show provider name, masked account, Sandbox or Live mode, last sync and truthful connection status.
+
+[ ] M14-003  List transactions with Date, Client, Project, Invoice, Method, Gross amount, Currency, Refunded, Fee, Net and Status; offer search plus date, client, project, currency, method and payment-status filters without aggregating unlike currencies.
+
+[ ] M14-004  Use payment statuses Pending, Succeeded, Failed, Cancelled, Partially refunded, Refunded and Disputed; retain raw provider status alongside the normalized value, and show authorization holds and payout statuses in separate records.
+
+[ ] M14-005  Show No transactions yet, No payouts yet or No disputes for confirmed empty results with appropriate setup or record-payment actions; offer Clear filters for filtered emptiness and Retry for retrieval failures without fabricating zero balances.
+
+Ledger and external payment recording
+
+[ ] M14-006  Create immutable ledger events for successful collections, payment applications, credits, fees, refunds, chargebacks and reversals; attach provider IDs or external references, actor, currency and effective timestamp, and correct mistakes with linked reversals rather than deletion.
+
+[ ] M14-007  Calculate amount due as issued total plus debit adjustments minus credit adjustments minus net applied receipts, floored at zero; exclude tips and processor fees, and display any excess as unapplied credit rather than negative invoice debt.
+
+[ ] M14-008  Derive invoice payment progress from net applied receipts against the adjusted collectible principal; change lifecycle to Paid only after a supporting settlement event, label credited/refunded history explicitly, and never count waived charges as cash received.
+
+[ ] M14-009  Provide Record external payment with required Client, Amount, Currency, Received date and Method choices Cash, Check, External bank transfer or Other; add optional Project, Invoice, Reference, Private note and receipt attachment fields.
+
+M14 DETAILED REQUIREMENTS
+
+Payments refunds payouts and disputes continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Ledger and external payment recording
+
+[ ] M14-010  Require positive amounts and matching invoice currency when applying an external payment; show an allocation preview, require Record payment confirmation, and label the receipt Externally recorded rather than provider-verified.
+
+[ ] M14-011  Provide Apply payment with invoice selection and allocation amount, showing available credit and each invoice balance; prohibit over-allocation, prevent concurrent double allocation, and preserve a traceable unapplied client balance when no invoice is selected.
+
+[ ] M14-012  Provide Reverse external record for authorized users with required Reason and an impact preview; preserve the original event, recompute invoice balances, and prevent this action from claiming to return money through a payment provider.
+
+[ ] M14-013  Provide Mark uncollectible and Restore collection for Owner/Admin or specifically authorized Bookkeepers, requiring reason and effective date; retain invoice balance/history, stop reminders while uncollectible, and never record a write-off as received payment.
+
+Provider processing and reconciliation
+
+[ ] M14-014  Deduplicate provider events using verified provider event IDs and transaction keys; validate signatures, accept safe out-of-order delivery, and reconcile authoritative transaction state before reversing a succeeded payment because an older event arrives.
+
+[ ] M14-015  Reserve the payable amount during an active collection attempt, show Pending without recognizing settled cash, and release the reservation only after confirmed failure/cancellation or verified expiry so another checkout cannot collect the same amount concurrently.
+
+[ ] M14-016  Offer Cancel pending payment only when the provider supports cancellation for that exact state; show Requested until confirmed, retain processing status when cancellation is unavailable, and never display Cancelled merely because the user closed checkout.
+
+[ ] M14-017  Show transaction detail sections Amounts, Invoice applications, Provider events, Refunds and Activity; include receipt download when available, distinguish gross receipts from net settlement, and expose masked payment descriptors without sensitive credentials.
+
+[ ] M14-018  Provide Reconcile with provider for permitted administrators with a date range and preview of missing or mismatched records; import only confirmed events, preserve audit history, and report unresolved differences instead of silently forcing balances to match.
+
+M14 DETAILED REQUIREMENTS
+
+Payments refunds payouts and disputes continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Refunds and disputes
+
+[ ] M14-019  Show Refund only for refundable succeeded amounts and authorized roles; require Amount, Reason choices Duplicate, Client request, Service cancelled or Other, an optional private note, and a preview of the remaining refundable balance.
+
+[ ] M14-020  Require a refund receivables choice Credit the refunded obligation or Keep it payable; preview the linked credit adjustment and resulting invoice balance, preserve the original invoice, and do not accidentally reopen a cancelled service as collectible debt.
+
+[ ] M14-021  Submit refunds with an idempotency key, show Requested/Processing until confirmed, and update Partially refunded or Refunded only from successful refund events; show Failed with a safe retry while retaining the original succeeded charge.
+
+[ ] M14-022  Restrict refunds by default to Owner/Admin; let Bookkeepers request or issue them only with an explicit refund grant, deny Managers/Members by default, and enforce the same rules on server endpoints and background actions.
+
+[ ] M14-023  List disputes with Client, Payment, Disputed amount, Currency, Reason, Response deadline and Status; normalize states Needs response, Under review, Won, Lost or Closed only where supported, and display unmapped provider states as Attention required.
+
+[ ] M14-024  Provide View evidence, Upload evidence, Save draft and Submit response where the provider supports them; show accepted file types, size limits and submission deadline from the provider, and require an authorized final evidence review.
+
+[ ] M14-025  Pause collection reminders on the disputed obligation, record dispute fees/reserves separately, and reconcile won/lost events without subtracting the same charge twice; link every outcome to its original payment and provider case.
+
+Payouts and in person collection
+
+[ ] M14-026  List payouts with Expected date, Paid date, Amount, Currency, masked Destination and Status choices Pending, In transit, Paid, Failed or Cancelled; show provider-reported timing and link the included transactions and fee adjustments.
+
+[ ] M14-027  Calculate payout reconciliation from the provider's included charges, refunds, fees, reserves and adjustments; distinguish invoice revenue from bank arrival and display Unreconciled difference when the imported payout cannot be explained exactly.
+
+M14 DETAILED REQUIREMENTS
+
+Payments refunds payouts and disputes continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Payouts and in person collection
+
+[ ] M14-028  Provide View payout details and provider-supported Update destination for Owner/Admin through a secure provider flow; show verification/restriction states, and keep any instant-deposit request in the separately gated M18 service.
+
+[ ] M14-029  Expose Collect in person only when a verified provider/device integration supports Tap to Pay; display required operating system, device capability, merchant country and location permissions from actual support data, otherwise show the precise blocker.
+
+[ ] M14-030  Require Client, Amount, Currency and optional Invoice/Project before starting Tap to Pay; obtain authoritative payment results, deduplicate repeated taps, issue a receipt after success, and show restrictions such as unsupported recurring collection explicitly.
+
+[ ] M14-031  For unavailable contactless hardware or denied permissions, provide Retry after fixing permissions or Open standard payment link; preserve the intended amount and invoice, and never simulate a successful terminal payment in the production UI.
+
+Observable acceptance checks
+
+[ ] M14-032  Verify a 100.00 invoice receiving a 40.00 successful payment remains Open with Partially paid progress and 60.00 due; after the remaining 60.00 succeeds, it becomes Paid exactly once.
+
+[ ] M14-033  Verify a 30.00 partial refund of a 100.00 payment with Credit the refunded obligation leaves no collectible balance and shows 70.00 net receipts; choosing Keep it payable instead exposes 30.00 due with an audit trail.
+
+[ ] M14-034  Verify a recorded 25.00 cash payment settles only 25.00 and is visibly external; reversing it restores the invoice balance without a provider refund request or removal of the original record.
+
+[ ] M14-035  Replay duplicate and out-of-order provider events, then verify one collection, one allocation and one refund entry; verify a pending bank payment, card hold and in-transit payout never appear as settled bank cash.
+
+[ ] M14-036  Verify a failed refund preserves the charge, a dispute outcome is applied once, and payout totals reconcile to constituent entries; surface any missing provider transaction as an actionable discrepancy.
+
+[ ] M14-037  Verify a Member, unauthorized Bookkeeper and unrelated business cannot issue refunds or view sensitive payment details; test contactless success/failure only with a genuine supported test environment or record the unavailable device/provider blocker.
+

@@ -1,0 +1,112 @@
+M22 DETAILED REQUIREMENTS
+
+Recurring service appointments
+
+P1 expansion  |  Dependencies: M19, M20, M02, M05
+
+Schedule repeat service visits with controlled exceptions and assignment history while keeping visit recurrence separate from billing recurrence.
+
+Inspect and locate recurring visits
+
+[ ] M22-001  Inspect existing recurring availability, appointment series and project-task implementations separately from M13 recurring invoices. Test current recurrence behavior first; reuse verified models and clearly label service visit recurrence as scheduling rather than automatic billing.
+
+[ ] M22-002  Provide Calendar > Service series and a related Project > Visits tab. List Client, Service, Assigned staff, Repeat rule, Timezone, Next visit and Series state; filter by Active, Paused or Ended without deleting historical visits.
+
+[ ] M22-003  Provide New service series, View visits, Edit series, Pause, Resume and End series actions. Require assignment-scoped permission to modify a series and preserve equivalent working controls rather than adding a second scheduling system.
+
+[ ] M22-004  Require a saved Client, a Service or service title, and a Start date/time. Allow an optional existing Project and service address; validate the project belongs to the selected client and tenant before saving.
+
+Series fields and generation rules
+
+[ ] M22-005  Require an IANA Series timezone and preserve the intended local service time across daylight-saving changes. Default to the business/service-location timezone already saved; show a preview of the next five local dates and UTC offsets.
+
+[ ] M22-006  Offer Visit duration values 15, 30, 45, 60, 90 and 120 minutes plus Custom from 5 to 720 minutes. Show travel/setup buffers separately and use M20 conflict rules without charging for buffer time implicitly.
+
+[ ] M22-007  Offer Repeat values Daily, Weekly, Every two weeks, Monthly and Custom. For Custom require an interval of 1–52 days/weeks or 1–12 months; display a plain-language summary before the user saves the series.
+
+[ ] M22-008  For weekly recurrence provide weekday checkboxes Monday through Sunday and require at least one. Anchor alternating weeks to the stated series start week and never generate an occurrence before the selected start date.
+
+M22 DETAILED REQUIREMENTS
+
+Recurring service appointments continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Series fields and generation rules
+
+[ ] M22-009  For monthly recurrence offer On day with choices 1–31 or On weekday with First, Second, Third, Fourth or Last plus a weekday. Require one mode and preserve the rule rather than drifting from a shortened month.
+
+[ ] M22-010  For a monthly day that is absent, offer Skip that month or Use the last valid day; default Skip that month for new service series. Show February/short-month examples in the recurrence preview and store the selected rule explicitly.
+
+[ ] M22-011  Offer End rule values No end date, On date or After number of visits. Require an inclusive local end date or a whole count from 1 to 1,000; count intended occurrences consistently and explain whether skipped exceptions consume an occurrence.
+
+[ ] M22-012  Define an occurrence count as the number of scheduled rule instances before manual exceptions: a skipped visit retains its occurrence identity and count. Restoring a skipped occurrence must not extend a count-limited series or create an extra visit.
+
+[ ] M22-013  For daylight-saving gaps offer Move forward by the gap or Skip occurrence, default Move forward by the gap. Use the earlier offset for repeated fall-back times and expose the resolved offset in the preview and occurrence details.
+
+[ ] M22-014  Generate a bounded rolling window, proposed 90 days, rather than infinitely materializing an unending series. Show the generated-through date; extend the window through the existing verified worker or a clearly labeled Generate upcoming visits action.
+
+[ ] M22-015  Assign a stable identity to each intended local occurrence and generate idempotently. Repeating or retrying generation must not duplicate a visit, assigned task, reminder or linked invoice candidate.
+
+[ ] M22-016  Provide Assigned staff and optional Required equipment selectors using verified M24 permissions and capacity. Let an authorized manager specify a series default; an exception may change one visit without rewriting earlier assignments.
+
+Visit records and series changes
+
+[ ] M22-017  Use visit states Scheduled, In progress, Completed, Skipped, Cancelled and No show, separate from series state and payment state. Show actual start/end only when recorded; marking Completed must not create a charge or fake a payment.
+
+M22 DETAILED REQUIREMENTS
+
+Recurring service appointments continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Visit records and series changes
+
+[ ] M22-018  Provide visit fields Client instructions, Internal notes and optional task checklist linked to M05. Keep client-visible instructions separate from staff-only details and preserve the version of instructions used for a completed visit.
+
+[ ] M22-019  Allow permitted staff to record service completion notes, actual time and authorized photo attachments. Reuse existing upload and time records, retain authors/timestamps and retry completion safely without creating duplicate evidence.
+
+[ ] M22-020  For Edit visit offer This visit, This and following visits and Entire future series. Preview affected dates, assignments and notification effects before applying; completed, skipped and cancelled history must not be silently rewritten.
+
+[ ] M22-021  Implement This visit as an exception to the original series occurrence. A moved occurrence keeps its original series identity and records its new time; subsequent generation must not recreate the original unmodified occurrence.
+
+[ ] M22-022  Implement This and following visits by creating an effective-dated recurrence change. Preserve the old rule and historical occurrences; re-evaluate future slot conflicts and show any visits needing manual resolution before committing.
+
+[ ] M22-023  Provide Skip this visit with an optional reason and Restore skipped visit. Keep the skipped occurrence in history, cancel its pending reminders and recheck current availability before restoring it.
+
+[ ] M22-024  Provide Pause series with an effective date and a preview of already generated upcoming visits. Offer Keep confirmed visits or Cancel selected upcoming visits; never assume pausing generation alone cancelled existing appointments.
+
+[ ] M22-025  Provide Resume series with a restart date and preview. Do not backfill visits from the paused period automatically; show skipped/missed dates separately and generate only the explicitly selected future recurrence.
+
+[ ] M22-026  Provide End series with an effective date and a preview of future generated visits. Stop later generation, preserve past work and ask which future confirmed appointments should be cancelled; leave invoice/refund decisions to their own workflows.
+
+M22 DETAILED REQUIREMENTS
+
+Recurring service appointments continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Visit records and series changes
+
+[ ] M22-027  Mark a conflicting future occurrence Needs scheduling in a separate scheduling-condition field without falsely confirming it. Offer Change time, Reassign staff or Skip visit; do not silently drop the occurrence or override another reservation.
+
+[ ] M22-028  Provide Create invoice draft or Link existing invoice as explicit visit actions when M11 is available. Carry the stable visit and underlying time/expense source IDs into the draft; exclude components already invoiced. Show unbilled completed visits and never enroll clients in autopay or charge merely on completion.
+
+[ ] M22-029  Show per-visit payment information only from linked invoice/payment records and only to authorized roles. Staff completion controls remain usable without exposing business margins, card details or unrelated client balances.
+
+[ ] M22-030  On series edits, recompute only affected future reminders using stable occurrence/version references. Present notification recipients and schedule changes; a bulk edit must not generate multiple identical emails for the same unchanged visit.
+
+Observable recurring visit acceptance checks
+
+[ ] M22-031  Create a weekly synthetic 09:00 America/New_York series crossing a daylight-saving transition. Confirm each valid visit remains at 09:00 local time, offsets change correctly and the chosen gap/fold rules are reproducible.
+
+[ ] M22-032  Create a monthly series for day 31 and inspect February, April and the following month. Confirm Skip and Last valid day behave as configured and the original anchor does not drift permanently to an earlier day.
+
+[ ] M22-033  Run Generate upcoming visits twice and retry one uncertain result. Confirm the same occurrence identifiers and visit count remain, with no duplicate tasks, reminder jobs or billing actions.
+
+[ ] M22-034  Move one visit, skip another and change all following visits. Confirm generation respects those exceptions, completed visits remain unchanged and the client/project sees the correct upcoming schedule.
+
+[ ] M22-035  Pause and resume a series containing a paid future visit. Confirm the appointment changes follow the selected preview, the payment ledger remains unchanged and no refund or recurring charge occurs automatically.
+
+[ ] M22-036  Open a series as assigned staff, a bookkeeper and an unrelated business user. Confirm staff see permitted work, bookkeepers only authorized financial links, and the unrelated business cannot enumerate or modify series occurrences.
+

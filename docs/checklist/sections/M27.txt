@@ -1,0 +1,90 @@
+M27 DETAILED REQUIREMENTS
+
+Automation runner recipes and execution history
+
+P1 expansion  |  Dependencies: M02, M05
+
+Run approved background work reliably and explain each outcome to the business owner.
+
+Inspect before building
+
+[ ] M27-001  Locate existing event handlers, job queues, reminder schedulers and retry logs. Run a synthetic reminder once; record evidence before changing the runner.
+
+[ ] M27-002  Check each recipe and history requirement independently. Keep working jobs and stable identifiers; extend missing observability or cancellation instead of creating a second scheduler.
+
+Screens and predefined recipes
+
+[ ] M27-003  In Automations provide Recipes, Builder, Runs and Queue tabs. Keep equivalent existing navigation; Builder may remain unavailable until M28 is implemented.
+
+[ ] M27-004  In Recipes show name, purpose, trigger, enabled state, last outcome and owner. Provide Enable, Disable, Configure and Test actions; default newly created recipes to Disabled.
+
+[ ] M27-005  Offer New inquiry follow up, Unpaid invoice reminder, Approved change creates task and Won opportunity creates project templates. Installing a template creates a disabled editable configuration, never live customer messages.
+
+[ ] M27-006  For New inquiry follow up require source form or All forms, delay choices 1 hour, 1 day, 3 days or Custom, and action Create reply draft or Send approved template; default Create reply draft.
+
+[ ] M27-007  For Unpaid invoice reminder allow 3 days before due, On due date, 3 days overdue, 7 days overdue and Custom days. Exclude paid, void and uncollectible invoices at execution time.
+
+[ ] M27-008  For Approved change creates task require project mapping, task title template, assignee and due offset. Link the task to the exact accepted change version; repeated approval events must not create duplicates.
+
+[ ] M27-009  For Won opportunity creates project require title, client and owner mapping; project template is optional. Reuse an already linked project; changing a display stage label must not break the rule.
+
+[ ] M27-010  For each recipe show Allowed recipients, sender identity, active hours, company timezone and whether human approval is required. A missing verified sender disables live send and explains why.
+
+M27 DETAILED REQUIREMENTS
+
+Automation runner recipes and execution history continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Execution and state
+
+[ ] M27-011  Give every run a stable tenant-scoped event ID, rule version, source record ID and idempotency key. Record creation before work begins so a crash cannot lose the intended action.
+
+[ ] M27-012  Use run states Queued, Running, Waiting, Awaiting approval, Succeeded, Failed and Cancelled. Distinguish a waiting timer from a failed action and a provider acceptance from confirmed delivery.
+
+[ ] M27-013  Recheck source record state, access, consent and cancellation immediately before sending or changing a record. A stale queued snapshot must not send a reminder for an invoice paid since scheduling.
+
+[ ] M27-014  Make event handling idempotent. Concurrent workers processing the same event and rule version must produce one intended task, message or record transition.
+
+[ ] M27-015  Retry transient failures using bounded delays of 1 minute, 5 minutes, 15 minutes, 1 hour and 6 hours, honoring provider retry instructions. Permanent invalid-recipient or revoked-access failures require correction.
+
+[ ] M27-016  Before retrying an ambiguous provider result, reconcile using the provider request or idempotency identifier. Do not resend solely because a response timed out.
+
+[ ] M27-017  Support cancellation by run, source record and automation rule. Explain whether Disable stops only future events or also cancels queued work; offer both choices explicitly.
+
+[ ] M27-018  Use the company IANA timezone for active hours. Offer weekdays Monday through Sunday and start/end time controls; move delayed sends to the next allowed window without duplicating them.
+
+[ ] M27-019  Snapshot the published automation version for an active run. Editing a draft affects new runs only; old runs retain the original steps and data mappings.
+
+[ ] M27-020  Keep approval requests scoped to the assigned owner or authorized role. Approval displays the exact recipient, body and record changes; Reject marks the waiting action cancelled.
+
+M27 DETAILED REQUIREMENTS
+
+Automation runner recipes and execution history continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+History and recovery controls
+
+[ ] M27-021  In Runs show automation name, linked record, trigger, started time, elapsed time, status and attempt count. Default sort newest first with pagination and stable row identifiers.
+
+[ ] M27-022  Provide status filter All, Queued, Running, Waiting, Awaiting approval, Succeeded, Failed, Cancelled; date presets Last 24 hours, Last 7 days, Last 30 days and Custom range; add automation and project filters.
+
+[ ] M27-023  Open a run detail drawer with ordered steps, scheduled/actual times, masked inputs, result, failure explanation and safe recovery action. Never expose credentials or another business record.
+
+[ ] M27-024  Show Retry failed step, Cancel run and Open source record only when permitted. Require acknowledgement of recipient and side effects before replaying a message-producing step.
+
+[ ] M27-025  In Queue show scheduled time, rule, source, intended action and state. Provide Cancel selected; do not include an unrestricted bulk retry button that can flood customers.
+
+[ ] M27-026  Show empty state No automation runs yet with Create recipe and Test a recipe. On log loading failure show Retry and preserve filters instead of an empty successful-looking table.
+
+Prove completion
+
+[ ] M27-027  Replay the same approved-change event twice and verify one linked task. Record the task ID, event ID and evidence in the checklist.
+
+[ ] M27-028  Schedule an unpaid reminder, pay the synthetic invoice before execution and verify no reminder is sent. Repeat after voiding the invoice.
+
+[ ] M27-029  Simulate a provider timeout after acceptance; reconciliation must prevent a second message. Expose the uncertain outcome until confirmed.
+
+[ ] M27-030  Disable a recipe with Cancel queued runs selected and verify all affected queued work is cancelled while completed history remains readable.
+

@@ -1,0 +1,94 @@
+M35 DETAILED REQUIREMENTS
+
+Final verification publishing and individual notifications
+
+P0 core  |  Dependencies: G00 and verified existing foundations
+
+Finish each selected improvement with production evidence and an individual message to Joshua.
+
+Apply throughout the checklist
+
+[ ] M35-001  Apply this release procedure after each small complete improvement, not only after reaching the last module. Keep unrelated unfinished features disabled and out of published claims.
+
+[ ] M35-002  Before changing a requirement, record Unverified, Existing verified, Partial, Missing, Blocked, Deferred, Implemented in staging or Published verified with evidence. Check satisfied requirements and skip rebuilding existing verified equivalents.
+
+[ ] M35-003  Keep partial, blocked and deferred requirements unchecked. Record what is missing and the next dependency; do not convert a deferment into a completed feature.
+
+[ ] M35-004  For a newly implemented requirement retain the commit, migration if any, environment, acceptance evidence and rollback reference. A screenshot alone does not establish persistence or server permissions.
+
+Cross product acceptance
+
+[ ] M35-005  Use synthetic identities Owner A, Owner B of another business, an assigned team member and a client. Verify each selected feature in the intended role and deny cross-business reads and writes.
+
+[ ] M35-006  Test affected or advertised journey segments and their already-working dependencies from inquiry through payment and scope change. Preserve connected records without duplicates; unrelated unfinished stages do not require a rebuild before a bounded release.
+
+[ ] M35-007  Reload after each material action and repeat on a second session. Saved state must persist; retries and double-clicks must not create duplicate documents, appointments, tasks or charges.
+
+[ ] M35-008  Verify keyboard navigation, visible focus, form labels, error association, modal focus return and readable contrast for changed screens. Critical actions cannot require dragging or color recognition alone.
+
+[ ] M35-009  Test changed screens at 360px and 390px phone widths and a desktop viewport. No primary action may be hidden off-screen or require horizontal scrolling through a form.
+
+[ ] M35-010  Test an empty account, realistic populated account, loading state, provider failure and expired authorization. Show truthful empty/error messages and preserve recoverable user input.
+
+M35 DETAILED REQUIREMENTS
+
+Final verification publishing and individual notifications continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Cross product acceptance
+
+[ ] M35-011  Verify dates across the company's timezone and a daylight-saving boundary. Verify money using correct currency precision, partial payments, refunds and duplicate provider callbacks when those features change.
+
+[ ] M35-012  Review pricing and feature claims against the capabilities actually available for each plan and role. Remove or label claims that still depend on missing provider access or incomplete behavior.
+
+Publication gates and verification
+
+[ ] M35-013  Identify the exact repository, branch, commit, deployment target and database before release. A stale dashboard or successful build in another project does not authorize a deployment here.
+
+[ ] M35-014  Use the existing tested production release procedure within Joshua's standing authorization. Do not ask again for routine already-authorized changes; ask only for a specific unresolved access or out-of-scope action.
+
+[ ] M35-015  Choose the smallest coherent deployment that can be safely tested and recovered. Closely coupled changes may ship together; unrelated unfinished features must not be enabled as collateral changes.
+
+[ ] M35-016  Run required build and meaningful affected-workflow checks. Investigate actual failures instead of repeatedly expanding tests that do not resolve a concrete risk.
+
+[ ] M35-017  After deployment completes, verify the live version and relevant safe production behavior on the production URL. Record deployment identifier, time and the actual check result.
+
+[ ] M35-018  Use read-only or explicitly authorized synthetic production checks. Never create real customer charges, send real customer messages or alter live agreements just to prove deployment.
+
+[ ] M35-019  If a production check fails, pause affected releases, execute the documented recovery where authorized and report the failure. Do not announce Published while a rollback or failed deployment is unresolved.
+
+M35 DETAILED REQUIREMENTS
+
+Final verification publishing and individual notifications continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+One message per published improvement
+
+[ ] M35-020  Immediately notify Joshua separately after every verified published feature or fix through his established private OpenClaw conversation, preferably configured Telegram. Publication notices are separate from product digests or quiet hours unless Joshua directs otherwise.
+
+[ ] M35-021  Resolve the recipient using trusted current conversation or local configuration. Do not guess a chat ID, send to a group or substitute a customer's address.
+
+[ ] M35-022  Each message states feature and requirement IDs, what changed, direct live URL, where to click, production verification, any access limit, deployment/time and the next task.
+
+[ ] M35-023  Send separate messages even when several tightly coupled features share one deployment. Do not combine them into a daily digest, end-of-phase summary or final-only report.
+
+[ ] M35-024  Do not call an already existing verified capability newly published. Record the skip in progress; announce a publication only when there is a real newly deployed improvement.
+
+[ ] M35-025  Continue the next authorized task after sending; do not wait for Joshua's reply between ordinary steps. Honor any new direction or stop instruction he provides.
+
+[ ] M35-026  Keep a durable notification outbox keyed by feature ID and deployment. Track Pending, Accepted and Failed; use bounded retries and deduplicate accepted messages.
+
+[ ] M35-027  If delivery is uncertain, reconcile with the channel where possible before resending. Service acceptance does not prove the message was read; report the actual delivery state.
+
+[ ] M35-028  If messaging is unavailable, retain one pending notification per improvement, expose the exact blocker through the originating channel when possible and continue independent coding work.
+
+Checkpoint and handoff
+
+[ ] M35-029  At the 24-hour and 48-hour checkpoints report verified-existing, newly published, partial, blocked and remaining requirements separately. Time elapsed never changes an unchecked requirement into a completed one.
+
+[ ] M35-030  Save progress before interruption with current branch, last verified commit, next requirement ID and unresolved provider/access issues. Resume from the recorded evidence rather than starting another implementation.
+
+[ ] M35-031  Deliver the updated checklist, live links, release evidence, retained working features and remaining ordered work. Preserve the original research as context, while this detailed specification governs the execution steps.
+

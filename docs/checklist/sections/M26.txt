@@ -1,0 +1,88 @@
+M26 DETAILED REQUIREMENTS
+
+Responsive mobile and native applications
+
+P2 provider dependent  |  Dependencies: M01, M06, M12, M19
+
+Make the core client journey usable on mobile and add native/device capabilities only when real applications and provider support exist.
+
+Inspect actual mobile products
+
+[ ] M26-001  Inspect the current responsive site, installable-web-app configuration, native source projects and verified store listings. Test each requested behavior before editing; label browser, installed web app and native iOS/Android capabilities separately and preserve working implementations.
+
+[ ] M26-002  Apply core responsive fixes even if native apps remain blocked or in development. Native store release and Tap to Pay are separate provider-dependent work; do not delay a working mobile agreement/booking/payment journey for unavailable native packaging.
+
+[ ] M26-003  Test main owner and client pages at widths 320, 360, 390, 768, 1,024 and 1,440 CSS pixels. Remove unintended horizontal scrolling; permit an explicitly scrollable data table only when a readable mobile summary or detail view remains available.
+
+[ ] M26-004  Collapse desktop navigation into an accessible mobile menu while retaining the canonical destinations. Keep current location and primary action visible, provide keyboard focus management and ensure closing the menu returns focus to its trigger.
+
+[ ] M26-005  Use touch targets of at least 44 by 44 CSS pixels for primary controls and clear spacing between destructive and routine actions. Support text zoom to 200 percent without clipped labels, hidden consent text or inaccessible submit buttons.
+
+[ ] M26-006  Use appropriate email, phone, numeric and decimal input keyboards while preserving full server validation. Keep labels visible, place errors beside fields and scroll to the first invalid field without losing earlier input.
+
+[ ] M26-007  Keep sticky Save, Sign, Confirm booking and Pay actions clear of the virtual keyboard and safe-area insets. Show the amount and document/version context beside relevant actions so a mobile user understands what they are approving.
+
+[ ] M26-008  Provide Agenda and Day alternatives for small-screen calendars with visible date navigation and timezone. Preserve Week/Month access without requiring drag gestures to edit an event; every gesture must have a button/editor alternative.
+
+[ ] M26-009  Show Offline and Reconnecting states truthfully. Permit viewing only already authorized cached material under the existing secure cache policy; never claim a booking, signature, message or payment succeeded while its server write is unconfirmed.
+
+[ ] M26-010  Preserve interrupted form drafts where the existing storage model safely supports it and distinguish Saved locally from Saved to account. Retry the original operation on reconnect and clear user-scoped sensitive caches at sign-out or account switch.
+
+M26 DETAILED REQUIREMENTS
+
+Responsive mobile and native applications continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Installable and native app behavior
+
+[ ] M26-011  If offering an installable web app, supply a working manifest, icons, start URL and version/update handling. Label it as a web app; test installation on supported browsers and avoid showing an Install control where the browser cannot complete it.
+
+[ ] M26-012  Show iOS and Android store buttons only for verified public listings belonging to MFH. If an application is not released, show In development rather than a dead store link or a statement implying store approval.
+
+[ ] M26-013  For native applications reuse the verified account, client, project, document, invoice, calendar, inbox and time APIs. Document unsupported native actions explicitly; a navigation screen without a functioning handler does not establish native feature parity.
+
+[ ] M26-014  Use the supported mobile authentication flow with secure token storage and validated redirect/deep-link handling. Offer biometrics only as a device unlock convenience; it must not replace tenant authorization or grant permissions beyond the account role.
+
+[ ] M26-015  On native sign-out revoke or remove the device session as supported, clear user-scoped cached private data and stop that user's background activity. Switching business accounts must not display the prior business's records during loading.
+
+[ ] M26-016  Validate document, project and booking deep links through their applicable account or scoped guest-link authorization. Do not require a new account for an otherwise valid guest flow. Expired, revoked or unauthorized links never reveal cached protected content.
+
+[ ] M26-017  Request push, camera, microphone and photo permissions only when the user selects the corresponding feature. Explain the purpose and keep the rest of the app usable if permission is denied.
+
+[ ] M26-018  Register push devices to the correct user and business scope and remove invalid/revoked tokens. Default lock-screen notifications to a generic activity message; opening one must recheck record access before revealing private client information.
+
+[ ] M26-019  For camera/file uploads show preview, filename/type/size validation, progress, retry and remove controls. Reuse existing secure attachment records; interrupted retries must not create duplicate uploads or make private files publicly accessible.
+
+[ ] M26-020  For mobile time capture preserve the original timer identity across interruptions and reconnects. Show pending synchronization and reconcile against existing M15 entries before creating another entry; offline time is not automatically invoiced or paid.
+
+M26 DETAILED REQUIREMENTS
+
+Responsive mobile and native applications continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Provider dependent Tap to Pay
+
+[ ] M26-021  Expose Collect payment > Tap to Pay only when the business account, country, device, operating system and provider SDK are verified eligible. Show the exact eligibility blocker; ordinary responsive checkout must not be presented as contactless native acceptance.
+
+[ ] M26-022  Start collection from an authorized Open invoice or supported pay-link context in M12. Fetch the current remaining amount and fixed currency from the server; allow a partial amount only where the existing collection rules explicitly support it.
+
+[ ] M26-023  Show invoice/client reference, amount, currency and provider-supported collection details before starting the native reader flow. Never collect raw card data in MFH fields or implement an unverified custom NFC/card-reading substitute.
+
+[ ] M26-024  Use actual provider states Connecting, Ready, Reading, Processing, Succeeded, Failed, Cancelled and Unknown. Confirm payment from authoritative provider evidence and update the canonical ledger; a successful animation or device callback alone must not mark an invoice Paid.
+
+[ ] M26-025  Assign one stable collection attempt to the payment operation. After an interrupted tap or unknown outcome show Check payment status and reconcile before another attempt; prevent accidental duplicate collection from repeated taps or repeated screen entry.
+
+[ ] M26-026  Keep authorization holds, refunds and payouts separate from contactless charge success. Use M14 for refunds and disable offline contactless acceptance unless the specific provider explicitly supports it and the full reconciliation behavior is implemented.
+
+Observable mobile acceptance checks
+
+[ ] M26-027  Complete the synthetic client journey on a narrow mobile browser: open shared agreement, review all content, sign the intended version, view payment status and book/manage an appointment. Confirm no clipped controls, lost input or unintended horizontal scrolling.
+
+[ ] M26-028  Interrupt connectivity during a booking save, message send and timer save, then reconnect. Confirm status remains truthful and each recovery produces one durable record without duplicate messages, appointments, time entries or payments.
+
+[ ] M26-029  On supported physical iOS/Android devices test authentication, deep links, notification denial, sign-out and account switching. Record device/build evidence; emulator screenshots alone must not establish native SDK or store-release readiness.
+
+[ ] M26-030  Test Tap to Pay through the actual provider-supported test facility/device flow when available. Verify successful, failed, cancelled and uncertain outcomes against provider records; if suitable hardware or test support is unavailable, leave the feature blocked rather than claim success.
+

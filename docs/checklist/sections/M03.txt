@@ -1,0 +1,98 @@
+M03 DETAILED REQUIREMENTS
+
+Pipeline and opportunities
+
+P0 core  |  Dependencies: M02
+
+Track each potential job through configurable stages without confusing expected value with collected money.
+
+Inspect the current pipeline
+
+[ ] M03-001  Inspect opportunity records, existing stages, card/list routes, sales totals and conversion handlers; identify whether older and newer pipeline screens share the same underlying records.
+
+[ ] M03-002  Exercise every requirement below against current behavior; retain verified equivalents, extend only the missing fields or transitions and record blocked dependencies without generating a second sales pipeline.
+
+Stages and board controls
+
+[ ] M03-003  Provide Pipeline with Board and List views over the same records; default Board, remember the user's choice and include search by opportunity title, client name and contact email.
+
+[ ] M03-004  Provide initial stages New, Contacted, Qualified, Proposal sent, Won and Lost; preserve stable stage identifiers and explicit Won or Lost semantics independent of display names.
+
+[ ] M03-005  Provide Manage stages to Owner and Admin with Add stage, Rename, Reorder and Archive; let new stages select classification Open, Won or Lost, default Open.
+
+[ ] M03-006  Prevent archiving a stage containing opportunities until a destination stage is selected and the move is previewed; retain the historical stage name in activity.
+
+[ ] M03-007  Show each board card's Title, Client, Estimated value with currency, Assigned owner, Next action date and Tags; hide amounts from roles without financial visibility.
+
+[ ] M03-008  Show stage totals as Estimated pipeline value grouped by currency and opportunity count; exclude archived and Lost records and never label those totals received revenue.
+
+[ ] M03-009  Offer list columns Title, Client, Stage, Estimated value, Probability, Expected close, Assigned owner, Next action and Updated; let users sort a permitted column ascending or descending.
+
+[ ] M03-010  Provide filters Stage, Assigned owner, Tags, Source, Expected close range and Next action with Any, Overdue, Due today, Upcoming or None; combine filters with AND.
+
+[ ] M03-011  Provide Save view with required unique name and visibility Private or Business, default Private; restrict Business view management to Owner and Admin and preserve filter predicates.
+
+M03 DETAILED REQUIREMENTS
+
+Pipeline and opportunities continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Opportunity editor fields
+
+[ ] M03-012  Provide New opportunity with required Title of 1–150 characters and Client selector; allow Add client through the existing client form and return its saved identifier.
+
+[ ] M03-013  Provide Stage selector default New, Assigned owner default creator when allowed, and optional Expected close date; reject invalid dates without forbidding legitimate historical opportunities.
+
+[ ] M03-014  Provide Estimated value as an optional nonnegative monetary input and Currency as a supported ISO code; show unknown value as Not estimated instead of zero.
+
+[ ] M03-015  Provide Probability as an integer from 0 to 100, default 0 for New; calculate weighted estimate as estimated value times probability divided by 100, rounded in that currency.
+
+[ ] M03-016  Provide Source options Website form, Referral, Social media, Search, Advertisement, Direct outreach, Existing client, Other and Unknown; default Unknown and allow optional Source detail.
+
+[ ] M03-017  Provide optional Description, Tags and Next action text; pair Next action with a due date and assigned person, and show overdue based on the business timezone.
+
+[ ] M03-018  Expose permitted opportunity custom fields defined in M02 with their exact required rules; do not duplicate client fields or overwrite client answers from opportunity edits.
+
+[ ] M03-019  Provide Save, Save and open client and Cancel actions; prevent duplicate records after repeated clicks and preserve invalid inputs with clear field errors.
+
+Transitions and conversion
+
+[ ] M03-020  Allow permitted users to move cards or use Move to stage; persist the transition once, record actor/time and restore the prior card position if saving fails.
+
+[ ] M03-021  When moving to Lost, require a reason from Price, Timing, Competitor chosen, No response, Not a fit, Cancelled or Other; require explanatory text for Other.
+
+[ ] M03-022  When moving to Won, record the win without fabricating a signature or payment; offer Create project or Link existing project as separate actions.
+
+M03 DETAILED REQUIREMENTS
+
+Pipeline and opportunities continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Transitions and conversion
+
+[ ] M03-023  Make Create project carry client, title, owner and agreed scope into one project using M05; repeated conversion returns the existing linked project instead of creating another.
+
+[ ] M03-024  Keep project conversion blocked until the required project handler works, while preserving opportunity editing and Won status; show the exact dependency and do not use an inert success button.
+
+[ ] M03-025  Provide Reopen for Won or Lost opportunities with a required destination Open stage; retain prior outcome and conversion history, including any existing linked project.
+
+[ ] M03-026  Provide activity entries for creation, stage movement, value change, assignment, proposal sharing and conversion; distinguish automated changes from human changes and link supporting records.
+
+[ ] M03-027  Provide bulk Assign, Add tag, Move stage and Archive actions on explicitly selected records; preview count, recheck permissions per row and report partial failures accurately.
+
+[ ] M03-028  Provide Archive and Restore as reversible visibility actions; archived opportunities remain linked to their client and project and are omitted from default board totals.
+
+States permissions and acceptance
+
+[ ] M03-029  Show No opportunities yet with Add opportunity, No results with Clear filters and Unable to load with Retry; preserve filters and prevent a failed fetch from appearing as an empty pipeline.
+
+[ ] M03-030  Enforce assignments and financial visibility on board, list, bulk actions and direct APIs; Members cannot discover other assigned opportunities through counts or search.
+
+[ ] M03-031  Test renaming Qualified to Ready while moving a card between custom stages; verify stable identifiers, correct totals and one recorded transition after refresh.
+
+[ ] M03-032  Test Won conversion twice and then Reopen; verify one project remains linked, history persists and no invoice, signature or payment is invented.
+
+[ ] M03-033  Test mixed-currency opportunities and a denied bulk update; show separate currency totals, leave unauthorized records untouched and identify the failed rows.
+

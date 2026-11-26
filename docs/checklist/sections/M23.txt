@@ -1,0 +1,108 @@
+M23 DETAILED REQUIREMENTS
+
+Calendar and video integrations
+
+P2 provider dependent  |  Dependencies: M19
+
+Connect real calendar and meeting providers with explicit permissions, verified synchronization and recoverable failures.
+
+Inspect actual provider capabilities
+
+[ ] M23-001  Inspect existing Google, Microsoft, Zoom, Calendly and Acuity adapters, granted scopes, saved provider references and worker configuration without exposing secrets. Test connection and synchronization separately; preserve proven adapters and record unsupported capabilities as blocked.
+
+[ ] M23-002  Place Calendar and Video cards in Settings > Integrations. Show Disabled, Not connected, Connecting, Connected or Attention required based on actual authorization and recent successful provider checks; a saved client ID must not imply Connected.
+
+[ ] M23-003  For each card show Connected account, Granted capabilities, Last successful check, Last sync, Coverage range and any actionable error. Provide Connect, Reconnect, Sync now and Disconnect only when their handlers work.
+
+[ ] M23-004  Limit connecting a personal calendar to its authorized user or an explicitly permitted delegated account. Keep a team member's busy access scoped to scheduling needs; connecting their calendar must not grant teammates access to email or private titles.
+
+Calendar authorization and synchronization
+
+[ ] M23-005  Offer Google Calendar and Microsoft Outlook calendar connections only where actual adapters and credentials are available. Use the provider consent flow with validated callbacks and minimum necessary scopes; never request passwords inside MFH forms.
+
+[ ] M23-006  Provide connection mode choices Read busy times and Read busy times plus create MFH events. Disable the write choice until its required provider permission and tested handler exist; do not label a read-only snapshot as two-way synchronization.
+
+[ ] M23-007  List only calendars returned by the authorized provider account. Let the user select busy calendars and, when supported, one write calendar; if only the primary calendar works, state that limit and disable unsupported selections.
+
+[ ] M23-008  Provide Automatic sync and Manual sync modes only when supported. Show the actual polling/webhook behavior and freshness; a missing background worker must leave the connection labeled Manual sync rather than promising continuous updates.
+
+M23 DETAILED REQUIREMENTS
+
+Calendar and video integrations continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Calendar authorization and synchronization
+
+[ ] M23-009  Provide Sync now with an in-progress indicator, successful completion time and refreshed coverage dates. Prevent overlapping duplicate sync jobs and retain the last good snapshot with a Stale label if the next request fails.
+
+[ ] M23-010  Use a proposed five-minute maximum busy-snapshot age for public confirmation unless the inspected implementation has a justified stricter rule. Refresh stale data through the provider before confirmation or block the booking with a retry message.
+
+[ ] M23-011  Ensure the busy snapshot covers the entire requested appointment and buffers. Show the actual horizon supported by the provider; do not accept a future booking outside verified coverage just because an empty array was returned.
+
+[ ] M23-012  Store provider timestamps with their actual offsets and map provider timezones to valid IANA zones. If a timezone cannot be resolved, mark the event Attention required and request a mapping rather than silently treating its time as UTC.
+
+[ ] M23-013  Write only explicitly shared appointment fields to an external calendar: agreed title, time, location, permitted attendees and client instructions. Exclude internal notes, margins, private files and hidden project dates.
+
+[ ] M23-014  Keep a stable mapping between MFH appointment IDs and provider event IDs. Update the same external event after rescheduling, exclude its own mapped busy record from self-conflict checks and prevent duplicate events on retries.
+
+[ ] M23-015  Define external-change handling explicitly: flag provider-side deletion or time changes for reconciliation unless tested two-way editing exists. Offer Restore external event or Review appointment change; never silently cancel a paid MFH booking.
+
+[ ] M23-016  Process webhook notifications and incremental sync cursors idempotently, including paginated results. Replayed notifications must not duplicate events; an expired cursor must trigger a bounded resynchronization without deleting unrelated records.
+
+[ ] M23-017  On revoked authorization, refresh failure or provider rate limits show Attention required with the last successful sync. Back off and reconcile; do not bypass provider errors by declaring the calendar free or sending duplicate update requests.
+
+M23 DETAILED REQUIREMENTS
+
+Calendar and video integrations continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Calendar authorization and synchronization
+
+[ ] M23-018  On Disconnect remove usable authorization, stop future sync jobs and show what local records remain. Preserve existing appointments/history; deleting remote events requires a separately explicit reviewed action and is not implied by disconnecting.
+
+Video meetings and external booking services
+
+[ ] M23-019  Provide Google Meet, Microsoft Teams and Zoom setup where the connected account and provider plan actually allow conference creation. Show Supported, Permission required or Unavailable per capability instead of assuming calendar authorization includes video rights.
+
+[ ] M23-020  For appointment creation offer Generate meeting automatically or Use existing HTTPS meeting link. Validate the latter as an allowed secure URL and retain its author; never invent a working meeting ID as a placeholder.
+
+[ ] M23-021  Create one provider meeting for each one-to-one appointment or group occurrence as appropriate. Reuse the same meeting for that group's attendees, but do not reuse a private meeting across unrelated client appointments by default.
+
+[ ] M23-022  After successful meeting creation persist its provider reference and join URL before scheduling notifications. If creation fails, keep the appointment visibly Location pending, notify the owner through configured operational alerts and offer Retry or Add link.
+
+[ ] M23-023  For a reschedule update the existing provider meeting when supported and preserve identity. For cancellation follow the verified provider delete/cancel behavior and record the outcome separately from the local appointment cancellation.
+
+[ ] M23-024  Expose provider-returned waiting-room/passcode options only if the adapter can apply them. Keep passcodes and private host links out of public calendar feeds and unauthorized portal views.
+
+[ ] M23-025  For Calendly or Acuity provide an explicitly named import/connection mode with supported direction and account requirements. Do not advertise native two-way management when only inbound event import is implemented.
+
+M23 DETAILED REQUIREMENTS
+
+Calendar and video integrations continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Video meetings and external booking services
+
+[ ] M23-026  Map imported bookings by provider/account/event ID and mark their Source. Display permitted client, time and status fields; updates and cancellations reconcile the same record rather than creating another appointment.
+
+[ ] M23-027  Disable MFH editing controls for externally managed fields unless supported write-back has been verified. Offer Open in provider and show the synchronization limit; imports must not create invoices, contacts or notifications twice.
+
+[ ] M23-028  Show separate status for Calendar updated, Video meeting created and Invitation email sent. A successful event write must not imply the provider invited attendees or that MFH delivered an email.
+
+Observable connector acceptance checks
+
+[ ] M23-029  Connect a controlled test calendar, create a busy event and sync it. Confirm its time blocks public booking, its private title is absent from public output and the displayed successful-sync timestamp corresponds to a real provider response.
+
+[ ] M23-030  Revoke the test calendar authorization and attempt a booking requiring it. Confirm Attention required and a blocked confirmation; after reconnecting, confirm real availability resumes without losing existing appointments.
+
+[ ] M23-031  Create and reschedule one MFH appointment with calendar write enabled, then replay its update. Confirm exactly one mapped provider event exists and its time matches MFH without a false self-conflict.
+
+[ ] M23-032  Simulate video creation failure and then recover it. Confirm Location pending is truthful, retry produces one meeting and only a verified URL appears in the eventual client invitation.
+
+[ ] M23-033  Import the same controlled Calendly/Acuity booking twice and then cancel it externally. Confirm a single local source record is updated and no duplicate invoice, reminder or marketing enrollment is produced.
+
+[ ] M23-034  Inspect disconnect behavior in the controlled provider account. Confirm tokens/jobs stop, local history remains, existing remote events are preserved unless explicitly selected for deletion and no cross-business provider references are accessible.
+

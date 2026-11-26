@@ -1,0 +1,98 @@
+M25 DETAILED REQUIREMENTS
+
+Inbox email SMS and business phone
+
+P2 provider dependent  |  Dependencies: M02, M05
+
+Provide a client communication workspace that reflects real sending, receiving and phone-provider capabilities with clear permissions and delivery evidence.
+
+Inspect and organize the inbox
+
+[ ] M25-001  Inspect current communication notes, transactional email queue, Google/Microsoft mail adapters and phone capabilities. Demonstrate send, receive, sync and delivery behavior separately; skip verified features and do not call an invitation queue a synchronized inbox.
+
+[ ] M25-002  Place Inbox in main navigation with All, Email and SMS views, adding Portal messages only when real portal messaging exists. Display an explanatory setup state for unavailable channels rather than populating them with simulated conversations.
+
+[ ] M25-003  Provide Search plus filters Unread, Assigned to me, Unassigned, Client, Project, Date range and Delivery state. Apply filters only within authorized conversations and include Clear filters and distinct empty versus load-error states.
+
+[ ] M25-004  Show conversation rows with Client or sender, Subject or SMS preview, Channel, Last message time, Unread indicator, Assignee and any delivery problem. Support newest/oldest sorting and pagination without dropping older history.
+
+[ ] M25-005  In a thread show actual sender/recipient identities, timestamp/timezone, channel, attachments and linked Client/Project. Render untrusted message HTML safely and keep internal notes visually and technically separate from content sent to the client.
+
+Email connection composition and delivery
+
+[ ] M25-006  Provide Google and Microsoft email connections in Settings > Integrations with actual granted read/send permissions. Keep a transactional Resend-style sender distinct from a synced personal inbox; verify the sender identity before exposing Send.
+
+[ ] M25-007  Provide a sharing setting for each connected mailbox: Private to me or Explicitly shared team access. List who can read/send and require owner/admin authority for shared business mailboxes; do not expose a personal mailbox to all teammates by default.
+
+[ ] M25-008  Synchronize inbox history with provider message/thread IDs, pagination and durable cursors. Show Last sync and actual errors; deduplicate incoming records and match existing clients by scoped verified identifiers rather than display names.
+
+[ ] M25-009  For an unknown inbound sender offer Create client, Link existing client or Leave unlinked. Keep this an explicit business action unless a separately configured lead rule exists; receiving an email must not create a paid customer subscription.
+
+[ ] M25-010  Provide New message with required To, optional CC/BCC, required Subject of 1–200 characters and Body. Validate recipient addresses and resolve selected contacts to their actual email; preserve the draft when a recipient or permission is invalid.
+
+[ ] M25-011  Provide Insert template with approved saved email templates and visible variable fields. Insert into an editable draft, highlight missing variables and block send until they resolve; never silently include internal notes or another client's template values.
+
+M25 DETAILED REQUIREMENTS
+
+Inbox email SMS and business phone continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Email connection composition and delivery
+
+[ ] M25-012  Provide attachment controls with filenames, sizes, remove actions and actual provider limits. Accept only supported safe file types, scan or validate through the existing upload pipeline and use authorized downloads rather than public permanent attachment URLs.
+
+[ ] M25-013  Provide Send now, Save draft, Discard and Schedule only when scheduling is implemented. For Schedule require a date/time and displayed timezone; use the verified outbox worker rather than pretending a browser timer will send later.
+
+[ ] M25-014  Track Draft, Scheduled, Queued, Provider accepted, Delivered, Failed and Unknown as distinct delivery states where evidence supports them. If delivery receipts are unavailable, show provider acceptance without claiming that the recipient received or read the message.
+
+[ ] M25-015  Provide Cancel scheduled message before dispatch with a server-side race check. If dispatch already began, show the actual outcome and do not claim recall; rescheduling must not leave the original send job active.
+
+[ ] M25-016  Enforce sending authority for the chosen From identity and recipients at dispatch, including after role changes. Do not let a member impersonate the owner or send from a mailbox whose authorization has expired.
+
+[ ] M25-017  On timeout or uncertain provider outcome, reconcile the existing outbox item before another send. Keep a stable idempotency/reference key, expose Retry safely where supported and never create a fresh send merely because the first response was lost.
+
+[ ] M25-018  Record sent/received messages in the permitted client/project activity using the existing message identity. Moving a thread's project association must not rewrite the historical recipients, message body or provider delivery evidence.
+
+[ ] M25-019  Provide Reply, Reply all and Forward with visible recipient lists and editable drafts. Confirm attachment inclusion on Forward and prevent hidden internal notes or portal-only files from being included automatically.
+
+[ ] M25-020  Provide Mark read/unread, Assign, Star, Archive and Restore actions with clear scope. Archiving hides the thread from the default list without deleting the customer, project or underlying message history.
+
+SMS numbers and calls
+
+[ ] M25-021  Provide an SMS/business-phone setup card showing number, country, provider authorization, registration state, plan limits and real sending/calling capabilities. Keep Disabled or Attention required until the provider confirms the necessary capability.
+
+[ ] M25-022  Offer a provider-backed number selector and a reviewed price/capability summary before an owner purchases a number. Preserve existing connected numbers; expose port-in only when the actual provider workflow is implemented and supported.
+
+M25 DETAILED REQUIREMENTS
+
+Inbox email SMS and business phone continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+SMS numbers and calls
+
+[ ] M25-023  Provide SMS compose with a selected contact or validated E.164 number and text body. Show actual character encoding, estimated segments and provider-backed cost/limit information; reject unsupported destinations or payloads before queuing.
+
+[ ] M25-024  Store SMS consent and opt-out evidence with source/time and applicable sender scope. Process STOP or equivalent provider opt-out events before dispatch, suppress queued/future messages as required by that state and never infer marketing consent from an email address.
+
+[ ] M25-025  Gate SMS Send on valid number, provider capability, consent/opt-out state and available plan/provider allowance. Explain the specific blocker and keep working email available; expose MMS attachments only when verified supported.
+
+[ ] M25-026  Provide SMS Quiet hours start/end fields, initially 20:00–08:00, and a required known recipient timezone for scheduled sends. Show the adjusted send time; never infer timezone solely from phone prefix or claim these preferences establish legal compliance.
+
+[ ] M25-027  Provide Call using a verified in-app provider SDK or clearly labeled Dial on device fallback. Display Mute, Keypad, Hold and End only where supported; a device dial link must not claim that MFH tracked a connected call.
+
+[ ] M25-028  Provide voicemail and greeting controls only where the provider supports them. Keep recording disabled until a supported, explicit consent/configuration path exists; do not create fake recordings, call-duration records or caller-ID verification.
+
+[ ] M25-029  Allow SMS and calls linked directly to an authorized contact without requiring a project. When several contacts share a number, ask the business user to choose the association rather than merging contacts or exposing unrelated project history.
+
+Permissions and observable communication acceptance
+
+[ ] M25-030  Enforce private-conversation boundaries on thread reads, attachment downloads and send actions. Bookkeepers receive no inbox access by role alone; managers/members require assignment plus communication permission, and unrelated businesses never share message indexes.
+
+[ ] M25-031  Send an email through an approved controlled test recipient or provider test facility, then verify the provider reference and actual delivery evidence. Confirm one visible message/outbox item and distinguish accepted from delivered when only acceptance is available.
+
+[ ] M25-032  Replay an incoming webhook and simulate an uncertain send response. Confirm one inbound message is stored and recovery reconciles the original outbound request without sending a duplicate.
+
+[ ] M25-033  Process an SMS opt-out while a message is queued, then disconnect the sending number. Confirm dispatch is blocked, visible state explains the reason and no fake successful delivery or call appears.
+

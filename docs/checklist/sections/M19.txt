@@ -1,0 +1,120 @@
+M19 DETAILED REQUIREMENTS
+
+Calendar views and event editor
+
+P0 core  |  Dependencies: M01, M02, M05
+
+Provide one trustworthy calendar for appointments, project dates and internal availability with clear editing and conflict behavior.
+
+Inspect existing calendar and navigation
+
+[ ] M19-001  Inspect the existing calendar, scheduling and time-off routes, saved-event schema, permission checks and create/edit handlers. Demonstrate each requested behavior before changing it; record evidence and skip verified equivalents rather than rebuilding them.
+
+[ ] M19-002  Place Calendar in the existing main navigation and provide Calendar, Availability and Booking links tabs or equivalent existing views. Keep provider setup under Settings > Integrations and preserve working URLs and navigation labels.
+
+[ ] M19-003  Provide a View selector with Day, Week, Month and Agenda list. Default first use to Week on desktop and Agenda list on narrow screens; remember each user's preference without changing another user's view.
+
+[ ] M19-004  Provide Previous, Today and Next buttons, a clickable date-range heading and a date picker. Move one displayed day, week or month at a time; show the selected range in the active display timezone.
+
+[ ] M19-005  Provide a searchable Display timezone selector using IANA zones, with browser timezone as the initial suggestion. Persist the selected zone per user and show its current UTC offset; changing it must not move stored events.
+
+[ ] M19-006  Provide filters for Host, Client, Project, Event type and Status, with All as each default. Offer only records the signed-in user may access; preserve filters across view changes and provide Clear filters.
+
+[ ] M19-007  Provide visible-source toggles for Appointments, Service visits, Project dates, Internal blocks, Time off and Connected busy times. Distinguish sources using labels or icons as well as color; never reveal external event titles without permission.
+
+Event fields and controls
+
+[ ] M19-008  Open New event from a primary button or an empty calendar cell. Preselect the clicked date/time and current user where appropriate; opening the editor must not reserve a slot or create a saved event.
+
+[ ] M19-009  Offer Event type values Appointment, Service visit, Project milestone and Internal block. Link milestones to the existing project date record; link service visits to M22 when available instead of maintaining duplicate date sources.
+
+M19 DETAILED REQUIREMENTS
+
+Calendar views and event editor continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Event fields and controls
+
+[ ] M19-010  Require Title as a trimmed text field of 1 to 120 characters. Keep the initial value blank for a new appointment, identify missing input beside the field and retain the rest of the draft after validation fails.
+
+[ ] M19-011  Provide searchable Client and Project selectors, both optional for internal blocks. Filter projects after client selection and reject mismatched client/project pairs server-side; changing the client must require resolving any incompatible project selection.
+
+[ ] M19-012  Provide Hosts as a searchable selection of permitted active users. Default to the current user; require at least one host for an appointment or service visit and preserve an inactive historical host label without assigning new work to them.
+
+[ ] M19-013  Provide Start date, Start time, End date and End time with an adjacent Event timezone. Default event timezone to the host's saved timezone; show the corresponding display-zone time when the two differ.
+
+[ ] M19-014  Provide Duration choices 15, 30, 45, 60, 90 and 120 minutes plus Custom. Accept custom timed appointments from 5 to 720 whole minutes; changing duration updates the end while an invalid end-before-start value blocks saving.
+
+[ ] M19-015  Provide an All day switch for project milestones and internal blocks. Display inclusive start and final dates, store the correct exclusive end where required by calendar standards, and never convert an all-day date into a misleading midnight appointment.
+
+[ ] M19-016  For nonexistent daylight-saving local times, show a field error and require a valid time. For an ambiguous repeated hour, show both UTC offsets and require a choice; never silently treat a local timestamp as UTC.
+
+[ ] M19-017  Offer Location values In person, Phone, Video meeting and Other for appointments. Require the appropriate address, phone details, supported video choice or text description; keep unavailable provider-generated meeting options disabled with a setup link.
+
+[ ] M19-018  Separate Client instructions from Internal notes, with labeled text areas and a 2,000-character limit each. Share only Client instructions in public/portal views, notifications and calendar invitations; never merge internal notes into the public description.
+
+[ ] M19-019  Use Scheduled, Completed, Cancelled and No show for ordinary appointments. Service visits display their canonical M22 states, including In progress and Skipped, rather than storing a second status. Neither event nor visit completion marks an invoice Paid.
+
+M19 DETAILED REQUIREMENTS
+
+Calendar views and event editor continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Event fields and controls
+
+[ ] M19-020  Provide Availability values Busy and Free, default Busy. Busy appointments and internal blocks reserve the required hosts; a Free informational milestone remains visible but does not block another booking.
+
+[ ] M19-021  Provide a Reminders section showing the actual configured channels and offsets. Offer None, At start, 5 minutes, 15 minutes, 30 minutes, 1 hour, 1 day and Custom; external delivery remains gated by M21 and provider capability.
+
+[ ] M19-022  Provide Repeat values Does not repeat, Daily, Weekly, Every two weeks, Monthly and Custom. Reuse the recurrence model described in M22; changing an ordinary event into a series must show its timezone and end condition before saving.
+
+[ ] M19-023  For an event created by a session type, show a read-only link to that session and its host/capacity rules. Edit session defaults through M20; do not silently overwrite the defaults when editing one appointment.
+
+[ ] M19-024  Provide Save, Cancel and, where configured, Save and send update actions. Save persists the event without implying a message was sent; sending an update must show its actual recipients and channel before the explicit send action.
+
+[ ] M19-025  Disable duplicate submission while saving and preserve entered fields on validation, network or permission errors. If the result is uncertain, offer Check saved status before a new create attempt; do not create a second event to recover.
+
+Calendar editing and privacy
+
+[ ] M19-026  Support drag-to-move and drag-to-resize only for users with edit permission, with keyboard/editor alternatives. Show old and new times, detected conflicts and notification choice before committing a move; Cancel leaves the original event untouched.
+
+[ ] M19-027  When editing a series occurrence, offer This occurrence, This and following occurrences and Entire future series. Keep completed/cancelled history intact and show affected upcoming dates before applying a bulk change.
+
+[ ] M19-028  Provide Cancel appointment with an optional internal reason and a separate client-facing message. Keep the event and its audit history, release its future slot once, and leave related invoices and refunds to their existing workflows.
+
+[ ] M19-029  Limit permanent Delete to unsent draft-only records if supported by the existing model. Prefer cancellation for shared, paid, completed or recurring appointments; show dependent records before any permitted deletion.
+
+M19 DETAILED REQUIREMENTS
+
+Calendar views and event editor continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Calendar editing and privacy
+
+[ ] M19-030  Check host availability, time off, minimum notice, horizon, buffers, resource/capacity rules and verified external busy times before confirming an appointment. During rescheduling exclude the appointment's own reservation, not other overlapping events.
+
+[ ] M19-031  Reserve hosts and capacity atomically during save. Two requests for the last available slot must not both succeed; show the losing request a conflict and refreshed alternatives without exposing another client's identity.
+
+[ ] M19-032  Allow an authorized internal overlap override only if the business enables it and records a reason. Never offer this override on public booking pages, and keep the overlap visibly flagged rather than claiming the slot was conflict-free.
+
+[ ] M19-033  In Agenda list show Date, Start, End, Title, Client or Project, Hosts, Status, Location and Source columns. Support date-range sorting and pagination; exported visible records must follow the same access filters.
+
+[ ] M19-034  In Month view show a bounded number of event chips per day and a More events control that opens that day's agenda. Load the requested date range without dropping events beyond the first response page.
+
+[ ] M19-035  Keep internal calendar display separate from client sharing. Offer Internal only or Shared with client for portal project dates; external export follows its explicit sharing settings. Public availability always exposes busy/free periods only, regardless of client-sharing choice.
+
+[ ] M19-036  Show separate Loading calendar, No events in this range, No events match filters and Could not load calendar states. A failed provider fetch must not turn an unknown day into an apparently fully available day.
+
+[ ] M19-037  Enforce Owner/Admin and assignment-scoped Manager/Member permissions on server reads and writes. Bookkeepers receive no private calendar access by role alone; clients see only their own explicitly shared appointment details.
+
+Observable calendar acceptance checks
+
+[ ] M19-038  Create a synthetic 09:00 appointment in America/New_York and display it in UTC, Day, Week, Month and Agenda views. Confirm all views identify the same stored event and changing display timezone does not alter its actual start.
+
+[ ] M19-039  Attempt overlapping 60-minute bookings at 10:00 and 10:30 for the same host with a 15-minute buffer. Confirm the second is blocked; repeat with a Free milestone and confirm that milestone does not block the appointment.
+
+[ ] M19-040  Open one appointment using an unrelated business account and a client link for another project. Confirm both server access attempts fail and public busy views disclose no client name, title, notes, email or price.
+
