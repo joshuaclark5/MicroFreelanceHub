@@ -2206,13 +2206,17 @@
       "text": "Use a collapsible mobile menu with visible Close and current-page controls; opening a destination closes the menu and places keyboard focus at the page heading.",
       "sourceLine": "[ ] M01-011  Use a collapsible mobile menu with visible Close and current-page controls; opening a destination closes the menu and places keyboard focus at the page heading.",
       "sourceLineNumber": 247,
-      "status": "Partial",
-      "checked": false,
+      "status": "Published verified",
+      "checked": true,
       "existingLocations": [
         "app/components/WorkspaceNav.tsx",
-        "app/components/workspace-navigation.css"
+        "app/components/workspace-navigation.css",
+        "app/components/WorkspaceNavigationFocus.tsx",
+        "app/layout.tsx",
+        "app/dashboard/page.tsx",
+        "scripts/test-workspace-navigation-browser.cjs"
       ],
-      "missingWork": "Visible Close while menu open and keyboard focus at destination heading. Preserve working aria-current, collapse and observed cross-route auto-close.",
+      "missingWork": "",
       "dependencies": [
         "G00",
         "G00-008"
@@ -2222,9 +2226,14 @@
           "environment": "Production authenticated browser, 390px iPhone 13 emulation",
           "evidence": "artifacts/m01-011-audit.json",
           "result": "Menu opens without Close; current-page state present. Pointer Home-to-Tasks and keyboard Tasks-to-Home both close menu but activeElement is BODY, not h1. Partial; unchecked."
+        },
+        {
+          "environment": "Production authenticated browser at 390px; local 360/390/1440 regression",
+          "evidence": "artifacts/m01-production-release-receipt.json; docs/checklist/M01_011_RELEASE.md",
+          "result": "PR47 merge 1e05ee957a8cd8deb2b65cefa4e4e5177ec06c21; Vercel Production 2SAHm5kXhitwehaq4UjEcRtZz4UV succeeded 2026-11-26T05:10:34Z. Public changed asset identity verified. Visible Close, Escape, specific Agreements/Home/Templates destination heading and current-page indicators passed. Build/TypeScript and 16 local regression groups passed. No customer mutations."
         }
       ],
-      "nextAction": "Resolve G00-008 pre-edit environment gate, then smallest Close/focus implementation and affected browser tests at 360/390/desktop; serial typecheck/build, independent review, parent release only."
+      "nextAction": "Preserve navigation regression coverage; continue M01 inspection and parallel M26 architecture inspection."
     },
     {
       "id": "M01-012",

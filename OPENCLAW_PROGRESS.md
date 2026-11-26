@@ -5,8 +5,8 @@
 - Project active; primary module **M01 — Navigation and onboarding**. Current IDs: M01-001, M01-002, M01-003; G00 environment/setup prerequisites.
 - Integration and sole production-release owner: parent `/root`. Specification helper owns docs only; no release authority delegated. Parent must update worker status when execution changes.
 - Last activity: 2026-11-26, specification preservation/validation completed (UTC; November 25 Eastern). Exact generated timestamp is in `docs/checklist/requirements.json`.
-- Latest activity: 2026-11-26T05:00Z: M01-011 corrections completed. Agreements title targeting and modal-focus handling corrected; build, standalone TypeScript and 16 local synthetic browser groups passed (artifacts/m01-review-receipt.json). Independent re-review active in 107924ca, run 4eb20b6e-9e2c-4bba-b44d-bb560c8b4ff3. No release yet. Parent exclusively owns checkpoint, integration and release. Previous setup helpers are settled; do not restart.
-- Next action: await independent re-review run 4eb20b6e-9e2c-4bba-b44d-bb560c8b4ff3 (confirmed running; no duplicate reviewer), correct any findings, then scoped commit/PR and exact-version production release with safe live navigation verification. Parent rechecked main=e0793e9 and GitHub ADMIN access. Managed readiness timed out without a publication request; authorized gh fallback remains available. Authenticated production browser tab mfh-checklist-live (openclaw profile) is ready at 390px for read-only navigation checks after deployment. Release notes docs/checklist/M01-011-release.md and draft PR body artifacts/m01-pr-body.md prepared. CRLF-aware diff check and spec validator pass. No commit or release yet. Local implementation includes Close/Escape and root-layout heading focus. Preview compiled client for mobile branch points to staging lfzaivnvoyvdmvvijnoq; production points to rjgttmwrbyjqifodjnqm. Generic/server/provider isolation remains unverified; Stripe All Environments scope means no hosted provider tests. This does not block isolated UI work or read-only production navigation. No data/config changes.
+- Latest activity: 2026-11-26T05:18:30.293131+00:00: M01-011 Published verified. PR47 merge 1e05ee957a8cd8deb2b65cefa4e4e5177ec06c21, production deployment 2SAHm5kXhitwehaq4UjEcRtZz4UV succeeded 05:10:34Z; exact public asset and authenticated 390px navigation passed. Checkpoint saved before M26 inspection.
+- Next action: review active M26 inspection f7f678e2-1ba1-4c55-aaaf-d0d583ba4b4b (child d3bd3a8d) and M01 next-gap audit cf0ddf44-a255-472b-96ef-a1c529b02017 (child e2371047) on completion, then implement next bounded verified gap. Both accepted Astra workers, read-only findings scope; no duplicate starts. Parent remains sole integration/release and progress owner. Generic preview provider isolation remains unverified; no provider tests or customer mutations.
 - No application code, database, deployment or provider configuration changed by specification setup.
 
 ## Canonical records
@@ -42,12 +42,12 @@ External private handoff reference: `C:/Users/joshu/mfh-overnight-evidence-20261
 | --- | ---: |
 | Unverified | 1218 |
 | Existing verified | 0 |
-| Partial | 1 |
+| Partial | 0 |
 | Missing | 0 |
 | Blocked | 1 |
 | Deferred | 0 |
 | Implemented in staging | 0 |
-| Published verified | 0 |
+| Published verified | 1 |
 
 These are evidence classifications, not a judgment that every unverified feature does not work. Update requirement-level evidence before changing counts; reuse valid earlier evidence only where it covers the exact acceptance.
 
@@ -57,7 +57,7 @@ These are evidence classifications, not a judgment that every unverified feature
 - Next scheduled run: 2026-11-26T05:16:36.904Z, November 26 12:16 AM Eastern.
 - Private notification destination: verified private Telegram conversation `conv_e410f32774c3ec3652625a0ada634d30`. No duplicate test/job needed.
 - Reporter may only read progress and deliver; never edit code, deploy, alter worker state or start coding. Run independently of foreground work where supported; accurately report pause/block/staleness.
-- Pending release outbox: none. No new feature published by this project yet. Key future entries by requirement IDs + deployment, record Pending/Accepted/Failed, reconcile uncertain sends before retrying.
+- Pending release outbox: none. M01-011 release notification delivered to verified private Telegram, message 3596, queue convq_c5f2e34efed1d6a74c0fbb148a31af21. Do not resend.
 - Supported development continuation mechanism: parent establishing; hourly reporter is not the development worker. No expired overnight automation restarted.
 - 24/48-hour checkpoints: measured from project start; parent to record exact start timestamp and upcoming checkpoint times. Report actual verified/published scope and blockers, never claim completion from elapsed time.
 
@@ -117,3 +117,12 @@ Read this checkpoint, G00, M01 and M35. Reconcile actual branch/status/deploymen
 - Single hourly job 5f8947c0-c089-4621-a3d2-70f92c99cac9 updated in place with brief platform-specific mobile status. Schedule, private destination, read-only policy and prior delivery evidence preserved; no new job or duplicate test.
 - Mobile: prior records say Android 0.1.9 internal testing (user's 0.1.8 reference is historical, not current verification); iOS export is not a signed release. Fresh code/build/track/device/account verification pending. No native implementation or store release claimed.
 - Next: publish and verify M01-011, checkpoint; then existing-app inspection/architecture report while main web/backend work continues. Single parent integration/release owner. No new shared API/database changes without coordination.
+
+## Release continuation — 2026-11-26T05:09Z
+- M01-011 and checkpoint committed/pushed d0d11a3ecfb21bd6916775decf67aba2066de8e8; PR47 https://github.com/joshuaclark5/MicroFreelanceHub/pull/47. Exact head verified, mergeable; Vercel preview pending, preview comments success. Independent reviewer now owns bounded read-only CI preflight; parent owns merge and production verification. No production publication yet.
+- Mobile amendment saved to plan and long-term memory; same hourly job updated in place with platform status. After M01-011 exact production/live navigation checks and notification, inspect existing mobile project and return concise findings, then bounded companion lane alongside shared web/backend. Do not interpret old active-review/next-action lines above as current; this checkpoint supersedes them.
+
+## Verified M01-011 release checkpoint
+- Exact approved source d0d11a3; merged 1e05ee9. Prior production e0793e9 retained as rollback reference; no data migration. Local branch remains checklist-improvement; preserve dirty checkpoint and ignored artifacts.
+- Requirement inventory: 1 Published verified, 1 Blocked (G00-008), 1218 Unverified. Master remains 1220 initially empty boxes, unchanged.
+- User mobile amendment is preserved in MOBILE_STRATEGY.md and long-term memory; same hourly reporter includes platform statuses. M26 inspection now permitted after this verified checkpoint; do not infer current app version from old notes.
