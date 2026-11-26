@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import WorkspaceBusinessName from './WorkspaceBusinessName';
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
@@ -10,7 +11,6 @@ export default function WelcomeWizard({ onComplete }: { onComplete?: () => void 
   const dialog = useRef<HTMLDialogElement>(null);
   const actor = useRef<string | null>(null);
   const [name, setName] = useState('');
-  const [business, setBusiness] = useState('');
   const [destination, setDestination] = useState('/create');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -23,9 +23,9 @@ export default function WelcomeWizard({ onComplete }: { onComplete?: () => void 
       try {
         const { data: { user }, error: authError } = await db.auth.getUser();
         if (!user || authError) throw Error('Please sign in again before saving your profile.');
-        const { data, error: readError } = await db.from('profiles').select('full_name,business_name').eq('id', user.id).single();
+        const { data, error: readError } = await db.from('profiles').select('full_name').eq('id', user.id).single();
         if (readError) throw Error('Your profile could not be loaded. Try again later; your saved details have not changed.');
-        if (active) { actor.current = user.id; setName(data.full_name || ''); setBusiness(data.business_name || ''); }
+        if (active) { actor.current = user.id; setName(data.full_name || ''); }
       } catch (e) { if (active) setError((e as Error).message); }
       finally { if (active) setLoading(false); }
     })();
@@ -40,7 +40,7 @@ export default function WelcomeWizard({ onComplete }: { onComplete?: () => void 
     try {
       const { data: { user }, error: authError } = await db.auth.getUser();
       if (authError || user?.id !== actor.current) throw Error('Your account changed. Reopen setup in the original account; nothing was saved.');
-      const { error: saveError } = await db.from('profiles').update({ full_name: name.trim(), business_name: business.trim(), has_completed_onboarding: true }).eq('id', actor.current).select('id').single();
+      const { error: saveError } = await db.from('profiles').update({ full_name: name.trim(), has_completed_onboarding: true }).eq('id', actor.current).select('id').single();
       if (saveError) throw Error('Your profile could not be saved. Your entries are still here—please retry.');
       // Completing setup does not enroll, charge, connect Stripe or send an email.
       dialog.current?.close(); onComplete?.(); router.push(destination);
@@ -53,7 +53,7 @@ export default function WelcomeWizard({ onComplete }: { onComplete?: () => void 
       {loading && <p role="status">Loading your saved profile…</p>}
       {error && <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-900">{error}</p>}
       <div><label htmlFor="welcome-name" className="block text-sm font-semibold mb-2">Your name</label><input id="welcome-name" autoComplete="name" required maxLength={160} disabled={loading || saving || !actor.current} value={name} onChange={e => setName(e.target.value)} className="w-full rounded-lg border border-[#91a999] bg-white p-3 text-slate-900 focus:outline-2 focus:outline-[#194d41]" /></div>
-      <div><label htmlFor="welcome-business" className="block text-sm font-semibold mb-2">Business name <span className="font-normal">(optional)</span></label><input id="welcome-business" autoComplete="organization" maxLength={160} disabled={loading || saving || !actor.current} value={business} onChange={e => setBusiness(e.target.value)} className="w-full rounded-lg border border-[#91a999] bg-white p-3 text-slate-900 focus:outline-2 focus:outline-[#194d41]" /></div>
+      <WorkspaceBusinessName id="welcome-business" />
       <fieldset disabled={saving}><legend className="font-semibold mb-2">What would help you right now?</legend>{[['/create','Draft an agreement','Outline the scope, approvals and payment steps.'],['/workspace/clients','Organize a client project','Keep client details, tasks and agreements together.']].map(([value,title,description]) => <label key={value} className="flex gap-3 rounded-lg border border-[#cad6ca] p-3 mb-2 cursor-pointer"><input type="radio" name="first-action" value={value} checked={destination===value} onChange={() => setDestination(value)} className="mt-1"/><span><strong className="block text-sm">{title}</strong><span className="text-sm">{description}</span></span></label>)}</fieldset>
       <button type="submit" disabled={loading || saving || !actor.current} className="min-h-[48px] w-full rounded-lg bg-[#194d41] px-4 py-3 font-semibold text-white hover:bg-[#123c32] disabled:opacity-50">{saving ? 'Saving your profile…' : 'Save and continue'}</button>
       <p className="text-xs leading-relaxed">This step does not create a subscription or connect a payment account. You can change these details in Settings.</p>

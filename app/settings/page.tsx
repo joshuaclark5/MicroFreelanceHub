@@ -1,7 +1,8 @@
 'use client';
 
 import Brand from '../components/Brand';
-import { useEffect, useState } from 'react';
+import WorkspaceBusinessName from '../components/WorkspaceBusinessName';
+import { useEffect, useMemo, useState } from 'react';
 import { User, Zap, Users, ArrowRight, Loader2 } from 'lucide-react';
 import WorkspaceNav from '../components/WorkspaceNav';
 import ConnectStripeButton from '../components/ConnectStripeButton';
@@ -46,7 +47,7 @@ export default function SettingsPage() {
   const [isCanceling, setIsCanceling] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
-  const supabase = createClientComponentClient();
+  const supabase = useMemo(() => createClientComponentClient(), []);
   const router = useRouter();
 
   // Get initials for avatar
@@ -62,9 +63,15 @@ export default function SettingsPage() {
 
   // Fetch actual profile data on mount
   useEffect(() => {
+    let active = true, loadedActor = '';
+    const {data:{subscription}} = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || (loadedActor && session?.user?.id !== loadedActor)) {active = false; setUserId(null); setFullName(''); setCompanyName(''); setStripeId(null); setPaymentSetupLoaded(false);}
+    });
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
+        loadedActor = user.id;
+        if (!active) return;
         setUserId(user.id);
         
         const { data: profile } = await supabase
@@ -73,6 +80,8 @@ export default function SettingsPage() {
           .eq('id', user.id)
           .single();
           
+        const current = await supabase.auth.getUser();
+        if (!active || current.error || current.data.user?.id !== user.id) return;
         if (profile) {
           setStripeId(profile.stripe_account_id || null);
           setPaymentSetupLoaded(true);
@@ -85,7 +94,8 @@ export default function SettingsPage() {
         router.push('/login');
       }
     };
-    getUser();
+    void getUser();
+    return () => {active = false; subscription.unsubscribe();};
   }, [supabase, router]);
 
   // Save Profile Logic
@@ -94,13 +104,14 @@ export default function SettingsPage() {
     setIsSavingProfile(true);
     
     try {
+      const current = await supabase.auth.getUser();
+      if (current.error || current.data.user?.id !== userId) throw Error('Account changed. Reload before saving.');
       const { error: dbError } = await supabase
         .from('profiles')
         .update({ 
-          full_name: fullName, 
-          company_name: companyName 
+          full_name: fullName
         })
-        .eq('id', userId);
+        .eq('id', userId).select('id').single();
 
       if (dbError) throw dbError;
 
@@ -113,7 +124,7 @@ export default function SettingsPage() {
       alert('Profile saved successfully!');
     } catch (error: any) {
       console.error('Error saving profile:', error.message);
-      alert('Failed to save profile. Make sure you ran the SQL policy update!');
+      alert('Profile save could not be confirmed. Reload your account details before retrying.');
     } finally {
       setIsSavingProfile(false);
     }
@@ -316,17 +327,7 @@ export default function SettingsPage() {
                     <p className="text-xs text-slate-500 mt-2">This will be used on your invoices and agreements.</p>
                   </div>
 
-                  <div>
-                    <label htmlFor="settings-company-name" className="block text-sm font-bold text-slate-900 mb-2">Company Name</label>
-                    <input
-                      type="text"
-                      id="settings-company-name" value={companyName}
-                      onChange={(e) => setCompanyName(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-slate-900 font-medium"
-                      placeholder="Your company or brand name"
-                    />
-                    <p className="text-xs text-slate-500 mt-2">Displayed as your business identity to clients.</p>
-                  </div>
+                  <WorkspaceBusinessName id="settings-company-name" legacyCompany={companyName} />
 
                   <button 
                     onClick={handleSaveProfile}

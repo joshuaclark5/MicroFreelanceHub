@@ -2,7 +2,7 @@ const assert=require('assert/strict'),fs=require('fs');
 const {chromium}=require('C:/Users/joshu/AppData/Roaming/npm/node_modules/openclaw/node_modules/playwright-core');
 const base=process.env.QA_BASE_URL||'http://127.0.0.1:3079',out=process.env.QA_OUT;
 if(!out)throw Error('Private QA_OUT required');fs.mkdirSync(out,{recursive:true});
-const host='rjgttmwrbyjqifodjnqm.supabase.co',user={id:'00000000-0000-4000-8000-000000000001',email:'fixture@example.test',aud:'authenticated',role:'authenticated'};
+const host=process.env.QA_SUPABASE_HOST||'rjgttmwrbyjqifodjnqm.supabase.co',user={id:'00000000-0000-4000-8000-000000000001',email:'fixture@example.test',aud:'authenticated',role:'authenticated'};
 (async()=>{const browser=await chromium.launch({channel:'msedge',headless:true});const checks=[];try{
  for(const width of [320,390,1440]){
   const context=await browser.newContext({viewport:{width,height:950}}),page=await context.newPage(),errors=[],updates=[];let failSave=true;
@@ -20,22 +20,24 @@ const host='rjgttmwrbyjqifodjnqm.supabase.co',user={id:'00000000-0000-4000-8000-
     throw Error('Unexpected external mutation '+u.pathname);
    }
    if(u.origin!==base)return route.abort();
+   if(u.pathname==='/api/workspace-preferences')return route.fulfill({json:{ownerId:user.id,preferences:{business:'Workspace studio',profession:'',goal:'clients'}}});
    if(u.pathname.startsWith('/api/'))return route.fulfill({status:401,json:{error:'Fixture sign-in gate'}});
    return route.continue();
   });
   await page.goto(base+'/dashboard');
   const dialog=page.getByRole('dialog');await dialog.waitFor();
   await page.waitForFunction(()=>document.querySelector('#welcome-name')?.value==='Existing name');
-  assert.equal(await page.getByLabel('Business name (optional)',{exact:false}).inputValue(),'Existing studio');
+  assert.equal(await page.getByLabel('Workspace business name',{exact:true}).inputValue(),'Workspace studio');
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await page.getByLabel('Your name',{exact:true}).fill('Updated name');
-  await page.getByLabel('Business name (optional)',{exact:false}).fill('');
+  assert.equal(await page.getByLabel('Workspace business name',{exact:true}).getAttribute('readonly'),'');
+  assert.equal(await page.getByRole('link',{name:'Edit business name in workspace setup'}).getAttribute('href'),'/workspace/setup?edit=1');
   await page.getByRole('button',{name:'Save and continue'}).click();await page.getByRole('alert').filter({hasText:'could not be saved'}).waitFor();
   assert.equal(await page.getByLabel('Your name',{exact:true}).inputValue(),'Updated name');
   await page.screenshot({path:out+'/onboarding-'+width+'.png',fullPage:true});
   failSave=false;await page.getByRole('button',{name:'Save and continue'}).click();await page.waitForURL(base+'/create');
-  assert.equal(updates.length,2);assert.deepEqual(updates[1],{full_name:'Updated name',business_name:'',has_completed_onboarding:true});
-  assert.deepEqual(errors,[]);checks.push('Onboarding prefill, optional field, retry preserves input, success at '+width+'px');
+  assert.equal(updates.length,2);assert.deepEqual(updates[1],{full_name:'Updated name',has_completed_onboarding:true});
+  assert.deepEqual(errors,[]);checks.push('Onboarding workspace-name readback, single edit path, retry preserves input, success at '+width+'px');
   await context.close();
  }
  const context=await browser.newContext(),page=await context.newPage();
