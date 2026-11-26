@@ -1668,13 +1668,27 @@
       "text": "Read repository instructions and identify the repository, active branch, deployed commit, production URL, staging URL, database and provider modes. Resolve a read-only or unbound workspace before making environment-specific changes.",
       "sourceLine": "[ ] G00-008  Read repository instructions and identify the repository, active branch, deployed commit, production URL, staging URL, database and provider modes. Resolve a read-only or unbound workspace before making environment-specific changes.",
       "sourceLineNumber": 49,
-      "status": "Unverified",
+      "status": "Blocked",
       "checked": false,
-      "existingLocations": [],
-      "missingWork": "Not determined; inspect actual behavior before classifying.",
+      "existingLocations": [
+        "AGENTS.md",
+        "PROJECT_CONTEXT.md",
+        "docs/checklist/PROJECT_OPERATING_RULES.md",
+        "artifacts/baseline-receipt.json"
+      ],
+      "missingWork": "Actual generic Preview/staging frontend database/provider binding remains unverified. Provider controls timed out on initial snapshot and retry; managed readiness also timed out. Production/Preview branch policy and GitHub permissions now verified.",
       "dependencies": [],
-      "verification": [],
-      "nextAction": "Inspect existing implementation and test the stated behavior under G00 before changes."
+      "verification": [
+        {
+          "evidence": "artifacts/m01-011-audit.json",
+          "result": "Fresh git origin/HEAD/main and GitHub Production deployment8071627657 success/e0793e9 confirmed; local Supabase hostname identified; Stripe live; authenticated public workspace reachable. Remaining pre-edit environment bindings unresolved."
+        },
+        {
+          "evidence": "artifacts/m01-environment-followup.json",
+          "result": "Authenticated Vercel settings: Production main/www.microfreelancehub.com; Preview all unassigned branches. Branch-specific provider overrides exist for release/provider-integrations-20261121; cannot assume generic Preview isolated. Historical staging project lfzaivnvoyvdmvvijnoq distinct from production rjgttmwrbyjqifodjnqm. GitHub admin/maintain/push verified."
+        }
+      ],
+      "nextAction": "Recover supported browser controls to verify actual preview database/provider scopes and staging frontend assets; parent can use previously authorized gh path after binding reconciliation. Do not deploy or run live fixture writes on assumed staging."
     },
     {
       "id": "G00-009",
@@ -2192,15 +2206,25 @@
       "text": "Use a collapsible mobile menu with visible Close and current-page controls; opening a destination closes the menu and places keyboard focus at the page heading.",
       "sourceLine": "[ ] M01-011  Use a collapsible mobile menu with visible Close and current-page controls; opening a destination closes the menu and places keyboard focus at the page heading.",
       "sourceLineNumber": 247,
-      "status": "Unverified",
+      "status": "Partial",
       "checked": false,
-      "existingLocations": [],
-      "missingWork": "Not determined; inspect actual behavior before classifying.",
-      "dependencies": [
-        "G00"
+      "existingLocations": [
+        "app/components/WorkspaceNav.tsx",
+        "app/components/workspace-navigation.css"
       ],
-      "verification": [],
-      "nextAction": "Inspect existing implementation and test the stated behavior under G00 before changes."
+      "missingWork": "Visible Close while menu open and keyboard focus at destination heading. Preserve working aria-current, collapse and observed cross-route auto-close.",
+      "dependencies": [
+        "G00",
+        "G00-008"
+      ],
+      "verification": [
+        {
+          "environment": "Production authenticated browser, 390px iPhone 13 emulation",
+          "evidence": "artifacts/m01-011-audit.json",
+          "result": "Menu opens without Close; current-page state present. Pointer Home-to-Tasks and keyboard Tasks-to-Home both close menu but activeElement is BODY, not h1. Partial; unchecked."
+        }
+      ],
+      "nextAction": "Resolve G00-008 pre-edit environment gate, then smallest Close/focus implementation and affected browser tests at 360/390/desktop; serial typecheck/build, independent review, parent release only."
     },
     {
       "id": "M01-012",
