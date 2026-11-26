@@ -1,3 +1,4 @@
+import { csvImportCheck } from './csvImportCheck';
 import { imageAltText } from './imageAltText';
 import { projectHours } from './projectHours';
 import { clientHandoffGuide } from './clientHandoffGuide';
@@ -30,6 +31,7 @@ export type Article = {
 };
 
 export const articles: Article[] = [
+  csvImportCheck,
   imageAltText,
   projectHours,
   clientHandoffGuide,
