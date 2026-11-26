@@ -2078,15 +2078,27 @@
       "text": "Identify the canonical business profile and selected-business context; confirm onboarding writes there, rather than creating a second profile or silently switching the production database.",
       "sourceLine": "[ ] M01-003  Identify the canonical business profile and selected-business context; confirm onboarding writes there, rather than creating a second profile or silently switching the production database.",
       "sourceLineNumber": 221,
-      "status": "Unverified",
+      "status": "Partial",
       "checked": false,
-      "existingLocations": [],
-      "missingWork": "Not determined; inspect actual behavior before classifying.",
+      "existingLocations": [
+        "app/workspace/setup/page.tsx",
+        "app/api/workspace-preferences/route.ts",
+        "app/settings/page.tsx",
+        "app/components/WelcomeWizard.tsx"
+      ],
+      "missingWork": "Three competing business name sources; live setup/settings mismatch. Authoritative profile and legacy precedence unresolved.",
       "dependencies": [
         "G00"
       ],
-      "verification": [],
-      "nextAction": "Inspect existing implementation and test the stated behavior under G00 before changes."
+      "verification": [
+        {
+          "environment": "read-only production inspection and source audit; not full acceptance",
+          "result": "Partial existing functionality and concrete gap identified",
+          "evidence": "artifacts/m01-next-gap-audit-20261126.md",
+          "timestamp": "2026-11-26T05:28:00Z"
+        }
+      ],
+      "nextAction": "Read-only schema and precedence review before profile changes; do not overwrite conflicting saved values automatically."
     },
     {
       "id": "M01-004",
@@ -2126,15 +2138,33 @@
       "text": "Give Overview a Next actions list containing overdue tasks, due tasks, documents awaiting action and failed sends; each row opens the actual record and shows its owner and relevant date.",
       "sourceLine": "[ ] M01-006  Give Overview a Next actions list containing overdue tasks, due tasks, documents awaiting action and failed sends; each row opens the actual record and shows its owner and relevant date.",
       "sourceLineNumber": 229,
-      "status": "Unverified",
+      "status": "Partial",
       "checked": false,
-      "existingLocations": [],
-      "missingWork": "Not determined; inspect actual behavior before classifying.",
+      "existingLocations": [
+        "app/workspace/WorkspaceHome.tsx",
+        "app/workspace/Workspace.tsx"
+      ],
+      "missingWork": "Exact-task links published and live verified. Documents awaiting action, failed sends, owner/date and broader due/overdue acceptance remain unverified.",
       "dependencies": [
         "G00"
       ],
-      "verification": [],
-      "nextAction": "Inspect existing implementation and test the stated behavior under G00 before changes."
+      "verification": [
+        {
+          "environment": "read-only production inspection and source audit; not full acceptance",
+          "result": "Partial existing functionality and concrete gap identified",
+          "evidence": "artifacts/m01-next-gap-audit-20261126.md",
+          "timestamp": "2026-11-26T05:28:00Z"
+        },
+        {
+          "environment": "Production web; read-only authenticated 390px QA task",
+          "result": "Exact-task-link slice published verified; full requirement remains Partial. Exact assets, keyboard heading focus, reload, Back, All tasks and parent navigation passed; no API mutations. No live cross-tenant certification.",
+          "evidence": "artifacts/m01-task-links-production-receipt.json",
+          "timestamp": "2026-11-26T06:09:50Z",
+          "commit": "1157b46853157c7a15af651454d65c115fdb6a4a",
+          "deployment": "71ZwhDYmWxH3VndaZ717G8yZj3kU"
+        }
+      ],
+      "nextAction": "Audit remaining Overview next-action categories, owner/date and due/overdue behavior; preserve published exact-task links."
     },
     {
       "id": "M01-007",
@@ -17215,18 +17245,29 @@
       "text": "Preserve interrupted form drafts where the existing storage model safely supports it and distinguish Saved locally from Saved to account. Retry the original operation on reconnect and clear user-scoped sensitive caches at sign-out or account switch.",
       "sourceLine": "[ ] M26-010  Preserve interrupted form drafts where the existing storage model safely supports it and distinguish Saved locally from Saved to account. Retry the original operation on reconnect and clear user-scoped sensitive caches at sign-out or account switch.",
       "sourceLineNumber": 2913,
-      "status": "Unverified",
+      "status": "Partial",
       "checked": false,
-      "existingLocations": [],
-      "missingWork": "Not determined; inspect actual behavior before classifying.",
+      "existingLocations": [
+        "mobile/App.tsx",
+        "mobile/src/workflow.ts",
+        "mobile/src/nativeSessionStorage.ts"
+      ],
+      "missingWork": "Existing account fences and secure session custody; drafts/uncertain operations remain in memory. Physical interruption/account-isolation checks outstanding.",
       "dependencies": [
         "M01",
         "M06",
         "M12",
         "M19"
       ],
-      "verification": [],
-      "nextAction": "Inspect existing implementation and test the stated behavior under G00 before changes."
+      "verification": [
+        {
+          "environment": "read-only production inspection and source audit; not full acceptance",
+          "result": "Partial existing functionality and concrete gap identified",
+          "evidence": "docs/checklist/M26_INSPECTION.md",
+          "timestamp": "2026-11-26T05:28:00Z"
+        }
+      ],
+      "nextAction": "Implement bounded encrypted manual-time retry recovery on isolated newer-source branch; preserve current app and require device acceptance separately."
     },
     {
       "id": "M26-011",
@@ -17405,18 +17446,27 @@
       "text": "For mobile time capture preserve the original timer identity across interruptions and reconnects. Show pending synchronization and reconcile against existing M15 entries before creating another entry; offline time is not automatically invoiced or paid.",
       "sourceLine": "[ ] M26-020  For mobile time capture preserve the original timer identity across interruptions and reconnects. Show pending synchronization and reconcile against existing M15 entries before creating another entry; offline time is not automatically invoiced or paid.",
       "sourceLineNumber": 2941,
-      "status": "Unverified",
+      "status": "Partial",
       "checked": false,
-      "existingLocations": [],
-      "missingWork": "Not determined; inspect actual behavior before classifying.",
+      "existingLocations": [
+        "mobile/src/workflow.ts"
+      ],
+      "missingWork": "Existing reviewed manual nonbillable time uses stable operation IDs while running, but process death loses identity. Running timer/offline acceptance not established.",
       "dependencies": [
         "M01",
         "M06",
         "M12",
         "M19"
       ],
-      "verification": [],
-      "nextAction": "Inspect existing implementation and test the stated behavior under G00 before changes."
+      "verification": [
+        {
+          "environment": "read-only production inspection and source audit; not full acceptance",
+          "result": "Partial existing functionality and concrete gap identified",
+          "evidence": "docs/checklist/M26_INSPECTION.md",
+          "timestamp": "2026-11-26T05:28:00Z"
+        }
+      ],
+      "nextAction": "Inspect and extend durable manual-time recovery without claiming full offline timer support; verify duplicate prevention and account isolation."
     },
     {
       "id": "M26-021",

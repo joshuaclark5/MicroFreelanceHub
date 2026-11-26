@@ -1,12 +1,29 @@
 # MicroFreelanceHub improvement project — working checkpoint
 
+## Latest checkpoint
+
+Current continuation (supersedes worker states below): mobile reviewed six-file patch integrated into newer mobile checkout at unchanged HEAD5ac3022404379f8742ec19b22cfb4fe89b70c171. Exact hashes, forward/reverse applicability, four focused suites and TypeScript passed; receipt artifacts/manual-time-reviewed-integration-20261126/integration-receipt.json in mobile checkout. No mobile release. Hosted staging-only acceptance worker active eb8bce64-ec40-4709-bba8-b2ab7444c65e / session f1e0db22-6447-4257-a2a5-0cca312bd059: verify secure prerequisites first, then synthetic idempotency/restart/isolation acceptance with cleanup; no production or provider writes. Physical-device gates remain outstanding.
+
+Overview account-owner/date candidate locally passes build, TypeScript and 360/390/1440 synthetic regressions; exact receipt artifacts/m01-owner-receipt.json. Independent read-only reviewer active 72176cc4-10af-4d29-b829-d9ff6491cfb0 / session c50d4686-d9a2-4fc9-bb67-37a5534e0872. No publication yet; M01-006 remains Partial. Next: address review, parent-controlled scoped release and live proof. Existing hourly job and original inventory/master unchanged. PR48 notification queue below remains unresolved; do not duplicate. Parent sole checkpoint/release owner.
+
+2026-11-26T06:09:50Z verification: PR48 exact-task-link slice PUBLISHED VERIFIED on web. Merge1157b46853157c7a15af651454d65c115fdb6a4a; Vercel Production71ZwhDYmWxH3VndaZ717G8yZj3kU succeeded06:06:16Z. Public changed chunks and authenticated390px Overview→exact task, specific H2 focus, reload, Back, All tasks, parent navigation passed without mutations. Receipt artifacts/m01-task-links-production-receipt.json. M01-006 stays Partial/unchecked; full requirement not satisfied. Rollback1e05ee957a8cd8deb2b65cefa4e4e5177ec06c21 preserves prior mobile-menu release.
+
+Release notification submitted to verified private conversation conv_e410f32774c3ec3652625a0ada634d30, queue convq_356294cdc8ce2054a0d62e1e10ef1146. Queued, delivery not yet confirmed; do not duplicate send. Prior M01-011 notification remains delivered message3596.
+
+Mobile corrected candidate independently accepted for bounded local integration: permanent corruption/cleanup sign-out escape, failed-auth truthfulness, account isolation and stale confirmations verified using synthetic adapter/controller tests. Integration worker active run9f7d0dd4-4349-4f5d-964e-bc26afc55a4c in session49c1a1f1; applies only six reviewed paths against newer5ac3022 after exact hash/forward applicability checks and reruns focused checks. Not release acceptance. No new mobile build/store release. Android0.1.9 internal; iOS export only; physical-device and hosted recovery acceptance outstanding. Integrate only reviewed six paths against newer5ac3022, never wholesale into older canonical mobile.
+
+Next web audit completed: artifacts/m01-overview-next-slice-audit.md. Bounded implementation worker active run7d2fc5da-3eb0-4e46-bd17-363e1b50cf8c in session74d14dbe: add verified current-account Owner: You beside existing saved task due dates, preserving task links/order/auth boundaries. No business timezone inference; M01-006 stays Partial. Both workers may edit only assigned source/test lanes, not checkpoint/inventory or release. Next: inspect receipts and independently review web candidate; hosted and device mobile acceptance remain separate gates. Parent remains sole checkpoint and release owner. Existing hourly job unchanged. Historical entries below are superseded by this checkpoint.
+
 ## Ownership and current activity
 
 - Project active; primary module **M01 — Navigation and onboarding**. Current IDs: M01-001, M01-002, M01-003; G00 environment/setup prerequisites.
 - Integration and sole production-release owner: parent `/root`. Specification helper owns docs only; no release authority delegated. Parent must update worker status when execution changes.
 - Last activity: 2026-11-26, specification preservation/validation completed (UTC; November 25 Eastern). Exact generated timestamp is in `docs/checklist/requirements.json`.
 - Latest activity: 2026-11-26T05:18:30.293131+00:00: M01-011 Published verified. PR47 merge 1e05ee957a8cd8deb2b65cefa4e4e5177ec06c21, production deployment 2SAHm5kXhitwehaq4UjEcRtZz4UV succeeded 05:10:34Z; exact public asset and authenticated 390px navigation passed. Checkpoint saved before M26 inspection.
-- Next action: review active M26 inspection f7f678e2-1ba1-4c55-aaaf-d0d583ba4b4b (child d3bd3a8d) and M01 next-gap audit cf0ddf44-a255-472b-96ef-a1c529b02017 (child e2371047) on completion, then implement next bounded verified gap. Both accepted Astra workers, read-only findings scope; no duplicate starts. Parent remains sole integration/release and progress owner. Generic preview provider isolation remains unverified; no provider tests or customer mutations.
+- Latest implementation checkpoint: web and mobile implementation workers settled successfully; parent read both receipts (web receipt 2026-11-26T05:44:05Z). Web M01-006 exact-task slice locally passes browser fixtures, 867 mocked API cases, build and TypeScript; remains Partial, not published. Mobile encrypted manual-time recovery locally passes recovery/save/Home/storage restart/type checks in isolated C:/Users/joshu/mfh-mobile-time-recovery-20261126 at base5ac3022; no new build or store release. Independent read-only reviewers active: web session75180629/run46bfe5d6 and mobile session45930dc6/run242161ed. Parent owns progress, integration and releases. Next: review findings, correct blockers, then scoped web release/live verification; integrate mobile only into newer source after patch validation, never wholesale into older canonical mobile folder. Hosted mobile acceptance and physical-device checks remain outstanding. No duplicate workers or parallel heavy builds.
+- Current review checkpoint: web exact-task links accepted independently for bounded M01-006 (still Partial); release-evidence preflight active run4936e0b2 in childd4657f0a. Mobile review requires corrections: delayed-restoration sign-out can silently clear uncertain work; failed sign-out after deletion falsely claims restart durability; backend scope must use canonical backend identity rather than first hostname label. Correction worker active runa2e22e1e in childff9f7a98, isolated mobile checkout only. No new publication/store build. Next: verify web candidate evidence, scoped commit/PR and exact production/live read-only checks; independently re-review mobile corrections before integration. Existing physical-device and hosted mobile acceptance gates remain.
+- Mobile findings: Play 0.1.9/code10 freshly verified available to internal testers; 0.1.8 deactivated. Current mobile HEAD5ac3022 includes unreleased invoices; canonical web mobile folder is older0.1.3 and must not overwrite it. Extend Expo/RN and shared authoritative APIs. Source matches prior Android/iOS exports; no costly repeat build under low RAM. iOS signing/TestFlight and physical Android/iPhone acceptance remain unverified/blocked. See docs/checklist/M26_INSPECTION.md.
+- M01-003: live business-name mismatch across setup/settings/welcome stores; resolve canonical legacy precedence before profile edits. Generic preview provider isolation remains unverified. No customer/provider writes authorized for these lanes.
 - No application code, database, deployment or provider configuration changed by specification setup.
 
 ## Canonical records
@@ -40,9 +57,9 @@ External private handoff reference: `C:/Users/joshu/mfh-overnight-evidence-20261
 
 | Status | Requirements |
 | --- | ---: |
-| Unverified | 1218 |
+| Unverified | 1214 |
 | Existing verified | 0 |
-| Partial | 0 |
+| Partial | 4 |
 | Missing | 0 |
 | Blocked | 1 |
 | Deferred | 0 |
@@ -57,7 +74,7 @@ These are evidence classifications, not a judgment that every unverified feature
 - Next scheduled run: 2026-11-26T05:16:36.904Z, November 26 12:16 AM Eastern.
 - Private notification destination: verified private Telegram conversation `conv_e410f32774c3ec3652625a0ada634d30`. No duplicate test/job needed.
 - Reporter may only read progress and deliver; never edit code, deploy, alter worker state or start coding. Run independently of foreground work where supported; accurately report pause/block/staleness.
-- Pending release outbox: none. M01-011 release notification delivered to verified private Telegram, message 3596, queue convq_c5f2e34efed1d6a74c0fbb148a31af21. Do not resend.
+- Pending release outbox: PR48 notification queued convq_356294cdc8ce2054a0d62e1e10ef1146; do not duplicate. M01-011 release notification delivered to verified private Telegram, message 3596, queue convq_c5f2e34efed1d6a74c0fbb148a31af21. Do not resend.
 - Supported development continuation mechanism: parent establishing; hourly reporter is not the development worker. No expired overnight automation restarted.
 - 24/48-hour checkpoints: measured from project start; parent to record exact start timestamp and upcoming checkpoint times. Report actual verified/published scope and blockers, never claim completion from elapsed time.
 
