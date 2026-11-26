@@ -1,0 +1,98 @@
+M29 DETAILED REQUIREMENTS
+
+AI business and communication assistance
+
+P1 expansion  |  Dependencies: M02, M05, M25
+
+Offer useful drafts and explanations grounded in authorized business records with user review before consequential actions.
+
+Inspect before building
+
+[ ] M29-001  Locate existing reply drafting, assistant, summarization and lead scoring code and provider configuration. Compare real outputs and permissions; reuse functioning features before adding another assistant.
+
+[ ] M29-002  Determine which capabilities are deterministic templates and which call a model. Label them accurately; do not rename a rules-based text formatter AI unless it actually uses the intended model service.
+
+Entry points and settings
+
+[ ] M29-003  Provide an Assistant entry in the header and contextual Draft reply, Summarize project and Suggest next step actions where relevant. Opening the assistant must not change records.
+
+[ ] M29-004  In Settings > Integrations > AI show provider connection status, enabled capabilities, usage period and remaining allowance. Owner/Admin may enable features; ordinary users cannot see provider secrets.
+
+[ ] M29-005  Capability switches are Reply drafts, Project summaries, Meeting preparation, Lead suggestions, Daily priorities, Invoice edit suggestions and Workflow drafts. Default each to off until its data access and cost behavior are verified.
+
+[ ] M29-006  Assistant scope dropdown offers Current project, Selected clients and Entire authorized workspace. Default to Current project when launched from one; show exactly what data is in scope.
+
+[ ] M29-007  Show status Ready, Generating, Needs review, Failed and Limit reached. Provide Cancel, Retry and Copy; cancellation should stop unnecessary work where the provider supports it.
+
+[ ] M29-008  Usage display includes calls or provider-defined units, period start/end and configured limit. At the limit, retain user drafts and explain options without unexpectedly purchasing capacity.
+
+Reply drafts and project understanding
+
+[ ] M29-009  Reply panel fields are Recipient, Source conversation, Goal, Tone and Length. Tone choices are Professional, Friendly and Concise; Length choices Short, Medium and Detailed; default Professional and Short.
+
+M29 DETAILED REQUIREMENTS
+
+AI business and communication assistance continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Reply drafts and project understanding
+
+[ ] M29-010  Provide goal choices Answer question, Follow up, Explain scope change, Request missing information and Custom. Custom requires an instruction field and preserves the original incoming message.
+
+[ ] M29-011  Show generated text beside source context with Insert into composer, Regenerate and Discard. Sending uses the normal email/SMS review and authorization controls; generating a draft never sends it.
+
+[ ] M29-012  Protect recipient and price fields from silent changes. If the draft proposes a discount, delivery date or new commitment, highlight it as a suggestion requiring review against the actual record.
+
+[ ] M29-013  Project summary sections are Current scope, Approved changes, Dates, Documents, Invoice status and Next actions. Link factual statements to authorized records with last-updated times.
+
+[ ] M29-014  When no source supports an answer, show I could not verify this from your records. Distinguish a proposed next step from a recorded customer agreement.
+
+[ ] M29-015  Daily priorities view offers Today, Next 7 days and Overdue. Each suggestion shows reason, source record, owner and proposed action with Dismiss, Snooze and Open record.
+
+[ ] M29-016  Snooze choices are Later today, Tomorrow, Next week and Choose date. Store user feedback without changing task or invoice due dates automatically.
+
+Lead discovery qualification and enrichment
+
+[ ] M29-017  Lead suggestions show Fit, Urgency and Missing information with reasons. Allow Unreviewed, Accepted, Dismissed and Needs information; never treat an AI score as a guaranteed sale.
+
+[ ] M29-018  Qualification configuration uses business-selected service types, service area, budget range and availability criteria. Show Unknown when an inquiry lacks the information instead of inventing it.
+
+[ ] M29-019  Gmail lead finder is opt-in and requires an already authorized mailbox. Offer folders/labels and date range, initially Last 7 days, Last 30 days or Custom; preview matches before creating records.
+
+[ ] M29-020  Lead-finder preview shows sender, subject, date, matched reason and proposed client/project. Choices are Import, Skip and Link existing; default no automatic outbound response.
+
+M29 DETAILED REQUIREMENTS
+
+AI business and communication assistance continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Lead discovery qualification and enrichment
+
+[ ] M29-021  Deduplicate imports using stable message and contact identifiers. A repeated scan must link existing records and report the prior import rather than creating another lead.
+
+[ ] M29-022  External lead enrichment is separately opt-in. Show source URL, retrieved date, allowed fields and confidence; do not infer sensitive personal characteristics or scrape private accounts.
+
+[ ] M29-023  Let the owner accept individual enrichment fields or reject the whole suggestion. Keep current values visible; proposed enrichment cannot overwrite contact details silently.
+
+Money edits proactive assistance and testing
+
+[ ] M29-024  Invoice AI action opens a proposed change list with Before and After quantities, prices, taxes and total. Apply only to editable drafts after explicit review; never rewrite an issued or signed financial document.
+
+[ ] M29-025  Business trends view separates observed metrics from interpretation and lists date range, currency and source counts. Never label invoice face value as cash received or generate fabricated revenue figures.
+
+[ ] M29-026  Proactive assistant preferences offer Off, Daily digest and Event based, with private recipient, allowed hours and selected event categories. Default Off; enable only after the owner configures the channel.
+
+[ ] M29-027  Event categories are New qualified inquiry, Upcoming appointment, Overdue task, Overdue invoice and Approved scope change. Exclude customer-facing autonomous commitments and payments from proactive suggestions.
+
+[ ] M29-028  ChatGPT or other assistant connections use the scoped integration controls in M31. Expose supported operations and revocation; connection alone does not grant unrestricted access.
+
+[ ] M29-029  Test a second business account asking for another tenant's client, payment or conversation. The assistant and retrieval layer must refuse disclosure, including in citations and cached context.
+
+[ ] M29-030  Test malicious instructions inside an incoming email. Treat them as customer content; they cannot change assistant permissions, send secrets or override workflow rules.
+
+[ ] M29-031  Test a project with missing payment evidence and a cancelled appointment. The summary must preserve uncertainty and cancellation rather than inventing success.
+
+[ ] M29-032  Compare generated invoice edits with the deterministic invoice calculator. Reject any mismatch and preserve the original draft and audit history.
+

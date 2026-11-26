@@ -1,0 +1,88 @@
+M30 DETAILED REQUIREMENTS
+
+AI meeting preparation and notes
+
+P2 provider dependent  |  Dependencies: M19, M23, M29
+
+Prepare for meetings and capture authorized notes with clear consent access and review.
+
+Inspect before building
+
+[ ] M30-001  Inspect existing appointment notes, meeting links and transcription provider integration. Test one authorized sample meeting before deciding whether new capture or only better organization is needed.
+
+[ ] M30-002  Separate preparation, recording, transcription and summarization into independent capabilities. A working summary of typed notes does not establish recording or live transcription.
+
+Meeting preparation controls
+
+[ ] M30-003  In an appointment provide Preparation, Notes and Transcript tabs when permitted. Show meeting title, local date/time, participants, linked client and linked project at the top.
+
+[ ] M30-004  Preparation contains Recent conversation, Open questions, Current scope, Outstanding documents and Payment status, each linked to evidence. Include a Refresh action and last-generated timestamp.
+
+[ ] M30-005  Agenda editor provides Add topic, Move up, Move down, Duration minutes and Owner. Offer Save draft and Share agenda; sharing explicitly selects recipients.
+
+[ ] M30-006  Notes visibility dropdown is Private to me, Internal project team or Shared with selected clients. Default Internal project team only when that team is authorized; otherwise Private to me.
+
+[ ] M30-007  Provide a plain-text notes editor with autosave state Saved, Saving and Save failed. Preserve unsaved text across a recoverable connection failure.
+
+Recording consent and transcript capture
+
+[ ] M30-008  In Settings > Integrations > Meeting assistant show supported providers, connection state, storage location and configured retention. Unavailable providers must not display a successful connection.
+
+M30 DETAILED REQUIREMENTS
+
+AI meeting preparation and notes continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Recording consent and transcript capture
+
+[ ] M30-009  Before enabling capture, display what will be recorded, who can access it and the business's configured consent procedure. Do not assume a calendar invitation alone supplies recording consent.
+
+[ ] M30-010  Recording mode choices are Off, Start manually and Join approved meetings. Default Off; require verified provider support and the appropriate participant notice before automatic joining.
+
+[ ] M30-011  Join scope choices are Selected meetings and Selected session types. Default Selected meetings; exclude private events and meetings outside the user's authorized calendar scope.
+
+[ ] M30-012  Meeting controls include Start capture, Pause when supported and Stop capture. Show a persistent visible capture indicator; unsupported pause must be hidden rather than simulated.
+
+[ ] M30-013  Transcription language dropdown lists only enabled provider languages with Detect automatically only when supported. Preserve the selected language per recording and show detection uncertainty.
+
+[ ] M30-014  Upload transcript accepts documented text formats with visible file size and type limits. Audio upload appears only when supported with the actual allowed formats and limits.
+
+[ ] M30-015  Capture status values are Not started, Awaiting consent, Capturing, Processing, Ready, Failed and Deleted. A failed upload retains a retryable reference without claiming a completed transcript.
+
+Review editing and downstream tasks
+
+[ ] M30-016  Transcript view shows speaker labels, timestamps, search and Jump to time when audio exists. Allow corrections with revision history; never silently relabel uncertain speakers as known clients.
+
+M30 DETAILED REQUIREMENTS
+
+AI meeting preparation and notes continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Review editing and downstream tasks
+
+[ ] M30-017  Generated notes sections are Summary, Decisions, Questions and Suggested tasks. Display Unsaved suggestions until reviewed; link each proposed decision or task to its transcript segment when available.
+
+[ ] M30-018  Suggested task fields are Title, Assignee, Due date and Project. Provide Accept selected, Edit and Dismiss; accepting one suggestion creates one linked task.
+
+[ ] M30-019  The Share notes dialog previews the exact content, recipients and excluded internal sections. Require a deliberate Send action and record send status through the normal messaging workflow.
+
+[ ] M30-020  Export options are Plain text transcript, PDF notes and supported recording download. Apply the same project permissions to exports as the on-screen content.
+
+[ ] M30-021  Delete recording shows the recording, derived transcript and summaries separately with the configured retention behavior. Require authorized confirmation and record what remains in history.
+
+[ ] M30-022  On account disconnect stop future joins and capture jobs. Explain whether retained recordings remain accessible and provide a separate authorized deletion path.
+
+Prove completion
+
+[ ] M30-023  Use an explicitly consented synthetic meeting; verify capture state, transcript timestamps, notes and linked project without involving real customers.
+
+[ ] M30-024  Reject or withhold required consent and confirm the assistant does not join or record. Show a clear reason and preserve ordinary meeting functionality.
+
+[ ] M30-025  Accept the same suggested task twice through repeated callbacks; only one task may exist. Editing the suggestion before acceptance must preserve the reviewed version.
+
+[ ] M30-026  Verify a client cannot access internal notes or an unshared recording through copied URLs. Revoking project access must also revoke transcript and export access.
+
+[ ] M30-027  Force provider failure during processing; show Failed with retry or support reference and do not display fabricated notes.
+

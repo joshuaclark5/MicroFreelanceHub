@@ -11,6 +11,7 @@ import FeedbackWidget from './components/FeedbackWidget';
 import { TrackingInitializer } from './components/TrackingInitializer';
 import Link from 'next/link';
 import GoogleAnalytics from './components/GoogleAnalytics';
+import WorkspaceNavigationFocus from './components/WorkspaceNavigationFocus';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -59,6 +60,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} min-h-screen flex flex-col`}>
         <TrackingInitializer />
+        <WorkspaceNavigationFocus />
         <SitewideSeasonalOffer/>
 
         {/* MAIN CONTENT */}

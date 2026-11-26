@@ -1,0 +1,96 @@
+M07 DETAILED REQUIREMENTS
+
+Templates and service catalog
+
+P0 core  |  Dependencies: M01, M02
+
+Reuse original service definitions and templates while preserving the exact content already sent to clients.
+
+Inspect existing reusable content
+
+[ ] M07-001  Inspect current service records, template galleries, merge fields, branding controls and document creation paths; determine whether advertised templates contain usable content or only preview cards.
+
+[ ] M07-002  Preview and instantiate existing templates with test data; compare every requirement below, keep verified equivalents and extend missing editor behavior without rewriting the user's saved templates.
+
+Service catalog and pricing fields
+
+[ ] M07-003  Place the catalog in Settings then Services; show Name, Unit, Price, Currency, Tax treatment and Status, with search and Status filters Active or Archived.
+
+[ ] M07-004  Provide Add service with required Name of 1–120 characters and optional client-facing Description up to 2,000 characters; save a stable service identifier separate from the display name.
+
+[ ] M07-005  Provide Unit options Per project, Per hour, Per visit and Per item, default Per project; require Default quantity greater than zero and allow decimals only where the unit supports them.
+
+[ ] M07-006  Provide Unit price as a nonnegative monetary input and Currency as an ISO-code selector; show price precision for that currency and reject mixed-currency packages.
+
+[ ] M07-007  Provide Pricing mode options Fixed price and Quote required, default Fixed price; Quote required must display Price to be confirmed rather than converting an unknown price to a free service.
+
+[ ] M07-008  Provide Tax treatment options Not taxable and Taxable, default Not taxable; the selection is the business's configuration and must use M11's actual calculation rules rather than imply tax advice.
+
+[ ] M07-009  Provide optional Estimated duration as positive minutes and Internal cost as a permission-restricted amount; never copy internal cost into a client-facing template or proposal.
+
+[ ] M07-010  Provide service actions Edit, Duplicate and Archive; edits affect future drafts only, while sent and accepted document snapshots retain their original names, descriptions, quantities and prices.
+
+M07 DETAILED REQUIREMENTS
+
+Templates and service catalog continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Service catalog and pricing fields
+
+[ ] M07-011  Provide New package with required Name and one or more active services; show included quantities, currency and calculated subtotal, and make any package adjustment a visible separate line.
+
+Template library and editor
+
+[ ] M07-012  Place reusable content in Settings then Templates and a shortcut from Documents; show Name, Type, Status, Version, Updated and Last used, with search and type filtering.
+
+[ ] M07-013  Offer template Type options Proposal, Contract, Questionnaire, Invoice and Email; expose only working editors, and label unsupported types unavailable instead of creating an empty Ready template.
+
+[ ] M07-014  Provide New template with required Name of 1–100 characters and Type; default Status Draft and require an explicit Save as ready after validation before it becomes a creation shortcut.
+
+[ ] M07-015  Provide template actions Edit, Preview, Duplicate, Use template and Archive; Use template creates a new independent draft and never overwrites the stored template.
+
+[ ] M07-016  Provide editor blocks supported by the selected type: Heading, Text, Image, Services, Questions, Signature and Payment summary; hide incompatible blocks and explain required dependencies.
+
+[ ] M07-017  Offer merge fields Client name, Company name, Project name, Project date, Business name and Business email; insert stable tokens through a picker rather than executable expressions.
+
+[ ] M07-018  Flag unresolved required merge fields before a document is sent; show which source record needs correction and never silently send raw tokens or substitute another client's values.
+
+[ ] M07-019  Allow token preview using a selected authorized client and project or labeled sample data; changing preview data must not modify the template or persist real data inside its source text.
+
+[ ] M07-020  Save template revisions with editor and timestamp; allow Restore as new draft while retaining earlier versions and the version used by each generated document.
+
+M07 DETAILED REQUIREMENTS
+
+Templates and service catalog continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Template library and editor
+
+[ ] M07-021  Provide a Last saved indicator and recovery for unsaved edits; report failed saves visibly and prevent concurrent edits from silently overwriting a newer template revision.
+
+Branding and permissions
+
+[ ] M07-022  Default client-facing documents to the business logo, approved font, primary color and contact details; use M33 settings and preserve readable text contrast and printable layout.
+
+[ ] M07-023  Provide a Client preview and Print preview for each ready template; check long service descriptions, multi-page text and mobile width before marking the template ready.
+
+[ ] M07-024  Expose Remove platform branding only when M17 confirms the entitlement; changing branding must never hide payment terms, sender identity or required agreement content.
+
+[ ] M07-025  Restrict shared template and catalog management to Owner and Admin or an explicit capability; allow Managers to use approved templates and edit their permitted document drafts.
+
+[ ] M07-026  Keep Internal instructions as a distinct editor-only field, hidden from client previews, PDFs, exports and merge fields; reject any attempt to expose it through public template endpoints.
+
+States and observable acceptance
+
+[ ] M07-027  Show No services yet and No templates yet with the appropriate creation action; show No matches with Clear filters, and preserve edits and selections after recoverable loading errors.
+
+[ ] M07-028  Create a service at a test price, generate and send a document, then change the catalog price; verify the sent version stays unchanged while a fresh draft uses the new price.
+
+[ ] M07-029  Duplicate a contract template and replace its client token in a test draft; verify the original template and another client's document remain unchanged.
+
+[ ] M07-030  Test unresolved fields, unsupported block types and a denied template edit; prevent publication, retain entered text and provide a specific fix for each failure.
+
+[ ] M07-031  Render a long proposal and contract at 390px and as a multi-page PDF; verify readable wrapping, complete amounts, visible signature areas and no leaked internal instructions.
+

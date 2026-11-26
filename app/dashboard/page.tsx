@@ -390,7 +390,7 @@ export default function Dashboard() {
         {loadError && <div className="d4-recovery" role="alert">{loadError} <button className="d4-secondary" onClick={() => window.location.reload()}>Retry</button></div>}
         {/* STATS ROW */}
         <div className="d4-workspace-title flex flex-wrap items-center justify-between gap-5 border-b border-gray-200 pb-6">
-          <div><p className="d4-eyebrow">Your workspace</p><h2 className="text-2xl font-semibold text-gray-950">Good work starts<br />with <em>clear agreements.</em></h2><p className="mt-2 text-sm text-gray-600">Scope, client approvals and payment activity.</p></div>
+          <div><p className="d4-eyebrow">Your workspace</p><h2 data-workspace-heading className="text-2xl font-semibold text-gray-950">Good work starts<br />with <em>clear agreements.</em></h2><p className="mt-2 text-sm text-gray-600">Scope, client approvals and payment activity.</p></div>
           <Link href="/create" className="inline-flex items-center gap-2 rounded-md bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800"><Plus size={18} /> New agreement</Link>
         </div>
         {sows.length > 0 && <>

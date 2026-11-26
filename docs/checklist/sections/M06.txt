@@ -1,0 +1,100 @@
+M06 DETAILED REQUIREMENTS
+
+Client portal
+
+P0 core  |  Dependencies: M02, M05
+
+Give each invited client a clear secure place to review shared work and complete the next action.
+
+Inspect existing client access
+
+[ ] M06-001  Inspect current agreement links, portal previews, login paths, participant records and storage permissions; verify which paths are genuinely client-facing before building a separate portal.
+
+[ ] M06-002  Open every existing client view as guest, invited client and owner of another business; inspect all requirements below, retain verified equivalents and extend only missing access or presentation behavior.
+
+Portal settings and invitation
+
+[ ] M06-003  Place a Client portal panel in Project settings with Enable portal, Participants, Visible sections and Preview as client; default Enable portal off until the owner explicitly shares it.
+
+[ ] M06-004  Provide Add participant with required Name and validated Email plus optional Role label; match the intended contact explicitly and do not grant access through an email string alone.
+
+[ ] M06-005  Provide participant access options View shared work and View and complete assigned actions, default View shared work; grant document signing separately to each named signer.
+
+[ ] M06-006  Offer Invite, Copy invitation link, Resend invitation and Revoke access; display Pending, Active or Revoked based on actual invite and access state rather than a successful button click.
+
+[ ] M06-007  Use an existing verified email sign-in-link or account flow; display link expiry before sending, default new sign-in links to 24 hours and invalidate them after successful exchange.
+
+[ ] M06-008  After expired or used sign-in links, show Request a new link without revealing whether another person's email is registered; rate-limit requests and avoid duplicate invitations.
+
+[ ] M06-009  Keep existing authenticated business owners in the correct client context after accepting an invitation; show a clear Return to my business action without redirecting away from the invited project.
+
+Portal navigation and shared content
+
+[ ] M06-010  Provide portal sections Overview, Tasks, Documents, Invoices and payments, Meetings, Messages and Files; hide disabled or unavailable sections and retain equivalent working labels.
+
+M06 DETAILED REQUIREMENTS
+
+Client portal continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Portal navigation and shared content
+
+[ ] M06-011  Show Overview with business name, project title, shared summary, relevant dates and a single prioritized Next action; distinguish waiting on client, waiting on business and completed states.
+
+[ ] M06-012  Prioritize Next action using outstanding required signature, required payment, overdue assigned task, remaining task and upcoming meeting; show the reason and link to the exact relevant record.
+
+[ ] M06-013  Show Documents with Title, Type, Status, Shared date and required action; only display document versions and recipient access explicitly shared through M08 or M09.
+
+[ ] M06-014  Show Invoices and payments with currency, invoice total, recorded payments, remaining balance and due date; use M11/M14 data and never expose internal costs or processor credentials.
+
+[ ] M06-015  Offer Download receipt only for a recorded successful or external payment; a receipt link must not create a fresh payable invoice or request an already satisfied amount.
+
+[ ] M06-016  Show Tasks with Title, Due, Status and assignee; clients may complete only their own permitted tasks and cannot change internal priority, assignment or project deadlines.
+
+[ ] M06-017  Show Meetings with upcoming and past sessions, timezone and permitted reschedule/cancel links from M21; display an explicit disabled state until scheduling behavior is verified.
+
+[ ] M06-018  Show Messages as a chronological participant-scoped conversation from M25; identify sender and time, and exclude internal notes and messages not addressed to the participant.
+
+[ ] M06-019  Show Files with shared name, size and download action; let permitted clients upload PDF, JPEG, PNG or WebP up to 10 MB, and keep failed uploads separate from completed files.
+
+[ ] M06-020  Provide shared notes with author and timestamp; clients may reply only if enabled, and deleting or editing an owner note must preserve the applicable audit history.
+
+[ ] M06-021  Provide owner-managed Bookmarks with required Label and HTTPS URL; show the destination before opening and never allow script or local-file protocols.
+
+M06 DETAILED REQUIREMENTS
+
+Client portal continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Presentation and owner controls
+
+[ ] M06-022  Use the saved business logo, colors and approved fonts; provide Preview as client using a selected participant and mark preview Read only so it cannot sign, pay or complete tasks.
+
+[ ] M06-023  Allow Visible sections toggles per project without deleting data; turning off a section hides it from clients and preserves internal records and historical permissions.
+
+[ ] M06-024  Show client-friendly date, time and currency labels with no raw database identifiers; use readable mobile layouts and large action targets without hiding important balances or consent text.
+
+[ ] M06-025  Keep custom-domain controls pending until M33 verifies domain ownership and HTTPS; a requested domain must never be presented as connected before validation succeeds.
+
+[ ] M06-026  Provide a clear Help or Contact business action using the business's actual contact route; do not promise platform support or response times the business has not configured.
+
+Failure states and authorization
+
+[ ] M06-027  Show Nothing shared yet when an active portal has no shared content; use Access expired, Access revoked and Temporarily unavailable as distinct states with an appropriate safe next step.
+
+[ ] M06-028  Enforce participant and business boundaries on every document, task, file and payment request; a copied URL alone must not grant access beyond its intended scoped authorization.
+
+[ ] M06-029  Require explicit confirmation to revoke a participant and immediately reject their future protected requests; retain historical signatures and payment records without erasing attribution.
+
+Observable acceptance checks
+
+[ ] M06-030  Invite two contacts to one test project with different shared files and tasks; each sees only their intended content and cannot complete the other person's assigned action.
+
+[ ] M06-031  Open a payment or document link as an owner of another business, then authenticate; preserve the authorized client destination and never expose the owner's unrelated workspace data.
+
+[ ] M06-032  Complete one allowed client task, reload and reopen the portal on a 390px screen; show the new state and correct next action without duplicate activity entries.
+
+[ ] M06-033  Revoke access, expire a sign-in link and simulate a failed upload; verify each state is understandable, protected content is inaccessible and no false successful action appears.
+

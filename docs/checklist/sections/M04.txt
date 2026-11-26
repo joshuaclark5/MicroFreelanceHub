@@ -1,0 +1,104 @@
+M04 DETAILED REQUIREMENTS
+
+Lead forms and attribution
+
+P1 expansion  |  Dependencies: M02, M03
+
+Capture useful inquiries through versioned forms that create the right records and preserve honest source attribution.
+
+Inspect capture and embedding
+
+[ ] M04-001  Inspect existing contact forms, booking intake, public routes, embeds and submission handlers; identify their client and opportunity mappings before creating a new form builder.
+
+[ ] M04-002  Submit synthetic examples to every existing intake path; compare each requirement below, skip verified equivalents, extend partial mappings and keep unsafe public submission paths unpublished.
+
+Form list and creation
+
+[ ] M04-003  Place Lead forms under Clients; show Name, Status, Destination stage, Assigned owner, Submissions and Updated, with Status filters All, Draft, Published and Archived.
+
+[ ] M04-004  Provide New form with required internal Name of 1–100 characters, optional client-facing Title and Description, and Status default Draft; generating a draft must not publish a public URL.
+
+[ ] M04-005  Provide form actions Edit, Preview, Duplicate, Publish, Unpublish and Archive; duplicating creates a new draft and does not copy submission records or reuse the published identifier.
+
+[ ] M04-006  Offer builder sections Fields, Routing, Appearance and Sharing; preview uses the same validation and rendering rules as the published version, with a visible Preview label.
+
+Fields and validation
+
+[ ] M04-007  Create default fields Name and Email as required, with optional Phone and Message; allow names and help text to change without changing stable field keys.
+
+[ ] M04-008  Offer Add field types Short text, Long text, Email, Phone, Number, Date, Single select, Multi-select, Checkbox and File upload; expose only types whose storage and validation work.
+
+[ ] M04-009  Require each field to have a unique label and stable key; provide Help text, Placeholder, Required toggle and Default value, with Required off for newly added optional fields.
+
+[ ] M04-010  For Short text and Long text, expose Maximum length defaults 200 and 4,000 respectively; enforce the same limit in the browser and server without silently truncating submissions.
+
+[ ] M04-011  For Single select and Multi-select, require unique nonempty options; support reorder and an optional Other option with its own text entry, and reject values not in the published schema.
+
+M04 DETAILED REQUIREMENTS
+
+Lead forms and attribution continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Fields and validation
+
+[ ] M04-012  For Number fields, offer Whole number or Decimal, optional minimum/maximum and optional unit label; blank optional values remain blank, and invalid bounds prevent publication.
+
+[ ] M04-013  For Date fields, offer Any date, Today or later, or Custom range; use a calendar date rather than an implicit UTC instant and validate inclusive range boundaries.
+
+[ ] M04-014  For conditional visibility, offer Always or Show when another earlier select/checkbox field Equals a configured value; prevent circular rules and do not require hidden fields.
+
+[ ] M04-015  For File upload, limit initial support to PDF, JPEG, PNG and WebP, up to five files of 10 MB each; verify type and access controls before exposing the block.
+
+[ ] M04-016  Keep submission permission and marketing consent separate; provide an optional unchecked consent box with editable purpose text, and record the displayed wording, time and form version when selected.
+
+Routing appearance and attribution
+
+[ ] M04-017  Provide Routing fields Destination pipeline stage, Assigned owner and Apply tags; default stage New and owner Unassigned where supported, and validate selected destinations belong to the business.
+
+[ ] M04-018  Provide contact matching options Create or match by normalized email and Always create for review, default Create or match; ambiguous matches enter a review queue rather than overwriting unrelated clients.
+
+[ ] M04-019  Map collected answers to approved client or opportunity fields through an explicit mapping table; never let public submissions set internal owner permissions, financial values or hidden administrative fields.
+
+[ ] M04-020  Provide Success behavior options Show confirmation and Redirect to URL, default Show confirmation; require confirmation text and allow HTTPS redirects only, with destination preview.
+
+[ ] M04-021  Record first-touch and latest-touch source separately using the form identifier, referring URL and utm_source, utm_medium, utm_campaign, utm_term and utm_content; label missing attribution Unknown.
+
+[ ] M04-022  Treat attribution parameters as untrusted text with bounded lengths; do not execute them, expose them as HTML or allow them to choose another business's routing destination.
+
+M04 DETAILED REQUIREMENTS
+
+Lead forms and attribution continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Routing appearance and attribution
+
+[ ] M04-023  Use the saved business logo and colors by default; allow Title and introductory text overrides, maintain readable contrast and show a client-facing preview before publishing.
+
+Publishing and submission lifecycle
+
+[ ] M04-024  On Publish, validate fields, routing and success behavior, then create an immutable schema version; future edits create another version and past answers retain their original question labels.
+
+[ ] M04-025  Offer Copy link and Copy embed code for the published form; embeds must resize accessibly, work without third-party cookies and submit only to the intended business's form.
+
+[ ] M04-026  Display publication state explicitly; an unpublished or archived URL shows Form unavailable without exposing old submissions, while existing internal submission history remains accessible.
+
+[ ] M04-027  Add server-side submission limits and a honeypot before publication; use a configurable initial limit of five submissions per minute per source, return a retryable limit message and log rejected attempts without full private answers.
+
+[ ] M04-028  Assign each submission a stable identifier; retries return the existing receipt and create at most one inquiry, with Pending, Accepted, Needs review or Failed processing status.
+
+[ ] M04-029  Provide a submissions list with Received at, Name, Email, Status and Source; open the exact saved answers and schema version, and offer Retry processing only for permitted failed items.
+
+[ ] M04-030  Keep scheduling and payment blocks disabled until M21 and M12 respectively pass their relevant checks; ordinary inquiry capture must continue without those optional integrations.
+
+Observable acceptance checks
+
+[ ] M04-031  Test published link and website embed with missing required fields, an invalid email and a valid inquiry; show accessible errors, preserve entered values and create one correctly routed opportunity.
+
+[ ] M04-032  Submit the same payload twice with its submission identifier; verify one inquiry, preserved consent and attribution, and no automatic marketing message without an applicable authorized rule.
+
+[ ] M04-033  Change a published question and then open an old response; retain its original label and answer, and verify another business or portal client cannot read the submission.
+
+[ ] M04-034  Unpublish a live test form, trigger a rate limit and simulate a routing failure; each state explains what happened without falsely confirming successful lead creation.
+

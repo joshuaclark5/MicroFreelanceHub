@@ -1,0 +1,94 @@
+M32 DETAILED REQUIREMENTS
+
+Event planning and media tools
+
+P2 provider dependent  |  Dependencies: M05, M06, M07, M09
+
+Add specialized event and creative workflows only where customer demand and a real implementation support them.
+
+Inspect before building
+
+[ ] M32-001  Check whether existing projects already support event details, galleries, floor plans or event-order documents. Preserve working integrations and identify the specific missing capability.
+
+[ ] M32-002  Record which target customer needs each specialized tool before enabling it. Use a Business type or explicit feature preference so unrelated users do not receive empty event-navigation sections.
+
+Event details and run sheets
+
+[ ] M32-003  In a relevant project add Event details with Overview, Guests, Timeline, Rooms, Food and beverage, Staffing, Vendors and Equipment tabs. Keep links to the project documents and approved scope.
+
+[ ] M32-004  Event overview fields are Event name, Event type, Start/end, IANA timezone, Venue, Address and Contact. Event type choices are Meeting, Party, Wedding, Workshop, Conference and Other.
+
+[ ] M32-005  Guest fields are Total guests, Adults, Children, Accessibility notes and Seating notes. Counts must be nonnegative integers and cannot exceed configured room capacity without an explicit visible conflict.
+
+[ ] M32-006  Timeline entries require Start time, Activity and Owner, with optional Duration and Location. Offer Add row, Duplicate row, Move and Delete; show overlaps without silently reordering entered times.
+
+[ ] M32-007  Rooms table contains Name, Layout, Capacity, Setup time, Tear-down time and Floor plan link. Layout options are Theater, Classroom, Banquet, Boardroom, Standing and Custom.
+
+[ ] M32-008  Food and beverage rows contain Service time, Item, Quantity, Unit, Dietary notes and Responsible vendor. Unit choices are Person, Portion, Tray, Bottle and Custom; exclude unnecessary sensitive guest data.
+
+[ ] M32-009  Staffing rows contain Role, Person or Vendor, Arrival, Departure and Notes. Vendor rows contain Company, Contact, Service, Arrival and authorized phone/email details.
+
+M32 DETAILED REQUIREMENTS
+
+Event planning and media tools continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Event details and run sheets
+
+[ ] M32-010  Equipment rows contain Item, Quantity, Provider, Delivery time and Return time. Provider choices are Our business, Client, Venue and External vendor.
+
+[ ] M32-011  Generate event order offers sections to include, recipients and version label. Prefill existing project/contact data; show the data source instead of requiring duplicate entry.
+
+[ ] M32-012  Optional financial summary links to an approved proposal or invoice snapshot with currency and version. Label quoted, invoiced and paid amounts separately; changing event notes must not change charges.
+
+[ ] M32-013  Allow clients or planners to complete only assigned sections through secure project access. Show pending edits and reviewer; private vendor rates and internal notes stay excluded.
+
+[ ] M32-014  Provide Save draft, Preview PDF, Share for input, Request signature and Mark complete. Signature locks the accepted version; later changes create an amendment with a visible comparison.
+
+Floor plans and media connections
+
+[ ] M32-015  Floor plan tools may use a verified partner integration or an original editor. Display which system stores the plan and whether updates synchronize or require reimport.
+
+[ ] M32-016  For an original floor-plan editor provide room name, dimensions and Feet/Meters selector. Object palette contains Round table, Rectangular table, Chair, Stage, Entrance and Note.
+
+[ ] M32-017  Each floor-plan object has label, position, rotation and applicable size/capacity. Provide keyboard move controls, undo/redo for draft edits and a print preview with readable labels.
+
+[ ] M32-018  Record floor plans as operational layouts, not certified building or safety plans. Do not imply the editor verifies legal occupancy, emergency egress or structural suitability.
+
+[ ] M32-019  Creative connection cards for Canva, Pic-Time and Prismm must state supported actions: link, import, embed or synchronize. Offer only actions available through the actual authorized provider connection.
+
+[ ] M32-020  External media links require a descriptive title, provider and visibility. Validate the URL and show when a viewer will leave MFH; never expose private provider credentials in the link.
+
+M32 DETAILED REQUIREMENTS
+
+Event planning and media tools continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Gallery and proofing behavior
+
+[ ] M32-021  Project gallery controls include Create album, Upload, Reorder, Preview and Publish. Album fields are Title, Description, Visibility and optional Expiration date; new albums are Draft.
+
+[ ] M32-022  Visibility choices are Internal only, Selected project clients and Anyone with secret link only when supported and explicitly selected. Default Internal only and make link revocation available.
+
+[ ] M32-023  Upload shows actual supported file types, size limit and per-file progress. Reject unsupported or oversized files before publication; preserve successful uploads if another file fails.
+
+[ ] M32-024  Client gallery actions are View, Favorite and Comment, plus Download when permitted. Download settings are Disabled, Web size and Original only when those variants exist.
+
+[ ] M32-025  Watermark and branding controls preview the actual result before publication. Never claim watermark removal, compression or original download when only a display setting exists.
+
+[ ] M32-026  Proofing selections show client, selected item IDs, count, submission time and version. Provide Submit selection and Reopen selection; preserve the submitted version when reopening.
+
+[ ] M32-027  Participant-authenticated gallery access follows project membership. To revoke a secret bearer link, expire or rotate it for all holders and explain that effect. Protect direct media URLs under the corresponding access policy.
+
+Prove completion
+
+[ ] M32-028  Create a synthetic event with one room, guest count, timeline, vendor and equipment list; generate a PDF containing exactly the chosen sections and correct local times.
+
+[ ] M32-029  Let an authorized client edit their assigned event section; verify they cannot read internal notes or vendor costs. Sign an event order and confirm later edits create a new version.
+
+[ ] M32-030  Upload allowed and disallowed sample media, publish one album and revoke its link. Verify permissions and an understandable expired-link state.
+
+[ ] M32-031  Submit a client proofing selection twice and confirm one recorded submission version. Any unavailable partner functionality stays clearly blocked and absent from live marketing claims.
+

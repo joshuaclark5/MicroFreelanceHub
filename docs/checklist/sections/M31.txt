@@ -1,0 +1,112 @@
+M31 DETAILED REQUIREMENTS
+
+Integrations API webhooks and assistant connections
+
+P2 provider dependent  |  Dependencies: M02, M05, M11, M14
+
+Expose honest connection states and a supported scoped interface to other tools.
+
+Inspect before building
+
+[ ] M31-001  Inventory existing OAuth clients, API routes, webhooks, provider tokens and integration jobs without printing secrets. Test supported operations before replacing adapters or introducing parallel sync.
+
+[ ] M31-002  For every named integration record Native, Provider embed, Automation connector, Zapier mediated or Not implemented. Use the correct label in the UI; an external link is not a data integration.
+
+Connection cards and account controls
+
+[ ] M31-003  In Settings > Integrations group cards under Communication, Calendars, Payments, Accounting, Marketing, Creative and AI and developer tools. Show only relevant enabled services plus clearly marked connection options.
+
+[ ] M31-004  Each card shows provider name, connected account label, capabilities, connection state, last successful operation and owner. Actions are Connect, Manage, Reconnect and Disconnect as appropriate.
+
+[ ] M31-005  Connection states are Not connected, Connecting, Connected, Attention required and Disabled. Only a verified successful provider handshake can produce Connected.
+
+[ ] M31-006  Manage connection displays granted permissions, sync direction, supported record types, last run and recent errors. List unsupported objects so users can understand actual coverage.
+
+[ ] M31-007  Disconnect confirms which background jobs stop and what already imported data remains. Revoke provider access where supported and prevent future jobs from using the old credential.
+
+[ ] M31-008  Restrict connection and secret management to Owner/Admin. Mask saved secrets; permit replacement and revocation but do not redisplay full tokens in UI, logs or exported diagnostics.
+
+[ ] M31-009  Bind authorization callbacks to the initiating business, user and request. Reject stale or mismatched callbacks; show a recoverable connection error without linking the wrong account.
+
+QuickBooks and other named connectors
+
+[ ] M31-010  QuickBooks setup shows company name and region, currency, enabled objects and mappings. First-time setup offers Preview import or Preview export before live synchronization.
+
+[ ] M31-011  Define record ownership explicitly: default MFH owns newly issued MFH invoices and payment records; accounting owns its ledger entries. Never silently overwrite edits from the other system.
+
+[ ] M31-012  QuickBooks object choices are Customers, Invoices, Payments and Expenses, enabled only when implemented. Show direction per object and preserve provider IDs on the mapping record.
+
+M31 DETAILED REQUIREMENTS
+
+Integrations API webhooks and assistant connections continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+QuickBooks and other named connectors
+
+[ ] M31-013  Map services, accounts and tax codes using searchable provider-backed selectors. A missing or incompatible mapping blocks only affected records and identifies the exact correction.
+
+[ ] M31-014  Accounting sync queue columns are Record, Operation, Direction, Last attempt, Result and Error. Actions are View mapping, Retry and Exclude with recorded reason.
+
+[ ] M31-015  For Calendly or Acuity identify supported booking import events, cancellation handling and deduplication. Label one-way import clearly; do not advertise two-way sync without implementing it.
+
+[ ] M31-016  Show Zoom and other meeting-channel setup through M23. A generated URL must belong to the intended account and appointment; removing a connection must not destroy historical links.
+
+[ ] M31-017  For Mailchimp or Flodesk require audience/list, opt-in field mapping and unsubscribe ownership. Default to preview-only import; never equate a CRM contact with marketing consent.
+
+[ ] M31-018  For Slack integration select a verified workspace and allowed channel. Offer Internal task alert, New inquiry alert and Automation failure alert; exclude private client documents from default payloads.
+
+[ ] M31-019  For Zapier expose the implemented trigger/action list, connection owner and credential expiry. Support typed custom fields with stable IDs when available; display excluded fields explicitly.
+
+Developer APIs and outbound events
+
+[ ] M31-020  Developer settings has API credentials, Webhooks and Activity tabs. Show API version, documentation link, permitted base URL and supported rate limits drawn from actual configuration.
+
+[ ] M31-021  Create credential fields are Name, Scopes and Expiry. Expiry choices are 30 days, 90 days and Custom date; default 90 days. Show the token once, then only prefix and last-used time.
+
+[ ] M31-022  Scope choices include Read clients, Write clients, Read projects, Write projects, Read invoices, Create invoice drafts, Read payments, Read tasks and Write tasks. Select none initially; enforce every scope server-side.
+
+[ ] M31-023  Implement only documented versioned resource operations for clients, projects, tasks, invoice drafts and read-only payment records. API clients cannot set an invoice Paid or forge a signature.
+
+[ ] M31-024  List endpoints must have pagination, stable IDs, updated timestamps and authorized field filtering. Mutations accept idempotency identifiers and reject incompatible data with structured field errors.
+
+[ ] M31-025  Webhook creation requires Name, HTTPS endpoint, Event selection and Active toggle. Events include Client created, Project updated, Document signed, Invoice published, Payment succeeded, Payment failed and Appointment changed.
+
+M31 DETAILED REQUIREMENTS
+
+Integrations API webhooks and assistant connections continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Developer APIs and outbound events
+
+[ ] M31-026  Webhook delivery includes event ID, type, schema version, created time and minimal authorized payload. Sign the timestamp and raw body with a per-endpoint secret and document verification.
+
+[ ] M31-027  Webhook activity shows endpoint, event ID, attempt count, response status and next retry. Offer Test with synthetic payload, Retry and Disable; redact endpoint credentials and response secrets.
+
+[ ] M31-028  Rotate webhook secrets with an explicit overlap window and expiry. Reject replayed or expired inbound events in provider adapters according to the actual provider protocol.
+
+[ ] M31-029  Respect provider and product rate limits; return a clear retry instruction for throttled API requests and delay jobs instead of dropping work silently.
+
+MCP and assistant access
+
+[ ] M31-030  Assistant connection setup lists the account, selected business, granted scopes and exact read/write tools. Separate read-only tools from tools that create or modify records.
+
+[ ] M31-031  Expose supported tools for client/project lookup, invoice status, task listing and explicitly reviewed draft creation. Leave unsupported payments, signatures and destructive actions unavailable.
+
+[ ] M31-032  Before a consequential assistant write show the target record and proposed change through the supported review flow. Keep a trace linking the tool call, actor, result and audit entry.
+
+[ ] M31-033  Revoke an assistant or API credential and verify future requests fail promptly. Existing links must not continue to expose cached private records after revocation.
+
+Prove completion
+
+[ ] M31-034  Sync one synthetic customer, invoice and payment, then replay the same event. Verify one external record per intended object and reconciled amounts in each system.
+
+[ ] M31-035  Test a missing tax/account mapping, expired token and provider outage. Each must produce a visible actionable error and recover without duplicate records.
+
+[ ] M31-036  Use a read-only API credential to attempt a draft creation and another tenant lookup; both must fail with no unauthorized data or side effect.
+
+[ ] M31-037  Send a synthetic webhook, verify its signature and retry it. The receiver must be able to deduplicate by the stable event ID; inspect delivery history.
+
+[ ] M31-038  Exercise every advertised Zapier or assistant action once with a permitted account and once without the needed scope. Hide or disable any operation that fails its stated contract.
+

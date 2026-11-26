@@ -1,0 +1,100 @@
+M33 DETAILED REQUIREMENTS
+
+Business settings branding and support
+
+P0 core  |  Dependencies: G00 and verified existing foundations
+
+Make business identity appearance notifications and support explicit and consistently applied.
+
+Inspect before building
+
+[ ] M33-001  Inspect existing business profiles, settings, sender identity, branding and support delivery. Keep working labels and connections; identify each actual gap before adding another settings surface.
+
+[ ] M33-002  Confirm every setting has an authoritative persisted value and permitted editor. A decorative toggle that reloads to its old value does not satisfy the requirement.
+
+Business profile and companies
+
+[ ] M33-003  Settings navigation offers Business, Team, Services, Templates, Integrations, Notifications, Branding, Billing, Data, Security and Support, using equivalent existing grouping where appropriate.
+
+[ ] M33-004  Business profile fields are Display name, Legal name when needed for billing, Reply-to email, Public phone, Website and Address. Mark which fields are public, document-only or private.
+
+[ ] M33-005  Require Display name and a validated business email for outbound messaging. Show verification status and Resend verification; an unverified address cannot become an authorized sender merely by saving it.
+
+[ ] M33-006  Business type choices are Cleaning, Trades, Design, Photography, Consulting, Coaching, Events, Other and Prefer not to say. Default unselected and nonblocking; Other reveals a description. Switching type never deletes records.
+
+[ ] M33-007  Regional controls include Country, supported transaction currency, IANA timezone, date format and time format. Time format choices are 12 hour and 24 hour; preview one date and time before saving.
+
+[ ] M33-008  Changing currency affects eligible future drafts only; issued invoices and recorded payments retain their original currency. Changing timezone must explain the effect on future scheduling and preserve historical instants.
+
+[ ] M33-009  Multiple companies uses a named company switcher with logo and current-role label. Provide Create company, Switch company and Manage company only when entitled and authorized.
+
+[ ] M33-010  Keep each company's clients, documents, integrations, tax settings, numbering and reports separate. Switching company clears stale UI cache and cannot reuse another company's provider credentials.
+
+M33 DETAILED REQUIREMENTS
+
+Business settings branding and support continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Business profile and companies
+
+[ ] M33-011  Ownership transfer, if supported, requires the current Owner and verified target account, an explicit confirmation and audit entry. Removing the only Owner must be blocked.
+
+Brand controls and custom domains
+
+[ ] M33-012  Branding fields are Logo, Primary color, Accent color, Display font, Document footer and business contact details. Provide desktop document, mobile client page and email previews.
+
+[ ] M33-013  Logo upload accepts implemented safe image types such as PNG, JPEG and WebP with a visible size limit and crop preview. Validate real file content; do not trust the filename extension.
+
+[ ] M33-014  Color fields accept a color picker and six-digit hex value. Validate contrast for interactive text and show accessible defaults when the chosen combination is unreadable.
+
+[ ] M33-015  Font dropdown lists only shipped licensed fonts; default the current product font. Uploaded custom fonts appear only if implemented, licensed by the uploader and safely processed.
+
+[ ] M33-016  Brand removal control appears only for an entitled plan and affects the exact specified surfaces. Preview retained legal/provider notices rather than promising removal of all third-party branding.
+
+[ ] M33-017  Custom domain setup requires hostname, ownership verification records and verification status. States are Not verified, Pending DNS, Certificate pending, Active and Attention required.
+
+[ ] M33-018  Provide Copy DNS record, Check status, Test domain and Remove domain. Only route verified hostnames; certificate or ownership failures must not produce an Active label.
+
+[ ] M33-019  Preserve the product-hosted client URL while a custom domain is pending. Removing a domain must keep existing authorized records accessible through the established fallback URL.
+
+Preferences notifications and security
+
+[ ] M33-020  Notifications screen groups Client activity, Documents, Payments, Appointments, Tasks and Automation failures. For each show supported channels Email, In app and SMS; unavailable channels are disabled with an explanation.
+
+[ ] M33-021  Offer Immediate and Daily digest for nonurgent owner notifications, plus Off where appropriate. Security and payment-failure notices must have clearly documented mandatory behavior rather than silently respecting a global mute.
+
+M33 DETAILED REQUIREMENTS
+
+Business settings branding and support continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Preferences notifications and security
+
+[ ] M33-022  Quiet hours require start/end and timezone. Show which urgent events bypass quiet hours; persist changes and apply them to queued notices where intended.
+
+[ ] M33-023  Separate internal owner notifications from customer-facing reminders. Changing a personal notification preference must not alter a client's appointment or billing reminder consent.
+
+[ ] M33-024  Security settings list active sessions with device, approximate last activity and Revoke. Support the current authentication provider's password reset and MFA options only when actually available.
+
+[ ] M33-025  For password or recovery actions show generic responses that do not reveal whether an unrelated email address has an account. Require a valid current session or recovery token for account changes.
+
+[ ] M33-026  Team and billing links must enforce role permissions on the server. Hiding a settings menu alone cannot protect those endpoints.
+
+Support and acceptance
+
+[ ] M33-027  Support page offers Search help, Contact support and Report a problem. Show a real monitored support destination and actual availability; do not fabricate live support or response guarantees.
+
+[ ] M33-028  Problem form requires Category and Description; optional fields are Page URL, Screenshot and diagnostic reference. Category choices are Account, Documents, Payments, Scheduling, Integrations and Other.
+
+[ ] M33-029  Before sending diagnostics show what is included and omit secrets, payment credentials and unrelated customer content. File attachments use safe upload validation and authorized access.
+
+[ ] M33-030  Support submission states are Draft, Sending, Submitted and Failed. Show a ticket/reference ID only after a real accepted submission; Failed retains text and offers Retry.
+
+[ ] M33-031  Change a brand color and logo, reload, and inspect document/client/email previews. Verify only the intended company's branding changes.
+
+[ ] M33-032  Switch between two synthetic companies and test a copied URL from the first. The second company must not reveal or mutate the first company's records.
+
+[ ] M33-033  Submit a support test to an authorized test destination and verify actual receipt or provider acceptance with its status. A success toast without delivery evidence fails.
+

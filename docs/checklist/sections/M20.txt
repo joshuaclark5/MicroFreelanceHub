@@ -1,0 +1,118 @@
+M20 DETAILED REQUIREMENTS
+
+Availability and session types
+
+P0 core  |  Dependencies: M19
+
+Make booking rules explicit and reusable for individual appointments, groups and eligible team schedules.
+
+Inspect and organize booking setup
+
+[ ] M20-001  Inspect existing availability rules, intake versions, booking conflict checks, session-type fields and manual calendar synchronization. Test each requested control first; preserve working rules and extend only missing behavior without re-enabling previously disabled public links.
+
+[ ] M20-002  Place Session types under Calendar > Availability or Settings > Services, with a clear link between them. List Name, Type, Duration, Hosts, Price, Timezone, Published state and Booking link; provide New session type and Edit actions.
+
+[ ] M20-003  Provide session filters All, Draft, Published and Disabled, plus a Type filter. Separate publication state from provider connection state; show a setup blocker beside a session rather than declaring it ready because configuration fields exist.
+
+[ ] M20-004  Require a session Name of 1 to 100 characters and allow a client-facing Description of up to 2,000 characters. Provide Save draft, Preview, Publish, Disable and Duplicate; duplication starts as an unpublished draft.
+
+Session structure hosts and meeting channels
+
+[ ] M20-005  Offer Session type choices One to one, Group, Multiple hosts and Round robin. Explain each choice beside the selector; disable team-dependent choices until the necessary verified team access and calendar capabilities exist.
+
+[ ] M20-006  For One to one require one active host. For Multiple hosts require the selected hosts to attend together and offer only their intersecting availability; changing the host set must not silently reassign existing confirmed bookings.
+
+[ ] M20-007  For Round robin require at least two eligible hosts and use an explicit assignment method: Rotating order or Fewest assigned bookings. Default to Rotating order, store the chosen host atomically, and use stable tie-breaking for simultaneous requests.
+
+[ ] M20-008  For Group require Capacity as a whole number from 2 to 100 and offer Schedule mode values Fixed dates or Repeating session times. Default one seat per booking; expose multi-seat booking only after quantity and payment behavior is verified.
+
+[ ] M20-009  Prevent combining Group and Round robin in the initial implementation unless an existing tested implementation supports it. State the limitation in the selector; never let a saved combination appear bookable when conflict/capacity behavior is undefined.
+
+M20 DETAILED REQUIREMENTS
+
+Availability and session types continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Session structure hosts and meeting channels
+
+[ ] M20-010  Offer Duration values 15, 30, 45, 60, 90 and 120 minutes plus Custom from 5 to 720 whole minutes, matching M19 and M22. Snapshot duration on confirmed bookings; later defaults do not rewrite booked end times.
+
+[ ] M20-011  Offer Meeting channels In person, Phone, Google Meet, Microsoft Teams, Zoom and Custom video link. Permit one or several supported channels, require configuration for each enabled choice and let the client select one when several are published.
+
+[ ] M20-012  For In person require a Location name and address or explicit Instructions provided after booking. For Phone specify Business calls client or Client calls business and validate the corresponding phone field before publishing.
+
+[ ] M20-013  Gate generated Google Meet, Teams and Zoom options on M23 capability checks. Permit a validated HTTPS custom video URL when chosen explicitly; do not display an invented conference link while provider setup is incomplete.
+
+[ ] M20-014  Link existing M07 services without duplication. Offer Free, Full payment required and Deposit required. Preserve Quote required: never convert an unknown catalog price to free; require an explicit booking fee or free-consultation choice. Gate paid collection on M12/M21.
+
+Hours timezones and availability exceptions
+
+[ ] M20-015  Require a searchable IANA Host timezone and show a readable current-offset example. Suggest the host's saved timezone; changing it must show the effect on future availability without moving previously confirmed appointments.
+
+[ ] M20-016  Provide a weekly grid with Sunday through Saturday toggles and Add hours for each enabled day. Suggest Monday through Friday 09:00–17:00 only for a new unpublished rule; require the owner to review before publishing.
+
+[ ] M20-017  Allow multiple non-overlapping local-time intervals per day and provide Remove interval. Reject end-before-start and overlapping intervals; represent an overnight schedule as two explicit date/day intervals rather than accepting an ambiguous time range.
+
+[ ] M20-018  Provide Availability starts as a required local date and Availability ends as optional. Do not offer a date before the start or after the end, even if a repeating weekday or provider calendar would otherwise permit it.
+
+[ ] M20-019  Provide Date overrides with Closed all day or Custom hours, a selected date or inclusive date range, and a reason visible only internally. Give explicit date overrides precedence over weekly hours without rewriting the weekly template.
+
+M20 DETAILED REQUIREMENTS
+
+Availability and session types continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Hours timezones and availability exceptions
+
+[ ] M20-020  Provide Time off through the existing account-wide control and show affected future appointments before saving. Time off blocks new bookings; it must not silently cancel or move already confirmed appointments.
+
+[ ] M20-021  Offer Buffer before and Buffer after independently with 0, 5, 10, 15, 30 and 60 minutes; default both to 0. Apply buffers to host and required-resource conflict checks without inflating client-facing appointment duration.
+
+[ ] M20-022  Offer Minimum notice choices 0, 1, 2, 4, 12, 24 and 48 hours plus Custom up to 720 hours; default 24 hours. Evaluate notice using actual instants, not a subtraction of local calendar dates.
+
+[ ] M20-023  Offer Booking horizon values 7, 14, 30, 60, 90 and 180 days; default 30. Show the resulting final bookable date in the host timezone and revalidate the horizon when a client confirms a previously loaded slot.
+
+[ ] M20-024  Offer Start-time increments 15, 30 or 60 minutes; default 15. Align generated starts within each published availability interval and remove any slot whose duration plus required buffers crosses the allowed window.
+
+[ ] M20-025  Offer Maximum bookings per host per day as Unlimited or a custom whole number from 1 to 100; default Unlimited. Count host-local dates and active confirmed reservations; cancelled bookings release the count.
+
+[ ] M20-026  For group sessions count confirmed seats and unexpired checkout holds against capacity. One partially filled group occupies its hosts once while allowing remaining seats; it must still conflict with a different appointment for the same hosts.
+
+[ ] M20-027  Show each selected host's calendar connection and freshness status. Fail closed when a required connected calendar is stale or unavailable; never reinterpret missing provider data as free time to keep a booking link working.
+
+[ ] M20-028  Provide Cancellation cutoff and Reschedule cutoff choices Anytime, 2 hours, 12 hours, 24 hours and 48 hours before start; default 24 hours. Display the chosen policy before booking and route later requests to the business.
+
+[ ] M20-029  Provide Client intake selection from existing published form versions and a Preview questions action. Keep the question version linked to each booking; changing the session's form must not alter historical questions or answers.
+
+[ ] M20-030  Provide a Required resources selector only when M24 equipment/resource capacity exists. Reserve required quantities alongside hosts and seats; a resource shortage must remove the slot even when the host is free.
+
+M20 DETAILED REQUIREMENTS
+
+Availability and session types continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Publish controls and acceptance checks
+
+[ ] M20-031  Provide Preview availability with a test date, client timezone and selected meeting channel. Show available slots and understandable exclusion reasons to the owner; the public preview must not expose another client's appointment details.
+
+[ ] M20-032  Before Publish validate hosts, timezone, hours, intake version, meeting channel configuration and any paid-booking dependency. Show one actionable list of missing setup fields and retain the draft; do not create a public link prematurely.
+
+[ ] M20-033  When disabling a session, prevent new bookings while preserving existing appointments and their management links. Changing a price, duration or policy applies only to new bookings unless an explicit separate rescheduling/change flow is used.
+
+[ ] M20-034  Allow only authorized owners, admins or permitted managers to modify shared session defaults. A member may manage their own availability only when granted that capability; enforce the same boundary through direct API requests.
+
+[ ] M20-035  Test a 60-minute session inside 09:00–12:00 hours with 15-minute before/after buffers. Confirm no offered start requires time outside the window, and a closed date override removes every offered slot for that date.
+
+[ ] M20-036  Test an appointment one minute inside the minimum-notice cutoff and a slot one day beyond the booking horizon. Confirm confirmation is rejected even when the client loaded those times before the rules changed.
+
+[ ] M20-037  Test a three-seat group with two confirmed seats and two simultaneous last-seat requests. Confirm exactly one request reserves the final seat, cancellation releases one seat and unrelated host appointments cannot occupy that group time.
+
+[ ] M20-038  Test Multiple hosts with one host unavailable and Round robin with one host unavailable. Confirm the first offers no shared slot and the second assigns only an available eligible host without changing previous assignments.
+
+[ ] M20-039  Test the same published weekly hours before and after daylight-saving changes. Confirm the local working hours remain stable while UTC offsets change correctly; nonexistent local slot times are never offered.
+
+[ ] M20-040  Test selecting each enabled meeting channel from a public session. Confirm the saved booking records that specific channel and its correct location details, while a disconnected video provider cannot produce a false successful meeting link.
+

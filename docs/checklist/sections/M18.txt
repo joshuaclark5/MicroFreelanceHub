@@ -1,0 +1,112 @@
+M18 DETAILED REQUIREMENTS
+
+Financial partner services
+
+P2 provider dependent  |  Dependencies: M14, M17
+
+Expose optional banking, financing and payment services only through verified providers, with truthful eligibility, lifecycle controls and explicit blockers instead of simulated financial products.
+
+Inspect providers and make readiness explicit
+
+[ ] M18-001  Inspect actual provider contracts, enabled capabilities, credentials, supported countries/currencies and existing integrations for every service before editing; preserve verified implementations, record exact unmet dependencies, and leave unsupported services unchecked rather than promising completion within 48 hours.
+
+[ ] M18-002  Place optional service cards under Settings > Integrations > Financial services and contextual Payments/Project links; show provider, Sandbox/Live and Disabled, Not connected, Connecting, Connected or Attention required, with No eligible service available for confirmed empty eligibility and Retry for lookup failure.
+
+[ ] M18-003  Require Owner-controlled connection/consent actions and show eligibility separately from connection; display provider-sourced restrictions, current terms/fee links and last verification time, and never infer approval or availability from a purchased MFH subscription.
+
+Bank accounts savings and tax categories
+
+[ ] M18-004  For a supported banking service, provide Connect account, Open provider portal, Refresh status and Disconnect; collect identity/country/ownership through its approved flow, show required verification, and explain that disconnecting MFH synchronization does not close the bank account.
+
+[ ] M18-005  List connected accounts with provider, masked account identifier, Currency, Available balance, Current balance, Pending amount and Updated at; show Unavailable or Stale when retrieval fails instead of substituting local invoice balances as bank balances.
+
+[ ] M18-006  Expose Transfer or Funding controls only when the provider supports the operation and the account is eligible; require source, destination, amount/currency and a current fee/arrival preview, and use explicit confirmation before any real money movement.
+
+[ ] M18-007  Show transfer states Draft, Submitted, Processing, Succeeded, Failed or Cancelled from provider evidence; deduplicate requests, explain unavailable cancellation, and prevent a failed/unknown transfer from appearing as settled cash in M16.
+
+[ ] M18-008  For savings allocations, provide Bucket name, Currency, Target amount and Allocation rule Manual, Fixed amount or Percentage; distinguish a real provider bucket/transfer from an internal budgeting label and prevent allocations exceeding available authorized funds.
+
+M18 DETAILED REQUIREMENTS
+
+Financial partner services continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Bank accounts savings and tax categories
+
+[ ] M18-009  Allow transaction Tax category choices supplied by the connected provider or business-defined categories; keep Uncategorized available, provide bulk review with an audit trail, and describe categories as bookkeeping classifications rather than automatic tax advice or filing.
+
+Business financing and country eligibility
+
+[ ] M18-010  Show financing offers only when supplied for that exact business and jurisdiction; display offer amount/currency, total repayment, fees, repayment basis, term and expiry exactly as provided, omitting unsupported estimates or invented APR calculations.
+
+[ ] M18-011  Provide View offer, Start application and Open provider application for the Owner; require provider review of actual terms before submitting or accepting finance, and never auto-apply, borrow or accept an offer during implementation testing.
+
+[ ] M18-012  Track application/service states Not available, Eligible, Draft, Submitted, Under review, Approved, Declined, Active and Paid off only when supported by provider responses; retain raw states and reasons, and route unknown cases to Attention required.
+
+[ ] M18-013  Show funding and repayment transactions with dates, amounts, remaining obligation and source references, separate from client sales; gate US and Canadian availability independently and do not assume one country's approval, currency or repayment terms apply elsewhere.
+
+Buy now pay later
+
+[ ] M18-014  Provide Enable buy now pay later only for a connected eligible provider; check invoice amount, country, currency, merchant category and recurrence restrictions against current capability data, and display the actual merchant-fee disclosure before activation.
+
+[ ] M18-015  At eligible client checkout, offer the provider's named financing option and redirect to its approval flow; distinguish client application Pending/Approved/Declined from merchant payment status, and recognize invoice settlement only after authoritative payment confirmation.
+
+[ ] M18-016  Route financed-payment refunds and cancellations through the provider's supported operations, show their effect on the merchant payment, and direct clients to the financing provider for loan repayment changes rather than inventing local installment-control buttons.
+
+M18 DETAILED REQUIREMENTS
+
+Financial partner services continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Instant deposits
+
+[ ] M18-017  Expose Request instant deposit only when the provider reports eligibility and available transferable balance; require Amount and verified Destination, and obtain a current quote showing fee, expected net amount, currency and estimated arrival.
+
+[ ] M18-018  Require Confirm instant deposit after the quote preview; bind confirmation to that quote/version, refresh expired quotes, prevent duplicate submissions and do not automatically move all available funds or accept undisclosed fees.
+
+[ ] M18-019  Track Requested, Processing, Paid, Failed and Cancelled deposit states from the provider; retain standard payout history, reconcile fees separately, and leave the underlying client payment intact when an accelerated transfer fails.
+
+Security card authorization holds
+
+[ ] M18-020  Place Security hold under Project > Event details or Payments when actual merchant/provider eligibility permits; show maximum amount, allowed duration, supported methods and capture/release rules from current capability data, separately from ordinary invoice deposits.
+
+[ ] M18-021  Provide Create hold with required Client, Project, Amount, Currency, Authorization date and Intended release date plus optional Description; require provider-supported client authorization/consent, validate duration/amount limits, and do not record the held amount as income.
+
+[ ] M18-022  Show hold states Draft, Awaiting authorization, Authorized, Partially captured, Captured, Released, Expired and Failed, with remaining authorized amount and provider expiry; show real provider limitations when partial capture or extended holds are unsupported.
+
+[ ] M18-023  Provide Capture all or Capture amount only within the remaining valid authorization; require amount and reason, preview the resulting charge, create a separate M14 payment after confirmed capture, and prohibit capture after release/expiry without fresh authorization.
+
+[ ] M18-024  Provide Release hold with a confirmation showing the amount to release; display Release requested until provider confirmation, explain any provider-reported bank release delay, and never describe releasing an uncharged hold as refunding a collected payment.
+
+[ ] M18-025  Default hold creation/capture/release to Owner/Admin with explicit grants for other financial roles; validate permissions server-side, deduplicate hold events, log every action and never mark an invoice paid merely because authorization succeeded.
+
+M18 DETAILED REQUIREMENTS
+
+Financial partner services continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Payroll integration
+
+[ ] M18-026  Offer Payroll setup only for a real supported provider and eligible business; let Owner connect and approve access, allow separately granted preparer/reviewer roles, and direct sensitive worker identity/bank details through the provider's approved interface.
+
+[ ] M18-027  Provide pay-run review with Period start, Period end, Pay date, Currency and selected Workers; display provider-calculated gross pay, deductions, taxes, employer charges and net pay, requiring unresolved employee or funding issues to be corrected before submission.
+
+[ ] M18-028  Require an authorized Review and submit payroll confirmation with funding amount and pay date; keep prepare and approve permissions distinct where supported, never run live payroll during tests, and do not calculate unsupported statutory withholding locally.
+
+[ ] M18-029  Show provider-backed pay-run states Draft, In review, Approved, Submitted, Processing, Paid, Failed or Cancelled and scoped payslip links; reconcile payroll expenses/payables once into M15/M16, respecting country eligibility and avoiding duplicate estimated labor costs.
+
+Observable acceptance and blocker checks
+
+[ ] M18-030  Verify each unavailable provider or missing permission yields a named blocker and disabled action; a sandbox-connected account must stay labeled Sandbox, and an MFH paid-plan upgrade must not automatically approve banking, financing or payroll.
+
+[ ] M18-031  Verify a real provider test balance remains distinct from manually entered cash, an internal savings label does not imply a bank transfer, and transfer/payout failures leave forecasts marked with their actual pending or failed state.
+
+[ ] M18-032  Verify a 100.00 authorized test hold leaves invoice receipts at zero; a supported 30.00 capture creates one 30.00 payment and 70.00 remaining authorization, and releasing the remainder creates no refund or additional revenue.
+
+[ ] M18-033  Verify financed checkout approval without merchant settlement leaves payment pending, an expired financing offer cannot be accepted, and instant-deposit confirmation uses the displayed current quote without duplicating the transfer on retry.
+
+[ ] M18-034  Verify a provider-supported payroll test run exposes preparer/approver boundaries and posts expenses once; if no genuine sandbox, eligible account or payroll provider exists, record that lifecycle test as blocked and retain its empty checklist box.
+

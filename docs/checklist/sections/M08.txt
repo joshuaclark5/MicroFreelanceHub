@@ -1,0 +1,104 @@
+M08 DETAILED REQUIREMENTS
+
+Proposals and questionnaires
+
+P0 core  |  Dependencies: M02, M05, M07
+
+Let clients select clearly priced work and answer useful questions in a durable versioned document flow.
+
+Inspect proposal and questionnaire behavior
+
+[ ] M08-001  Inspect existing proposal, agreement and intake editors, template use, persisted answers and shared-document routes; verify whether proposal and invoice components genuinely share data or merely resemble each other.
+
+[ ] M08-002  Complete an existing test proposal and questionnaire end to end; compare each requirement below, skip working equivalents and extend only missing selection, persistence or client-action behavior.
+
+Document list and draft fields
+
+[ ] M08-003  Provide Documents with Type filters All, Proposals, Contracts and Questionnaires; show Title, Client, Project, Lifecycle status, Shared date and Updated, with access-controlled search.
+
+[ ] M08-004  Provide New proposal and New questionnaire with required Title, Client and Project; offer From template or Blank, default From template when a compatible ready template exists.
+
+[ ] M08-005  Provide optional Introductory text and Expiration date; default no expiration, show the chosen business timezone and reject an expiration before the planned send time.
+
+[ ] M08-006  Expose sections Content, Services, Questions and Sharing as appropriate to the document type; keep the underlying document identifier and client/project links stable while editing.
+
+[ ] M08-007  Provide Draft, Sent, Viewed, Partially signed, Signed, Declined, Expired and Voided lifecycle filters only where applicable; derive signature states from M09 events instead of selection confirmation.
+
+[ ] M08-008  Offer Save draft, Preview, Share, Duplicate and Void actions according to lifecycle; Duplicate creates a new draft without copying answers, approvals, delivery history or signatures.
+
+Service selection and calculations
+
+[ ] M08-009  Add services from M07 or enter a custom line with required Name, Quantity, Unit, Unit price and Currency; require one document currency and display line amounts using its precision.
+
+[ ] M08-010  Provide selection modes Required item, Optional item and Choose one group, default Required item; require a labeled group with at least two choices before using Choose one group.
+
+M08 DETAILED REQUIREMENTS
+
+Proposals and questionnaires continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Service selection and calculations
+
+[ ] M08-011  For Optional item, show an unchecked client selector by default unless the business explicitly selects Included by default; never conceal optional prices or preselect an undisclosed extra charge.
+
+[ ] M08-012  Provide client-editable quantity only when Allow quantity changes is enabled; require explicit minimum and maximum, default 1 and 1, and validate server-side before accepting a selection.
+
+[ ] M08-013  Show subtotal, visible discounts, applicable taxes and total using the same calculation rules as M11; changing selections recalculates the entire summary with currency labels.
+
+[ ] M08-014  Provide Discount options None, Percentage and Fixed amount, default None; bound percentage to 0–100 and prevent a fixed discount from exceeding the eligible subtotal.
+
+[ ] M08-015  Keep deposits and installment previews disabled until M11/M12 supply a tested schedule; never describe a proposal's displayed amount as charged, paid or automatically authorized.
+
+[ ] M08-016  Provide Confirm selection with a review of the exact selected services, quantities and total; store an immutable versioned decision event and leave signature/payment completion to their separate steps.
+
+Questions and answer persistence
+
+[ ] M08-017  Offer question types Short text, Long text, Email, Phone, Number, Date, Single select, Multi-select, Checkbox and File upload; use the shared field definitions and limits from M04.
+
+[ ] M08-018  Give each question a stable key, required label, optional help text and Required toggle default off; preserve the label and validation rules attached to already submitted document versions.
+
+[ ] M08-019  Allow conditional display with Always or Show when a prior select/checkbox Equals a specified answer; prevent circular references and exclude hidden questions from required validation.
+
+[ ] M08-020  Autosave changed answers after a two-second idle period and show Saving, Saved with time or Not saved; never display Saved until the server acknowledges the current revision.
+
+[ ] M08-021  Provide Save and finish later and Submit answers; submitting validates every visible required question and scrolls to an accessible error summary while preserving all entered answers.
+
+[ ] M08-022  Keep partially completed answers accessible only to the intended participant and authorized business users; scope resume links to the document and never use sequential public identifiers as authorization.
+
+M08 DETAILED REQUIREMENTS
+
+Proposals and questionnaires continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Questions and answer persistence
+
+[ ] M08-023  After submission, show a read-only response copy with Submitted at and version; allow an owner to Request revision, creating a new editable revision without erasing the submitted answers.
+
+[ ] M08-024  On concurrent answer changes, prevent silent overwrite; offer Reload latest and Copy my unsaved answers, and retain an accurate indication of which revision was submitted.
+
+Sharing and client flow
+
+[ ] M08-025  Provide Share with a list of authorized project contacts, Subject, Message and Send or Copy link; require at least one intended recipient and preserve recipient scope on copied links.
+
+[ ] M08-026  Show delivery as Queued, Accepted by provider, Delivered where confirmed, or Failed; keep document lifecycle Sent separate from proof that the recipient received or opened it.
+
+[ ] M08-027  Record Viewed only from a valid client document access event with time and recipient where known; label automated-link-preview uncertainty rather than promising that a human read the document.
+
+[ ] M08-028  Provide optional flow steps Review proposal, Answer questions, Sign agreement and Pay invoice; display only verified enabled steps, and preserve the client's current step after reauthentication.
+
+[ ] M08-029  Provide Decline with optional reason up to 500 characters and confirm the action; preserve the sent version and show a clear decision history without deleting the client record.
+
+[ ] M08-030  On expiration or voiding, stop new selections, submissions and signatures for that version while retaining the authorized historical copy; offer Contact business as the next action.
+
+Observable acceptance checks
+
+[ ] M08-031  Test one required service, two optional services and a choose-one package; change allowed quantities and verify exact totals, validation and the saved selection after refresh.
+
+[ ] M08-032  Enter answers, interrupt connectivity and reopen the questionnaire; recover acknowledged content, identify unsaved edits honestly and prevent a successful submit banner while persistence fails.
+
+[ ] M08-033  Share with two contacts having different permissions, then try an unrelated client link; verify access, answer visibility and signing authority follow the specific invitation.
+
+[ ] M08-034  Confirm a proposal, edit its source template and try its expired link; retain the accepted version and price, block new stale actions and avoid creating any automatic charge.
+

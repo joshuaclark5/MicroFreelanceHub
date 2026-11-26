@@ -1,0 +1,96 @@
+M01 DETAILED REQUIREMENTS
+
+Navigation and onboarding
+
+P0 core  |  Dependencies: G00 and verified existing foundations
+
+Make the existing product easy to navigate and let a new business reach its first usable client workflow.
+
+Inspect the existing experience
+
+[ ] M01-001  Inventory the existing desktop and mobile navigation, routes, feature flags and role checks; open each destination with test identities and record working equivalents before designing another screen.
+
+[ ] M01-002  Walk the current signup and onboarding with a fresh test business; compare every requirement below, retain equivalent verified behavior, extend partial implementations only and leave blocked requirements unchecked.
+
+[ ] M01-003  Identify the canonical business profile and selected-business context; confirm onboarding writes there, rather than creating a second profile or silently switching the production database.
+
+Navigation and overview
+
+[ ] M01-004  Retain or provide these main destinations: Overview, Inbox, Clients, Pipeline, Projects, Calendar, Documents, Invoices, Payments, Time and expenses, Reports, Automations and Settings; hide unauthorized destinations without weakening server checks.
+
+[ ] M01-005  Place Time log and Expenses under Time and expenses. Provide Settings sections Business, Team, Services, Templates, Integrations, Notifications, Branding, Billing, Data, Security and Support.
+
+[ ] M01-006  Give Overview a Next actions list containing overdue tasks, due tasks, documents awaiting action and failed sends; each row opens the actual record and shows its owner and relevant date.
+
+[ ] M01-007  Offer a Create menu with Client, Opportunity, Project, Proposal, Contract, Invoice and Task; show only permitted actions and carry the current client or project into the selected form.
+
+[ ] M01-008  Show the selected business name and a business-switch menu containing only businesses the user can access; switching clears prior-business selections and refetches authorized records.
+
+[ ] M01-009  Show a page title, current navigation state and breadcrumbs on record screens; browser Back returns to the prior list with its search, filters, sort and page preserved.
+
+M01 DETAILED REQUIREMENTS
+
+Navigation and onboarding continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Navigation and overview
+
+[ ] M01-010  Provide global search for permitted Clients, Projects, Documents and Invoices; label each result type, show its business context and avoid exposing snippets from inaccessible records.
+
+[ ] M01-011  Use a collapsible mobile menu with visible Close and current-page controls; opening a destination closes the menu and places keyboard focus at the page heading.
+
+[ ] M01-012  Use one account menu containing Profile, Notification preferences, Security and Sign out; sign out invalidates the session and returns to a nonauthenticated screen without retaining private content.
+
+Onboarding fields and actions
+
+[ ] M01-013  Provide a resumable Setup checklist containing Business details, First client, Service or template, First proposal and Review client view; derive completion from saved records rather than checked tutorial boxes.
+
+[ ] M01-014  On Business details, require Business name as trimmed text of 1–120 characters; offer optional Legal business name, Website and Reply-to email, with field-level URL and email validation.
+
+[ ] M01-015  Business type dropdown options are Cleaning, Trades, Design, Photography, Consulting, Coaching, Events, Other and Prefer not to say. Default unselected and nonblocking; Other reveals an optional description.
+
+[ ] M01-016  Require Country and Currency selectors using supported country names and ISO currency codes; suggest detected values without silently confirming them, and explain that existing published transaction currencies remain fixed.
+
+[ ] M01-017  Require Business timezone as a searchable IANA timezone selector; suggest the browser zone, show an example local time and require explicit save before using it for schedules.
+
+[ ] M01-018  Offer an optional business address with Address line 1, Address line 2, City, Region, Postal code and Country; explain where it will appear and apply country-appropriate validation.
+
+[ ] M01-019  Offer optional logo upload with PNG, JPEG or WebP and a 5 MB limit; show preview, Replace and Remove, reject unsupported files and preserve the prior logo on upload failure.
+
+M01 DETAILED REQUIREMENTS
+
+Navigation and onboarding continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Onboarding fields and actions
+
+[ ] M01-020  Provide Save and continue, Save and exit and Skip for optional setup steps; disable repeated submissions while saving and show errors without discarding entered values.
+
+[ ] M01-021  Offer Create a client and Use a sample client as distinct actions; mark sample records visibly and exclude them from live messages, billing and business reports.
+
+[ ] M01-022  Offer starter packs Cleaning service, Trades estimate and Freelance project; preview included services and original template text before the user chooses Add templates.
+
+[ ] M01-023  Provide Review client view using a read-only preview and a clearly labeled sample; do not generate a real invoice, send a message or publish a booking link through preview.
+
+[ ] M01-024  Allow users to dismiss setup and reopen it from Overview; preserve completed steps across sessions and do not force users to repeat onboarding after profile edits.
+
+States and permissions
+
+[ ] M01-025  Show clear page-level Loading, No records yet, No matching results, Access unavailable and Unable to load states; preserve filters after errors and provide Retry without creating records.
+
+[ ] M01-026  Keep unavailable integrations or tools labeled Not available or Not connected; selecting explanatory help must not produce a false success banner or an empty feature masquerading as live.
+
+[ ] M01-027  Guard unsaved form navigation with Save changes, Discard changes and Keep editing; never show this prompt after a successful save or restore stale content over newer records.
+
+[ ] M01-028  Restrict business-wide setup changes to Owner and Admin; show other roles their permitted workspace and explain inaccessible settings without leaking private configuration values.
+
+Observable acceptance checks
+
+[ ] M01-029  Test a fresh account on a 390px screen: save business details, create a client and prepare one tailored proposal within ten minutes; record actual time, assistance and blocked steps.
+
+[ ] M01-030  Test direct navigation and global search as two unrelated owners and a restricted member; unauthorized records never appear, and reloading preserves the correct selected business.
+
+[ ] M01-031  Reload midway through setup, resume it and remove sample data; confirm saved progress remains and no real client, signed record or historical transaction is deleted.
+

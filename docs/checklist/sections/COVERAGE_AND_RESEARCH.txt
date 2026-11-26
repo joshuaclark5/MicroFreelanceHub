@@ -1,0 +1,312 @@
+ALL 113 EARLIER INVENTORY ITEMS
+
+Feature coverage register
+
+This is a routing index, not a completion claim. Use the empty requirement checkboxes in each mapped module. Provider access and unsupported capabilities must remain explicit blockers until verified.
+
+Inventory ID | Earlier comparison item | Detailed modules
+
+F01 | Customer database | M01, M02
+
+F02 | Customer communication notes | M02, M25
+
+F03 | Sales opportunities | M03
+
+F04 | Customizable sales pipeline | M03
+
+F05 | Custom CRM fields | M02
+
+F06 | Customer tags | M02, M03
+
+F07 | Client portal | M06, M21, M26
+
+F08 | Client email synchronization | M25
+
+F09 | Lead capture forms | M04, M21
+
+F10 | Website-embedded forms | M04
+
+F11 | Contract builder | M09
+
+F12 | Electronic signatures | M09, M26
+
+F13 | Contract templates | M07, M09
+
+F14 | Shareable agreement links | M06, M09
+
+F15 | Scope change approvals | M10
+
+F16 | Combined proposal and payment | M08, M10, M11
+
+F17 | Custom questionnaires | M04, M08, M21
+
+F18 | Document activity tracking | M06, M08, M09, M10, M11
+
+F19 | Interactive service selection | M07, M08, M11
+
+F20 | Branded documents | M07, M08, M09, M11, M33
+
+F21 | Online payments | M12, M14
+
+F22 | Deposits | M12, M18
+
+F23 | Invoicing | M10, M11
+
+ALL 113 EARLIER INVENTORY ITEMS
+
+Feature coverage register continued
+
+This is a routing index, not a completion claim. Use the empty requirement checkboxes in each mapped module. Provider access and unsupported capabilities must remain explicit blockers until verified.
+
+Inventory ID | Earlier comparison item | Detailed modules
+
+F24 | Recurring invoice drafts | M13
+
+F25 | Automatic recurring billing | M13
+
+F26 | Automatic payment reminders | M12, M13
+
+F27 | Payment installments | M12, M13
+
+F28 | Automatic late fees | M12
+
+F29 | Customer tipping | M12
+
+F30 | Discounts | M11
+
+F31 | ACH bank payments | M12, M14
+
+F32 | Digital wallet payments | M12, M14
+
+F33 | QuickBooks integration | M16, M31
+
+F34 | Expense tracking | M15
+
+F35 | Project profitability | M15
+
+F36 | Financial reporting | M16
+
+F37 | Cash flow forecasting | M16
+
+F38 | Business banking | M18
+
+F39 | Business financing | M18
+
+F40 | Calendar | M19, M22, M26
+
+F41 | Public booking links | M20, M21, M22
+
+F42 | Google Calendar sync | M23
+
+F43 | Outlook integration | M23
+
+F44 | Automated meeting reminders | M19, M20, M21, M23, M25
+
+F45 | Book and pay in one flow | M20, M21
+
+F46 | Project management | M01, M05, M19, M22
+
+ALL 113 EARLIER INVENTORY ITEMS
+
+Feature coverage register continued
+
+This is a routing index, not a completion claim. Use the empty requirement checkboxes in each mapped module. Provider access and unsupported capabilities must remain explicit blockers until verified.
+
+Inventory ID | Earlier comparison item | Detailed modules
+
+F47 | Time tracking | M15, M26
+
+F48 | Team management | M05, M24
+
+F49 | Resource planning | M20, M22, M24
+
+F50 | Native iOS app | M26
+
+F51 | Native Android app | M26
+
+F52 | Visual automation builder | M28
+
+F53 | Conditional workflows | M27, M28
+
+F54 | Automatic lead follow-ups | M25, M27, M28
+
+F55 | Automated pipeline movement | M03, M27, M28
+
+F56 | AI client reply generator | M29
+
+F57 | AI business assistant | M29
+
+F58 | AI workflow creation | M28
+
+F59 | AI meeting transcription | M30
+
+F60 | AI meeting preparation | M30
+
+F61 | AI project summaries | M29
+
+F62 | AI lead qualification | M29
+
+F63 | AI daily priorities | M29
+
+F64 | AI lead enrichment | M29
+
+F65 | SMS communication | M25
+
+F66 | Dedicated business phone | M25
+
+F67 | Zapier integration | M31
+
+F68 | AI assistant MCP integration | M31
+
+A01 | Kanban project board | M03, M05
+
+ALL 113 EARLIER INVENTORY ITEMS
+
+Feature coverage register continued
+
+This is a routing index, not a completion claim. Use the empty requirement checkboxes in each mapped module. Provider access and unsupported capabilities must remain explicit blockers until verified.
+
+Inventory ID | Earlier comparison item | Detailed modules
+
+A02 | Saved pipeline views and bulk project actions | M03, M05
+
+A03 | Contact and lead import | M02, M34
+
+A04 | Client history and lifetime value | M02
+
+A05 | Unified email and SMS inbox | M25
+
+A06 | Client uploads and shared notes | M05, M06, M08, M10
+
+A07 | Portal login options | M06
+
+A08 | Lead attribution and referral requests | M03, M04
+
+A09 | Reusable file and email templates | M07, M08, M25
+
+A10 | Custom portal and file domains | M06, M33
+
+A11 | Branding removal and custom fonts | M06, M07, M33
+
+A12 | Invoice taxes and service charges | M11
+
+A13 | Gift card redemption and promo-code entry | M11
+
+A14 | Refund handling and offline payment recording | M14
+
+A15 | Payment status and payout tracking | M14
+
+A16 | Instant deposits and dispute support | M18
+
+A17 | Affirm buy now pay later | M18
+
+A18 | Group sessions | M20
+
+A19 | Multi-host scheduling and round robin | M20, M24
+
+A20 | Buffers availability overrides and rescheduling | M19, M20, M21, M22
+
+A21 | Task assignments and reminders | M05, M06, M22, M24
+
+A22 | Team roles and bookkeeper access | M01, M24
+
+A23 | Multiple companies | M01, M33
+
+A24 | Test automation runs and execution history | M27, M28
+
+ALL 113 EARLIER INVENTORY ITEMS
+
+Feature coverage register continued
+
+This is a routing index, not a completion claim. Use the empty requirement checkboxes in each mapped module. Provider access and unsupported capabilities must remain explicit blockers until verified.
+
+Inventory ID | Earlier comparison item | Detailed modules
+
+A25 | Gmail lead finder | M29
+
+A26 | AI business trends and follow-up suggestions | M29
+
+A27 | AI invoice editing | M11, M29
+
+A28 | ChatGPT connection | M29, M31
+
+A29 | Calendly Acuity and Zoom | M23, M31
+
+A30 | Canva Pic-Time Prismm | M32
+
+A31 | Flodesk Mailchimp Slack and other Zapier apps | M31
+
+A32 | Savings buckets and tax categories | M18
+
+A33 | Downloadable financial client and team reports | M16, M34
+
+A34 | General public REST API | M31
+
+A35 | Payroll add-on | M18
+
+A36 | MyCo proactive assistant | M29
+
+A37 | Banquet event order run sheets | M32
+
+A38 | Security deposit card holds | M18
+
+A39 | Public availability calendar | M19, M21
+
+A40 | SMS contacts without a project | M25
+
+A41 | Client selection of meeting channel | M20, M21, M23
+
+A42 | Project date visibility controls | M05, M19, M23
+
+A43 | Canadian Capital expansion | M18
+
+A44 | Client-specific pay links | M12
+
+A45 | In-person Tap to Pay | M14, M26
+
+SUPPORTING EVIDENCE
+
+Research context and handoff
+
+The companion MicroFreelanceHub and HoneyBook Feature Comparison and OpenClaw Build Plan contains the original comparison, review research, pricing analysis and 105 source links. This workbook expands that research into proposed implementation details and independently verifiable requirements.
+
+Use current code, actual deployed behavior and the selected provider documentation before implementing a connection. Public descriptions and earlier review complaints do not prove that a feature is missing today. The original F and A inventory IDs are retained for traceability.
+
+Selected source entry points
+
+MicroFreelanceHub feature descriptions
+https://www.microfreelancehub.com/features
+
+MicroFreelanceHub support and reporting guidance
+https://www.microfreelancehub.com/support
+
+HoneyBook plan and feature inventory
+https://www.honeybook.com/pricing
+
+HoneyBook scheduling questions
+https://help.honeybook.com/en/articles/6909513-scheduling-faqs
+
+HoneyBook recurring invoices
+https://help.honeybook.com/en/articles/5790758-recurring-invoices-in-honeybook
+
+HoneyBook pay links
+https://help.honeybook.com/en/articles/11067573-create-and-share-pay-links-in-honeybook
+
+HoneyBook in-person Tap to Pay
+https://help.honeybook.com/en/articles/13776128-accept-in-person-payments-with-tap-to-pay
+
+HoneyBook security deposit holds
+https://help.honeybook.com/en/articles/17710585-get-started-with-security-deposit-holds
+
+Customer review sample on G2
+https://www.g2.com/products/honeybook/reviews?qs=pros-and-cons
+
+Customer review sample on Trustpilot
+https://www.trustpilot.com/review/honeybook.com
+
+Customer review sample on Capterra
+https://www.capterra.com/p/162588/HoneyBook/reviews/?page=2
+
+Handoff to OpenClaw
+
+Use the complete TXT version of this workbook in the existing private OpenClaw conversation. Read G00, bind the correct project, process the detailed checklist, keep verified existing features, and notify Joshua separately after each published improvement. Preserve the earlier research as reference material without executing two duplicate backlogs.

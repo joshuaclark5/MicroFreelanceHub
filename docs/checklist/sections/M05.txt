@@ -1,0 +1,96 @@
+M05 DETAILED REQUIREMENTS
+
+Projects and tasks
+
+P0 core  |  Dependencies: M02, M03
+
+Connect the work, people and next actions for each client without duplicating financial or sales status.
+
+Inspect existing projects and tasks
+
+[ ] M05-001  Inspect project and task records, assignment rules, linked client identifiers and any separate team-planning workspace; verify actual sharing boundaries before combining interfaces or data.
+
+[ ] M05-002  Create, edit, reload and archive an existing test project; inspect each requirement below, retain verified equivalents and extend only missing behaviors rather than replacing the working project model.
+
+Project screens and fields
+
+[ ] M05-003  Provide Projects with List and Board views and columns Name, Client, Status, Project lead, Start, Due and Next task; default to active nonarchived records and remember the chosen view.
+
+[ ] M05-004  Provide filters Status, Project lead, Client, Tags and Due date with Any, Overdue, This week, This month or Custom range; include Show archived as an off-by-default toggle.
+
+[ ] M05-005  Provide New project with required Name of 1–150 characters and Client selector; allow opportunity conversion to populate those fields while retaining the source opportunity identifier.
+
+[ ] M05-006  Provide operational Status options Draft, Active, On hold, Completed and Cancelled, default Draft; keep Archive separate and do not derive payment completion from project status.
+
+[ ] M05-007  Provide Project lead as an authorized member selector, default creator when eligible, plus optional Start date, Due date, Description and Tags; reject Due date earlier than Start date.
+
+[ ] M05-008  Provide project tabs Overview, Tasks, Documents, Messages, Files, Financials and Activity; render only permitted tabs and load linked records from their canonical modules.
+
+[ ] M05-009  Show Overview with current status, client, lead, relevant dates, next required action and incomplete task count; clearly distinguish client-visible summary from internal description.
+
+[ ] M05-010  Offer Edit project, Change status, Archive and Duplicate actions; Duplicate creates Draft work with explicitly selected tasks and never copies signatures, payments, sent messages or client access grants.
+
+[ ] M05-011  Offer Save view with a required name and visibility Private or Business, default Private; persist filters and columns without changing the underlying project records.
+
+M05 DETAILED REQUIREMENTS
+
+Projects and tasks continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Task editor and execution
+
+[ ] M05-012  Provide Add task with required Title of 1–180 characters, optional Description and Project fixed to the current project; support a checklist of subordinate steps without creating duplicate top-level tasks.
+
+[ ] M05-013  Provide Status options Not started, In progress, Blocked and Done, default Not started; require a Blocked reason when setting Blocked and preserve the reason in task history.
+
+[ ] M05-014  Provide Priority options Low, Normal, High and Urgent, default Normal; sort equal-priority tasks by due date and then creation time when applying Priority sort.
+
+[ ] M05-015  Provide Assigned to as one authorized team member or Unassigned; offer assignment to a specific portal participant only when Client visible is selected and portal access exists.
+
+[ ] M05-016  Provide optional Due date and Due time with visible business timezone; a date-only task is due at the end of that local date rather than midnight UTC.
+
+[ ] M05-017  Provide Visibility options Internal and Client visible, default Internal; display a prominent shared label and require confirmation before changing an existing internal task to Client visible.
+
+[ ] M05-018  Provide a Reminder selector with None, At due time, One day before and Custom offset, default None; activate delivery only after the chosen channel and M27 reminder runner are verified.
+
+[ ] M05-019  Allow checklist steps to be checked independently while leaving task completion explicit; show completed-step counts and preserve unchecked steps when the parent task is reopened.
+
+[ ] M05-020  Offer Complete, Reopen, Edit and Delete task actions; store completion actor/time and restrict Delete to authorized users, retaining an audit event for removed tasks.
+
+[ ] M05-021  Provide task list filters Assignee, Status, Priority and Visibility plus sort options Due soonest, Recently updated and Priority; visually mark overdue incomplete tasks without altering their status.
+
+[ ] M05-022  Allow bulk Assign, Set due date and Mark done on selected permitted tasks; preview the affected count and report per-task failures without falsely marking the whole selection successful.
+
+M05 DETAILED REQUIREMENTS
+
+Projects and tasks continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Files dates and visibility
+
+[ ] M05-023  Provide project Files with Name, Type, Size, Uploaded by, Uploaded at and Visibility; default every new upload Internal and require explicit sharing to selected portal participants.
+
+[ ] M05-024  Accept PDF, JPEG, PNG, WebP and office-document files within the configured storage limit; verify content type and malware-handling path, and reject unsupported files before listing them as uploaded.
+
+[ ] M05-025  Provide Share, Download, Rename and Remove actions for permitted files; use protected storage access and revoke client downloads when sharing is removed.
+
+[ ] M05-026  Provide Show project dates on calendar as a toggle, default on for dated Active projects; changing visibility affects calendar display only and does not change booking availability without an explicit separate rule.
+
+[ ] M05-027  Record status, assignment, task, file-sharing and date changes in Activity with actor/time; never expose private costs, internal descriptions or administrative audit details in the portal timeline.
+
+[ ] M05-028  Show financial summaries only when M11 and M14 provide trustworthy linked records; otherwise show No linked invoices or Payment information unavailable, not inferred cash totals.
+
+Access and acceptance checks
+
+[ ] M05-029  Enforce project assignments on every screen and API; Managers manage assigned work, Members see their assigned scope and Clients receive only explicitly shared tasks, files and descriptions.
+
+[ ] M05-030  Test converting one opportunity, adding two tasks and reloading; verify one stable project, correct client links, task assignments and preserved view filters.
+
+[ ] M05-031  Test completing then reopening a task with a checklist and date-only deadline; preserve history and checklist state and calculate overdue status in the configured timezone.
+
+[ ] M05-032  Test a portal participant and unrelated business requesting an internal file, private task and financial tab; each request must be denied at the server.
+
+[ ] M05-033  Archive and restore a project with historical documents and invoices; retain all relationships, do not revoke necessary signed-document access silently and restore the appropriate list visibility.
+

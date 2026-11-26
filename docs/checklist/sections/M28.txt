@@ -1,0 +1,96 @@
+M28 DETAILED REQUIREMENTS
+
+Visual automation builder
+
+P1 expansion  |  Dependencies: M27
+
+Let users configure versioned workflows with explicit triggers conditions waits and actions.
+
+Inspect before building
+
+[ ] M28-001  Inspect the existing builder, saved workflow schema and execution engine. Open a saved workflow, run a synthetic case and keep any working equivalent graph and controls.
+
+[ ] M28-002  Compare every supported block with the runner before exposing it. Mark unsupported blocks unavailable with a reason rather than allowing a graph that cannot execute.
+
+Builder layout and navigation
+
+[ ] M28-003  In Automations > Builder provide New automation, template chooser and searchable workflow list. Columns are Name, Status, Trigger, Last published, Last run and Owner.
+
+[ ] M28-004  Use workflow status choices Draft, Active, Paused and Archived. New workflows are Draft; pausing preserves history and makes pending-run handling explicit.
+
+[ ] M28-005  On the editor show workflow name, version, Save draft, Test, Publish, Pause and Version history. Disable Publish when validation errors exist and link to the first error.
+
+[ ] M28-006  Provide a left block picker, central flow and right settings panel, or an accessible equivalent. Every drag action also has keyboard Add step, Move up, Move down and Delete controls.
+
+[ ] M28-007  Offer Add step choices Condition, Wait, Action and Approval. A workflow has one trigger and explicit end points; reject unbounded loops and disconnected steps.
+
+[ ] M28-008  Make Delete step describe affected branches and preserve a recoverable draft revision. Provide Undo for unsaved editor actions; do not promise undo for already sent messages.
+
+Trigger and condition controls
+
+[ ] M28-009  Trigger dropdown choices are Lead created, Form submitted, Pipeline stage changed, Project created, Contract signed, Invoice published, Payment succeeded, Payment failed, Appointment booked, Appointment cancelled, Change approved and Manual run.
+
+[ ] M28-010  Show trigger-specific selectors only when relevant: Form, Pipeline stage, Document template, Invoice rule, Session type or Change type. All must use stable IDs with readable labels.
+
+M28 DETAILED REQUIREMENTS
+
+Visual automation builder continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Trigger and condition controls
+
+[ ] M28-011  Condition entity choices are Client, Lead, Project, Invoice, Payment, Appointment and Custom field. Restrict visible fields to authorized data available in the selected trigger context.
+
+[ ] M28-012  For text fields allow Equals, Does not equal, Contains, Starts with, Is empty and Is not empty. Compare case-insensitively by default with a Case sensitive toggle; preserve stored values.
+
+[ ] M28-013  For numeric and money fields allow Equals, Greater than, At least, Less than and At most. Require compatible currency for monetary comparisons; reject text operands.
+
+[ ] M28-014  For dates allow Before, After, On, Within next and Is empty. Require timezone and units for relative values; show the resulting local-time example.
+
+[ ] M28-015  For tags and multi-select fields allow Has any, Has all and Has none. For boolean fields allow Is true and Is false. Missing data routes to an explicit Not available branch or documented default.
+
+[ ] M28-016  Allow condition groups Match all and Match any. Show True and False branches clearly and prevent accidentally merging both branches into a duplicate side effect.
+
+Waits actions and variable mapping
+
+[ ] M28-017  Wait modes are Duration, Until date and Until event. Duration requires a positive value and Minutes, Hours, Days or Business days. Business days follow M27-018 weekdays in company timezone; holidays are not automatically excluded.
+
+[ ] M28-018  Until date offers Project start, Appointment start, Invoice due and Custom date field, plus Before/After and offset. Show a preview; missing or past dates must have explicit Skip, Run now or Require review handling.
+
+[ ] M28-019  Until event requires event type, matching source record and timeout. Timeout units are Hours or Days with a separate Timeout branch; never leave an invisible permanent wait.
+
+[ ] M28-020  Action choices are Create draft email, Send approved email template, Send SMS template, Create task, Change pipeline stage, Add tag, Remove tag, Create project, Create invoice draft and Request approval.
+
+M28 DETAILED REQUIREMENTS
+
+Visual automation builder continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Waits actions and variable mapping
+
+[ ] M28-021  Do not expose automatic Charge card, Refund payment or Sign agreement as generic actions. Such financial or signature behavior must use its separately authorized workflow and provider controls.
+
+[ ] M28-022  For email/SMS require recipient mapping, approved sender and template. Show a rendered preview and warn about unresolved or missing merge fields before publishing.
+
+[ ] M28-023  Variable picker groups are Client, Project, Document, Invoice, Appointment and Custom fields. Show field type, example value and optional fallback; never allow an arbitrary expression to execute code.
+
+[ ] M28-024  Task action fields are Title, Description, Project, Assignee, Due date and Priority with Low, Normal, High and Urgent. Invoice action creates a draft and cannot silently issue or collect it.
+
+[ ] M28-025  AI draft workflow is optional: require a plain-language request, show generated blocks as an editable draft and run the same validator. Never activate a generated workflow automatically.
+
+Testing publication and acceptance
+
+[ ] M28-026  Test mode selects a synthetic source record and displays planned inputs, branches and outputs without contacting customers. A separate explicitly authorized test-recipient option must be clearly marked.
+
+[ ] M28-027  Before Publish show trigger, affected audience, outbound channels, approval rules and validation result. Publish creates a numbered immutable version and records who activated it.
+
+[ ] M28-028  Version history lists timestamp, author and change summary with Compare and Restore as draft. Restoring does not mutate historical runs or undo external actions.
+
+[ ] M28-029  Build and test a workflow where a qualified lead receives a draft, waits one business day and creates one follow-up task only if no reply exists. Verify both branches and the missing-data branch.
+
+[ ] M28-030  Attempt to publish with a missing recipient, incompatible currency and disconnected block; each must be rejected with a precise field-level error while retaining the draft.
+
+[ ] M28-031  Edit an active workflow during a waiting run; verify that run uses its original version and the next event uses the newly published version.
+

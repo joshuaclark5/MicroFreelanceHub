@@ -1,0 +1,94 @@
+G00 MANDATORY OPERATING RULES
+
+Instructions OpenClaw must follow first
+
+Apply these rules to every checkbox in every module. Reuse verification evidence when it covers several related requirements.
+
+Inspect each requirement before changing code
+
+[ ] G00-001  Before implementing EVERY checkbox, locate the existing screen, route, handler, data model and relevant provider job. Test the stated behavior. Never assume a capability is missing because it was absent from public copy.
+
+[ ] G00-002  If the existing capability satisfies the requirement, record its location and test evidence, mark Existing verified, check the box and immediately move to the next requirement. Do not rebuild, rename or duplicate it.
+
+[ ] G00-003  If the capability is partial, retain working code and records and add only the missing behavior. A working calendar lacking recurrence needs recurrence, not a replacement calendar.
+
+[ ] G00-004  If absent, implement the specified behavior using the established application architecture. Do not create another client database, invoice ledger, permission system or background scheduler when an appropriate one already exists.
+
+[ ] G00-005  Treat equivalent existing labels, layouts and routes as valid when they deliver the stated behavior. Preserve useful extra dropdown options; do not remove them solely to match this proposed default specification.
+
+[ ] G00-006  If blocked by credentials, entitlement, provider approval or an unresolved dependency, leave the box empty, record the precise blocker and continue independent work. A blocker is not evidence of completion.
+
+[ ] G00-007  Inspect mobile behavior, persistence and server permissions before skipping a feature. A visible menu, provider configuration field or mocked demonstration alone does not establish working functionality.
+
+Bind the correct environment and preserve working data
+
+[ ] G00-008  Read repository instructions and identify the repository, active branch, deployed commit, production URL, staging URL, database and provider modes. Resolve a read-only or unbound workspace before making environment-specific changes.
+
+[ ] G00-009  Use an isolated branch and retain the pre-change commit and recoverable backup reference. Preserve unrelated changes, client records, signed agreements, historical invoices and existing subscriptions.
+
+[ ] G00-010  Create synthetic identities for two unrelated businesses, an assigned team member and a client. Verify existing authentication and tenant isolation before connecting new records or exposing client views.
+
+[ ] G00-011  Inventory current provider connections and verify their real capabilities without printing secrets. Distinguish production, sandbox, test-only and unavailable integrations in both implementation and user-facing status.
+
+G00 MANDATORY OPERATING RULES
+
+Instructions OpenClaw must follow first continued
+
+Bind the correct environment and preserve working data
+
+[ ] G00-012  Use additive or otherwise recoverable data changes where practical. Document migrations and recovery, and preserve the accepted version of every signed document instead of modifying historical content.
+
+[ ] G00-013  Use the current product styling, components and route structure when suitable. These labels and options specify intended behavior; they do not authorize an unnecessary redesign or framework replacement.
+
+Maintain one evidence record and resolve dependencies
+
+[ ] G00-014  Create OPENCLAW_PROGRESS.md and a machine-readable feature inventory in the project repository. Give every requirement its stable ID, status, existing location, missing work, dependency, verification result and next action.
+
+[ ] G00-015  Use statuses Unverified, Existing verified, Partial, Missing, Blocked, Deferred, Implemented in staging and Published verified. Check a functional requirement only after its acceptance succeeds in the recorded environment; publication has a separate gate.
+
+[ ] G00-016  Initially leave EVERY box empty. This document does not certify the present application. A later checkmark means verified satisfaction, whether pre-existing or implemented, not merely planned, attempted or deferred.
+
+[ ] G00-017  Scan modules in numerical order. Resolve dependencies using already verified behavior; if one later service blocks a subsection, record it and continue the independent requirements, then return when that dependency becomes available.
+
+[ ] G00-018  Before a context reset or interruption, save the branch, commit, current requirement ID, last verified result and exact next step. Resume that record rather than restarting completed modules or duplicating earlier work.
+
+[ ] G00-019  At 24 and 48 hours report the actual verified and published scope plus remaining blockers. The first release is a bounded checkpoint; elapsed time does not prove full HoneyBook parity or completion of this specification.
+
+Publish small complete improvements and notify Joshua
+
+[ ] G00-020  Continue routine reversible work within existing authorization without asking for repeated blanket permission. Complete concrete local work before reporting an access dependency or requesting a decision that genuinely prevents progress.
+
+[ ] G00-021  Publish the smallest safe complete improvement through the existing authorized release process. Verify the intended version and relevant safe behavior on the live production URL before announcing publication.
+
+G00 MANDATORY OPERATING RULES
+
+Instructions OpenClaw must follow first continued
+
+Publish small complete improvements and notify Joshua
+
+[ ] G00-022  After EVERY individually published feature, fix or visible improvement, immediately send Joshua a separate message through his existing private OpenClaw conversation, preferably its configured Telegram thread.
+
+[ ] G00-023  Include feature and requirement IDs, plain-language benefit, direct live link, where to click, production verification, deployment identifier and time, and the next item. Include small improvements; do not wait for a final or daily summary.
+
+[ ] G00-024  When tightly coupled features deploy together, send a separate message for each published improvement. Do not call an already existing verified feature newly published just because its checkbox was completed.
+
+[ ] G00-025  Continue working after each notification without waiting for Joshua's reply. If delivery fails, retain individual pending messages, retry without duplicates and report the actual communication blocker when possible.
+
+[ ] G00-026  Use only the verified private recipient from the current conversation or trusted configuration. Do not guess chat IDs, send to groups, expose secrets or include private client information in progress messages.
+
+[ ] G00-027  A failed deployment, staging preview or passing local build is not a published feature. Report failures and rollback honestly. Do not charge real clients or send them messages merely to test a release.
+
+Use precise product rules across modules
+
+[ ] G00-028  Reuse the roles Owner, Admin, Manager, Member, Bookkeeper and external Client, or verified equivalents. Enforce access at the server for records, files, exports, automation and AI retrieval.
+
+[ ] G00-029  Keep money, currency, invoice lifecycle, payment progress and bank payout state distinct. Store appropriate minor-unit precision and derive balances from ledger events; a displayed total is not proof of cash received.
+
+[ ] G00-030  Store event instants consistently and preserve the IANA timezone and local recurrence rule for appointment series. Validate daylight-saving transitions and keep visit changes separate from permission to charge.
+
+[ ] G00-031  Show exact loading, empty, failed, disabled and unavailable states. Provider-dependent controls must state real access and support; do not substitute fake connections, fabricated outcomes or placeholder success messages.
+
+[ ] G00-032  Use the feature coverage register to account for all 113 earlier inventory rows. Conditional financial, native-app and partner features remain in scope for evaluation but cannot be fabricated or declared complete without their prerequisites.
+
+[ ] G00-033  Reuse valid evidence across requirements it genuinely covers. Do not rerun identical checks or create tests that merely repeat the implementation; add focused verification for actual remaining risks.
+

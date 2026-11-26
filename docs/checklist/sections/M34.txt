@@ -1,0 +1,94 @@
+M34 DETAILED REQUIREMENTS
+
+Data migration recovery and audit history
+
+P0 core  |  Dependencies: G00 and verified existing foundations
+
+Keep customer records portable recoverable and attributable throughout the expansion.
+
+Inspect before building
+
+[ ] M34-001  Inventory existing exports, import tools, backups, migrations and activity logs. Restore or inspect a permitted test copy before deciding that a new data system is needed.
+
+[ ] M34-002  Record the deployed commit, schema version, backup reference and recovery procedure before material changes. Do not overwrite unrelated work or migrate production to an unverified schema.
+
+Export controls
+
+[ ] M34-003  Settings > Data offers Export data, Import data, Backup and recovery, Audit history and Deletion controls. Gate each action by role and company scope.
+
+[ ] M34-004  Export selection includes Clients, Projects, Tasks, Documents, Invoices, Payments, Time entries and Expenses. Show whether files, signatures and relationship identifiers are included or excluded.
+
+[ ] M34-005  Format choices are CSV per table, JSON dataset and ZIP with available attachments only when implemented. Include a readable manifest with export time, schema version, company and record counts.
+
+[ ] M34-006  Date range choices are All available, Last 30 days, This year and Custom; default All available for migration exports. Explain which date field filters each record type.
+
+[ ] M34-007  Provide Include archived and Include attachments switches with estimated size and access scope. Never include provider secrets, authentication sessions or another company's records.
+
+[ ] M34-008  Export status values are Queued, Preparing, Ready, Failed and Expired. Show progress and a downloadable result only when the file exists; failed jobs expose a diagnostic reference.
+
+[ ] M34-009  Protect downloads with current authorization or expiring links whose expiration is displayed. Link revocation and role changes must prevent unauthorized future download.
+
+[ ] M34-010  Keep stable IDs and foreign keys across tables. Preserve original timezone, currency, decimal precision, document versions and payment-provider references needed for reconciliation.
+
+M34 DETAILED REQUIREMENTS
+
+Data migration recovery and audit history continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Import and migration controls
+
+[ ] M34-011  Import source choices are CSV, Supported backup and Named provider only when a real importer exists. Display exact supported entities and exclusions before upload.
+
+[ ] M34-012  CSV upload shows accepted encoding, delimiter selection Comma, Semicolon or Tab, header-row option and file size limit. Default UTF-8, Comma and Header row enabled.
+
+[ ] M34-013  Mapping screen lists Source column, Target field, Sample value and validation result. Required fields must be mapped; allow Ignore column and Save mapping template.
+
+[ ] M34-014  Duplicate handling choices are Skip matching, Update selected fields and Create separately. Default Skip matching; use stable external IDs or reviewed matching rules, and require explicit review for ambiguous matches and overwrites.
+
+[ ] M34-015  Do not merge people solely by name. Show ambiguous contact matches for review and preserve the ability to link to an existing client deliberately.
+
+[ ] M34-016  Dry-run preview shows rows to create, update, skip and reject with reasons. No records, messages or charges are created during preview.
+
+[ ] M34-017  Require a final reviewed import summary before executing. Assign a batch ID and per-row result; repeated execution with that batch ID must not duplicate completed work.
+
+[ ] M34-018  Imported historical payments remain historical records with provenance. An import must never charge cards, issue new invoices or send old reminders merely because records appeared.
+
+[ ] M34-019  For unsupported attachments, signatures or fields, produce an explicit exceptions file. Never silently discard data while reporting complete migration.
+
+[ ] M34-020  Interrupted imports resume from per-row progress or safely roll back their own uncommitted writes. Reverting an import cannot delete unrelated records created afterward.
+
+Recovery audit and deletion
+
+[ ] M34-021  Backup view records scope, creation time, retention, last successful restore check and storage owner. A backup configuration screen alone does not establish a recoverable backup.
+
+M34 DETAILED REQUIREMENTS
+
+Data migration recovery and audit history continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Recovery audit and deletion
+
+[ ] M34-022  Before a schema change, document forward migration, expected data changes and rollback or forward-repair route. Test on a representative permitted copy and preserve signed document history.
+
+[ ] M34-023  Audit history records actor, company, action, record ID, timestamp, request/correlation ID and relevant before/after changes. Exclude secrets and full payment credentials.
+
+[ ] M34-024  Audit filters are Actor, Entity type, Action and Date range. Entity choices include Client, Project, Document, Invoice, Payment, Appointment, Automation, Integration and Settings.
+
+[ ] M34-025  Protect audit history from ordinary editing. Correcting business data creates another event rather than rewriting the history of the original action.
+
+[ ] M34-026  Archive and delete must be distinct. Archive is reversible visibility management; destructive deletion explains affected related records, retained history and required permission.
+
+[ ] M34-027  Account deletion requires Owner authority, clear data/retention consequences and explicit confirmation. Handle active subscriptions through their actual cancellation workflow without claiming an immediate charge reversal.
+
+Prove completion
+
+[ ] M34-028  Export a seeded account and reconstruct its clients, projects, invoices, payments and time relationships in an isolated test environment. Compare counts, amounts and identifiers.
+
+[ ] M34-029  Import the same CSV twice with Skip matching; verify no duplicates. Repeat a partially failed batch after correcting two rows and verify only those intended changes occur.
+
+[ ] M34-030  Restore the permitted backup and open a signed document, payment record and project attachment. Record actual restoration evidence and unresolved exclusions.
+
+[ ] M34-031  Attempt an export and audit lookup from a second unrelated business. Access must fail server-side, including through previously copied file URLs after revocation.
+

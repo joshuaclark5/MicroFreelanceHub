@@ -1,0 +1,102 @@
+M10 DETAILED REQUIREMENTS
+
+Scope changes and approvals
+
+P0 core  |  Dependencies: M05, M08, M09
+
+Make added or removed work explicit, approved against an exact version and connected to billing without silently changing the original agreement.
+
+Inspect existing scope change behavior
+
+[ ] M10-001  Inspect current change-request records, agreement revisions, approval links and invoice adjustments; determine whether acceptance currently preserves the original scope and whether repeated requests can duplicate billing.
+
+[ ] M10-002  Exercise each requirement below against an existing test change; retain verified equivalent behavior, extend only missing controls and keep changes as clearly labeled drafts when immutable acceptance cannot be established.
+
+Change request creation and fields
+
+[ ] M10-003  Provide Project then Scope changes, with a shortcut from an agreement; show Change number, Title, Requested by, Amount difference, Status, Sent and Decision date.
+
+[ ] M10-004  Provide New change with required Project, Baseline agreement or accepted scope version, and Title of 1–150 characters; reject a baseline belonging to another project or business.
+
+[ ] M10-005  Assign a stable change identifier and incrementing revision; show the exact baseline version and previous accepted changes so the user knows which committed scope is being changed.
+
+[ ] M10-006  Provide required Requested change text up to 4,000 characters and optional Reason; show these to the client and keep any Internal note in a separate private field.
+
+[ ] M10-007  Provide Initiated by options Business and Client request, default Business; when Client request is chosen, select an authorized project contact and preserve the actual creating user's identity.
+
+[ ] M10-008  Provide line Change type options Add item, Remove item and Modify item; Add requires a new line, while Remove or Modify must reference a specific baseline line.
+
+[ ] M10-009  For each new or modified line, require Description, Quantity, Unit and Unit price using M07/M11 rules; show old and proposed values side by side for modifications.
+
+[ ] M10-010  For removed work, show the baseline quantity and amount plus proposed quantity zero; do not erase the original line or silently issue a refund when the client approves removal.
+
+[ ] M10-011  Keep currency identical to the linked agreement or invoice context; reject mixed-currency changes and perform difference calculations with the currency's proper minor-unit precision.
+
+M10 DETAILED REQUIREMENTS
+
+Scope changes and approvals continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Change request creation and fields
+
+[ ] M10-012  Show Original committed subtotal, Previously accepted changes, This change and New committed subtotal; expose tax and discount differences separately and never label a scope total as cash received.
+
+[ ] M10-013  Provide Schedule effect options No schedule change, New completion date and Needs discussion, default No schedule change; require a date for New completion date and explain unresolved discussion before acceptance.
+
+[ ] M10-014  Allow supporting attachments using the existing protected upload path; show filenames and visibility, and include their exact versions in the material presented for approval.
+
+[ ] M10-015  Keep Internal estimate and Internal note hidden from clients and shared PDFs; only authorized users can view labor cost, margin or private discussions about the change.
+
+Review sharing and state controls
+
+[ ] M10-016  Provide Preview change showing the baseline, changed work, price difference, schedule effect and attachments; mark drafts clearly and show both added costs and reductions without hiding their signs.
+
+[ ] M10-017  Provide Save draft, Edit draft, Preview and Share for Draft changes; preserve prior draft revisions and display a visible save failure instead of resetting entered changes.
+
+[ ] M10-018  Select required approvers from intended project contacts or agreement signers; show their names and emails and keep approval authority separate from ordinary portal viewing access.
+
+[ ] M10-019  Before Share, require a complete price basis, explicit schedule effect and at least one approver; unresolved amounts remain Draft and must not appear as a firm payable quote.
+
+[ ] M10-020  Use change states Draft, Sent, Viewed, Accepted, Declined, Withdrawn, Superseded and Expired, derived from valid revision events; display the current revision alongside its state.
+
+[ ] M10-021  Provide the client a review page with Accept change, Decline change and Ask a question; show exactly what acceptance changes and state clearly whether payment will be requested separately.
+
+[ ] M10-022  On Accept change, require explicit confirmation of the reviewed scope and amount; record actor, authority check, time and immutable version evidence before creating downstream work.
+
+[ ] M10-023  On Decline change, offer an optional reason up to 500 characters; retain the proposal, leave committed scope and billing unchanged and show the owner the recorded decision.
+
+M10 DETAILED REQUIREMENTS
+
+Scope changes and approvals continued
+
+Continue the same module. Inspect each requirement before changing code; skip verified existing behavior.
+
+Review sharing and state controls
+
+[ ] M10-024  Offer Withdraw to permitted business users only while acceptance is incomplete; revoke outstanding approval actions and retain the reason and historical content.
+
+[ ] M10-025  Offer Create revised change for Sent or Viewed requests; supersede the previous revision, invalidate its approval link and require review of the new amount and terms.
+
+[ ] M10-026  Prevent acceptance when the baseline has changed through another approved request; show Needs revision, preserve entered content and require rebasing before creating a fresh approval link.
+
+Billing work and audit effects
+
+[ ] M10-027  Link an accepted positive change to one draft invoice adjustment or new draft invoice through M11; show Pending billing connection if unavailable and never automatically charge merely because scope was accepted.
+
+[ ] M10-028  For negative changes, create an explicit credit or refund review through M14 when applicable; show that approval alone does not mean money was refunded and preserve the original payment history.
+
+[ ] M10-029  Offer Create follow-up tasks after acceptance with a preview of titles, assignees and dates; repeat processing must return the same tasks instead of creating duplicates.
+
+[ ] M10-030  Record every sent, viewed, accepted, declined, withdrawn and superseded revision with actor and timestamp; include the downstream invoice or task links and display any processing failures.
+
+[ ] M10-031  Show No scope changes yet, No matching changes, Approval link expired and Unable to save as distinct states; keep client-facing failures free of internal cost or implementation details.
+
+Observable acceptance checks
+
+[ ] M10-032  Test Add, Remove and Modify requests, including decline and withdrawal; verify the original signed agreement remains unchanged and only accepted revisions alter committed scope.
+
+[ ] M10-033  Accept one positive change twice, then simulate a failed invoice link; retain one immutable approval and one billing adjustment, expose the failure and make retry safe.
+
+[ ] M10-034  Approve two competing changes from the same baseline and test an unauthorized recipient; require conflict resolution for the stale revision and reject approval without the intended participant's authority.
+
