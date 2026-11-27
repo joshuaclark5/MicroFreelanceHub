@@ -1,4 +1,4 @@
-﻿const fs=require('fs'),assert=require('assert/strict'),{chromium}=require('C:/Users/joshu/AppData/Roaming/npm/node_modules/openclaw/node_modules/playwright-core');
+const fs=require('fs'),assert=require('assert/strict'),{chromium}=require('C:/Users/joshu/AppData/Roaming/npm/node_modules/openclaw/node_modules/playwright-core');
 const base=process.env.QA_BASE_URL,host=process.env.QA_SUPABASE_HOST;
 if(!base||!host||!process.env.QA_RECEIPT)throw Error('Explicit test target required');
 const checks=[];
@@ -13,7 +13,7 @@ for(const width of [360,390,1440]){
  await page.getByRole('heading',{name:'Preference controls are not available yet',exact:true}).waitFor();
  assert.equal(await page.locator('main input,main select,main form').count(),0);
  assert.equal(await page.locator('meta[name=robots]').getAttribute('content'),'noindex, nofollow');
- assert.equal(await page.locator('main [aria-current=page]').innerText(),'Notification preferences');
+ assert.equal(await page.getByRole('navigation',{name:'Breadcrumb',exact:true}).locator('[aria-current=page]').innerText(),'Notification preferences');
  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  const summary=page.locator('.mfh-account-menu summary:visible').first();await summary.focus();await page.keyboard.press('Enter');
  const menu=summary.locator('..');assert.equal(await menu.getByRole('link',{name:'Notification preferences',exact:true}).getAttribute('href'),'/settings/notifications');
