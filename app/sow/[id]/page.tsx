@@ -262,10 +262,11 @@ export default function ViewContract({ params }: { params: { id: string } }) {
         </article>
       </section>}
       {/* 🖨️ HEADER */}
+      <nav aria-label="Breadcrumb" className="max-w-3xl mx-auto mb-4 text-sm print:hidden"><ol className="flex flex-wrap gap-2"><li><Link href={isOwner ? '/workspace' : '/'}>{isOwner ? 'Overview' : 'Home'}</Link></li>{isOwner && <li><span aria-hidden="true"> / </span><Link href="/dashboard">Agreements</Link></li>}<li><span aria-hidden="true"> / </span><span aria-current="page">{changeReference ? 'Change order' : 'Agreement'}</span></li></ol></nav>
       <div className="max-w-3xl mx-auto mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 print:hidden relative">
         <div className="w-full sm:w-auto flex justify-between sm:justify-start items-center gap-4">
-            <Link href="/dashboard" className="text-gray-500 hover:text-black font-semibold text-sm flex items-center gap-1">
-            <ArrowLeft className="w-4 h-4" /> Back
+            <Link href={isOwner ? "/dashboard" : "/"} className="text-gray-500 hover:text-black font-semibold text-sm flex items-center gap-1">
+            <ArrowLeft className="w-4 h-4" /> {isOwner ? 'Back to agreements' : 'Home'}
             </Link>
 
             {/* VISIBLE SHARE BUTTON */}
