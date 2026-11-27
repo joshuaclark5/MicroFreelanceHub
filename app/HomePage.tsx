@@ -45,12 +45,6 @@ export default function HomePage() {
     checkUser();
   }, [supabase]);
 
-  const signOut = async () => {
-    const { error } = await supabase.auth.signOut({scope:'local'});
-    if (error) { window.alert('Could not sign out. Please try again.'); return; }
-    setUser(null);
-  };
-
   return (
     <div className="d4-home min-h-screen bg-white text-gray-900 font-sans selection:bg-emerald-100 [&_*]:tracking-normal">
 
@@ -73,28 +67,8 @@ export default function HomePage() {
             <Link href="/templates" className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">
               Templates
             </Link>
-            {user ? (
-              <Link
-                href="/workspace"
-                className="bg-slate-900 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-slate-800 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
-              >
-                My workspace <ArrowRight className="w-4 h-4" />
-              </Link>
-            ) : (
-              <>
-                <Link href="/login?mode=signin" className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">
-                  Log in
-                </Link>
-                <Link
-                  href="/login?mode=signup&next=/workspace/setup"
-                  className="bg-blue-600 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg"
-                >
-                  Create an account
-                </Link>
-              </>
-            )}
-            {user && <button type="button" className="text-sm font-semibold min-h-11" onClick={signOut}>Log out</button>}
-            {user && <details className="relative"><summary className="cursor-pointer text-sm font-semibold">Account</summary><div className="absolute right-0 top-8 w-48 rounded-lg border border-slate-200 bg-white p-3 shadow-sm"><Link href="/settings" className="block py-2 text-sm">Settings &amp; billing</Link><button type="button" className="py-2 text-sm" onClick={signOut}>Sign out</button></div></details>}
+            {user && <Link href="/workspace" className="bg-slate-900 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-slate-800 flex items-center gap-2">My workspace <ArrowRight className="w-4 h-4" /></Link>}
+            <AccountControl/>
           </div>
           <button
             type="button"
@@ -121,7 +95,7 @@ export default function HomePage() {
                 Templates
               </Link>
               {user ? (
-                <div className="grid gap-3"><Link href="/workspace" className="d4-primary">My workspace</Link><Link href="/settings" className="d4-secondary">Account &amp; billing</Link><button type="button" className="d4-secondary" onClick={signOut}>Sign out</button></div>
+                <Link href="/workspace" className="d4-primary">My workspace</Link>
               ) : (
                 <div className="grid grid-cols-2 gap-3 pt-1">
                   <Link href="/login?mode=signin" className="rounded-lg border border-slate-200 px-3 py-2 text-center text-sm font-bold text-slate-700">
