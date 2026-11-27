@@ -7,3 +7,5 @@
 
 .suite-account-context{background:#123e35;color:#f4f8ee;border-radius:16px;padding:24px;margin:20px 0}.suite-account-context a{color:#d5eddf}.suite-account-context h2{font-size:28px;margin:12px 0}.suite-account-context .suite-actions{margin-top:16px;gap:20px}.suite-account-actions{display:flex;flex-wrap:wrap;gap:16px;margin:12px 0}.timeline-filters{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) auto;gap:12px;align-items:end;margin-top:20px}@media(max-width:600px){.timeline-filters{grid-template-columns:1fr}.suite-account-context{padding:18px}}
 .suite-export-note{font-size:13px;line-height:1.6;color:#415c4e;max-width:72ch;margin:12px 0}
+
+.suite-breadcrumb ol{display:flex;flex-wrap:wrap;gap:.4rem .65rem;list-style:none;padding:0;margin:0 0 1rem;font-size:.875rem}.suite-breadcrumb li{min-width:0;overflow-wrap:anywhere}.suite-breadcrumb li+li::before{content:"/";margin-right:.65rem;color:#64748b}.suite-breadcrumb [aria-current="page"]{font-weight:600}

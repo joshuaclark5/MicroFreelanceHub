@@ -43,6 +43,13 @@ export default function Workspace({section}:{section:Entity}) {
  useEffect(()=>{if(selectedTask&&!form)taskHeading.current?.focus();},[taskAddress,taskId,selectedTask?.id,taskReady]);
  const clientFilter=taskAddress?'':searchParams.get('client')||'';
  const focusedClient=data.clients.find(c=>c.id===clientFilter);
+ const recordContext=taskAddress||!!clientFilter||!!projectFilter;
+ const breadcrumbReady=loaded&&!loading&&!authExpired&&!signedOut&&!error;
+ const contextProject=breadcrumbReady?data.projects.find(p=>p.id===projectFilter):undefined;
+ const breadcrumbLabel=!breadcrumbReady?(loading?'Loading record...':'Record unavailable'):
+  taskAddress?(selectedTask?.title||'Task unavailable'):
+  clientFilter?(focusedClient?((section==='clients'?'':titles[section]+' for ')+focusedClient.name):'Customer unavailable'):
+  contextProject?((section==='projects'?'':titles[section]+' for ')+contextProject.name):'Project unavailable';
  const [deleteId,setDeleteId]=useState('');
  const firstField=useRef<HTMLInputElement|null>(null),heading=useRef<HTMLHeadingElement|null>(null);
  const formElement=useRef<HTMLFormElement|null>(null);
@@ -101,6 +108,7 @@ export default function Workspace({section}:{section:Entity}) {
  const prerequisiteLinks:Record<string,{href:string;label:string}>={client_id:{href:'/workspace/clients',label:'Add a client'},stage_id:{href:'/workspace/stages',label:'Add a pipeline stage'},project_id:{href:'/workspace/projects',label:'Add a project'},agreement_id:{href:'/create',label:'Create an agreement'}};
  return <div className="d4-app-shell suite-shell"><WorkspaceNav active={section==='tasks'?'tasks':'workspace'}/><div className="suite-main">
   {section==='agreements' && data.projects.some(p=>p.id===projectFilter) && <Link href={'/create?project='+projectFilter}>New agreement for this project</Link>}
+  <nav aria-label="Breadcrumb" className="suite-breadcrumb"><ol><li><Link href="/workspace">Overview</Link></li><li>{recordContext?<Link href={'/workspace/'+section}>{titles[section]}</Link>:<span aria-current="page">{titles[section]}</span>}</li>{recordContext&&<li><span aria-current="page">{breadcrumbLabel}</span></li>}</ol></nav>
   <header className="suite-header"><p className="suite-eyebrow">CONNECTED WORKSPACE</p><h1 ref={heading} tabIndex={-1}>{titles[section]}</h1><p>Keep client context, project progress and the next action together.</p><Link href="/dashboard">Open agreements →</Link></header>
   {clientFilter&&<section className="suite-account-context"><Link href="/workspace/clients">All customers</Link><h2>{focusedClient?focusedClient.name:loading?'Loading customer...':'Customer unavailable'}</h2>{focusedClient&&<><p>Customer workspace: review the conversation, then move the work forward.</p><div className="suite-actions"><Link href={'/workspace/clients?client='+clientFilter}>Communication history</Link><Link href={'/workspace/projects?client='+clientFilter}>Customer projects</Link></div></>}</section>}
   <nav className="suite-tabs" aria-label="Connected workspace">{entities.map(e=><Link key={e} href={'/workspace/'+e} aria-current={e===section?'page':undefined}>{titles[e]}</Link>)}<Link href="/workspace/time">Time</Link><Link href="/workspace/scheduling">Scheduling</Link><Link href="/workspace/invoices">Invoices</Link></nav>
