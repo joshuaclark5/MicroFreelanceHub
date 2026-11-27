@@ -1,7 +1,8 @@
 const fs=require('node:fs'),assert=require('node:assert/strict');
 const {chromium}=require('C:/Users/joshu/AppData/Roaming/npm/node_modules/openclaw/node_modules/playwright-core');
 const base=process.env.QA_BASE_URL||'http://127.0.0.1:3099';
-const host='mfh-local-fixture.invalid',actor='00000000-0000-4000-8000-000000000001';
+const host=process.env.QA_SUPABASE_HOST||'mfh-local-fixture.invalid',actor='00000000-0000-4000-8000-000000000001';
+if(new URL(base).hostname!=='127.0.0.1'&&!process.env.QA_SUPABASE_HOST)throw Error('Confirm the preview Supabase host and set QA_SUPABASE_HOST before running hosted fixtures.');
 const results=[];
 (async()=>{const browser=await chromium.launch({channel:'msedge',headless:true});try{
  for(const width of [390,1440]){
@@ -35,11 +36,11 @@ const results=[];
   assert.equal(await field.getAttribute('maxlength'),'120');
   const name='N'.repeat(120);await field.fill(name);
   await page.getByRole('button',{name:'Continue',exact:true}).click();
-  await page.getByRole('button',{name:'Save my workspace',exact:true}).click();
+  await page.getByRole('button',{name:'Save and continue',exact:true}).click();
   await page.getByRole('alert').filter({hasText:'Synthetic save failure'}).waitFor();
   await page.getByRole('button',{name:'Back',exact:true}).click();assert.equal(await field.inputValue(),name);
   fail=false;await page.getByRole('button',{name:'Continue',exact:true}).click();
-  await page.getByRole('button',{name:'Save my workspace',exact:true}).click();
+  await page.getByRole('button',{name:'Save and continue',exact:true}).click();
   await page.getByText('SETUP SAVED',{exact:false}).waitFor();assert.equal(preferences.business,name);
   await page.goto(base+'/workspace/setup?edit=1');await field.waitFor();assert.equal(await field.inputValue(),name);
   await page.goto(base+'/settings');await page.waitForFunction(value=>document.querySelector('#settings-company-name')?.value===value,name);
