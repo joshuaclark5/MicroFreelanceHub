@@ -1,0 +1,9 @@
+const assert=require('assert/strict'),fs=require('fs'),vm=require('vm'),ts=require('typescript'),cp=require('child_process');
+const exp={};vm.runInNewContext(ts.transpileModule(fs.readFileSync('app/lib/overviewTasks.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports:exp,Date});
+if(process.argv.includes('--zone')){process.stdout.write(exp.browserCalendarDate(new Date('2026-03-08T07:30:00Z')));process.exit(0);}
+for(const [zone,day] of [['UTC','2026-03-08'],['America/Los_Angeles','2026-03-07'],['Asia/Tokyo','2026-03-08']]){const r=cp.spawnSync(process.execPath,[__filename,'--zone'],{env:{...process.env,TZ:zone},encoding:'utf8'});assert.equal(r.status,0);assert.equal(r.stdout,day);}
+for(const value of ['2026-02-29','2026-02-30','2026-13-01','2026-00-01','2026-1-1','invalid','2026-03-08T00:00:00Z'])assert.equal(exp.validTaskDate(value),false);
+assert(exp.validTaskDate('2024-02-29'));
+assert.equal(exp.taskUrgency('2026-03-07','2026-03-08'),'Overdue');assert.equal(exp.taskUrgency('2026-03-08','2026-03-08'),'Due today');assert.equal(exp.taskUrgency('2026-03-09','2026-03-08'),'Upcoming');assert.equal(exp.taskUrgency('2026-03-08',null),'Due');assert.equal(exp.taskUrgency('invalid','2026-03-08'),'Due date unavailable');assert.equal(exp.taskUrgency(undefined,'2026-03-08'),'No due date');
+const input=[{id:'z',status:'open'},{id:'b',status:'open',due_date:'2026-03-08'},{id:'a',status:'open',due_date:'2026-03-08'},{id:'d',status:'done',due_date:'2020-01-01'},{id:'old',status:'open',due_date:'2026-03-07'}];const original=JSON.stringify(input);assert.deepEqual(Array.from(exp.openTasks(input),x=>x.id),['old','a','b','z']);assert.equal(JSON.stringify(input),original);
+console.log('PASS task date validity, overdue/today/upcoming, deterministic open-only ordering, unchanged inputs and UTC/Los Angeles DST-day/Tokyo calendar dates');
