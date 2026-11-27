@@ -1,10 +1,10 @@
 'use client';
 
 import {BrandMark} from '../components/Brand';
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   MoreVertical, Edit2, Copy, Trash2, CheckSquare, LogOut, Plus,
   Gem, ArrowUpRight, FileText, ExternalLink,
@@ -56,6 +56,9 @@ function UpgradeButton({ onClick }: { onClick: () => void }) {
 }
 
 export default function Dashboard() {
+  return <Suspense fallback={<main className="p-6"><h1>Agreements</h1><p role="status">Loading your agreements...</p></main>}><DashboardContent /></Suspense>;
+}
+function DashboardContent() {
   const [detailId, setDetailId] = useState<string | null>(null);
   const initialLoadRunning = useRef(false);
   const [sows, setSows] = useState<any[]>([]);
@@ -69,10 +72,22 @@ export default function Dashboard() {
   // Selection & Filtering
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [clientFilter, setClientFilter] = useState('');
-  const [groupByClient, setGroupByClient] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'ALL' | 'DRAFT' | 'SIGNED' | 'PAID'>('ALL');
+  const listParams = useSearchParams();
+  const clientFilter = listParams.get('client') || '';
+  const groupByClient = listParams.get('group') === 'client';
+  const searchQuery = listParams.get('q') || '';
+  const rawStatus = listParams.get('status');
+  const statusFilter = rawStatus === 'DRAFT' || rawStatus === 'SIGNED' || rawStatus === 'PAID' ? rawStatus : 'ALL';
+  // Replace the current list entry, preserving Back without caching private records.
+  function updateListQuery(key: string, value: string) {
+    const url = new URL(window.location.href);
+    if (value) url.searchParams.set(key, value); else url.searchParams.delete(key);
+    window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+  }
+  const setClientFilter = (value: string) => updateListQuery('client', value);
+  const setSearchQuery = (value: string) => updateListQuery('q', value);
+  const setStatusFilter = (value: string) => updateListQuery('status', ['DRAFT', 'SIGNED', 'PAID'].includes(value) ? value : '');
+  const setGroupByClient = (value: boolean) => updateListQuery('group', value ? 'client' : '');
 
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
@@ -469,7 +484,7 @@ export default function Dashboard() {
             <ConnectedAgreementGroups />
             {sows.length > 0 && <section className="rounded-lg border border-gray-200 bg-white p-4" aria-label="Client project overview">
               <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-end gap-4"><div className="min-w-0 w-full sm:w-auto sm:flex-1"><label htmlFor="client-project-filter" className="block text-sm font-semibold text-slate-900">Legacy agreement names</label><select id="client-project-filter" value={clientFilter} onChange={event => { setClientFilter(event.target.value); setSelectedIds([]); }} className="mt-2 min-h-11 w-full max-w-full rounded-lg border border-gray-300 bg-white px-3 text-sm"><option value="">All recorded names ({clientNames.length})</option>{clientNames.map(name => <option key={name} value={name}>{name}</option>)}</select></div>
-              <button type="button" aria-pressed={groupByClient} onClick={() => setGroupByClient(value => !value)} className="d4-secondary">{groupByClient ? 'Show newest first' : 'Group by client'}</button></div>
+              <button type="button" aria-pressed={groupByClient} onClick={() => setGroupByClient(!groupByClient)} className="d4-secondary">{groupByClient ? 'Show newest first' : 'Group by client'}</button></div>
               <p className="mt-3 text-xs leading-5 text-slate-600">Legacy groups use recorded agreement names, not verified client identities. Connected client projects above use explicitly saved relationships. Matching names may refer to different people.</p>
               <p role="status" className="mt-2 text-sm text-slate-700">{filteredSows.length} of {sows.length} agreements shown</p>
             </section>}
