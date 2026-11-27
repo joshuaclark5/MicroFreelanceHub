@@ -492,6 +492,7 @@ function EditProjectContent() {
       <div className="absolute inset-0 h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-0"></div>
 
       {renderHeader()}
+      <nav aria-label="Breadcrumb" className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-sm"><ol className="flex flex-wrap gap-2"><li><Link href="/workspace">Overview</Link></li><li><span aria-hidden="true"> / </span><Link href="/dashboard">Agreements</Link></li><li><span aria-hidden="true"> / </span><span aria-current="page">{hasSignatures ? 'Prepare change order' : 'Edit agreement'}</span></li></ol></nav>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         
