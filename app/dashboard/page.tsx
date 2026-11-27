@@ -1,7 +1,7 @@
 'use client';
 
 import {BrandMark} from '../components/Brand';
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -56,6 +56,9 @@ function UpgradeButton({ onClick }: { onClick: () => void }) {
 }
 
 export default function Dashboard() {
+  return <Suspense fallback={<main className="p-6"><h1>Agreements</h1><p role="status">Loading your agreements...</p></main>}><DashboardContent /></Suspense>;
+}
+function DashboardContent() {
   const [detailId, setDetailId] = useState<string | null>(null);
   const initialLoadRunning = useRef(false);
   const [sows, setSows] = useState<any[]>([]);
