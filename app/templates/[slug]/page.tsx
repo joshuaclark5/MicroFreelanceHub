@@ -252,6 +252,15 @@ export default async function TemplatePage({ params }: { params: { slug: string 
         <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold"><Brand/></Link>
         <div className="flex flex-wrap items-center gap-4 text-sm"><Link href="/templates">Templates</Link><Link href="/pricing">Pricing</Link><a href="mailto:admin@microfreelancehub.com">Help</a><Link href="/login?mode=signin">Sign in</Link></div>
       </nav>
+      <nav aria-label="Breadcrumb" className="border-b border-slate-200 bg-white px-5 py-3 text-sm text-slate-600">
+        <ol className="mx-auto flex max-w-6xl flex-wrap items-center gap-2">
+          <li><Link href="/" className="rounded underline hover:text-slate-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4">Home</Link></li>
+          <li aria-hidden="true">/</li>
+          <li><Link href="/templates" className="rounded underline hover:text-slate-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4">Templates</Link></li>
+          <li aria-hidden="true">/</li>
+          <li><span aria-current="page" className="font-semibold text-slate-900">Template details</span></li>
+        </ol>
+      </nav>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       {!isReference && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd) }} />}
 
