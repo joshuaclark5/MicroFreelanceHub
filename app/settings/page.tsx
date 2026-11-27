@@ -455,20 +455,19 @@ export default function SettingsPage() {
                 {/* Header */}
                 <div>
                   <h2 className="text-2xl font-bold text-slate-900">Team Management</h2>
-                  <p className="text-slate-500 text-sm mt-1">Current availability of team features.</p>
+                  <p className="text-slate-500 text-sm mt-1">Manage shared planning separately from your private workspace.</p>
                 </div>
 
                 <div className="bg-white rounded-2xl p-6 sm:p-8 border border-gray-100 shadow-sm">
-                  <span className="d4-status">Planned feature</span>
-                  <h3 className="text-xl font-bold text-slate-900 mt-4">Team collaboration is not available yet.</h3>
+                  <h3 className="text-xl font-bold text-slate-900 mt-4">Team &amp; access</h3>
                   <p className="text-slate-600 text-sm mt-3 leading-relaxed">
-                    Team invitations, shared workspaces and member permissions are not currently available. Changing your subscription does not enable them.
+                    Open Team &amp; access to view your teams, create a separate planning team or accept an invitation. Available actions depend on your signed-in account and team role.
                   </p>
                   <p className="text-slate-600 text-sm mt-3 leading-relaxed">
-                    Waitlist signup is unavailable. This page does not collect your email or register you for updates. No release date is confirmed.
+                    Shared team planning is separate from your solo clients, agreements, invoices, billing and time records. Opening the page does not invite anyone, share records or change your subscription.
                   </p>
-                  <a className="d4-secondary mt-6" href="mailto:admin@microfreelancehub.com?subject=Team%20availability">Ask about team availability</a>
-                  <p className="text-slate-500 text-xs mt-3 leading-relaxed">Opens your email app. Sending a question does not enroll you in a waitlist or change your plan.</p>
+                  <Link className="d4-secondary mt-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2" href="/workspace/team">Open Team &amp; access</Link>
+                  <p className="text-slate-500 text-xs mt-3 leading-relaxed">If team access cannot be loaded, review the message on that page and retry. No team changes are made by this link.</p>
                 </div>
 
               </div>
