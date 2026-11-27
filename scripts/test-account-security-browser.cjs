@@ -1,6 +1,6 @@
 const fs=require('fs'),assert=require('assert/strict'),{chromium}=require('C:/Users/joshu/AppData/Roaming/npm/node_modules/openclaw/node_modules/playwright-core');
 const base=process.env.QA_BASE_URL,host=process.env.QA_SUPABASE_HOST;if(!base||!host)throw Error('Verified origin and host required');const checks=[];
-(async()=>{const b=await chromium.launch({channel:'msedge',headless:true});try{for(const width of [390,1440])for(const scenario of ['retry','identity-change','anonymous']){
+(async()=>{const b=await chromium.launch({channel:'msedge',headless:true});try{for(const width of JSON.parse(process.env.QA_WIDTHS||'[360,390,1440]'))for(const scenario of ['retry','identity-change','anonymous']){
  const c=await b.newContext({viewport:{width,height:950}}),p=await c.newPage();const owner={id:'aaaaaaaa-aaaa-4aaa-8aaa-000000000001',email:'security-fixture@example.test',aud:'authenticated',role:'authenticated'};let current=owner,requests=0,fail=true,unexpectedWrites=0;
  if(scenario!=='anonymous')await c.addCookies([{name:'sb-'+host.split('.')[0]+'-auth-token',value:encodeURIComponent(JSON.stringify({access_token:'fixture-token',refresh_token:'fixture-refresh',expires_at:Math.floor(Date.now()/1000)+3600,user:owner,token_type:'bearer'})),url:base}]);
  await c.route('**/*',async r=>{const q=r.request(),u=new URL(q.url());if(u.hostname===host&&u.pathname==='/auth/v1/user')return r.fulfill({status:scenario==='anonymous'?401:200,json:scenario==='anonymous'?{message:'Signed out'}:current});
