@@ -22,7 +22,7 @@ async function handle(request:Request, entity:string) {
    return reply({code:'account_changed',error:'The signed-in account changed. Return to the original account; this draft has not been sent.'},409);
   if(entity==='session')return request.method==='GET'?reply({ownerId:user.id}):reply({error:'Not found.'},404);
   if(entity==='available-agreements'&&request.method!=='GET')return reply({error:'Not found.'},404);
-  const columns=entity==='available-agreements'?'id,title,client_name':['id',...fields[entity],'created_at','updated_at','version'].join(',');
+  const columns=entity==='available-agreements'?'id,title,client_name,status,created_at':['id',...fields[entity],'created_at','updated_at','version'].join(',');
   const table=entity==='available-agreements'?'sow_documents':'workspace_'+entity;
   const url=new URL(request.url);
   if(request.method==='GET') {
