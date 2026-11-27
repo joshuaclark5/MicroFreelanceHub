@@ -1,6 +1,8 @@
 'use client';
 import {useCallback,useEffect,useRef,useState} from 'react';
 import Link from 'next/link';
+import {useSearchParams} from 'next/navigation';
+import {timeListState,listQueryUrl} from '../../lib/workspaceListState';
 import {currencies,money,TimeEntry,TimeProject,timeTotals} from '../../lib/workspaceTime';
 import './time.css';
 import '../workspace-editorial.css';
@@ -13,7 +15,11 @@ const duration=formatDuration;
 export default function TimeWorkspace(){
  const [data,setData]=useState<Data|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState(''),[notice,setNotice]=useState(''),[busy,setBusy]=useState(false);
  const [draft,setDraft]=useState<Draft>(()=>({...blank(),startedAt:''})),[editing,setEditing]=useState<TimeEntry|null>(null),[mode,setMode]=useState('manual');
- const [from,setFrom]=useState(''),[days,setDays]=useState('7'),[project,setProject]=useState(''),[billable,setBillable]=useState(''),[timezone,setTimezone]=useState('Detecting timezone'),[ready,setReady]=useState(false);
+ const [fallbackDate,setFallbackDate]=useState(''),[timezone,setTimezone]=useState('Detecting timezone'),[ready,setReady]=useState(false);
+ const query=useSearchParams();
+ const {from,days,project,billable}=timeListState(new URLSearchParams(query.toString()),fallbackDate);
+ function setControl(key:string,value:string){window.history.replaceState(null,'',listQueryUrl(window.location.href,{[key]:value}));}
+ const setFrom=(value:string)=>setControl('from',value),setDays=(value:string)=>setControl('days',value),setProject=(value:string)=>setControl('projectId',value),setBillable=(value:string)=>setControl('billable',value);
  const actor=useRef<string|null>(null),pending=useRef<Record<string,unknown>|null>(null),[uncertain,setUncertain]=useState(false),[accountChanged,setAccountChanged]=useState(false);
  const anchor=useRef({server:0,mono:0}),[elapsed,setElapsed]=useState(0),sequence=useRef(0);
  const load=useCallback(async()=>{
@@ -26,7 +32,7 @@ export default function TimeWorkspace(){
  }catch(e){if(seq===sequence.current){setData(null);setError((e as Error).message);}}finally{if(seq===sequence.current)setLoading(false);}
  },[from,days,project,billable]);
  // Keep SSR and the first browser render identical across timezones and midnight.
- useEffect(()=>{setDraft(blank());setFrom(new Date().toISOString().slice(0,10));setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);setReady(true);},[]);
+ useEffect(()=>{setDraft(blank());setFallbackDate(new Date().toISOString().slice(0,10));setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);setReady(true);},[]);
  useEffect(()=>{if(ready)void load();},[ready,load]);
  useEffect(()=>{const tick=()=>{if(data?.running)setElapsed(Math.max(0,Math.floor((anchor.current.server+performance.now()-anchor.current.mono-Date.parse(data.running.started_at))/1000)));};tick();const id=setInterval(tick,1000);return()=>clearInterval(id);},[data]);
  function change(key:keyof Draft,value:string|boolean){setDraft(d=>({...d,[key]:value}));}
