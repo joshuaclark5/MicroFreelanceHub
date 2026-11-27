@@ -14,7 +14,7 @@ const titles:Record<Entity,string>={clients:'Clients',projects:'Projects',stages
 const labels:Record<string,string>={name:'Name',phone:'Phone (optional)',email:'Email (optional)',notes:'Notes (optional)',position:'Stage order',client_id:'Client',stage_id:'Pipeline stage',status:'Status',title:'Task title',project_id:'Project',agreement_id:'Agreement',due_date:'Due date (optional)'};
 export default function Workspace({section}:{section:Entity}) {
  const [data,setData]=useState<Data>(empty),[loading,setLoading]=useState(true),[error,setError]=useState(''),[notice,setNotice]=useState(''),[signedOut,setSignedOut]=useState(false),[limited,setLimited]=useState(false);
- const [editing,setEditing]=useState<Row|null>(null),[form,setForm]=useState<Record<string,any>|null>(null),[busy,setBusy]=useState(false),[search,setSearch]=useState(''),[projectFilter,setProjectFilter]=useState('');
+ const [editing,setEditing]=useState<Row|null>(null),[form,setForm]=useState<Record<string,any>|null>(null),[busy,setBusy]=useState(false);
  const [loaded,setLoaded]=useState(false),[exporting,setExporting]=useState(false);
  const owner=useRef<string|null>(null),loadGeneration=useRef(0);
  // Filtering removes cards; keep exact note retry identity in the owner/client-scoped workspace.
@@ -22,6 +22,18 @@ export default function Workspace({section}:{section:Entity}) {
  const [conflict,setConflict]=useState(false),[reconciled,setReconciled]=useState(false);
  const [uncertain,setUncertain]=useState(false),[authExpired,setAuthExpired]=useState(false);
  const searchParams=useSearchParams();
+ // Keep list controls in the current history entry so record navigation and Back
+ // restore the same view. No browser storage or private record cache is added.
+ const search=searchParams.get('q')||'',projectFilter=searchParams.get('project')||'';
+ const view=searchParams.get('view')==='pipeline'?'pipeline':'list';
+ function updateListQuery(key:string,value:string){
+  const url=new URL(window.location.href);
+  if(value)url.searchParams.set(key,value);else url.searchParams.delete(key);
+  window.history.replaceState(null,'',url.pathname+url.search+url.hash);
+ }
+ const setSearch=(value:string)=>updateListQuery('q',value);
+ const setProjectFilter=(value:string)=>updateListQuery('project',value);
+ const setView=(value:'list'|'pipeline')=>updateListQuery('view',value==='pipeline'?value:'');
  // A task address is a record view, not a list filter. Never fall back to other tasks.
  const taskAddress=section==='tasks'&&searchParams.has('task');
  const taskId=taskAddress&&searchParams.getAll('task').length===1?searchParams.get('task')||'':'';
@@ -31,7 +43,6 @@ export default function Workspace({section}:{section:Entity}) {
  useEffect(()=>{if(selectedTask&&!form)taskHeading.current?.focus();},[taskAddress,taskId,selectedTask?.id,taskReady]);
  const clientFilter=taskAddress?'':searchParams.get('client')||'';
  const focusedClient=data.clients.find(c=>c.id===clientFilter);
- const [view,setView]=useState<'list'|'pipeline'>('list');
  const [deleteId,setDeleteId]=useState('');
  const firstField=useRef<HTMLInputElement|null>(null),heading=useRef<HTMLHeadingElement|null>(null);
  const formElement=useRef<HTMLFormElement|null>(null);
@@ -64,7 +75,6 @@ export default function Workspace({section}:{section:Entity}) {
   const next={...empty};for(const [e,b]of results)next[e as keyof Data]=b.records;setData(next);setLimited(results.some(([,b])=>!b.complete));setSignedOut(false);setLoaded(true);setReconciled(true);
  }catch(e){if(generation===loadGeneration.current){setError((e as Error).message);if(!owner.current&&((e as Error).message.includes('Sign in')||(e as Error).message.includes('Sign-in')))setSignedOut(true);}}finally{if(generation===loadGeneration.current)setLoading(false);}}
  useEffect(()=>{load();},[]);
- useEffect(()=>{setProjectFilter(searchParams.get('project')||'');},[searchParams]);
  useEffect(()=>{if(form)(formElement.current?.querySelector('input,select,textarea') as HTMLElement|null)?.focus();},[!!form]);
  function start(row?:Row){setConflict(false);setUncertain(false);setAuthExpired(false);setNotice('');setError('');setDeleteId('');setEditing(row||null);const initial:Record<string,any>={};for(const f of fields[section])initial[f]=row?.[f]??(f==='position'?0:f==='status'?(section==='projects'?'active':'open'):'');if(!row && data.projects.some(p=>p.id===projectFilter))initial.project_id=projectFilter;
  if(!row && section==='agreements' && data['available-agreements'].some(a=>a.id===searchParams.get('agreement')))initial.agreement_id=searchParams.get('agreement');
