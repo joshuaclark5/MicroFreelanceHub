@@ -281,7 +281,7 @@ for(const entity of ['clients','projects','tasks'])test(entity+' optional empty 
 for(const n of [0,1,1000,1001])test('available-agreements exact own projection and truncation '+n,async()=>{
   const f=fixture({data:Array.from({length:n},()=>({id,title:'Agreement',client_name:'Client'}))});
   const r=await f.invoke('GET','available-agreements');assert.equal(r.status,200);
-  assert.deepEqual(trace(f),[['from','sow_documents'],['select','id,title,client_name',{count:'exact'}],['eq','user_id',owner],['order','id',{ascending:true}],['limit',200]]);
+  assert.deepEqual(trace(f),[['from','sow_documents'],['select','id,title,client_name,status,created_at',{count:'exact'}],['eq','user_id',owner],['order','id',{ascending:true}],['limit',200]]);
   assert.equal(r.body.records.length,Math.min(n,200));assert.equal(r.body.truncated,n>200);
 });
 for(const method of ['POST','PATCH','DELETE'])test('available-agreements read only '+method,async()=>{
