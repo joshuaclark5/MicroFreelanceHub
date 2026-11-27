@@ -4,3 +4,5 @@
 .mfh-account-menu nav{display:flex;flex-direction:column;gap:8px;padding:10px 0;min-width:130px}
 .mfh-account-menu nav a,.mfh-account-menu nav button{min-height:44px;padding:10px 12px;text-align:left;border-radius:8px}
 .mfh-account-menu:not([open])>nav{display:none}
+/* Public desktop headers have a fixed height: keep the open list below its trigger. */
+@media(min-width:1024px){.d4-home>nav .mfh-account-menu>nav,.mfh-public-nav .mfh-account-menu>nav{position:absolute;top:calc(100% + 8px);right:0;z-index:60;min-width:180px;padding:10px;background:#fff;color:#123e35;border:1px solid #cad6ca;border-radius:10px;box-shadow:0 8px 24px #123e3526}}
