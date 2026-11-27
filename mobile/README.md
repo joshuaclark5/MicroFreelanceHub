@@ -1,3 +1,37 @@
+# Current distribution status
+
+Android 0.1.6/code 7 is published as an early direct-download prerelease, not on Google Play: https://github.com/joshuaclark5/MicroFreelanceHub/releases/tag/android-v0.1.6-test.1
+
+The current source is a local 0.1.7/code 8 Play companion candidate. `EXPO_PUBLIC_DISTRIBUTION=play` omits website purchase-path shortcuts while retaining project viewing and nonbillable time capture. The dedicated `scripts/build-android-play-candidate.cjs` enforces that mode and reuses the existing private signing custody; it does not upload anything. The historical tester build script is pinned to the earlier release and is not the Play build recipe.
+
+Before any submission, complete the gates in `docs/strategy/ANDROID_PLAY_COMPANION_CANDIDATE.md`: exact signed-package/device verification, monitored account-request handling and recovery, downstream policy review, declarations and account-specific testing requirements. Passing a JavaScript export does not establish those gates. No new binary has been published for 0.1.7.
+
+Historical preparation notes follow; their statements about unpublished 0.1.5 or memory-only 0.1.3 do not describe the published 0.1.6 release.
+
+# 0.1.5 / code 6 candidate — account help
+
+Local follow-up to the published 0.1.4 early APK: visible privacy/deletion-request controls with adjacent missing-handler errors, and dark status-bar icons. The request action opens an email draft only, not a completed deletion or subscription cancellation. TypeScript and focused account-help/startup/Home tests pass. Signed APK/AAB build, package checks, same-certificate upgrade install and signed-out device checks passed. Privacy controls and the missing-email-handler fallback were visually inspected. The candidate is not published: receiving-route verification remains incomplete. Full authenticated-device and Play-policy acceptance remain unfinished. See docs/strategy/ANDROID_PLAY_POLICY_REVIEW.md.
+
+Historical 0.1.4 preparation follows; its public APK remains unchanged.
+
+# 0.1.4 / code 5 expedited tester candidate
+
+This early Android build covers encrypted sign-in, active-project overview and nonbillable time capture. Calendar and customer booking setup open the existing website, with separate browser sign-in. Those are not native calendar screens. Unsaved drafts and uncertain time-save retries remain in memory: finish/retry before closing the app.
+
+Joshua authorized prioritizing a usable tester artifact within one hour, accepting minor bugs. This does not waive signing, data-isolation or basic runtime checks, and does not guarantee Play approval. APK sideloads do not count toward a Google Play closed-testing requirement. Public-store readiness and closed-test delivery are separate milestones.
+
+Production package com.microfreelancehub.mobile; version0.1.4/code5. Dedicated upload signing material remains in a private backup directory, not this repository. Generated native directories and output binaries are ignored. APK/AAB verification and emulator results must be recorded before calling this artifact tested or delivered.
+
+## Android Play candidate - secure-session integration (2026-11-24)
+
+Source now restores encrypted device sessions before showing sign-in or workspace. Failed restore shows a retry screen, not a new-account prompt. Native SecureStore stores chunked tokens with recovery journaling; Android backups exclude SecureStore data. Supabase processLock serializes authentication refreshes within the app process. This is local implementation, not device acceptance or a published release.
+
+Time-entry drafts and uncertain save operations are still memory-only: finish/retry them before closing the app. Restoring a login does not recover those drafts. Corrupted-storage reset UX, full native restart/lock/offline/sign-out tests, and production signing remain unfinished. Existing website links still need Play Payments policy review.
+
+Checks: `node scripts/test-mobile-session-startup.cjs`, `node scripts/test-mobile-secure-storage.cjs`, mobile TypeScript, OAuth/session/navigation regressions, and Android JS export. None substitutes for a signed AAB or device test.
+
+Historical preview details below describe older builds, not the new session behavior.
+
 # Current release readiness: 0.1.3 candidate
 
 The shared logo, Home links and project-specific website navigation are updated in source. These links open the website and may require a separate web sign-in; customer notes are not yet native screens.
@@ -26,7 +60,7 @@ Expo SDK 54 / React Native for iOS and Android; not a WebView, PWA, signed binar
 
 ## Core flow
 
-Existing email/password account → active projects → log completed nonbillable time → refresh latest 20 entries. Reuses `app/lib/workspaceTime.ts`. Revalidates account identity before mutation; retries preserve the same operation ID. Existing database constraints/RLS remain the authorization boundary. No service-role key belongs in the app.
+Existing email/password account Ã¢â€ â€™ active projects Ã¢â€ â€™ log completed nonbillable time Ã¢â€ â€™ refresh latest 20 entries. Reuses `app/lib/workspaceTime.ts`. Revalidates account identity before mutation; retries preserve the same operation ID. Existing database constraints/RLS remain the authorization boundary. No service-role key belongs in the app.
 
 Sessions are **memory-only** in this prototype. They are cleared on process exit; the app suspends token refresh in the background. Google OAuth, durable encrypted offline drafts, background sync, push and store distribution remain unfinished. An uncertain save must be retried while the app is open. Closing the app can lose the in-memory retry key/draft; do not market this as offline-safe capture.
 
