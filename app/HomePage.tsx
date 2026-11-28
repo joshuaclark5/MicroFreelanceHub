@@ -220,9 +220,9 @@ export default function HomePage() {
             {/* Image Feature 2: The Dashboard */}
             <div className="bg-slate-50 rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col">
               <div className="mb-8">
-                 <h3 className="text-2xl font-bold text-slate-900 mb-3">2. Track the money</h3>
+                 <h3 className="text-2xl font-bold text-slate-900 mb-3">2. Review your work</h3>
                  <p className="text-slate-600 leading-relaxed">
-                   Treat your freelance gig like a real business. Track your revenue, active projects, and profit margins all from one simple dashboard.
+                   Review your agreements, signature and payment status, and manually logged expenses. Recorded summaries are not a complete profit or accounting report.
                  </p>
               </div>
               <div className="mt-auto relative rounded-xl overflow-hidden border border-slate-200 shadow-lg min-h-[260px] bg-white flex items-start">
@@ -475,7 +475,7 @@ export default function HomePage() {
                Create your first agreement
              </Link>
           </div>
-          <p className="mt-8 text-sm text-blue-200">No credit card required · Free for 3 projects</p>
+          <p className="mt-8 text-sm text-blue-200">No credit card required · First 3 agreements free</p>
           <p className="mt-4 text-[10px] text-blue-200/50 max-w-xl mx-auto">
              Disclaimer: MicroFreelanceHub is a software platform, not a law firm. The templates and tools provided are for educational and operational purposes and do not constitute formal legal advice.
           </p>
