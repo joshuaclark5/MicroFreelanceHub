@@ -1,5 +1,6 @@
 'use client';
 
+import {workspacePreferences} from '../lib/workspaceExperience';
 import {BrandMark} from '../components/Brand';
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
@@ -208,7 +209,7 @@ function DashboardContent() {
         }
 
         const sowData = await refreshData();
-        if (profile && !profile.has_completed_onboarding && sowData.length === 0) {
+        if (profile && !profile.has_completed_onboarding && sowData.length === 0 && !workspacePreferences(user.user_metadata?.mfh_workspace) && user.user_metadata?.mfh_setup_dismissed !== true) {
           setShowWelcomeWizard(true);
         }
 
