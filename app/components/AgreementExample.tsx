@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, CheckCircle2, FileSignature } from 'lucide-react';
 
-export default function AgreementExample() {
+export default function AgreementExample({readOnly=false}:{readOnly?:boolean}={}) {
   const [service, setService] = useState(false);
   const [change, setChange] = useState(false);
   return <section id="agreement-example" aria-label="Sample agreement workflow" className="d4-example scroll-mt-24">
@@ -29,7 +29,7 @@ export default function AgreementExample() {
         <p className="mt-2 text-3xl font-semibold text-slate-950">{change ? '$350' : '$2,400'}</p>
         <p className="mt-2 text-sm leading-6 text-slate-600">{change ? 'Approval and payment are separate steps. Review revised terms before proceeding.' : '$1,200 example deposit after signing. Payment collection uses the provider’s connected Stripe account.'}</p>
         <div className="my-5 space-y-3 text-sm text-slate-700"><p className="flex items-center gap-2"><FileSignature size={17}/> {change ? 'Review the change' : 'Review and sign'}</p><p className="flex items-center gap-2"><CheckCircle2 size={17}/> {change ? 'Record the agreed addition' : 'Continue to payment'}</p></div>
-        <Link href="/create" className="d4-primary w-full">Start my agreement <ArrowRight size={16}/></Link>
+        <>{readOnly?<p className="rounded-lg border border-blue-200 bg-white p-3 text-sm text-slate-700">Read-only sample. Signing and payment are not available in this preview.</p>:<Link href="/create" className="d4-primary w-full">Start my agreement <ArrowRight size={16}/></Link>}</>
         <p className="mt-3 text-xs leading-5 text-slate-600">Sample data, not a customer result. Plan limits and Stripe eligibility apply.</p>
       </aside>
     </div>
