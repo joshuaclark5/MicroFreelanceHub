@@ -1,0 +1,31 @@
+{
+  "environment": "Local production build with isolated staging; not hosted Preview or production",
+  "commit": "82f551b134bcd9f341cd876b4c3d3b8a036cdc9e",
+  "checks": [
+    "Anonymous private document denied with recipient sign-in recovery",
+    "recipient normal password login returned to exact private document",
+    "owner normal password login returned to exact private document"
+  ],
+  "roles": [
+    "owner",
+    "recipient",
+    "other"
+  ],
+  "passed": true,
+  "recipientButtons": [
+    "Share",
+    "Sign Contract",
+    "Invoice Details1 items • $200.00 Total",
+    "Payment Locked (Awaiting Signatures)",
+    "Sign to unlock payment",
+    "Feedback"
+  ],
+  "ownerButtons": [
+    "Share",
+    "Sign Contract",
+    "Invoice Details1 items • $200.00 Total",
+    "Payment Locked (Awaiting Signatures)",
+    "Sign to unlock payment",
+    "Feedback"
+  ]
+}

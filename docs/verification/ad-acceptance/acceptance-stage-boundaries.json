@@ -1,0 +1,9 @@
+{
+  "environment": "Actual isolated staging API with normal authenticated fixture sessions",
+  "checks": [
+    "Authenticated owner signature reset, terms/price overwrite and deletion rejected; full signed record unchanged",
+    "Different normally authenticated owner cannot read or edit unrelated private draft",
+    "Only newly created unsigned boundary fixture removed; signed evidence retained"
+  ],
+  "passed": true
+}

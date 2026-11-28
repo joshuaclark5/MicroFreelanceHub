@@ -1,0 +1,15 @@
+{
+  "environment": "Local production build with isolated staging; not hosted Preview or production",
+  "commit": "82f551b134bcd9f341cd876b4c3d3b8a036cdc9e",
+  "checks": [
+    "recipient signed reviewed version through actual server action at phone width",
+    "owner signed reviewed version through actual server action at phone width",
+    "Two authoritative signatures: correct actors, identical version/hash, recorded timestamps"
+  ],
+  "roles": [
+    "owner",
+    "recipient",
+    "other"
+  ],
+  "passed": true
+}

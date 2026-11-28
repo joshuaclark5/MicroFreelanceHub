@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "checks": [
+    "RLS owner/intended verified recipient only; anonymous system template preserved",
+    "Draft edits advance authoritative version; browser cannot choose version",
+    "Signing RPC inaccessible to browsers; rejects unrelated/unconfirmed/wrong-role/stale review",
+    "Exact version acceptance records once with immutable text, identity, hash and time",
+    "Signed record cannot be reset, overwritten or deleted by owner or privileged update",
+    "Other party signs same version; authorized evidence retrieval; unrelated evidence hidden",
+    "Reminder bookkeeping does not alter signed terms or document version",
+    "Payment bookkeeping remains separate; $50 replay once leaves $150 then balance paid",
+    "Revoked draft acceptance rejected; no existing records rewritten"
+  ],
+  "scope": "Actual migrations in isolated PGlite, fictional auth identities; not hosted auth/recipient-email/provider evidence."
+}
