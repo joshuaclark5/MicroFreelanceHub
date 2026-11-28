@@ -23,6 +23,11 @@ export function validateAgreementReceipt(session: any, document: any) {
     throw new Error('Payment does not belong to this agreement');
   }
   if (session.status !== 'complete' || session.payment_status !== 'paid') throw new Error('Payment is not confirmed');
+  // Versionless receipts from before versioned signing remain reconcilable only for version 1.
+  const version = metadata.document_version == null ? 1 : Number(metadata.document_version);
+  if (!Number.isSafeInteger(version) || version < 1 || version !== Number(document.document_version ?? 1)) {
+    throw new Error('Payment belongs to a different agreement version');
+  }
   const amount = Number(metadata.expected_amount_cents);
   if (session.currency !== 'usd' || !Number.isSafeInteger(amount) || amount <= 0 || session.amount_total !== amount) {
     throw new Error('Payment amount or currency does not match');
