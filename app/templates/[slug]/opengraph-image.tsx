@@ -177,7 +177,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
           {subtitleText}
         </div>
         <div style={{ display: 'flex', marginTop: 40, padding: '12px 32px', background: 'rgba(255,255,255,0.1)', border: '2px solid rgba(255,255,255,0.2)', borderRadius: '12px', fontSize: 24, fontWeight: 700, color: 'white', zIndex: 10, }}>
-          Create & Send in 60 Seconds →
+          Outline Your Project Details →
         </div>
       </div>
     ), { ...size }
