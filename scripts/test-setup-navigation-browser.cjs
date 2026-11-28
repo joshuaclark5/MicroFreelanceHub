@@ -17,7 +17,7 @@ const checks=[];
    if(url.hostname===host&&url.pathname==='/auth/v1/user')return route.fulfill({json:{...user,user_metadata:{mfh_workspace:prefs}}});
    if(url.origin===base&&url.pathname==='/api/workspace-preferences'){
     if(req.method()==='POST'){writes++;const body=req.postDataJSON();assert.equal(body.expectedOwner,actor);if(fail)return route.fulfill({status:503,json:{error:'Fixture save unavailable'}});await new Promise(resolve=>{releaseSave=resolve});prefs=body.preferences;}
-    return route.fulfill({json:{ownerId:actor,preferences:prefs}});
+    return route.fulfill({json:{ownerId:actor,preferences:prefs,setupDismissed:false}});
    }
    if(!['GET','HEAD'].includes(req.method())){unexpectedWrites++;return route.abort();}
    if(url.origin!==base)return route.abort();

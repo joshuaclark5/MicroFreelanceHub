@@ -17,7 +17,7 @@ const checks=[];
   await ctx.addInitScript(({cookie,value})=>Object.defineProperty(document,'cookie',{configurable:true,get:()=>cookie+'='+value,set:()=>{}}),{cookie,value});
   await ctx.route('**/*',async route=>{const req=route.request(),url=new URL(req.url());
    if(url.hostname===host&&url.pathname==='/auth/v1/user')return route.fulfill({json:user});
-   if(url.origin===base&&url.pathname==='/api/workspace-preferences')return route.fulfill({json:{ownerId:actor,preferences:{business:'Fixture',profession:'',goal:'clients'}}});
+   if(url.origin===base&&url.pathname==='/api/workspace-preferences')return route.fulfill({json:{ownerId:actor,setupDismissed:false,preferences:{business:'Fixture',profession:'',goal:'clients'}}});
    if(url.origin===base&&url.pathname==='/api/workspace/session')return route.fulfill({json:{ownerId:actor}});
    if(url.origin===base&&url.pathname==='/api/workspace/email')return route.fulfill({json:{actorId:actor,records:[],hasMore:false,nextCursor:null}});
    const entity=url.pathname.split('/').pop();
