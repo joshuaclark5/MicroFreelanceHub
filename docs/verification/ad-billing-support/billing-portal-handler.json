@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "scope": "Actual transpiled portal handler with controlled auth/database/provider doubles",
+  "checks": [
+    "Cross-origin/anonymous denied before customer lookup",
+    "Profile lookup failure503 distinct from absent billing account404",
+    "No duplicate-upgrade advice on lookup failure",
+    "Verified actor owns customer selection; caller body ignored",
+    "Successful session no-store and existing settings return retained",
+    "Provider failure502, no private errors logged"
+  ]
+}

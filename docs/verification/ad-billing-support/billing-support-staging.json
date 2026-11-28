@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "environment": "Local production build + isolated staging",
+  "checks": [
+    "All privacy/support email links use the actual admin support route;320/390/1440 no overflow",
+    "Actual anonymous401 and cross-origin403; no provider session",
+    "Actual normal-provider synthetic login: absent customer404 gives support guidance, not upgrade advice; no-store response"
+  ],
+  "providerSessionsCreated": 0,
+  "charges": 0,
+  "writes": 0
+}

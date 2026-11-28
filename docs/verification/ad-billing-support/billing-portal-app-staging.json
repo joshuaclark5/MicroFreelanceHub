@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "environment": "Actual app HTTP route + normal provider auth + isolated staging + hosted Stripe TEST portal",
+  "checks": [
+    "Actual authenticated app portal endpoint returns hosted TEST session for server-owned customer, ignoring caller customer",
+    "Hosted TEST invoice history opens at390px through actual app-created session"
+  ],
+  "realCharges": 0,
+  "restore": {
+    "stripeCustomerRestored": true,
+    "otherChangedFields": []
+  }
+}
