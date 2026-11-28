@@ -9,7 +9,7 @@ const exportsObject={};vm.runInNewContext(ts.transpileModule(parserSource,{compi
 function fixture(){
  const events=[],writes=[];let release;
  const context={business:'  Synthetic workspace  ',profession:'Technology',goal:'clients',timezone:'UTC',details:{},businessDetailErrors:exportsObject.businessDetailErrors,setFieldErrors:()=>{},requestedGoal:'',owner:{current:'owner-test'},generation:{current:1},saving:{current:false},goals:[{id:'clients',href:'/workspace/clients'}],workspacePreferences:exportsObject.workspacePreferences,JSON,Error,
- setError:v=>events.push(['error',v]),setStep:v=>events.push(['step',v]),setBusy:v=>events.push(['busy',v]),setSaved:v=>events.push(['saved',v]),router:{replace:v=>events.push(['navigate',v])},
+ snapshot:'current-form',setBaseline:v=>events.push(['baseline',v]),setError:v=>events.push(['error',v]),setStep:v=>events.push(['step',v]),setBusy:v=>events.push(['busy',v]),setSaved:v=>events.push(['saved',v]),router:{replace:v=>events.push(['navigate',v])},
  fetch:(_url,opts)=>{writes.push(JSON.parse(opts.body));return new Promise(resolve=>{release=resolve;});}};
  vm.createContext(context);vm.runInContext(ts.transpileModule(handler+';globalThis.runSave=save;',{compilerOptions:{target:ts.ScriptTarget.ES2020}}).outputText,context);
  return {context,events,writes,reply:(status=200,owner='owner-test')=>release({ok:status===200,json:async()=>({ownerId:owner,preferences:{business:'Synthetic workspace',profession:'Technology',goal:'clients',timezone:'UTC'},error:status===200?undefined:'Synthetic failure'})})};
@@ -26,5 +26,7 @@ function fixture(){
  f=fixture();f.context.requestedGoal='clients';pending=f.context.runSave(true);f.reply();await pending;assert.deepEqual(f.events.filter(e=>e[0]==='navigate'),[['navigate','/workspace']]);
  f=fixture();pending=f.context.runSave(false,true);await f.context.runSave(false,true);assert.equal(f.writes.length,1);assert.equal(f.events.some(e=>e[0]==='step'&&e[1]===2),false);f.reply();await pending;assert.deepEqual(f.events.filter(e=>e[0]==='step'),[['step',2]]);assert.deepEqual(f.events.filter(e=>e[0]==='navigate'),[['navigate','/workspace/setup?edit=1&step=2']]);assert.equal(f.events.some(e=>e[0]==='saved'),false);
  f=fixture();pending=f.context.runSave(false,true);f.reply(503);await pending;assert.equal(f.events.some(e=>e[0]==='step'&&e[1]===2),false);assert.equal(f.context.business,'  Synthetic workspace  ');assert.equal(f.events.some(e=>e[0]==='navigate'),false);
- console.log('PASS 11 setup-save handler groups: duplicate suppression, failure/retry/input retention, owner rejection, stale response, validation, missing owner, existing continuation, goal continuation, explicit exit. Actual source handler; mocked transport, not rendered browser proof.');
+ f=fixture();pending=f.context.runSave(false,false,true);f.reply();assert.equal(await pending,true);assert.equal(f.events.some(e=>e[0]==='navigate'||e[0]==='saved'),false);assert.deepEqual(f.events.filter(e=>e[0]==='baseline'),[['baseline','current-form']]);
+ f=fixture();pending=f.context.runSave(false,false,true);f.reply(503);assert.equal(await pending,false);assert.equal(f.events.some(e=>e[0]==='baseline'),false);
+ console.log('PASS 13 setup-save handler groups: duplicate suppression, failure/retry/input retention, owner rejection, stale response, validation, missing owner, existing continuation, goal continuation, explicit exit. Actual source handler; mocked transport, not rendered browser proof.');
 })().catch(e=>{console.error(e);process.exitCode=1;});
