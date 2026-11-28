@@ -23,5 +23,13 @@ const request=(preferences,expectedOwner='owner')=>new Request('https://fixture.
  const before=writes;assert.equal((await route.POST(request({...current,currency:'BTC'}))).status,400);assert.equal((await route.POST(request(current,'other'))).status,409);assert.equal(writes,before);
  failure=true;assert.equal((await route.POST(request({...current,currency:'EUR'}))).status,503);assert.equal(user.user_metadata.mfh_workspace.currency,'USD');failure=false;
  const cleared=await route.POST(request({...current,...Object.fromEntries(pref.addressFields.map(key=>[key,'']))}));assert.equal(cleared.status,200);for(const key of pref.addressFields)assert.equal(cleared.body.preferences[key],'');assert.equal(user.user_metadata.unrelated,'keep');
+ const visibilityRequest=(body,origin='https://fixture.invalid')=>new Request('https://fixture.invalid/api/workspace-preferences',{method:'PATCH',headers:{origin,'content-type':'application/json'},body:JSON.stringify(body)});
+ const snapshot=JSON.stringify(user.user_metadata.mfh_workspace);let count=writes;
+ for(const body of [{expectedOwner:'other',setupDismissed:true},{expectedOwner:'owner',setupDismissed:'true'},{expectedOwner:'owner',setupDismissed:true,preferences:{business:'overwrite'}}])assert([400,409].includes((await route.PATCH(visibilityRequest(body))).status));
+ assert.equal((await route.PATCH(visibilityRequest({expectedOwner:'owner',setupDismissed:true},'https://foreign.invalid'))).status,403);assert.equal(writes,count);
+ failure=true;assert.equal((await route.PATCH(visibilityRequest({expectedOwner:'owner',setupDismissed:true}))).status,503);failure=false;
+ for(const setupDismissed of [true,false,true]){const result=await route.PATCH(visibilityRequest({expectedOwner:'owner',setupDismissed}));assert.equal(result.status,200);assert.equal(result.body.setupDismissed,setupDismissed);const read=await route.GET(new Request('https://fixture.invalid/api/workspace-preferences'));assert.equal(read.body.setupDismissed,setupDismissed);assert.equal(JSON.stringify(user.user_metadata.mfh_workspace),snapshot);assert.equal(user.user_metadata.unrelated,'keep');}
+ assert.equal((await route.POST(request(current))).status,200);assert.equal(user.user_metadata.mfh_setup_dismissed,true);
+ console.log('PASS setup visibility: owner/origin/type/extra-field rejection, failed update, repeated readback, unchanged workspace metadata, visibility retained through profile save.');
  console.log('PASS country/currency/address: ISO list, supported currencies, locale suggestions, legacy reads/writes, regional postal validation, optional clearing, invalid/foreign writes rejected, provider failure retains saved data.');
 })().catch(e=>{console.error(e);process.exitCode=1});
