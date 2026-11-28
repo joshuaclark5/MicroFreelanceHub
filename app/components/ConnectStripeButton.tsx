@@ -1,17 +1,21 @@
 'use client';
 
-import React from 'react';
+import React, {useState} from 'react';
 import Link from 'next/link';
 
 export default function ConnectStripeButton({ userId }: { userId: string }) {
   const clientId = process.env.NEXT_PUBLIC_STRIPE_CLIENT_ID?.trim();
-  const handleConnect = () => {
-    const redirectUri = `${window.location.origin}/api/stripe/callback`;
-
-    if (!clientId) return;
-
-    const stripeUrl = `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=${clientId}&scope=read_write&redirect_uri=${redirectUri}&state=${userId}`;
-    window.location.href = stripeUrl;
+  const [busy,setBusy]=useState(false),[error,setError]=useState('');
+  const handleConnect = async () => {
+    if (!clientId||busy) return;
+    setBusy(true);setError('');
+    try {
+      const response=await fetch('/api/stripe/connect',{method:'POST'}),body=await response.json();
+      if(!response.ok)throw Error(body.error||'Connection setup is unavailable.');
+      const target=new URL(body.url);
+      if(target.origin!=='https://connect.stripe.com'||target.pathname!=='/oauth/authorize')throw Error('Connection address is unavailable.');
+      window.location.assign(target.href);
+    } catch(e){setError(e instanceof Error?e.message:'Connection setup is unavailable.');setBusy(false);}
   };
 
   if (!userId) return null;
@@ -23,12 +27,14 @@ export default function ConnectStripeButton({ userId }: { userId: string }) {
   </div>;
 
   return (
-    <button 
+    <div><button
       type="button"
-      onClick={handleConnect} 
+      onClick={handleConnect}
       className="d4-primary w-full"
+      disabled={busy}
     >
-      Connect Stripe
+      {busy?'Starting connection...':'Connect Stripe'}
     </button>
+    {error&&<p role="alert" className="mt-3">{error}</p>}</div>
   );
 }

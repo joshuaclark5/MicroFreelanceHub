@@ -1,60 +1,26 @@
-import { NextResponse } from 'next/server';
+import {NextResponse} from 'next/server';
 import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
-
-// Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16' as any, // "as any" fixes strict TS version errors
-});
-
-// Initialize Supabase Admin (Required to write to the protected 'profiles' table)
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const code = searchParams.get('code');
-  const state = searchParams.get('state'); // We passed the User ID here
-  const error = searchParams.get('error');
-
-  // 1. Handle "Access Denied" (User clicked Cancel)
-  if (error) {
-    console.log('User denied Stripe access');
-    return NextResponse.redirect(new URL('/dashboard?error=stripe_declined', request.url));
-  }
-
-  if (!code || !state) {
-    return NextResponse.json({ error: 'Missing code or state' }, { status: 400 });
-  }
-
-  try {
-    // 2. Trade the "Code" for a "Stripe Account ID"
-    const response = await stripe.oauth.token({
-      grant_type: 'authorization_code',
-      code,
-    });
-
-    const stripeAccountId = response.stripe_user_id;
-
-    // 3. Save that Account ID to the User's Profile in Supabase
-    // This allows us to pay them later!
-    const { error: dbError } = await supabase
-      .from('profiles')
-      .update({ stripe_account_id: stripeAccountId })
-      .eq('id', state);
-
-    if (dbError) {
-      console.error('Supabase Error:', dbError);
-      return NextResponse.redirect(new URL('/dashboard?error=db_save_failed', request.url));
-    }
-
-    // 4. Success! Send them back to the dashboard
-    return NextResponse.redirect(new URL('/dashboard?success=stripe_connected', request.url));
-
-  } catch (err: any) {
-    console.error('Stripe Connection Failed:', err.message);
-    return NextResponse.redirect(new URL('/dashboard?error=stripe_connection_failed', request.url));
-  }
+import {cookies} from 'next/headers';
+import {createRouteHandlerClient} from '@supabase/auth-helpers-nextjs';
+import {connectConfig,connectAttempt} from '../../../lib/server/stripeConnect';
+export const dynamic='force-dynamic';
+export const runtime='nodejs';
+const reply=(error:string,status:number)=>NextResponse.json({error},{status,headers:{'Cache-Control':'private, no-store','Referrer-Policy':'no-referrer'}});
+export async function GET(request:Request){
+ try{
+  const url=new URL(request.url),p=url.searchParams,state=p.get('state'),code=p.get('code');
+  if([...p.keys()].some(k=>!['state','code','error','error_description','scope'].includes(k)||p.getAll(k).length!==1)||!state||! /^[A-Za-z0-9_-]{43}$/.test(state)||(!p.has('error')&&(!code||code.length>4096)))return reply('Invalid connection response. Return to Settings and start again.',400);
+  const c=connectConfig();if(!c)return reply('Stripe connection setup is unavailable.',503);
+  const auth=createRouteHandlerClient({cookies}),u=await auth.auth.getUser(),actor=u.data.user?.id;
+  if(u.error||!actor)return reply('Sign in to the original account, then start again from Settings.',401);
+  // Consume before exchange: actor, expiry, origin and replay are authoritative.
+  if(!await connectAttempt('consume',actor,state,url.origin))return reply('This connection attempt expired or was already used. Start again from Settings.',409);
+  if(p.has('error'))return reply('Stripe authorization was not completed. Your payment account was not changed. Return to Settings to try again.',400);
+  const current=await auth.auth.getUser();if(current.error||current.data.user?.id!==actor)return reply('Account changed. Start again from Settings.',409);
+  const stripe=new Stripe(c.secret),token=await stripe.oauth.token({grant_type:'authorization_code',code:code!});
+  if(!token.stripe_user_id||token.livemode!==/^(sk|rk)_live_/.test(c.secret))return reply('Stripe returned an unexpected account mode. No payment account was saved.',409);
+  const finalUser=await auth.auth.getUser();if(finalUser.error||finalUser.data.user?.id!==actor)return reply('Account changed. No payment account was saved.',409);
+  if(!await connectAttempt('complete',actor,state,url.origin,token.stripe_user_id))return reply('Connection was not saved. Return to Settings to check the current account before starting again.',409);
+  return NextResponse.redirect(new URL('/settings',url.origin),{status:303,headers:{'Cache-Control':'private, no-store','Referrer-Policy':'no-referrer'}});
+ }catch{return reply('Stripe connection was not completed. Return to Settings to check its status before starting again.',502);}
 }
