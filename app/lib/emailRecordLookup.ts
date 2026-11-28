@@ -7,13 +7,12 @@ export type EmailHistoryRecord = {
 type Snapshot = { actorId: string; records: EmailHistoryRecord[]; hasMore: boolean; nextCursor: string | null };
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-export async function findEmailRecord(
+async function* emailHistoryPages(
   actorId: string,
-  recordId: string,
   signal: AbortSignal,
   request: typeof fetch = fetch,
-): Promise<EmailHistoryRecord | null> {
-  if (!uuid.test(actorId) || !uuid.test(recordId)) throw new Error('Valid account and message required.');
+): AsyncGenerator<EmailHistoryRecord[]> {
+  if (!uuid.test(actorId)) throw new Error('Valid account and message required.');
   let cursor: string | null = null;
   const seen = new Set<string>();
   for (let page = 0; page < 100; page++) {
@@ -30,9 +29,8 @@ export async function findEmailRecord(
       || data.records.some(row => !row || typeof row.id !== 'string' || !uuid.test(row.id))) {
       throw new Error('Email history unavailable. Try again.');
     }
-    const match = data.records.find(row => row.id.toLowerCase() === recordId.toLowerCase());
-    if (match) return match;
-    if (!data.hasMore) return null;
+    yield data.records;
+    if (!data.hasMore) return;
     const next = data.nextCursor;
     if (!next || !uuid.test(next) || seen.has(next.toLowerCase()) || (cursor && next.toLowerCase() <= cursor.toLowerCase())) {
       throw new Error('Email history incomplete. Try again.');
@@ -42,4 +40,27 @@ export async function findEmailRecord(
   }
   // Exhausting a safety bound is not evidence that a message does not exist.
   throw new Error('Email history search limit reached. Message availability is unconfirmed.');
+}
+
+export async function findEmailRecord(actorId: string, recordId: string, signal: AbortSignal, request: typeof fetch = fetch): Promise<EmailHistoryRecord | null> {
+  if (!uuid.test(recordId)) throw new Error('Valid account and message required.');
+  for await (const records of emailHistoryPages(actorId, signal, request)) {
+    const match = records.find(row => row.id.toLowerCase() === recordId.toLowerCase());
+    if (match) return match;
+  }
+  return null;
+}
+
+export async function failedEmailRecords(actorId: string, signal: AbortSignal, request: typeof fetch = fetch): Promise<EmailHistoryRecord[]> {
+  const rows = new Map<string, EmailHistoryRecord>();
+  for await (const records of emailHistoryPages(actorId, signal, request)) {
+    for (const row of records) {
+      // An unknown outcome or scheduled retry is not a confirmed failure.
+      if (row.status === 'failed' || row.status === 'bounced') rows.set(row.id, row);
+    }
+  }
+  return [...rows.values()].sort((a, b) => {
+    const date = (value: string) => Number.isFinite(Date.parse(value)) ? Date.parse(value) : Number.MAX_SAFE_INTEGER;
+    return date(a.createdAt) - date(b.createdAt) || a.id.localeCompare(b.id);
+  });
 }

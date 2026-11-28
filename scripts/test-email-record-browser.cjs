@@ -23,11 +23,20 @@ try{for(const width of [360,390,1440]){
    const after=url.searchParams.get('after');if(after)afterSeen=true;
    return route.fulfill({json:{actorId:mode==='changed'?id(2):owner,records:mode==='empty'?[]:after?[record]:[{...record,id:id(3),status:'delivered'}],hasMore:mode!=='empty'&&!after,nextCursor:mode!=='empty'&&!after?id(3):null,readiness:{enqueueConfigured:false,sendConfigured:false,workerScheduled:false}}});
   }
+  if(url.pathname==='/api/workspace/session')return route.fulfill({json:{ownerId:owner}});
+  if(url.pathname.startsWith('/api/workspace/'))return route.fulfill({json:{ownerId:owner,records:[],complete:true,hasMore:false,nextCursor:null}});
   if(url.pathname.startsWith('/api/'))return route.fulfill({status:401,json:{error:'Fixture only'}});
   return route.continue();
  });
  const path='/workspace/connections/messages/'+target;
- await page.goto(base+path,{waitUntil:'domcontentloaded'});
+ await page.goto(base+'/workspace',{waitUntil:'domcontentloaded'});
+ const actions=page.getByRole('region',{name:'Failed sends to review',exact:true});
+ const action=actions.getByRole('link',{name:/Booking reminder/});
+ await action.waitFor();assert.match(await action.innerText(),/Owner: You/);assert.match(await action.innerText(),/Created 2026-11-25 UTC/);
+ assert.equal(await action.getAttribute('href'),path);assert.equal(await actions.locator('a.xp-row').count(),1);
+ assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+ await actions.screenshot({path:out+'.overview.'+width+'.png'});
+ await action.focus();await page.keyboard.press('Enter');await page.waitForURL('**'+path);
  const details=page.getByRole('region',{name:'Message details',exact:true});
  await details.getByText('Not sent / provider rejected',{exact:true}).waitFor();assert(afterSeen);
  assert.match(await details.innerText(),/You/);assert.match(await details.innerText(),/2026-11-25 10:15:00 UTC/);
@@ -42,9 +51,13 @@ try{for(const width of [360,390,1440]){
  mode='ready';await page.getByRole('button',{name:'Retry',exact:true}).click();await details.waitFor();
  mode='changed';await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await page.getByRole('alert').filter({hasText:'Account changed'}).waitFor();assert.equal(await details.count(),0);
  mode='empty';await page.getByRole('button',{name:'Retry',exact:true}).click();await page.getByText('Message unavailable.',{exact:false}).waitFor();
+ mode='failure';await page.goto(base+'/workspace',{waitUntil:'domcontentloaded'});await actions.getByRole('alert').waitFor();assert.equal(await actions.locator('a.xp-row').count(),0);
+ mode='ready';await actions.getByRole('button',{name:'Retry email history',exact:true}).click();await action.waitFor();
+ mode='empty';await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await actions.getByText('No failed or bounced messages in your accessible email history.',{exact:true}).waitFor();
+ mode='ready';await page.goto(base+path,{waitUntil:'domcontentloaded'});await details.waitFor();
  mode='signed-out';await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await page.getByText('Sign in to inspect this message.',{exact:true}).waitFor();assert.equal(await details.count(),0);
  assert.equal(writes,0);assert.equal(errors.length,0,errors.join('\n'));
- checks.push({width,laterPage:true,reload:true,keyboardHistoryBack:true,failureRetry:true,actorMismatchHidden:true,unavailable:true,signedOutHidden:true,noOverflow:true,writes});
+ checks.push({width,laterPage:true,overviewExactLink:true,overviewFailureRetryEmpty:true,reload:true,keyboardHistoryBack:true,failureRetry:true,actorMismatchHidden:true,unavailable:true,signedOutHidden:true,noOverflow:true,writes});
  await page.close();
 }}finally{for(const page of owned)if(!page.isClosed())await page.close();await browser.close();fs.writeFileSync(out,JSON.stringify({checks,scope:'Page-scoped fictional identity and intercepted records; no hosted data or email writes'},null,2));}
 console.log(JSON.stringify(checks));})().catch(error=>{console.error(error.stack);process.exitCode=1;});
