@@ -2,6 +2,7 @@
 // Do not accept arbitrary paths, hosts, query strings or encoded redirects.
 // Setup intent is restricted to exact known goal/edit URLs.
 const destinations = new Set([
+  '/dashboard',
   '/payment-success', '/workspace', '/workspace/setup', '/workspace/clients', '/workspace/projects',
   '/workspace/stages', '/workspace/tasks', '/workspace/agreements',
   '/workspace/time', '/workspace/team', '/workspace/scheduling',
