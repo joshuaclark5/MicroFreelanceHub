@@ -1,3 +1,4 @@
+import {businessTimezone} from '../../lib/businessTimezone';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
@@ -29,7 +30,7 @@ async function handle(request:Request){
     if(bookingsError)throw bookingsError;
     return reply({actorId:user.id,calendarMonth:calendar.month,truncated:(rules||[]).length>500||(bookings||[]).length>500,availability:(rules||[]).slice(0,500),bookings:(bookings||[]).slice(0,500),intakes:[]});
    }
-   const result:Record<string,unknown>={actorId:user.id,truncated:false};
+   const result:Record<string,unknown>={actorId:user.id,businessTimezone:businessTimezone(user.user_metadata?.mfh_workspace?.timezone),truncated:false};
    for(const [name,columns]of queries){const {data,error}=await db.from('workspace_scheduling_'+name).select(columns).eq('owner_id',user.id).order('created_at',{ascending:false}).order('id',{ascending:false}).limit(501);if(error)throw error;result[name]=(data||[]).slice(0,500);if((data||[]).length>500)result.truncated=true;}
    const focusKey=focusKeys.find(k=>params.has(k));
    if(focusKey){

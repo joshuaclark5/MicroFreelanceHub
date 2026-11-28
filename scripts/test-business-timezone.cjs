@@ -1,0 +1,13 @@
+const fs=require('node:fs'),vm=require('node:vm'),ts=require('typescript'),assert=require('node:assert/strict');
+const exportsObject={};
+vm.runInNewContext(ts.transpileModule(fs.readFileSync('app/lib/businessTimezone.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{exports:exportsObject,Intl,Date});
+const {businessTimezone,businessCalendarDate}=exportsObject;
+for(const zone of ['UTC','America/New_York','America/Los_Angeles','Asia/Kathmandu','Australia/Lord_Howe'])assert.equal(businessTimezone(zone),new Intl.DateTimeFormat('en',{timeZone:zone}).resolvedOptions().timeZone);
+for(const value of ['',null,{},'+05:30','GMT+3','Mars/Olympus',' America/New_York','America/New_York '])assert.equal(businessTimezone(value),null);
+const instant=new Date('2026-03-08T07:30:00Z');
+assert.equal(businessCalendarDate(instant,'UTC'),'2026-03-08');
+assert.equal(businessCalendarDate(instant,'America/Los_Angeles'),'2026-03-07');
+assert.equal(businessCalendarDate(instant,'America/New_York'),'2026-03-08');
+assert.equal(businessCalendarDate(new Date('2026-11-01T09:30:00Z'),'America/Los_Angeles'),'2026-11-01');
+assert.throws(()=>businessCalendarDate(instant,'Mars/Olympus'));
+console.log('PASS timezone validation, canonical aliases, date boundaries and both DST transitions.');
