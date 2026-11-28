@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "checks": [
+    "Invalid version/role/name/unreviewed input rejected before mutation",
+    "Actual action derives actor from verified getUser and passes reviewed version",
+    "Conflict/denial never returns false success or raw diagnostic",
+    "Uncertain database response instructs saved-signature inspection, not false absence",
+    "Exact UUID review return allowed; external and query-injected redirects rejected"
+  ],
+  "scope": "Actual transpiled action and return validator; mocked auth/database"
+}

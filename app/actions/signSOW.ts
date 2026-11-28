@@ -9,7 +9,7 @@ export async function signContract(sowId:string,signerName:string,role:'client'|
   if(u.error||!u.data.user)return {error:'Sign in with the intended recipient email, then review this agreement again.'};
   const db=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.SUPABASE_SERVICE_ROLE_KEY!,{auth:{persistSession:false,autoRefreshToken:false}});
   const r=await db.rpc('accept_reviewed_agreement',{p_document:sowId,p_version:version,p_actor:u.data.user.id,p_name:signerName.trim(),p_role:role});
-  if(r.error||!r.data)return {error:r.error?.code==='40001'?'This version changed or a signature is already recorded. Reload and review the saved agreement.':'Acceptance is unavailable. Use the verified recipient account or contact the sender; no signature was recorded by this attempt.'};
+  if(r.error||!r.data)return {error:r.error?.code==='40001'?'This version changed or a signature is already recorded. Reload and review the saved agreement.':'Acceptance could not be confirmed. Reload to inspect the saved signature before retrying. Use the verified recipient account or contact the sender.'};
   return {success:true,acceptance:r.data};
  }catch{return {error:'The signing result could not be confirmed. Reload to inspect the saved signature before trying again.'};}
 }
