@@ -231,6 +231,7 @@ function DashboardContent() {
           user_id: userId,
           title: `${sow.title} (Copy)`,
           client_name: sow.client_name,
+          client_data: { name: sow.client_name || '', email: sow.client_data?.email || sow.email || '' },
           price: sow.price,
           deliverables: sow.deliverables,
           status: 'Draft',
@@ -240,6 +241,7 @@ function DashboardContent() {
           payment_schedule_structured: sow.payment_schedule_structured
         }).select().single();
     if (!error && newDoc) setSows([newDoc, ...sows]);
+    else alert('The copy could not be confirmed. Refresh the saved agreements before trying again. The original agreement is unchanged.');
     setProcessing(false);
   };
 
