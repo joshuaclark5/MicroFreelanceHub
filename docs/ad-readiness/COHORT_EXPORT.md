@@ -30,3 +30,8 @@ Spend, visits, first useful action, shares, signatures, first-ever paid accounts
 `node scripts/test-ad-cohort-report.cjs` executes the actual query in isolated PGlite. It verifies exclusion handling, distinct account counts, no join multiplication, currency separation, half-open windows, unknown attribution, no identities in output and malformed-input rejection. It uses the existing local PGlite installation; no new dependency or service is purchased.
 
 The production read-only run ending `2026-11-28T09:28:26.000Z` is saved in the canonical checklist's `docs/ad-readiness/cohort-production-20261128T092826`. It found no eligible paid invoices in that window, not zero lifetime revenue. The earlier draft run with a future end boundary is superseded and not acceptance evidence. No application source changed, so this operator-tool packet does not require a website deployment.
+
+
+## Synthetic flag correction and provider-history supplement
+The exporter now excludes synthetic_test and mfh_synthetic as well as synthetic/is_test/test_account and the private explicit registry. Actual SQL tests exercise each flag, not just one example. This closes a concrete exclusion gap found during the launch audit. Previous evidence remains preserved; use a fresh output for new observations.
+See PROVIDER_HISTORY_RECONCILIATION.md for the read-only supplementary provider-history report. It does not silently overwrite the internal ledger, infer a first-ever purchase or relink accounts. Neither report establishes Meta attribution or profitability.

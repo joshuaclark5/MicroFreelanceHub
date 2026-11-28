@@ -13,6 +13,8 @@ function buildQuery({start,end,excludedOwnerIds=[]}){
  from auth.users u left join public.profiles p on p.id=u.id
  where ${excluded} and coalesce(u.raw_user_meta_data->>'synthetic','false')<>'true'
  and coalesce(u.raw_user_meta_data->>'is_test','false')<>'true'
+ and coalesce(u.raw_user_meta_data->>'synthetic_test','false')<>'true'
+ and coalesce(u.raw_user_meta_data->>'mfh_synthetic','false')<>'true'
  and coalesce(u.raw_user_meta_data->>'test_account','false')<>'true'
  and coalesce(u.email,'') !~* '@(fixture|example)\\.invalid$'
  ), groups as (select distinct cohort,campaign,variant from eligible), window_invoices as (
