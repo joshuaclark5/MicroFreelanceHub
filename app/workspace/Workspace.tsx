@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {workspaceCsv} from '../lib/workspaceExport';
 import WorkspaceNav from '../components/WorkspaceNav';
+import UnsavedSetupGuard from '../components/UnsavedSetupGuard';
 import ClientTimeline, {TimelineDraft} from '../components/ClientTimeline';
 import { Entity, entities, fields, taskNextAction, workspaceInput, validId } from '../lib/connectedWorkspace';
 import './workspace.css';
@@ -15,6 +16,8 @@ const labels:Record<string,string>={name:'Name',phone:'Phone (optional)',email:'
 export default function Workspace({section}:{section:Entity}) {
  const [data,setData]=useState<Data>(empty),[loading,setLoading]=useState(true),[error,setError]=useState(''),[notice,setNotice]=useState(''),[signedOut,setSignedOut]=useState(false),[limited,setLimited]=useState(false);
  const [editing,setEditing]=useState<Row|null>(null),[form,setForm]=useState<Record<string,any>|null>(null),[busy,setBusy]=useState(false);
+ const [initialForm,setInitialForm]=useState('');
+ const dirty=!!form&&JSON.stringify(form)!==initialForm;
  const [loaded,setLoaded]=useState(false),[exporting,setExporting]=useState(false);
  const owner=useRef<string|null>(null),loadGeneration=useRef(0);
  // Filtering removes cards; keep exact note retry identity in the owner/client-scoped workspace.
@@ -86,14 +89,18 @@ export default function Workspace({section}:{section:Entity}) {
  function start(row?:Row){setConflict(false);setUncertain(false);setAuthExpired(false);setNotice('');setError('');setDeleteId('');setEditing(row||null);const initial:Record<string,any>={};for(const f of fields[section])initial[f]=row?.[f]??(f==='position'?0:f==='status'?(section==='projects'?'active':'open'):'');if(!row && data.projects.some(p=>p.id===projectFilter))initial.project_id=projectFilter;
  if(!row && section==='agreements' && data['available-agreements'].some(a=>a.id===searchParams.get('agreement')))initial.agreement_id=searchParams.get('agreement');
  if(!row&&section==='projects'&&focusedClient)initial.client_id=focusedClient.id;
- setForm(initial);}
- async function mutate(method:string,values:Record<string,any>,id?:string){
-  if(uncertain||authExpired||conflict||!owner.current||loading)return;
+ setInitialForm(JSON.stringify(initial));setForm(initial);}
+ async function mutate(method:string,values:Record<string,any>,id?:string):Promise<boolean>{
+  if(busy||uncertain||authExpired||conflict||!owner.current||loading)return false;
   setBusy(true);setReconciled(false);setError('');setNotice('');let confirmedFailure=false;
   try{const response=await fetch('/api/workspace/'+section+(id?'?id='+encodeURIComponent(id):''),{method,headers:{'Content-Type':'application/json','x-workspace-owner':owner.current,...(id?{'if-match':String((editing?.id===id?editing:data[section].find(r=>r.id===id))?.version||'')}: {})},body:JSON.stringify(values)});const body=await response.json();if(response.status===401){confirmedFailure=true;setAuthExpired(true);throw Error('Your session expired. Keep this tab open and sign in in a new tab, then check your session here. Your draft remains in this tab.');}if(body.code==='account_changed'){confirmedFailure=true;setAuthExpired(true);throw Error(body.error);}if(body.code==='version_conflict'||body.code==='version_required'){confirmedFailure=true;setConflict(true);setReconciled(false);throw Error(body.error);}if(!response.ok){confirmedFailure=response.status<500;throw Error(body.error||'The change was not confirmed.');}if(body.ownerId!==owner.current||!body.record?.id)throw Error('The change was not confirmed.');
    setData(old=>({...old,[section]:method==='DELETE'?old[section].filter(r=>r.id!==id):method==='PATCH'?old[section].map(r=>r.id===id?body.record:r):[body.record,...old[section]]}));
-   setForm(null);setEditing(null);setDeleteId('');setNotice(method==='DELETE'?'Deleted.':'Saved to your workspace.');heading.current?.focus();
-  }catch(e){if(!confirmedFailure)setUncertain(true);setError((e as Error).message+(!confirmedFailure?' This may already have saved. Saving is paused: reload the record list and inspect it before choosing whether to retry.':''));}finally{setBusy(false);}}
+   setForm(null);setEditing(null);setDeleteId('');setNotice(method==='DELETE'?'Deleted.':'Saved to your workspace.');heading.current?.focus();return true;
+  }catch(e){if(!confirmedFailure)setUncertain(true);setError((e as Error).message+(!confirmedFailure?' This may already have saved. Saving is paused: reload the record list and inspect it before choosing whether to retry.':''));return false;}finally{setBusy(false);}}
+ async function saveBeforeLeaving():Promise<boolean>{
+  if(!form||busy||uncertain||authExpired||conflict||loading||missingRelations.length>0)return false;
+  try{const values=workspaceInput(section,form);if(!formElement.current?.checkValidity()){setError('Check the highlighted form fields before saving.');return false;}return await mutate(editing?'PATCH':'POST',values,editing?.id);}catch(e){setError((e as Error).message);return false;}
+ }
  const name=(entity:keyof Data,id:string)=>data[entity].find(r=>r.id===id)?.name||data[entity].find(r=>r.id===id)?.title||'Record unavailable';
  const rows=taskAddress?(selectedTask?[selectedTask]:[]):data[section].filter(r=>(!projectFilter||r.project_id===projectFilter||r.id===projectFilter)&&(!clientFilter||(section==='clients'?r.id===clientFilter:section==='projects'?r.client_id===clientFilter:true))&&[r.name,r.title,r.email,r.phone,r.notes,name('clients',r.client_id||''),name('stages',r.stage_id||''),name('projects',r.project_id||'')].join(' ').toLowerCase().includes(search.toLowerCase())).sort((a,b)=>section==='stages'?a.position-b.position:0);
  async function exportShown(){
@@ -106,7 +113,7 @@ export default function Workspace({section}:{section:Entity}) {
  const relation=(field:string)=>field==='client_id'?'clients':field==='stage_id'?'stages':field==='project_id'?'projects':'available-agreements';
  const missingRelations=fields[section].filter(f=>f.endsWith('_id')&&!data[relation(f)].length);
  const prerequisiteLinks:Record<string,{href:string;label:string}>={client_id:{href:'/workspace/clients',label:'Add a client'},stage_id:{href:'/workspace/stages',label:'Add a pipeline stage'},project_id:{href:'/workspace/projects',label:'Add a project'},agreement_id:{href:'/create',label:'Create an agreement'}};
- return <div className="d4-app-shell suite-shell"><WorkspaceNav active={section==='tasks'?'tasks':'workspace'}/><div className="suite-main">
+ return <div className="d4-app-shell suite-shell"><UnsavedSetupGuard dirty={dirty} busy={busy} onSave={saveBeforeLeaving} onDiscard={()=>{setForm(null);setEditing(null);}} titleText="Save your record changes?" description="This form has unsaved changes. Save them, discard them or keep editing before leaving this page."/><WorkspaceNav active={section==='tasks'?'tasks':'workspace'}/><div className="suite-main">
   {section==='agreements' && data.projects.some(p=>p.id===projectFilter) && <Link href={'/create?project='+projectFilter}>New agreement for this project</Link>}
   <nav aria-label="Breadcrumb" className="suite-breadcrumb"><ol><li><Link href="/workspace">Overview</Link></li><li>{recordContext?<Link href={'/workspace/'+section}>{titles[section]}</Link>:<span aria-current="page">{titles[section]}</span>}</li>{recordContext&&<li><span aria-current="page">{breadcrumbLabel}</span></li>}</ol></nav>
   <header className="suite-header"><p className="suite-eyebrow">CONNECTED WORKSPACE</p><h1 ref={heading} tabIndex={-1}>{titles[section]}</h1><p>Keep client context, project progress and the next action together.</p><Link href="/dashboard">Open agreements →</Link></header>
