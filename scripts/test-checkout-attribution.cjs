@@ -29,6 +29,11 @@ async function check(options = {}) {
     stripe: { default: class { constructor() { this.subscriptions={list:async()=>({data:options.subscriptions||[],has_more:!!options.hasMore})}; this.customers = { create: async value => { customers.push(value); return { id: 'cus_mock' }; } }; this.checkout = { sessions: { create: async value => { sessions.push(value); return { url: 'https://example.test/checkout' }; } } }; } } },
     '@supabase/supabase-js': { createClient: () => db },
     '@supabase/auth-helpers-nextjs': { createRouteHandlerClient: () => ({ auth: { getUser: async () => ({ data: { user: options.unauthorized ? null : { id: 'owner' } } }) } }) },
+    '../../../lib/server/checkoutCustody': { CheckoutConflict: class extends Error {}, ownedCheckout: async (stripe,db,owner,customer,params) => {
+      let id=row?.stripe_customer_id;
+      if(!id){id=(await stripe.customers.create(customer)).id;await db.from('profiles').upsert({id:owner,stripe_customer_id:id},{onConflict:'id'});}
+      return stripe.checkout.sessions.create({...params,customer:id,expires_at:Math.floor((options.now??Date.parse('2026-11-24T12:00:00Z'))/1000)+3600});
+    } },
     '../../../lib/planPricing': pricing,
     '../../../lib/seasonalOffers':offers,
     '../../../lib/server/seasonalCoupon':{seasonalCoupon:async(_stripe,offer)=>offer.id+'-annual-once'},

@@ -1,3 +1,4 @@
+import { ownedCheckout, CheckoutConflict } from '../../../lib/server/checkoutCustody';
 import { activeSeasonalOffer } from '../../../lib/seasonalOffers';
 import { seasonalCoupon } from '../../../lib/server/seasonalCoupon';
 import { PLAN_PRICES, PRICING_VERSION, planQuote, BillingCycle } from '../../../lib/planPricing';
@@ -75,43 +76,15 @@ export async function POST(request: Request) {
     const attributedLanding = attribution.signup_landing_page || '';
     const attributedSource = attribution.lead_source || '';
 
-    let stripeCustomerId = profile?.stripe_customer_id;
-
-    if (!stripeCustomerId) {
-      // Create a new Stripe customer
-      const customer = await stripe.customers.create({
-        email: user.email,
-        metadata: {
-          supabase_id: userId,
-        },
-      });
-      stripeCustomerId = customer.id;
-
-      // Save the Stripe customer ID
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .upsert({
-          id: userId,
-          email: user.email,
-          stripe_customer_id: stripeCustomerId,
-          updated_at: new Date().toISOString(),
-        }, { onConflict: 'id' });
-
-      if (updateError) {
-        throw new Error('Unable to save checkout customer');
-      }
-    }
-
     const planConfig = planQuote(plan as keyof typeof PLAN_PRICES, billingCycle as BillingCycle);
 
     if (offer && profile?.subscription_id) return NextResponse.json({ error: 'This offer is for first-time paid subscribers only. Choose regular pricing to continue.' }, { status: 409 });
     const coupon = offer ? await seasonalCoupon(stripe, offer) : null;
 
     // Create checkout session for subscription
-    const session = await stripe.checkout.sessions.create({
+    const session = await ownedCheckout(stripe, supabase, userId, { email: user.email, metadata: { supabase_id: userId } }, {
       mode: 'subscription',
-      customer: stripeCustomerId,
-      ...(coupon ? { discounts: [{ coupon }], expires_at: Math.floor(now / 1000) + 3600 } : { allow_promotion_codes: true }),
+      ...(coupon ? { discounts: [{ coupon }] } : { allow_promotion_codes: true }),
       client_reference_id: userId, // Pass userId so webhook can identify the user
       metadata: {
         plan,
@@ -154,7 +127,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ url: session.url });
   } catch (err: any) {
-    console.error('Plan Checkout Error:', err);
+    if (err instanceof CheckoutConflict) return NextResponse.json({ error: err.message }, { status: 409 });
+    console.error('Plan checkout could not be started');
     return NextResponse.json({ error: 'Unable to start checkout. Please try again.' }, { status: 500 });
   }
 }
