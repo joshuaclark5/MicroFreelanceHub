@@ -621,36 +621,36 @@ function DashboardContent() {
 
                 <div className="flex justify-between items-start z-10">
                     <div>
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Financial Health</p>
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Recorded summary</p>
                         <h3 className="text-3xl font-semibold text-gray-950 mt-2">{formatMoney(profit)}</h3>
                         <p className={`text-sm font-medium mt-1 flex items-center gap-1 ${profit === 0 ? 'text-amber-500' : 'text-emerald-600'}`}>
                            <TrendingUp className="w-4 h-4" />
-                           {profit === 0 ? "Send an invoice to see this grow!" : "Net Profit"}
+                           Paid agreement totals less logged expenses
                         </p>
                     </div>
 
                     <div className="text-right hidden sm:block">
                         <div className="flex flex-col gap-1 items-end">
                             <div className="flex items-center gap-2">
-                                <span className="text-xs font-bold text-gray-400 uppercase">Revenue</span>
+                                <span className="text-xs font-bold text-gray-400 uppercase">Paid agreement value</span>
                                 <span className="text-lg font-bold text-slate-900">{formatMoney(totalPaid)}</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <span className="text-xs font-bold text-gray-400 uppercase">Expenses</span>
+                                <span className="text-xs font-bold text-gray-400 uppercase">Logged expenses</span>
                                 <span className="text-lg font-bold text-red-500">-{formatMoney(totalExpenses)}</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="mt-8 mb-8 z-10">
+                <p className="mt-4 text-xs leading-5 text-slate-600">Based on agreements marked Paid and manually logged expenses. This is not net profit: fees, refunds, taxes and unrecorded costs may not be fully reflected.</p><div className="mt-8 mb-8 z-10">
                     <div className="h-3 w-full bg-emerald-100 rounded-full overflow-hidden flex">
                         <div className="h-full bg-red-400 transition-all duration-1000" style={{ width: `${expensePercentage}%` }}></div>
                         <div className="h-full bg-emerald-500 flex-1"></div>
                     </div>
                     <div className="flex justify-between mt-2 text-[10px] font-bold text-gray-400 uppercase tracking-wide">
-                        <span className="text-red-400">Costs ({expensePercentage.toFixed(0)}%)</span>
-                        <span className="text-emerald-600">Profit Margin</span>
+                        <span className="text-red-400">Logged expenses ({expensePercentage.toFixed(0)}%)</span>
+                        <span className="text-emerald-600">Remaining recorded value</span>
                     </div>
                 </div>
 

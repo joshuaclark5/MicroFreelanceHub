@@ -525,7 +525,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
     if (includeFee && paymentType !== 'none') {
         finalLineItems.push({
             id: 'fee-auto',
-            description: `Payment Processing Fee (3.9%)`, 
+            description: `Optional client surcharge (3.9%)`, 
             quantity: 1,
             amount: financials.feeAmount
         });
@@ -869,7 +869,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
                                 
                                 <div className="flex items-center gap-2 mt-4 select-none">
                                     <input type="checkbox" id="fee-toggle" checked={includeFee} onChange={(e) => setIncludeFee(e.target.checked)} className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer"/>
-                                    <label htmlFor="fee-toggle" className="text-sm font-bold text-gray-700 cursor-pointer">3.9% Processing Fee <span className="text-xs font-normal text-gray-500">(Covers Stripe)</span></label>
+                                    <label htmlFor="fee-toggle" className="text-sm font-bold text-gray-700 cursor-pointer">Optional 3.9% client surcharge <span className="block text-xs font-normal text-gray-500">Added to the client total. Actual processing and platform fees may differ.</span></label>
                                 </div>
                             </div>
 
@@ -956,7 +956,7 @@ If the Client cancels the project after work has begun, any deposit, completed w
                             <div className="flex justify-between items-center mb-1"><span className="text-slate-400 text-sm font-medium">Subtotal</span><span className="text-slate-300 font-bold">${financials.subtotal.toFixed(2)}</span></div>
                             
                             {parseFloat(formData.taxRate) > 0 && (<div className="flex justify-between items-center mb-1 pb-1 border-b border-slate-800/50"><span className="text-slate-400 text-sm font-medium">Tax ({formData.taxRate}%)</span><span className="text-slate-300 font-bold">+${financials.taxAmount.toFixed(2)}</span></div>)}
-                            {includeFee && (<div className="flex justify-between items-center mb-3 pb-3 border-b border-slate-800"><span className="text-slate-400 text-sm font-medium">Processing Fee (3.9%)</span><span className="text-slate-300 font-bold">+${financials.feeAmount.toFixed(2)}</span></div>)}
+                            {includeFee && (<div className="flex justify-between items-center mb-3 pb-3 border-b border-slate-800"><span className="text-slate-400 text-sm font-medium">Client surcharge (3.9%)</span><span className="text-slate-300 font-bold">+${financials.feeAmount.toFixed(2)}</span></div>)}
 
                             <div className="flex justify-between items-end mb-4"><span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Contract Value</span><div className="text-right leading-none"><span className="text-3xl font-bold">${financials.grandTotal.toFixed(2)}</span></div></div>
                             
