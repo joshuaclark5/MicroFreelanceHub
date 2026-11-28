@@ -6,7 +6,7 @@ function load(file, imports = {}) {
   const exports = {};
   vm.runInNewContext(ts.transpileModule(fs.readFileSync(file, 'utf8'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, esModuleInterop: true },
-  }).outputText, { exports, process, console, require: key => imports[key] || require(key) });
+  }).outputText, { exports, process: { env: { ...process.env, STRIPE_SECRET_KEY: 'sk_test_fixture' } }, console, require: key => imports[key] || require(key) });
   return exports;
 }
 const payment = load('app/lib/agreementPayment.ts');
@@ -23,7 +23,7 @@ assert.equal(payment.validateAgreementReceipt(session, doc), 50000);
 for (const invalid of [ { payment_status: 'unpaid' }, { currency: 'eur' }, { amount_total: 1 }, { client_reference_id: 'other' }, { metadata: {} } ]) {
   assert.throws(() => payment.validateAgreementReceipt({ ...session, ...invalid }, doc));
 }
-const created = [], recorded = [], profileUpdates = [];
+const created = [], recorded = [], profileUpdates = [], subscriptionEvents = [];
 let validSignature = true;
 let signedInUser = null, signatureWrites = 0;
 const database = {
@@ -58,6 +58,7 @@ const imports = {
   '../../../lib/agreementPayment': payment,
   '../../../lib/recordAgreementPayment': record,
   '../../lib/recordAgreementPayment': record,
+  '../../lib/server/subscriptionLifecycle': { reconcileSubscriptionEvent: async event => { subscriptionEvents.push(event); } },
 };
 const checkout = load('app/api/stripe/checkout/route.ts', imports);
 const confirm = load('app/api/sow/mark-paid/route.ts', imports);
@@ -96,7 +97,7 @@ const request = body => ({ json: async () => body });
   assert.equal((await sign.signContract(id, 'Owner', 'provider')).success, true);
   assert.ok((await sign.signContract(id, 'Client', 'invalid')).error);
   assert.ok((await sign.signContract(id, 'Client', 'client')).error, 'Existing signatures cannot be overwritten');
-  const event = value => ({ text: async () => JSON.stringify({ type: 'checkout.session.completed', data: { object: value } }) });
+  const event = value => ({ text: async () => JSON.stringify({ type: 'checkout.session.completed', livemode: false, data: { object: value } }) });
   validSignature = false;
   assert.equal((await webhook.POST(event(session))).status, 400);
   validSignature = true;
@@ -107,7 +108,7 @@ const request = body => ({ json: async () => body });
   assert.equal(recorded.length, before + 1);
   assert.equal(profileUpdates.length, 0, 'Agreement payment must never grant a SaaS subscription');
   assert.equal((await webhook.POST(event({ ...session, mode: 'subscription', subscription: 'sub_fixture', metadata: { plan: 'pro' }, client_reference_id: 'owner' }))).status, 200);
-  assert.equal(profileUpdates.length, 1);
-  assert.equal(profileUpdates[0].id, 'owner');
+  assert.equal(profileUpdates.length, 0, 'Webhook cannot directly overwrite subscription profile');
+  assert.equal(subscriptionEvents.length, 1, 'Subscription dispatch stays separate from agreement receipts');
   console.log('PASS: server pricing, partial balances, unpaid/wrong-document rejection, migration gate, Stripe-bound confirmation, provider authorization and signature overwrite guards. Providers mocked; SQL transaction not exercised.');
 })().catch(error => { console.error(error); process.exitCode = 1; });
