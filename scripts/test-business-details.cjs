@@ -1,6 +1,6 @@
 const fs=require('node:fs'),vm=require('node:vm'),ts=require('typescript'),assert=require('node:assert/strict');
 function load(path,mocks={}){const exports={};vm.runInNewContext(ts.transpileModule(fs.readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{exports,URL,require:n=>{assert.ok(n in mocks,n);return mocks[n];}});return exports;}
-const pref=load('app/lib/workspaceExperience.ts',{'./businessTimezone':load('app/lib/businessTimezone.ts')});
+const pref=load('app/lib/workspaceExperience.ts',{'./workspaceInvoices':load('app/lib/workspaceInvoices.ts',{}),'./businessTimezone':load('app/lib/businessTimezone.ts')});
 const base={business:' Studio ',profession:'',goal:'clients'};
 assert.equal(pref.workspacePreferences(base).business,'Studio');
 for(const businessType of ['',...pref.businessTypes])assert(pref.workspacePreferences({...base,businessType}));
