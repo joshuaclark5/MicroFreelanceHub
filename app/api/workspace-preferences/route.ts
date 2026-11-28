@@ -11,7 +11,9 @@ async function handle(request:Request){try{
  const raw=await request.text();if(raw.length>2000)return reply({error:'Setup details are too long.'},413);
  let input;try{input=JSON.parse(raw);}catch{return reply({error:'Enter valid setup details.'},400);}
  if(!input||input.expectedOwner!==user.id)return reply({error:'Account changed. Reload setup before saving.'},409);
- const preferences=workspacePreferences(input.preferences);if(!preferences)return reply({error:'Enter a business name and choose a starting point.'},400);
+ // Older clients omit timezone: keep the explicitly saved value on their updates.
+ const existing=workspacePreferences(user.user_metadata?.mfh_workspace),supplied=input.preferences;
+ const preferences=workspacePreferences(supplied&&typeof supplied==='object'&&!Array.isArray(supplied)&&supplied.timezone===undefined&&existing?.timezone?{...supplied,timezone:existing.timezone}:supplied);if(!preferences)return reply({error:'Enter a business name, choose a starting point and check your timezone.'},400);
  const result=await db.auth.updateUser({data:{mfh_workspace:preferences}});
  if(result.error||result.data.user?.id!==user.id)return reply({error:'Setup could not be confirmed. Your form is kept; retry to save the same details.'},503);
  return reply({ownerId:user.id,preferences:workspacePreferences(result.data.user.user_metadata?.mfh_workspace)});

@@ -4,7 +4,7 @@ export type IntakeField={id:string;label:string;required:boolean};
 export type Availability={id:string;title:string;timezone:string;weekday:number;start_minute:number;end_minute:number;duration:number;buffer:number;notice_hours:number;horizon_days:number;daily_cap:number;active:boolean;version:number;recurrence?:WeeklyRecurrence|null};
 export type Intake={id:string;title:string;consent:string;fields:IntakeField[];version:number};
 export type Booking={id:string;attendee:string;starts_at:string;ends_at:string;timezone:string;status:'confirmed'|'canceled';version:number;intake_id:string;answers:Record<string,string>};
-export type SchedulingData={actorId:string;availability:Availability[];intakes:Intake[];bookings:Booking[];truncated:boolean};
+export type SchedulingData={actorId:string;businessTimezone?:string|null;availability:Availability[];intakes:Intake[];bookings:Booking[];truncated:boolean};
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 export const validId=(v:unknown):v is string=>typeof v==='string'&&uuid.test(v);
 function obj(v:unknown):Record<string,unknown>{if(!v||typeof v!=='object'||Array.isArray(v))throw Error('Object required.');return v as Record<string,unknown>;}

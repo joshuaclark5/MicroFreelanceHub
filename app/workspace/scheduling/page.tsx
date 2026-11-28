@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { SchedulingData, IntakeField, WeeklyRecurrence, validId, weeklyRecurrence, availabilityMatches, localInstants, slotLabel } from '../../lib/workspaceScheduling';
+import {businessTimezone} from '../../lib/businessTimezone';
 import TimezoneSelect from '../../components/TimezoneSelect';
 import SchedulingCalendar,{calendarDate} from '../../components/SchedulingCalendar';
 import AvailabilityRecurrenceFields from '../../components/AvailabilityRecurrenceFields';
@@ -45,6 +46,7 @@ export default function Scheduling(){
   const query=kind?'?'+kind+'='+encodeURIComponent(id):'';
   const res=await fetch('/api/workspace-scheduling'+query,{cache:'no-store'});const body=await res.json();if(generation!==loadGeneration.current)return;if(!res.ok){setData(null);throw Error(body.error||'Unable to load.');}
   if(actor.current&&actor.current!==body.actorId){setData(null);throw Error('Account changed. Your draft remains here. Sign back into the original account or reload to discard it.');}
+  if(!actor.current){const savedZone=businessTimezone(body.businessTimezone);if(savedZone)setRule(previous=>({...previous,timezone:savedZone}));}
   actor.current=body.actorId;setData(body);
   }catch(e){if(generation!==loadGeneration.current)return;setData(null);throw e;}
  }
@@ -112,7 +114,7 @@ export default function Scheduling(){
    <form id="availability" onChange={draftChanged} className={section} onSubmit={e=>{e.preventDefault();saveAvailability();}}>
     <h2 className="text-xl font-semibold">1. Create availability</h2>
     <label className="block">Event title<input className={control} required maxLength={100} value={rule.title} onChange={e=>setRule({...rule,title:e.target.value})}/></label>
-    <TimezoneSelect label="Host timezone" className={control} value={rule.timezone} onChange={timezone=>setRule({...rule,timezone})}/>
+    <p className="text-sm">{data?.businessTimezone?"New rules initially use your saved business timezone. Review and save the rule to apply it.":"No business timezone is saved. Choose and explicitly save a timezone for this availability rule."}</p><TimezoneSelect label="Host timezone" className={control} value={rule.timezone} onChange={timezone=>setRule({...rule,timezone})}/>
     <p className="text-sm">Hours use the selected timezone, including its daylight-saving changes. Existing bookings keep their original times.</p>
     <AvailabilityRecurrenceFields value={recurrence} onChange={value=>{setRecurrence(value);draftChanged();}} timezone={rule.timezone} today={hostToday} disabled={disabled}/>
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{(['startMinute','endMinute'] as const).map(k=><label key={k}>{k==='startMinute'?'Window starts':'Window ends'}<input className={control} type="time" required value={time(rule[k])} onChange={e=>setRule({...rule,[k]:minute(e.target.value)})}/></label>)}</div>
