@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "environment": "Local production build + staging + actual transactional provider",
+  "normalRecipientSignin": true,
+  "privateDocumentHiddenBeforeCode": true,
+  "phoneWidth": 390,
+  "emailProviderAccepted": true,
+  "deliveryNotYetVerified": true
+}

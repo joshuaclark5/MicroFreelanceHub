@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "environment": "Local build + staging + actual controlled mailbox",
+  "checks": [
+    "Recovered successful code verification after test-only exact-text selector timeout; exact original fixture reused, no additional email/code",
+    "Separate real password login for SAME recipient denied private read",
+    "Verified recipient signs reviewed version through actual server action at390px",
+    "Owner normal sign-in/read/provider signature preserved",
+    "Both signatures bind same exact version/hash/correct actors; original signed fixture unchanged"
+  ],
+  "mailboxMessageId": "1a221a8c8f3d0bf3"
+}
