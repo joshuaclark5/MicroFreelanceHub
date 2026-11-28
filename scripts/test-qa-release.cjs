@@ -50,7 +50,7 @@ const base = process.env.QA_BASE_URL || 'http://localhost:3025';
     await page.goto(`${base}/articles/client-asks-for-revisions-after-final-files-delivered-reply-template`);
     assert.ok(/September 15, 2026/i.test(await page.locator('body').innerText()));
     assert.equal((await page.request.get(`${base}/api/stripe/subscription`)).status(), 401);
-    assert.equal((await page.request.post(`${base}/api/stripe/create-portal`, { data: { userId: 'untrusted' } })).status(), 401);
+    assert.equal((await page.request.post(`${base}/api/stripe/create-portal`, { headers: { Origin: base }, data: { userId: 'untrusted' } })).status(), 401);
     assert.equal((await page.request.post(`${base}/api/stripe/checkout-plan`, { data: { userId: 'untrusted', plan: 'pro' } })).status(), 401);
     assert.equal((await page.request.post(`${base}/api/sow/mark-paid`, { data: { sowId: 'untrusted' } })).status(), 400);
     console.log('PASS: full-library search, pagination, checklist/email classification, Clear/Undo desktop/mobile, dates, public copy, billing authorization');

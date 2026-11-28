@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "environment": "Actual hosted Stripe TEST portal, synthetic customer only",
+  "checks": [
+    "Hosted TEST portal shows exact$31/month, testVisa, paid invoice history;320/390/1440 no overflow",
+    "Payment-method form acceptance remains separate; no card mutation attempted",
+    "Cancellation confirmation states actual provider period-end date and retained access",
+    "Actual hosted cancellation submitted once; provider reads active + cancel_at_period_end, unchanged access-end date"
+  ],
+  "liveCharges": 0,
+  "appProfileChanges": 0,
+  "cancelEffectiveAt": "2026-12-28T10:30:55.000Z"
+}

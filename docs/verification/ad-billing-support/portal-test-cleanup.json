@@ -1,0 +1,10 @@
+{
+  "status": "Partial cleanup; TEST default configuration retained",
+  "noRunningTestSubscription": true,
+  "productArchived": true,
+  "configurationActive": true,
+  "configurationDefault": true,
+  "liveProviderChanges": 0,
+  "appProfileChanges": 0,
+  "detail": "TEST subscription canceled, product archived; provider rejected deactivation of TEST portal configuration, readback confirms it remains active/default. Retain existing config/customer/history; do not retry or create another default to remove it. No LIVE settings changed."
+}
