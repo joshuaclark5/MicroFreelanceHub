@@ -99,7 +99,7 @@ export default function PricingPage() {
               Start Free
             </Link>
             <ul className="space-y-4 flex-1">
-              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-600 shrink-0" /> <span>First 3 contracts free</span></li>
+              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-600 shrink-0" /> <span>First 3 agreements free</span></li>
               <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-600 shrink-0" /> <span>Electronic signature workflow</span></li>
               <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-600 shrink-0" /> <span>Preview contract and payment flow</span></li>
             </ul>
@@ -147,7 +147,7 @@ export default function PricingPage() {
               <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-600 shrink-0" /> <span>Automated dunning emails</span></li>
               <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-600 shrink-0" /> <span>Mid-project change orders</span></li>
               <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-600 shrink-0" /> <span>Remove watermarks</span></li>
-              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-600 shrink-0" /> <span>Profit and expense tracking</span></li>
+              <li className="flex items-start gap-3 text-slate-700"><CheckCircle2 className="w-5 h-5 text-slate-600 shrink-0" /> <span>Payment status and manual expense records</span></li>
             </ul>
           </div>
 

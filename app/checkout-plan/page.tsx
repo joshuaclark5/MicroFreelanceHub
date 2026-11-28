@@ -3,7 +3,7 @@ import {useState,Suspense} from 'react';
 import {useSearchParams} from 'next/navigation';
 import {createClientComponentClient} from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
-import {getTrackedData} from '../lib/trackingClient';
+import {getAuthAttribution,attributionOptedOut} from '../lib/trackingClient';
 import {useSeasonalOffer} from '../components/SeasonalOffer';
 import {offerFirstPayment} from '../lib/seasonalOffers';
 import {isPaidPlan,planQuote,PRICING_VERSION} from '../lib/planPricing';
@@ -18,9 +18,9 @@ function CheckoutLogic(){
   if(busy||!quote||!ready)return;setBusy(true);setError('');
   try{
    const {data:{user}}=await db.auth.getUser();
-   const tracked=getTrackedData();const landingPage=params.get('landing_page')||tracked.landing_page,leadSource=params.get('lead_source')||tracked.lead_source;
-   if(!user){const url=new URL('/login',window.location.origin);url.searchParams.set('plan',plan!);url.searchParams.set('billing',cycle);if(landingPage)url.searchParams.set('landing_page',landingPage);if(leadSource)url.searchParams.set('lead_source',leadSource);window.location.assign(url.toString());return;}
-   const res=await fetch('/api/stripe/checkout-plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({plan,billingCycle:cycle,pricingVersion:PRICING_VERSION,offerId:selectedOffer?.id||null,userId:user.id,landingPage,leadSource})});
+   const {landing_page:landingPage,lead_source:leadSource}=getAuthAttribution(params.get('landing_page'),params.get('lead_source'),params.get('attribution_opt_out')==='1');
+   if(!user){const url=new URL('/login',window.location.origin);url.searchParams.set('plan',plan!);if(attributionOptedOut()||params.get('attribution_opt_out')==='1')url.searchParams.set('attribution_opt_out','1');url.searchParams.set('billing',cycle);if(landingPage)url.searchParams.set('landing_page',landingPage);if(leadSource)url.searchParams.set('lead_source',leadSource);window.location.assign(url.toString());return;}
+   const res=await fetch('/api/stripe/checkout-plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({plan,billingCycle:cycle,pricingVersion:PRICING_VERSION,offerId:selectedOffer?.id||null,userId:user.id,landingPage,leadSource,attributionOptOut:attributionOptedOut()||params.get('attribution_opt_out')==='1'})});
    const result=await res.json();if(!res.ok||!result.url)throw Error(result.error||'Unable to open checkout. Please retry.');window.location.assign(result.url);
   }catch(e){setError(e instanceof Error?e.message:'Unable to open checkout. Please retry.');setBusy(false);}
  }

@@ -1,3 +1,4 @@
+import { ownedCheckout, CheckoutConflict } from '../../../lib/server/checkoutCustody';
 import { activeSeasonalOffer } from '../../../lib/seasonalOffers';
 import { seasonalCoupon } from '../../../lib/server/seasonalCoupon';
 import { PLAN_PRICES, PRICING_VERSION, planQuote, BillingCycle } from '../../../lib/planPricing';
@@ -6,7 +7,7 @@ import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
-import { persistFirstTouch, sanitizeAttribution } from '../../../lib/profileAttribution';
+import { persistFirstTouch, sanitizeAttribution, requestAttributionOptedOut } from '../../../lib/profileAttribution';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-10-16' as any,
@@ -22,7 +23,7 @@ export async function POST(request: Request) {
     const auth = createRouteHandlerClient({ cookies });
     const { data: { user: authenticatedUser } } = await auth.auth.getUser();
     if (!authenticatedUser) return NextResponse.json({ error: 'Sign in to choose a plan.' }, { status: 401 });
-    const { plan, userId, landingPage, leadSource, billingCycle = 'monthly', pricingVersion, offerId = null } = await request.json();
+    const { plan, userId, landingPage, leadSource, billingCycle = 'monthly', pricingVersion, offerId = null, attributionOptOut = false } = await request.json();
     if (userId !== authenticatedUser.id) return NextResponse.json({ error: 'Account mismatch.' }, { status: 403 });
 
     // Validate plan
@@ -48,7 +49,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    await persistFirstTouch(supabase, user, landingPage, leadSource);
+    const optedOut = requestAttributionOptedOut(request, attributionOptOut);
+    if (!optedOut) await persistFirstTouch(supabase, user, landingPage, leadSource);
 
     // Read the persisted first touch rather than replacing it with checkout input.
     const { data: profile, error: profileError } = await supabase
@@ -70,36 +72,9 @@ export async function POST(request: Request) {
       }
     }
 
-    const attribution = sanitizeAttribution(profile?.signup_landing_page, profile?.lead_source);
+    const attribution = sanitizeAttribution(optedOut ? null : profile?.signup_landing_page, optedOut ? null : profile?.lead_source);
     const attributedLanding = attribution.signup_landing_page || '';
     const attributedSource = attribution.lead_source || '';
-
-    let stripeCustomerId = profile?.stripe_customer_id;
-
-    if (!stripeCustomerId) {
-      // Create a new Stripe customer
-      const customer = await stripe.customers.create({
-        email: user.email,
-        metadata: {
-          supabase_id: userId,
-        },
-      });
-      stripeCustomerId = customer.id;
-
-      // Save the Stripe customer ID
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .upsert({
-          id: userId,
-          email: user.email,
-          stripe_customer_id: stripeCustomerId,
-          updated_at: new Date().toISOString(),
-        }, { onConflict: 'id' });
-
-      if (updateError) {
-        throw new Error('Unable to save checkout customer');
-      }
-    }
 
     const planConfig = planQuote(plan as keyof typeof PLAN_PRICES, billingCycle as BillingCycle);
 
@@ -107,10 +82,9 @@ export async function POST(request: Request) {
     const coupon = offer ? await seasonalCoupon(stripe, offer) : null;
 
     // Create checkout session for subscription
-    const session = await stripe.checkout.sessions.create({
+    const session = await ownedCheckout(stripe, supabase, userId, { email: user.email, metadata: { supabase_id: userId } }, {
       mode: 'subscription',
-      customer: stripeCustomerId,
-      ...(coupon ? { discounts: [{ coupon }], expires_at: Math.floor(now / 1000) + 3600 } : { allow_promotion_codes: true }),
+      ...(coupon ? { discounts: [{ coupon }] } : { allow_promotion_codes: true }),
       client_reference_id: userId, // Pass userId so webhook can identify the user
       metadata: {
         plan,
@@ -147,13 +121,14 @@ export async function POST(request: Request) {
           quantity: 1,
         },
       ],
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment-success?plan=${plan}&session_id={CHECKOUT_SESSION_ID}&landing_page=${encodeURIComponent(attributedLanding)}&lead_source=${encodeURIComponent(attributedSource)}`,
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/pricing?upgrade=cancelled`,
     });
 
     return NextResponse.json({ url: session.url });
   } catch (err: any) {
-    console.error('Plan Checkout Error:', err);
+    if (err instanceof CheckoutConflict) return NextResponse.json({ error: err.message }, { status: 409 });
+    console.error('Plan checkout could not be started');
     return NextResponse.json({ error: 'Unable to start checkout. Please try again.' }, { status: 500 });
   }
 }

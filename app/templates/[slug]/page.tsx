@@ -1,4 +1,5 @@
 import Brand from '../../components/Brand';
+import { templatePublicCopy } from '../../lib/templatePublicCopy';
 import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
@@ -78,33 +79,19 @@ function pluralize(word: string | null) {
   return trimmed + 's';
 }
 
-function softenLegalClaims(text: string | null | undefined) {
-  if (!text) return '';
-  return text
-    .replace(/\bprovides essential legal protection\b/gi, 'helps document project expectations')
-    .replace(/\bprotect your business\b/gi, 'clarify your business terms')
-    .replace(/\bprotect your time\b/gi, 'clarify your time and scope')
-    .replace(/\bprotect\b/gi, 'clarify')
-    .replace(/\bguarantee your final payments\b/gi, 'keep payment expectations clear')
-    .replace(/\bguarantee payment\b/gi, 'set payment expectations')
-    .replace(/\blegal templates\b/gi, 'business templates')
-    .replace(/\blegally define\b/gi, 'document')
-    .replace(/\blimit your liability\b/gi, 'outline responsibility boundaries')
-    .replace(/\bforce payment\b/gi, 'request payment')
-    .replace(/\bformal legal threat\b/gi, 'formal payment notice');
-}
+const softenLegalClaims = templatePublicCopy;
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const result = await findDoc(params.slug);
   if (!result) return { title: 'Template Not Found' };
   
   const { doc } = result;
-  const title = toTitleCase(doc.job_title || doc.keyword);
+  const title = templatePublicCopy(toTitleCase(doc.job_title || doc.keyword), 'Business project');
   const isEmail = isEmailTemplate(doc.document_type, params.slug);
-  const documentType = doc.document_type || 'Contract';
+  const documentType = templatePublicCopy(doc.document_type, 'Contract');
   const label = isEmail ? 'Email' : documentType;
   const labeledTitle = title.toLowerCase().endsWith(label.toLowerCase()) ? title : `${title} ${label}`;
-  const pageTitle = (doc.seo_title || `Free ${labeledTitle} (2026)`).replace(/\bemail\s+email\b/gi, 'Email');
+  const pageTitle = (templatePublicCopy(doc.seo_title, `${labeledTitle} Template (2026)`)).replace(/\bemail\s+email\b/gi, 'Email');
   
   const metaDescription = `Start with a free, professional ${labeledTitle} template to outline scope, deliverables, approvals, and payment steps.`;
 
@@ -127,11 +114,11 @@ export default async function TemplatePage({ params }: { params: { slug: string 
       redirect(`/alternatives/${params.slug}`);
   }
   
-  const title = doc.job_title || toTitleCase(doc.keyword);
+  const title = templatePublicCopy(doc.job_title || toTitleCase(doc.keyword), 'Business project');
   const isEmail = isEmailTemplate(doc.document_type, params.slug);
   const isChecklist = isChecklistTemplate(doc.document_type, params.slug);
   const isReference = isEmail || isChecklist;
-  const docType = isEmail ? 'Email' : isChecklist ? 'Checklist' : doc.document_type || 'Contract';
+  const docType = isEmail ? 'Email' : isChecklist ? 'Checklist' : templatePublicCopy(doc.document_type, 'Contract');
   
   let professionSlug = params.slug;
   const suffixes = [
@@ -228,7 +215,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
     mainEntity: faqs.map((faq: any) => ({
-      '@type': 'Question', name: faq.q, acceptedAnswer: { '@type': 'Answer', text: softenLegalClaims(faq.a) }
+      '@type': 'Question', name: templatePublicCopy(faq.q, 'What should both sides review?'), acceptedAnswer: { '@type': 'Answer', text: softenLegalClaims(faq.a) }
     }))
   };
 
@@ -252,8 +239,8 @@ export default async function TemplatePage({ params }: { params: { slug: string 
         <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold"><Brand/></Link>
         <div className="flex flex-wrap items-center gap-4 text-sm"><Link href="/templates">Templates</Link><Link href="/pricing">Pricing</Link><a href="mailto:admin@microfreelancehub.com">Help</a><Link href="/login?mode=signin">Sign in</Link></div>
       </nav>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
-      {!isReference && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd) }} />}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd).replace(/</g, '\\u003c') }} />
+      {!isReference && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd).replace(/</g, '\\u003c') }} />}
 
       {/* 🚀 ICEBERG LAYOUT: Hero + Preview side-by-side above the fold */}
       <div className="bg-gray-50 text-gray-950 py-16 px-5 relative overflow-hidden border-b border-gray-200">
@@ -329,18 +316,18 @@ export default async function TemplatePage({ params }: { params: { slug: string 
                  </div>
 
                 {isEmail ? (
-                  <div dangerouslySetInnerHTML={{ __html: doc.content || '<p>Loading email draft...</p>' }} />
+                  <div>{templatePublicCopy(doc.content)}</div>
                 ) : (
                   <div>
                     {doc.content ? (
-                      <div dangerouslySetInnerHTML={{ __html: doc.content }} className="opacity-90" />
+                      <div className="opacity-90">{templatePublicCopy(doc.content)}</div>
                     ) : (
                       <div className="space-y-4">
                         <p className="font-bold text-slate-900">1. Covered Provisions</p>
                         <p>This document officially outlines the following parameters:</p>
                         <ul className="list-disc pl-5 space-y-2">
                           {listItems.map((item: string, i: number) => (
-                            <li key={i}>{item}</li>
+                            <li key={i}>{templatePublicCopy(item)}</li>
                           ))}
                         </ul>
                       </div>
@@ -366,7 +353,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
           <aside id="template-guidance" className="d4-template-guide">
             <h2 className="text-lg font-semibold">Make it yours.</h2>
             <p className="mt-3 text-sm text-slate-600">Review the full template and adapt it to the work you actually agreed.</p>
-            <ul className="mt-5 divide-y divide-slate-200">{listItems.slice(0, 6).map((item: string, index: number) => <li key={index} className="py-3 text-sm text-slate-700">{item}</li>)}</ul>
+            <ul className="mt-5 divide-y divide-slate-200">{listItems.slice(0, 6).map((item: string, index: number) => <li key={index} className="py-3 text-sm text-slate-700">{templatePublicCopy(item)}</li>)}</ul>
             <h3 className="mt-6 font-semibold">Before you send</h3><p className="mt-2 text-sm leading-6 text-slate-600">Check names, deliverables, dates and payment terms with your client. A business-document starting point, not legal advice.</p>
             <Link className="d4-primary mt-5" href={ctaHref}>{primaryCta}</Link>
           </aside>
@@ -447,7 +434,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
       <div className="max-w-3xl mx-auto px-4 py-8">
         {isReference && <section id="template-content" className="mb-12 scroll-mt-8">
           <h2 className="mb-6 text-2xl font-bold">{docType} Template</h2>
-          <div className="prose max-w-none whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: doc.content || '<p>Template content is currently unavailable.</p>' }} />
+          <div className="prose max-w-none whitespace-pre-wrap">{templatePublicCopy(doc.content)}</div>
         </section>}
         
         {doc.snippet_answer && (
@@ -463,10 +450,10 @@ export default async function TemplatePage({ params }: { params: { slug: string 
         <section className="mb-12 bg-slate-50 border border-slate-200 rounded-2xl p-8 relative overflow-hidden">
            <div className={`absolute top-0 left-0 w-1 h-full ${themeColors}`}></div>
            <h3 className="text-xl font-bold text-slate-900 mb-3 flex items-center gap-2">
-             <Award className={`w-6 h-6 ${textColors}`} /> Built from real freelance projects
+             <Award className={`w-6 h-6 ${textColors}`} /> A starting point for your project
            </h3>
            <p className="text-slate-600 leading-relaxed">
-             This template is based on real-world scenarios across freelance projects where unclear scope, missing payment terms, and revision creep led to lost revenue. It helps clarify your time, define expectations, and make payment steps easier to manage.
+             Use this template to organize scope, approvals, timing and payment expectations. Review the details with the other party and adapt the draft to the work you actually agreed.
            </p>
         </section>
 
@@ -501,7 +488,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
              {listItems.map((item: string, i: number) => (
                 <li key={i} className="flex gap-4 items-start">
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 font-bold text-sm bg-slate-200 ${textColors}`}>✓</div>
-                  <span className="font-bold text-slate-900 text-lg">{item}</span>
+                  <span className="font-bold text-slate-900 text-lg">{templatePublicCopy(item)}</span>
                 </li>
              ))}
           </ul>
@@ -538,7 +525,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
         <div className="space-y-6">
           {faqs.map((faq: any, index: number) => (
             <div key={index} className="bg-slate-50 rounded-xl p-6 md:p-8 border border-slate-100">
-              <h3 className="font-bold text-slate-900 text-lg md:text-xl mb-3">{faq.q}</h3>
+              <h3 className="font-bold text-slate-900 text-lg md:text-xl mb-3">{templatePublicCopy(faq.q, 'What should both sides review?')}</h3>
               <p className="text-slate-600 leading-relaxed text-lg">{softenLegalClaims(faq.a)}</p>
             </div>
           ))}
@@ -547,7 +534,7 @@ export default async function TemplatePage({ params }: { params: { slug: string 
 
       <div className="max-w-7xl mx-auto px-4 pb-20">
           {/parking.*(strip|mark)|strip.*parking/i.test(`${params.slug} ${doc.job_title || ''}`) && <aside className="mb-8 rounded-xl border border-slate-200 p-6"><h2 className="text-xl font-bold text-slate-900">Following up on an unanswered estimate?</h2><p className="my-3 text-slate-700">Organize your open estimates, prepare a follow-up and record the customer’s response.</p><Link href="/quote-follow-up" className="font-semibold text-blue-700 underline">Try the free estimate follow-up tool →</Link></aside>}
-          <RelatedRoles currentSlug={params.slug} jobTitle={doc.job_title} />
+          <RelatedRoles currentSlug={params.slug} jobTitle={title} />
       </div>
 
       {!isReference && (

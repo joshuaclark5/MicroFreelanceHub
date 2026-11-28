@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { recordAgreementPayment } from '../../lib/recordAgreementPayment';
+import { reconcileSubscriptionEvent } from '../../lib/server/subscriptionLifecycle';
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -28,8 +29,12 @@ export async function POST(req: Request) {
   try {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (err: any) {
-    console.error(`❌ Webhook Signature Error: ${err.message}`);
-    return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
+    console.warn('stripe_webhook_signature_invalid');
+    return new NextResponse('Invalid webhook signature', { status: 400 });
+  }
+
+  if (event.livemode !== process.env.STRIPE_SECRET_KEY?.startsWith('sk_live_')) {
+    return NextResponse.json({ error: 'Webhook environment mismatch' }, { status: 400 });
   }
 
   // 2. Handle checkout.session.completed
@@ -43,50 +48,17 @@ export async function POST(req: Request) {
         await recordAgreementPayment(supabaseAdmin, session, document);
         return NextResponse.json({ received: true });
       }
-      if (session.mode !== 'subscription' || !session.subscription || session.payment_status !== 'paid' || !['starter', 'pro', 'agency'].includes(session.metadata?.plan || '')) {
-        return NextResponse.json({ received: true });
-      }
-
-      // Extract data from session
-      const userId = session.client_reference_id;
-      const stripeCustomerId = session.customer as string;
-      const subscriptionId = session.subscription as string;
-      const customerEmail = session.customer_details?.email || null;
-
-      // Validate we have userId
-      if (!userId) {
-        console.warn('⚠️ Webhook received but no client_reference_id (userId) found');
-        return NextResponse.json({ error: 'No user reference' }, { status: 400 });
-      }
-
-      console.log(`💰 Processing payment for User: ${userId}, Customer: ${stripeCustomerId}`);
-
-      const profileUpdate: Record<string, string | boolean | null> = {
-        id: userId,
-        is_pro: true,
-        stripe_customer_id: stripeCustomerId,
-        subscription_id: subscriptionId,
-        updated_at: new Date().toISOString(),
-      };
-
-      if (customerEmail) profileUpdate.email = customerEmail;
-
-      // Upsert user's profile with is_pro=true and save Stripe IDs.
-      const { error } = await supabaseAdmin
-        .from('profiles')
-        .upsert(profileUpdate, { onConflict: 'id' });
-
-      if (error) {
-        console.error(`❌ Error updating profile for user ${userId}:`, error);
-        return NextResponse.json({ error: 'Database update failed' }, { status: 500 });
-      }
-
-      console.log(`✅ Successfully upgraded user ${userId} to PRO`);
     } catch (err: any) {
-      console.error('❌ Error processing checkout.session.completed:', err);
-      return NextResponse.json({ error: err.message }, { status: 500 });
+      console.warn('agreement_payment_webhook_failed');
+      return NextResponse.json({ error: 'Payment confirmation unavailable' }, { status: 500 });
     }
   }
 
+  try {
+    await reconcileSubscriptionEvent(event, stripe, supabaseAdmin);
+  } catch {
+    console.warn('subscription_webhook_reconciliation_failed');
+    return NextResponse.json({ error: 'Billing confirmation unavailable; provider retry required' }, { status: 500 });
+  }
   return NextResponse.json({ received: true });
 }
