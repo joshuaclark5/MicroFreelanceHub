@@ -3,15 +3,16 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { persistFirstTouch } from '../../lib/profileAttribution';
+import { persistFirstTouch, requestAttributionOptedOut } from '../../lib/profileAttribution';
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
   const plan = requestUrl.searchParams.get('plan');
   const template = requestUrl.searchParams.get('template');
-  const landing_page = requestUrl.searchParams.get('landing_page');
-  const lead_source = requestUrl.searchParams.get('lead_source');
+  const optedOut = requestAttributionOptedOut(request, requestUrl.searchParams.get('attribution_opt_out'));
+  const landing_page = optedOut ? null : requestUrl.searchParams.get('landing_page');
+  const lead_source = optedOut ? null : requestUrl.searchParams.get('lead_source');
   const cookieStore = cookies();
   const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
   const supabaseAdmin = createClient(
@@ -32,7 +33,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    await persistFirstTouch(supabaseAdmin, user, landing_page, lead_source);
+    if (!optedOut) await persistFirstTouch(supabaseAdmin, user, landing_page, lead_source);
   } catch {
     console.error('Signup attribution could not be persisted');
   }
@@ -41,6 +42,7 @@ export async function GET(request: Request) {
     tier: 'free',
   });
 
+  if (optedOut) successParams.set('attribution_opt_out', '1');
   if (template) successParams.set('template', template);
   if (landing_page) successParams.set('landing_page', landing_page);
   if (lead_source) successParams.set('lead_source', lead_source);
@@ -48,6 +50,7 @@ export async function GET(request: Request) {
   // Rule 1: Paywall Flow - Plan selection takes priority
   if (plan === 'starter' || plan === 'pro' || plan === 'agency') {
     const checkoutParams = new URLSearchParams({ plan, billing: requestUrl.searchParams.get('billing')==='annual'?'annual':'monthly' });
+    if (optedOut) checkoutParams.set('attribution_opt_out', '1');
     if (template) checkoutParams.set('template', template);
     if (landing_page) checkoutParams.set('landing_page', landing_page);
     if (lead_source) checkoutParams.set('lead_source', lead_source);

@@ -10,7 +10,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { CheckCircle2, ArrowRight, LockKeyhole, Mail } from 'lucide-react';
-import { getTrackedData, getAuthAttribution } from '../lib/trackingClient';
+import { attributionOptedOut, getAuthAttribution } from '../lib/trackingClient';
 import { sanitizeAttribution } from '../lib/profileAttribution';
 
 function LoginForm() {
@@ -72,9 +72,8 @@ function LoginForm() {
     }
 
     // Add tracked landing page and marketing source
-    const { landing_page, lead_source } = getTrackedData();
-    const landingPage = landingPageParam || landing_page;
-    const leadSource = leadSourceParam || lead_source;
+    const { landing_page: landingPage, lead_source: leadSource } = getAuthAttribution(landingPageParam, leadSourceParam, searchParams.get('attribution_opt_out') === '1');
+    if (attributionOptedOut() || searchParams.get('attribution_opt_out') === '1') redirectUrl.searchParams.set('attribution_opt_out', '1');
     if (landingPage) {
       redirectUrl.searchParams.set('landing_page', landingPage);
     }
@@ -102,8 +101,9 @@ function LoginForm() {
 
   const getPostAuthPath = () => {
     const params = new URLSearchParams();
+    if (attributionOptedOut() || searchParams.get('attribution_opt_out') === '1') params.set('attribution_opt_out', '1');
     if (destination) params.set('next', destination);
-    const attribution = getAuthAttribution(landingPageParam, leadSourceParam);
+    const attribution = getAuthAttribution(landingPageParam, leadSourceParam, searchParams.get('attribution_opt_out') === '1');
     if (templateSlug) params.set('template', templateSlug);
     if (attribution.landing_page) params.set('landing_page', attribution.landing_page);
     if (attribution.lead_source) params.set('lead_source', attribution.lead_source);
@@ -119,8 +119,9 @@ function LoginForm() {
 
     try {
       const callbackUrl = new URL('/auth/callback', window.location.origin);
+      if (attributionOptedOut() || searchParams.get('attribution_opt_out') === '1') callbackUrl.searchParams.set('attribution_opt_out', '1');
       if (destination) callbackUrl.searchParams.set('next', destination);
-      const attribution = getAuthAttribution(landingPageParam, leadSourceParam);
+      const attribution = getAuthAttribution(landingPageParam, leadSourceParam, searchParams.get('attribution_opt_out') === '1');
       if (plan) { callbackUrl.searchParams.set('plan', plan); callbackUrl.searchParams.set('billing', searchParams.get('billing')==='annual'?'annual':'monthly'); }
       if (templateSlug) callbackUrl.searchParams.set('template', templateSlug);
       if (attribution.landing_page) callbackUrl.searchParams.set('landing_page', attribution.landing_page);

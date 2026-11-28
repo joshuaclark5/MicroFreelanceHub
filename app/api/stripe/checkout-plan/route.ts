@@ -6,7 +6,7 @@ import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
-import { persistFirstTouch, sanitizeAttribution } from '../../../lib/profileAttribution';
+import { persistFirstTouch, sanitizeAttribution, requestAttributionOptedOut } from '../../../lib/profileAttribution';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-10-16' as any,
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     const auth = createRouteHandlerClient({ cookies });
     const { data: { user: authenticatedUser } } = await auth.auth.getUser();
     if (!authenticatedUser) return NextResponse.json({ error: 'Sign in to choose a plan.' }, { status: 401 });
-    const { plan, userId, landingPage, leadSource, billingCycle = 'monthly', pricingVersion, offerId = null } = await request.json();
+    const { plan, userId, landingPage, leadSource, billingCycle = 'monthly', pricingVersion, offerId = null, attributionOptOut = false } = await request.json();
     if (userId !== authenticatedUser.id) return NextResponse.json({ error: 'Account mismatch.' }, { status: 403 });
 
     // Validate plan
@@ -48,7 +48,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    await persistFirstTouch(supabase, user, landingPage, leadSource);
+    const optedOut = requestAttributionOptedOut(request, attributionOptOut);
+    if (!optedOut) await persistFirstTouch(supabase, user, landingPage, leadSource);
 
     // Read the persisted first touch rather than replacing it with checkout input.
     const { data: profile, error: profileError } = await supabase
@@ -70,7 +71,7 @@ export async function POST(request: Request) {
       }
     }
 
-    const attribution = sanitizeAttribution(profile?.signup_landing_page, profile?.lead_source);
+    const attribution = sanitizeAttribution(optedOut ? null : profile?.signup_landing_page, optedOut ? null : profile?.lead_source);
     const attributedLanding = attribution.signup_landing_page || '';
     const attributedSource = attribution.lead_source || '';
 
