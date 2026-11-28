@@ -18,14 +18,18 @@ assert.equal(payment.agreementBalance({ ...doc, payment_received_cents: 50000 })
 assert.equal(payment.agreementBalance({ ...doc, status: 'Paid' }).due, 0);
 assert.equal(payment.agreementBalance({ ...doc, payment_received_cents: 90000, payment_schedule_structured: { type: 'split', depositAmount: 250 } }).due, 10000);
 assert.throws(() => payment.agreementBalance({ ...doc, price: -1 }));
-let session = { id: 'cs_fixture', status: 'complete', payment_status: 'paid', currency: 'usd', amount_total: 50000, client_reference_id: id, metadata: { purpose: 'agreement_payment', sow_id: id, owner_id: 'owner', expected_amount_cents: '50000' } };
+let session = { id: 'cs_fixture', livemode:false, status: 'complete', payment_status: 'paid', currency: 'usd', amount_total: 50000, client_reference_id: id, metadata: { purpose: 'agreement_payment', sow_id: id, owner_id: 'owner', expected_amount_cents: '50000' } };
 assert.equal(payment.validateAgreementReceipt(session, doc), 50000);
+assert.throws(()=>payment.validateAgreementReceipt({...session,metadata:{...session.metadata,document_version:'2'}},doc));
+assert.throws(()=>payment.validateAgreementReceipt(session,{...doc,document_version:2}));
+assert.equal(payment.validateAgreementReceipt({...session,metadata:{...session.metadata,document_version:'2'}},{...doc,document_version:2}),50000);
 for (const invalid of [ { payment_status: 'unpaid' }, { currency: 'eur' }, { amount_total: 1 }, { client_reference_id: 'other' }, { metadata: {} } ]) {
   assert.throws(() => payment.validateAgreementReceipt({ ...session, ...invalid }, doc));
 }
 const created = [], recorded = [], profileUpdates = [], subscriptionEvents = [];
 let validSignature = true;
 let signedInUser = null, signatureWrites = 0;
+let documentVisible=true,merchantReady=true,providerLookups=0;
 const database = {
   from(table) {
     let updating = false;
@@ -41,6 +45,7 @@ const database = {
   rpc: async (name, args) => { recorded.push({ name, args }); return { error: null }; },
 };
 class Stripe {
+  accounts = { retrieve: async () => { providerLookups++;return {charges_enabled:merchantReady,payouts_enabled:merchantReady,capabilities:{card_payments:'active',transfers:'active'}}; } };
   webhooks = { constructEvent: body => { if (!validSignature) throw Error('invalid signature'); return JSON.parse(body); } };
   checkout = { sessions: {
     create: async config => { created.push(config); return { url: 'https://checkout.stripe.com/fixture' }; },
@@ -53,7 +58,8 @@ class NextResponse {
 }
 const imports = {
   'next/server': { NextResponse },
-  'next/headers': { headers: () => ({ get: () => 'fixture-signature' }) },
+  'next/headers': { headers: () => ({ get: () => 'fixture-signature' }),cookies:()=>({}) },
+  '@supabase/auth-helpers-nextjs': {createRouteHandlerClient:()=>({auth:{getUser:async()=>({data:{user:signedInUser}})},from:()=>({select(){return this},eq(){return this},single:async()=>({data:documentVisible?doc:null,error:documentVisible?null:{code:'PGRST116'}})})})},
   '@supabase/supabase-js': { createClient: () => database }, stripe: Stripe,
   '../../../lib/agreementPayment': payment,
   '../../../lib/recordAgreementPayment': record,
@@ -70,6 +76,14 @@ const sign = load('app/actions/signSOW.ts', {
 });
 const request = body => ({ json: async () => body });
 (async () => {
+  assert.equal((await checkout.POST(request({sowId:id}))).status,401);
+  assert.equal((await confirm.POST(request({sowId:id,sessionId:'cs_fixture'}))).status,401);
+  signedInUser={id:'recipient'};documentVisible=false;
+  assert.equal((await checkout.POST(request({sowId:id}))).status,404);
+  assert.equal((await confirm.POST(request({sowId:id,sessionId:'cs_fixture'}))).status,404);
+  assert.equal(providerLookups,0);assert.equal(created.length,0);
+  documentVisible=true;merchantReady=false;
+  assert.equal((await checkout.POST(request({sowId:id}))).status,409);assert.equal(created.length,0);merchantReady=true;
   assert.equal((await checkout.POST(request({ sowId: id, amount: 0.01 }))).status, 200);
   assert.equal(created[0].line_items[0].price_data.unit_amount, 50000, 'Never trust a browser-supplied amount');
   assert.equal(created[0].metadata.sow_id, id);
@@ -85,6 +99,9 @@ const request = body => ({ json: async () => body });
   assert.equal((await confirm.POST(request({ sowId: id, sessionId: 'cs_fixture' }))).status, 409);
   assert.equal(recorded.length, 0);
   session.payment_status = 'paid';
+  session.livemode=true;
+  assert.equal((await confirm.POST(request({sowId:id,sessionId:'cs_fixture'}))).status,409);
+  assert.equal(recorded.length,0,'Opposite provider mode cannot write receipts');session.livemode=false;
   assert.equal((await confirm.POST(request({ sowId: id, sessionId: 'cs_fixture' }))).status, 200);
   assert.equal(recorded[0].args.p_amount_cents, 50000);
   assert.equal(recorded[0].args.p_sow_id, id);
@@ -94,7 +111,7 @@ const request = body => ({ json: async () => body });
   assert.ok((await sign.signContract(id, 'Owner', 'provider')).error);
   assert.equal(signatureWrites, 0);
   signedInUser = { id: 'owner' };
-  assert.equal((await sign.signContract(id, 'Owner', 'provider')).success, true);
+  assert.ok((await sign.signContract(id, 'Owner', 'provider')).error,'Unversioned legacy signing call rejected; actual versioned signing has a dedicated suite');
   assert.ok((await sign.signContract(id, 'Client', 'invalid')).error);
   assert.ok((await sign.signContract(id, 'Client', 'client')).error, 'Existing signatures cannot be overwritten');
   const event = value => ({ text: async () => JSON.stringify({ type: 'checkout.session.completed', livemode: false, data: { object: value } }) });

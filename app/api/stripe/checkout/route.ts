@@ -3,6 +3,8 @@ import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { agreementBalance } from '../../../lib/agreementPayment';
 import { createHash } from 'node:crypto';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-10-16' as any,
@@ -22,8 +24,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid agreement' }, { status: 400 });
     }
 
-    // 2. Get SOW details from Database
-    const { data: sow, error: sowError } = await supabase
+    // Resolve the actor and document through recipient/owner RLS before provider access.
+    const auth = createRouteHandlerClient({ cookies });
+    const user = await auth.auth.getUser();
+    if (user.error || !user.data.user) return NextResponse.json({ error: 'Sign in with the intended recipient account.' }, { status: 401 });
+    const { data: sow, error: sowError } = await auth
       .from('sow_documents')
       .select('*')
       .eq('id', sowId)
@@ -55,6 +60,10 @@ export async function POST(request: Request) {
          { status: 400 }
        );
     }
+    const merchant = await stripe.accounts.retrieve(profile.stripe_account_id);
+    if (!merchant.charges_enabled || !merchant.payouts_enabled || merchant.capabilities?.card_payments !== 'active' || merchant.capabilities?.transfers !== 'active') {
+      return NextResponse.json({ error: 'The agreement owner must finish payment setup before accepting payments.' }, { status: 409 });
+    }
 
     // 4. Determine Mode & Price
     const isSubscription = sow.payment_type === 'monthly';
@@ -70,6 +79,7 @@ export async function POST(request: Request) {
       metadata: {
         purpose: 'agreement_payment', sow_id: sow.id, owner_id: sow.user_id,
         expected_amount_cents: String(priceInCents),
+        document_version: String(sow.document_version),
       },
       payment_method_types: ['card'],
       line_items: [{
@@ -127,7 +137,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ url: session.url });
 
   } catch (err: any) {
-    console.error('Checkout Error:', err);
+    console.warn('agreement_checkout_unavailable');
     return NextResponse.json({ error: 'Unable to start payment. Please try again or contact the agreement owner.' }, { status: 500 });
   }
 }
