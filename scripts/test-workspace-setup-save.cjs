@@ -4,10 +4,10 @@ const handler=source.slice(source.indexOf('async function save('),source.indexOf
 const ts=require('typescript');
 const parserSource=fs.readFileSync('app/lib/workspaceExperience.ts','utf8');
 const zoneExports={};vm.runInNewContext(ts.transpileModule(fs.readFileSync('app/lib/businessTimezone.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports:zoneExports});
-const exportsObject={};vm.runInNewContext(ts.transpileModule(parserSource,{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports:exportsObject,require:n=>{assert.equal(n,"./businessTimezone");return zoneExports;}});
+const exportsObject={};vm.runInNewContext(ts.transpileModule(parserSource,{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports:exportsObject,URL,require:n=>{assert.equal(n,"./businessTimezone");return zoneExports;}});
 function fixture(){
  const events=[],writes=[];let release;
- const context={business:'  Synthetic workspace  ',profession:'Technology',goal:'clients',timezone:'UTC',requestedGoal:'',owner:{current:'owner-test'},generation:{current:1},saving:{current:false},goals:[{id:'clients',href:'/workspace/clients'}],workspacePreferences:exportsObject.workspacePreferences,JSON,Error,
+ const context={business:'  Synthetic workspace  ',profession:'Technology',goal:'clients',timezone:'UTC',details:{},businessDetailErrors:exportsObject.businessDetailErrors,setFieldErrors:()=>{},requestedGoal:'',owner:{current:'owner-test'},generation:{current:1},saving:{current:false},goals:[{id:'clients',href:'/workspace/clients'}],workspacePreferences:exportsObject.workspacePreferences,JSON,Error,
  setError:v=>events.push(['error',v]),setStep:v=>events.push(['step',v]),setBusy:v=>events.push(['busy',v]),setSaved:v=>events.push(['saved',v]),router:{replace:v=>events.push(['navigate',v])},
  fetch:(_url,opts)=>{writes.push(JSON.parse(opts.body));return new Promise(resolve=>{release=resolve;});}};
  vm.createContext(context);vm.runInContext(ts.transpileModule(handler+';globalThis.runSave=save;',{compilerOptions:{target:ts.ScriptTarget.ES2020}}).outputText,context);
