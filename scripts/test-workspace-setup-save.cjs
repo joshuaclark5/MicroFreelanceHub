@@ -4,7 +4,8 @@ const handler=source.slice(source.indexOf('async function save('),source.indexOf
 const ts=require('typescript');
 const parserSource=fs.readFileSync('app/lib/workspaceExperience.ts','utf8');
 const zoneExports={};vm.runInNewContext(ts.transpileModule(fs.readFileSync('app/lib/businessTimezone.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports:zoneExports});
-const exportsObject={};vm.runInNewContext(ts.transpileModule(parserSource,{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports:exportsObject,URL,require:n=>{assert.equal(n,"./businessTimezone");return zoneExports;}});
+const invoiceExports={};vm.runInNewContext(ts.transpileModule(fs.readFileSync('app/lib/workspaceInvoices.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports:invoiceExports});
+const exportsObject={};vm.runInNewContext(ts.transpileModule(parserSource,{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports:exportsObject,URL,require:n=>{if(n==="./workspaceInvoices")return invoiceExports;assert.equal(n,"./businessTimezone");return zoneExports;}});
 function fixture(){
  const events=[],writes=[];let release;
  const context={business:'  Synthetic workspace  ',profession:'Technology',goal:'clients',timezone:'UTC',details:{},businessDetailErrors:exportsObject.businessDetailErrors,setFieldErrors:()=>{},requestedGoal:'',owner:{current:'owner-test'},generation:{current:1},saving:{current:false},goals:[{id:'clients',href:'/workspace/clients'}],workspacePreferences:exportsObject.workspacePreferences,JSON,Error,

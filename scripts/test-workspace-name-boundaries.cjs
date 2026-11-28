@@ -1,6 +1,6 @@
 const fs=require('node:fs'),vm=require('node:vm'),ts=require('typescript'),assert=require('node:assert/strict');
 function load(path,mocks={}){const exports={};vm.runInNewContext(ts.transpileModule(fs.readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{exports,URL,require:n=>{assert.ok(n in mocks,n);return mocks[n];}});return exports;}
-const zones=load('app/lib/businessTimezone.ts'),pref=load('app/lib/workspaceExperience.ts',{'./businessTimezone':zones});
+const zones=load('app/lib/businessTimezone.ts'),pref=load('app/lib/workspaceExperience.ts',{'./workspaceInvoices':load('app/lib/workspaceInvoices.ts',{}),'./businessTimezone':zones});
 let writes=0;
 const user={id:'synthetic-owner',user_metadata:{unrelated:'preserved'}};
 const route=load('app/api/workspace-preferences/route.ts',{
