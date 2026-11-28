@@ -1,0 +1,34 @@
+// Read-only aggregate export. No account IDs, contacts, document contents or tokens leave SQL.
+const fs=require('node:fs'),cp=require('node:child_process'),path=require('node:path'),assert=require('node:assert/strict');
+function buildQuery({start,end,excludedOwnerIds=[]}){
+ for(const value of [start,end])assert(/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(value)&&Number.isFinite(Date.parse(value)),'Canonical UTC timestamp required');
+ assert(Date.parse(start)<Date.parse(end),'Nonempty half-open observation window required');
+ for(const id of excludedOwnerIds)assert(/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(id),'Invalid exclusion ID');
+ const excluded=excludedOwnerIds.length?`u.id not in (${excludedOwnerIds.map(x=>`'${x}'::uuid`).join(',')})`:'true';
+ return `with eligible as (
+ select u.id,u.created_at,u.email_confirmed_at,
+ case when p.lead_source ~ '^mfh_launch_v1:(design_marketing|project_contractors):[ab]$' then split_part(p.lead_source,':',2) else 'Unknown' end cohort,
+ case when p.lead_source ~ '^mfh_launch_v1:(design_marketing|project_contractors):[ab]$' then 'mfh_launch_v1' else 'Unknown' end campaign,
+ case when p.lead_source ~ '^mfh_launch_v1:(design_marketing|project_contractors):[ab]$' then split_part(p.lead_source,':',3) else 'Unknown' end variant
+ from auth.users u left join public.profiles p on p.id=u.id
+ where ${excluded} and coalesce(u.raw_user_meta_data->>'synthetic','false')<>'true'
+ and coalesce(u.raw_user_meta_data->>'is_test','false')<>'true'
+ and coalesce(u.raw_user_meta_data->>'test_account','false')<>'true'
+ and coalesce(u.email,'') !~* '@(fixture|example)\\.invalid$'
+ ), groups as (select distinct cohort,campaign,variant from eligible), window_invoices as (
+ select i.* from public.mfh_subscription_invoices i join eligible e on e.id=i.owner_id
+ where i.paid_at>='${start}'::timestamptz and i.paid_at<'${end}'::timestamptz and i.amount_paid>0
+ ), first_observed as (select owner_id,min(paid_at) first_paid from public.mfh_subscription_invoices where amount_paid>0 group by owner_id)
+ select g.cohort,g.campaign,g.variant,
+ (select count(*) from eligible e where (e.cohort,e.campaign,e.variant)=(g.cohort,g.campaign,g.variant) and e.created_at>='${start}'::timestamptz and e.created_at<'${end}'::timestamptz and e.email_confirmed_at is not null and e.email_confirmed_at<'${end}'::timestamptz) confirmed_new_accounts,
+ (select count(distinct d.user_id) from public.sow_documents d join eligible e on e.id=d.user_id where (e.cohort,e.campaign,e.variant)=(g.cohort,g.campaign,g.variant) and d.created_at>='${start}'::timestamptz at time zone 'UTC' and d.created_at<'${end}'::timestamptz at time zone 'UTC') saved_agreement_accounts,
+ (select count(distinct i.owner_id) from window_invoices i join eligible e on e.id=i.owner_id where (e.cohort,e.campaign,e.variant)=(g.cohort,g.campaign,g.variant)) observed_paying_accounts,
+ (select count(*) from first_observed f join eligible e on e.id=f.owner_id where (e.cohort,e.campaign,e.variant)=(g.cohort,g.campaign,g.variant) and f.first_paid>='${start}'::timestamptz and f.first_paid<'${end}'::timestamptz) first_observed_paid_accounts,
+ (select count(*) from window_invoices i join eligible e on e.id=i.owner_id where (e.cohort,e.campaign,e.variant)=(g.cohort,g.campaign,g.variant)) observed_paid_invoices,
+ coalesce((select sum(i.amount_paid) from window_invoices i join eligible e on e.id=i.owner_id where (e.cohort,e.campaign,e.variant)=(g.cohort,g.campaign,g.variant) and i.currency='usd'),0) observed_gross_subscription_usd_cents,
+ (select count(*) from window_invoices i join eligible e on e.id=i.owner_id where (e.cohort,e.campaign,e.variant)=(g.cohort,g.campaign,g.variant) and i.currency<>'usd') non_usd_invoices_excluded_from_usd,
+ (select count(*) from public.mfh_subscription_state s join eligible e on e.id=s.owner_id where (e.cohort,e.campaign,e.variant)=(g.cohort,g.campaign,g.variant) and s.status='canceled') currently_canceled_accounts
+ from groups g order by cohort,campaign,variant;`;
+}
+async function main(){const [start,end,outDir,exclusionFile]=process.argv.slice(2);assert(Date.parse(end)<=Date.now(),'Observation window cannot end in the future');assert(outDir&&exclusionFile,'Usage: node scripts/ad-cohort-report.cjs START_UTC END_UTC NEW_OUTPUT_DIRECTORY PRIVATE_EXCLUSIONS_JSON');assert(!fs.existsSync(outDir),'Choose a new output directory; preserve prior evidence');const exclusions=JSON.parse(fs.readFileSync(exclusionFile,'utf8'));assert(Array.isArray(exclusions.excludedOwnerIds));const query=buildQuery({start,end,excludedOwnerIds:exclusions.excludedOwnerIds});const cli=process.env.SUPABASE_CLI||'C:/Users/joshu/AppData/Local/npm-cache/_npx/aa8e5c70f9d8d161/node_modules/@supabase/cli-windows-x64/bin/supabase.exe';const result=cp.spawnSync(cli,['db','query','--remote=rjgttmwrbyjqifodjnqm','--read-only',query,'--output','json'],{encoding:'utf8',timeout:120000,maxBuffer:2*1024*1024,windowsHide:true});assert.equal(result.status,0,'Read-only aggregate query failed; no report written');const rows=JSON.parse(result.stdout).rows;assert(Array.isArray(rows));const unknown={channel:'Unknown',spend_usd:'Unknown',eligible_visits:'Unknown',first_useful_action:'Unknown',observed_shares:'Unknown',signatures:'Unknown',first_ever_paid_accounts:'Unknown',refunds_usd:'Unknown',net_revenue_usd:'Unknown',renewals:'Unknown',second_use_accounts:'Unknown',cancellations_in_window:'Unknown',ad_only_cac_usd:'Unknown',fully_loaded_cac_usd:'Unknown'};const report={generatedAt:new Date().toISOString(),start,end,timezone:'UTC',environment:'production',scope:'Observed internal MFH subscription ledger only; not Stripe historical reconciliation',exclusionRegistryReviewed:exclusions.reviewed===true,excludedOwnerCount:exclusions.excludedOwnerIds.length,financialReadiness:'PROVISIONAL: refunds/history/staff-registry completeness not established',rows:rows.map(r=>({...r,...unknown}))};fs.mkdirSync(outDir,{recursive:true});fs.writeFileSync(path.join(outDir,'cohort-report.json'),JSON.stringify(report,null,2));const columns=['cohort','campaign','variant','confirmed_new_accounts','saved_agreement_accounts','observed_paying_accounts','first_observed_paid_accounts','observed_paid_invoices','observed_gross_subscription_usd_cents','non_usd_invoices_excluded_from_usd','currently_canceled_accounts',...Object.keys(unknown)];const cell=x=>'"'+String(x??'Unknown').replaceAll('"','""')+'"';fs.writeFileSync(path.join(outDir,'cohort-report.csv'),columns.join(',')+'\n'+report.rows.map(r=>columns.map(c=>cell(r[c])).join(',')).join('\n')+'\n');console.log(JSON.stringify({reportWritten:true,groups:rows.length,output:outDir,financialReadiness:report.financialReadiness}));}
+module.exports={buildQuery};if(require.main===module)main().catch(e=>{console.error(e.message);process.exitCode=1;});
