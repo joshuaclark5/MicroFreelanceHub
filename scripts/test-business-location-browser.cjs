@@ -1,9 +1,9 @@
 const fs=require('fs'),assert=require('node:assert/strict'),{chromium}=require('C:/Users/joshu/AppData/Roaming/npm/node_modules/openclaw/node_modules/playwright-core');
 const base=process.env.QA_BASE_URL,host=process.env.QA_SUPABASE_HOST,out=process.env.QA_RECEIPT;if(!base||!host||!out||fs.existsSync(out))throw Error('Verified target and fresh receipt required');
 const checks=[];
-(async()=>{const browser=await chromium.connectOverCDP('http://127.0.0.1:18900'),context=browser.contexts()[0],owned=[];try{
+(async()=>{const browser=await chromium.connectOverCDP('http://127.0.0.1:18900'),owned=[],contexts=[];const previewCookies=(await browser.contexts()[0].cookies()).filter(c=>c.domain.endsWith('vercel.app')||c.domain.endsWith('vercel.com'));try{
  for(const zone of ['UTC','America/Los_Angeles'])for(const width of [390,1440]){
-  const p=await context.newPage();owned.push(p);await p.setViewportSize({width,height:950});const cdp=await context.newCDPSession(p);await cdp.send('Emulation.setTimezoneOverride',{timezoneId:zone});await p.clock.install({time:new Date('2026-03-08T07:30:00Z')});
+  const context=await browser.newContext({storageState:{cookies:previewCookies,origins:[]}});contexts.push(context);const p=await context.newPage();owned.push(p);await p.setViewportSize({width,height:950});const cdp=await context.newCDPSession(p);await cdp.send('Emulation.setTimezoneOverride',{timezoneId:zone});await p.clock.install({time:new Date('2026-03-08T07:30:00Z')});
   const actor='aaaaaaaa-aaaa-4aaa-8aaa-000000000001';let prefs=null,fail=true,saves=0,unexpectedWrites=0,signedOut=false;
   const user={id:actor,email:'fixture@example.test',aud:'authenticated',role:'authenticated',user_metadata:{}};
   const cookie='sb-'+host.split('.')[0]+'-auth-token',value=encodeURIComponent(JSON.stringify({access_token:'fixture',refresh_token:'fixture',expires_at:4102444800,user,token_type:'bearer'}));
@@ -29,7 +29,7 @@ const checks=[];
   await p.getByText('Example local time:',{exact:false}).waitFor();assert.match(await p.getByText('Example local time:',{exact:false}).innerText(),new RegExp(zone.replace('/','\\/')));assert.equal(saves,0);
   await p.getByLabel('Business or display name').fill('Location fixture');
   const previewTrigger=p.getByRole('button',{name:'Review client view',exact:true});await previewTrigger.click();
-  const preview=p.getByRole('dialog',{name:'Client view ? read-only sample',exact:true});await preview.waitFor();
+  const preview=p.getByRole('dialog',{name:'Client view: read-only sample',exact:true});await preview.waitFor();
   assert.equal(await preview.getByRole('link').count(),0);assert.match(await preview.innerText(),/Read-only sample/);
   await preview.getByRole('button',{name:'Service job',exact:true}).click();await preview.getByRole('heading',{name:'Gutter installation',exact:true}).waitFor();
   await preview.getByRole('button',{name:'What if the client adds work?',exact:true}).click();await preview.getByText('Add a separately quoted gutter section at the rear entrance.',{exact:true}).waitFor();
@@ -60,4 +60,4 @@ const checks=[];
   signedOut=true;await p.goto(base+'/workspace/setup?edit=1',{waitUntil:'domcontentloaded'});await p.getByRole('heading',{name:'Your next chapter starts here.'}).waitFor();assert.equal(await input.count(),0);assert.equal(await p.getByLabel('Website (optional)').count(),0);assert.equal(saves,3);
   assert.equal(unexpectedWrites,0);assert.equal(errors.length,0,errors.join('\n'));checks.push({zone,width,readOnlyClientPreview:true,previewKeepsEnteredDetails:true,previewKeyboardCloseRestoresFocus:true,countryCurrencyRequired:true,addressCountryValidation:true,clearAddress:true,locationSaveReload:true,optionalBusinessDetails:true,optionalFieldsNonblocking:true,signedOutHidesFields:true,fieldLevelValidation:true,exactBusinessTypes:true,browserSuggestion:true,noAutosave:true,failedSaveRetainsSelection:true,explicitSaveReload:true,savedBusinessDay:true,unsavedChoiceNotUsedForScheduling:true,noOverflow:true,saves,unexpectedWrites});await p.close();
  }
-}catch(error){for(const [index,p] of owned.entries())if(!p.isClosed()){fs.writeFileSync(out+'.failure-'+index+'.txt',await p.locator('body').innerText());await p.screenshot({path:out+'.failure-'+index+'.png',fullPage:true});}throw error;}finally{for(const p of owned)if(!p.isClosed())await p.close();await browser.close();fs.writeFileSync(out,JSON.stringify({checks,scope:'Fictional page-scoped identity and intercepted saves only; no hosted writes'},null,2));}console.log(JSON.stringify(checks));})().catch(e=>{console.error(e.stack);process.exitCode=1;});
+}catch(error){for(const [index,p] of owned.entries())if(!p.isClosed()){fs.writeFileSync(out+'.failure-'+index+'.txt',await p.locator('body').innerText());await p.screenshot({path:out+'.failure-'+index+'.png',fullPage:true});}throw error;}finally{for(const p of owned)if(!p.isClosed())await p.close();for(const context of contexts)await context.close();await browser.close();fs.writeFileSync(out,JSON.stringify({checks,scope:'Fictional page-scoped identity and intercepted saves only; no hosted writes'},null,2));}console.log(JSON.stringify(checks));})().catch(e=>{console.error(e.stack);process.exitCode=1;});
