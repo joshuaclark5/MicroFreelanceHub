@@ -45,7 +45,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
   const signingTrigger = useRef<HTMLElement | null>(null);
   const openSigning = () => {
     signingTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    setShowSignModal(true);
+    setReviewed(false);setSignError('');setShowSignModal(true);
   };
   useEffect(() => {
     if (!showSignModal) return;
@@ -59,6 +59,8 @@ export default function ViewContract({ params }: { params: { id: string } }) {
   }, [showSignModal]);
   const [signerName, setSignerName] = useState('');
   const [isSigning, setIsSigning] = useState(false);
+  const [signError,setSignError]=useState(''),[reviewed,setReviewed]=useState(false);
+  const [acceptances,setAcceptances]=useState<any[]>([]);
   const [showMenu, setShowMenu] = useState(false);
   const [shareText, setShareText] = useState('Share');
 
@@ -72,6 +74,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     const load = async () => {
+      const {data:{user}}=await supabase.auth.getUser();setCurrentUser(user);
       const { data: docData, error } = await supabase.from('sow_documents').select('*').eq('id', params.id).single();
 
       if (error || !docData) { setLoading(false); return; }
@@ -97,8 +100,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
         }
       }
 
-      const { data: { user } } = await supabase.auth.getUser();
-      setCurrentUser(user);
+      if(user){const evidence=await supabase.from('agreement_acceptances').select('signing_role,signer_name,signed_at,document_version,terms_sha256').eq('document_id',params.id);if(!evidence.error)setAcceptances(evidence.data||[]);}
 
       // Smart Default: If owner, default sign role to Provider. Else Client.
       if (user && user.id === docData.user_id) {
@@ -123,9 +125,9 @@ export default function ViewContract({ params }: { params: { id: string } }) {
     load();
   }, [params.id, supabase, paymentStatus, sessionId]);
 
-  const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setShareText('Copied!');
+  const handleShare = async () => {
+    try {await navigator.clipboard.writeText(window.location.origin+'/sow/'+params.id);setShareText('Copied!');}
+    catch {setShareText('Copy unavailable');}
     setTimeout(() => { setShareText('Share'); }, 1500);
   };
 
@@ -195,28 +197,23 @@ export default function ViewContract({ params }: { params: { id: string } }) {
         : 'Review and sign to unlock payment';
 
   const handleSign = async () => {
-    if (!signerName) return alert("Please type your name.");
+    if(!signerName||!reviewed){setSignError('Review this version, confirm your agreement and enter your name.');return;}
+    setSignError('');
     setIsSigning(true);
 
     try {
-      const result = await signContract(params.id, signerName, signingRole);
+      const result = await signContract(params.id, signerName, signingRole,Number(doc.document_version),reviewed);
       if (result.success) {
-        const newDoc = { ...doc };
-        if (signingRole === 'client') { newDoc.status = 'Signed'; newDoc.signed_by = signerName; }
-        else { newDoc.provider_sign = signerName; }
-        setDoc(newDoc);
-        setShowSignModal(false);
-        setSignerName('');
-      } else { alert("Signing failed. Please try again."); }
-    } catch {
-      alert("Signing failed. Please try again.");
+        window.location.reload();
+      } else {setSignError(result.error||'The signature was not confirmed. Reload to check the saved agreement.');}
+    } catch {setSignError('The signing result could not be confirmed. Reload before trying again.');
     } finally {
       setIsSigning(false);
     }
   };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-500">Loading Contract...</div>;
-  if (!doc) return <main className="min-h-screen bg-[#f6f8f7] p-6 flex items-center justify-center"><section className="d4-surface max-w-lg"><h1 className="text-2xl font-semibold">Agreement unavailable</h1><p className="my-4 text-slate-600">This link may be unavailable or you may not have access. Ask the sender to check it, or retry if the connection failed.</p><button className="d4-primary" onClick={() => window.location.reload()}>Retry</button><Link className="d4-secondary ml-3" href="/">Home</Link></section></main>;
+  if (!doc) return <main className="min-h-screen bg-[#f6f8f7] p-6 flex items-center justify-center"><section className="d4-surface max-w-lg"><h1 className="text-2xl font-semibold">Agreement unavailable</h1><p className="my-4 text-slate-600">This link may be unavailable or you may not have access. Sign in or create a free account using the recipient email the sender used. No paid subscription or installed app is needed. If you are already signed in, ask the sender to check the address or retry a failed connection.</p><Link className="d4-primary" href={"/login?mode=signin&next="+encodeURIComponent("/sow/"+params.id)}>Sign in to review</Link><button className="d4-secondary ml-3" onClick={() => window.location.reload()}>Retry</button><Link className="d4-secondary ml-3" href="/">Home</Link></section></main>;
 
   return (
     <div className="d4-portal min-h-screen bg-[#f6f8f7] py-6 sm:py-8 px-4 print:bg-white print:p-0 print:m-0">
@@ -547,6 +544,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
       </div>
 
       {/* 📝 KIOSK MODE SIGNING MODAL */}
+      <section className="mx-auto max-w-5xl p-6 print:block" aria-label="Recorded signature evidence"><h2 className="text-lg font-semibold">Signature record</h2><p className="text-sm">Document version {doc.document_version}. Signed terms are retained; later work uses a separate change order.</p>{acceptances.map(a=><p key={a.signing_role} className="mt-2 text-sm">{a.signing_role==='client'?'Client':'Provider'}: {a.signer_name} - version {a.document_version}, recorded {new Date(a.signed_at).toISOString()}.</p>)}{(doc.signed_by||doc.provider_sign)&&acceptances.length===0&&<p className="text-sm">An earlier signature is on file. Verified signing time and recipient evidence are not available for that earlier record.</p>}</section>
       {showSignModal && (
         <dialog onKeyDown={keepDialogFocus} ref={signingDialog} aria-labelledby="signing-title" onCancel={() => setShowSignModal(false)} className="d4-signing-dialog print:hidden">
           <div className="bg-white rounded-xl p-8 w-full max-w-md shadow-2xl animate-in zoom-in-95">
@@ -556,22 +554,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
             </div>
 
             {/* ROLE TOGGLE */}
-            {isOwner && <div className="flex bg-gray-100 p-1 rounded-lg mb-6">
-                <button
-                    onClick={() => setSigningRole('provider')}
-                    disabled={!!doc.provider_sign}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-bold transition-all ${signingRole === 'provider' ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:text-gray-700'} ${doc.provider_sign ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                    {doc.provider_sign && <CheckCircle className="w-3 h-3 text-green-500" />} Provider
-                </button>
-                <button
-                    onClick={() => setSigningRole('client')}
-                    disabled={!!doc.signed_by}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-bold transition-all ${signingRole === 'client' ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:text-gray-700'} ${doc.signed_by ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                    {doc.signed_by && <CheckCircle className="w-3 h-3 text-green-500" />} Client
-                </button>
-            </div>}
+
 
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
                 <p className="text-xs font-bold text-gray-500 uppercase mb-1">Signing As</p>
@@ -579,11 +562,6 @@ export default function ViewContract({ params }: { params: { id: string } }) {
                     {signingRole === 'provider' ? <PenTool className="w-4 h-4 text-indigo-600"/> : <UserCheck className="w-4 h-4 text-blue-600"/>}
                     {signingRole === 'provider' ? 'Service Provider (You)' : `Client (${doc.client_name})`}
                 </p>
-                {signingRole === 'client' && isOwner && (
-                    <div className="mt-2 text-[10px] text-blue-600 bg-blue-50 px-2 py-1 rounded inline-flex items-center gap-1">
-                        <Smartphone className="w-3 h-3" /> Hand device to client
-                    </div>
-                )}
             </div>
 
             {signingRole === 'client' && !isAgreementOnly && (
@@ -602,12 +580,14 @@ export default function ViewContract({ params }: { params: { id: string } }) {
             <input id="signer-name" autoFocus type="text" placeholder="e.g. Jane Doe" className="w-full border-2 border-gray-200 p-3 rounded-lg mb-6 text-lg focus:border-black focus:outline-none" value={signerName} onChange={(e) => setSignerName(e.target.value)} />
 
             <div className="text-xs text-gray-500 mb-6 leading-relaxed">
-                By clicking <strong>Agree & Sign</strong>, I agree to be legally bound by this contract.
+                By clicking <strong>Agree & Sign</strong>, I record my agreement to the reviewed scope, pricing and terms.
             </div>
 
+            <label className="mb-4 flex items-start gap-3 text-sm"><input type="checkbox" checked={reviewed} onChange={e=>setReviewed(e.target.checked)}/>I reviewed version {doc.document_version} and agree to its scope, pricing and terms.</label>
+            {signError&&<p role="alert" className="mb-4 text-red-800">{signError}</p>}
             <div className="flex gap-3">
               <button onClick={() => setShowSignModal(false)} className="flex-1 py-3 bg-gray-100 rounded-lg font-bold hover:bg-gray-200">Cancel</button>
-              <button onClick={handleSign} disabled={isSigning || !signerName} className="flex-1 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50">{isSigning ? 'Signing...' : 'Agree & Sign'}</button>
+              <button onClick={handleSign} disabled={isSigning || !signerName || !reviewed || (isOwner?!!doc.provider_sign:!!doc.signed_by)} className="flex-1 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50">{isSigning ? 'Signing...' : 'Agree & Sign'}</button>
             </div>
           </div>
         </dialog>

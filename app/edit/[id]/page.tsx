@@ -327,11 +327,7 @@ function EditProjectContent() {
     e.preventDefault();
     
     // 🚩 SMART SIGNATURE WARNING
-    if (hasSignatures && !confirmUpdate) {
-        setConfirmUpdate(true);
-        setTimeout(() => setConfirmUpdate(false), 4000);
-        return;
-    }
+    if(hasSignatures){setSaveError('Signed terms cannot be replaced. Use the separate change order.');return;}
 
     setSaving(true);
     setSaveError('');
@@ -398,7 +394,7 @@ function EditProjectContent() {
         }
     }
 
-    const { error } = await supabase
+    const { data: saved, error } = await supabase
         .from('sow_documents')
         .update({
             client_name: formData.clientName,
@@ -427,10 +423,11 @@ function EditProjectContent() {
             provider_sign: null
         })
         .eq('id', projectId)
-        .eq('user_id', userId);
+        .eq('user_id', userId)
+        .eq('document_version',original.document_version).select('id').maybeSingle();
 
-    if (!error) router.push('/dashboard');
-    else setSaveError('Your changes were not saved. Keep this page open and try again. ' + error.message);
+    if (!error && saved) router.push('/dashboard');
+    else setSaveError('Your changes were not saved. This agreement may have changed or been signed. Keep your draft and reload the saved agreement before retrying.');
     setSaving(false);
   };
 
@@ -486,6 +483,8 @@ function EditProjectContent() {
   };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-500 font-medium">Loading project...</div>;
+
+  if(hasSignatures&&original)return <main className="min-h-screen bg-slate-50 p-6"><section className="mx-auto max-w-4xl"><Link href={"/sow/"+projectId} className="underline">View retained signed agreement</Link><h1 className="mt-6 text-3xl font-semibold">Keep the signed terms. Describe the addition separately.</h1><p className="my-4">Existing text, signatures and payment history cannot be replaced here. This change order creates a separate draft referencing the original.</p><ChangeOrderStarter original={original}/></section></main>;
 
   return (
     <div className="d4-change min-h-screen bg-[#f6f8f7]">
@@ -886,6 +885,7 @@ function EditProjectContent() {
 }
 
 export default function EditProject() {
+
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-500 font-medium">Loading editor...</div>}>
       <EditProjectContent />

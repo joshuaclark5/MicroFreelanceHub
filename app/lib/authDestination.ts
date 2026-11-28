@@ -16,5 +16,5 @@ destinations.add('/workspace/setup?edit=1');
 
 export function getAuthDestination(params: { get(name: string): string | null }): string | null {
   const candidate = params.get('next') || params.get('returnTo');
-  return candidate && destinations.has(candidate) ? candidate : null;
+  return candidate && (destinations.has(candidate)||/^\/sow\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(candidate)) ? candidate : null;
 }
