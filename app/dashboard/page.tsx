@@ -204,7 +204,7 @@ function DashboardContent() {
                 console.log("✅ Pending SOW saved successfully!");
                 localStorage.removeItem('pendingSOW'); // Clear luggage
             } else {
-                console.error("❌ Failed to save pending SOW:", error);
+                setLoadError('Your draft could not be saved yet. It is still available in this browser. Retry to check the saved agreement before creating another.');
             }
         }
 

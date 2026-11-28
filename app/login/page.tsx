@@ -15,7 +15,7 @@ import { sanitizeAttribution } from '../lib/profileAttribution';
 
 function LoginForm() {
   const searchParams = useSearchParams();
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState(() => searchParams.get('auth_error') === 'retry' ? 'Sign-in could not be completed. Sign in again to continue. Any saved draft stays in this browser.' : '');
   const [isSuccess, setIsSuccess] = useState(false);
   const [authMode, setAuthMode] = useState<'signup' | 'signin'>(()=>searchParams.get('mode')==='signin'?'signin':'signup');
   const [email, setEmail] = useState('');

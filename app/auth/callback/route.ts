@@ -29,7 +29,18 @@ export async function GET(request: Request) {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    const retry = new URL('/login', request.url);
+    retry.searchParams.set('mode', 'signin');
+    retry.searchParams.set('auth_error', 'retry');
+    const destination = getAuthDestination(requestUrl.searchParams);
+    if (destination) retry.searchParams.set('next', destination);
+    if (template && /^[a-z0-9-]{1,160}$/.test(template)) retry.searchParams.set('template', template);
+    if (plan && ['starter','pro','agency'].includes(plan)) {
+      retry.searchParams.set('plan', plan);
+      retry.searchParams.set('billing', requestUrl.searchParams.get('billing') === 'annual' ? 'annual' : 'monthly');
+    }
+    if (optedOut) retry.searchParams.set('attribution_opt_out', '1');
+    return NextResponse.redirect(retry);
   }
 
   try {
