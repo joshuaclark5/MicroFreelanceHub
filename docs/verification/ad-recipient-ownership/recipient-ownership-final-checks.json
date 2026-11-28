@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "build": "Final npm run build exit0, session82042",
+  "types": "Independent tsc --noEmit --incremental false exit0, session20078",
+  "finalCopyAndSignedRecordReload": true,
+  "emulatedWidths": [
+    320,
+    390,
+    1440
+  ],
+  "realDevice": false,
+  "environment": "Local final production build + staging"
+}

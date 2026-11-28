@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "scope": "Actual SQL migrations in isolated PGlite; not email delivery or hosted proof",
+  "checks": [
+    "Auto-confirm alone denies read",
+    "Wrong actor and browser RPC denied",
+    "Correct code required, wrong session denied",
+    "One-time code, expiry and five-attempt limit",
+    "Three-per-hour durable rate limit",
+    "Version change revokes access",
+    "Session-specific acceptance and single receipt on replay",
+    "Legacy acceptance stays fail-closed",
+    "Signed terms immutable",
+    "Email change and access expiry revoke read"
+  ]
+}

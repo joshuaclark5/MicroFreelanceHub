@@ -1,6 +1,7 @@
 'use client';
 
 import Brand from '../../components/Brand';
+import RecipientVerification from '../../components/RecipientVerification';
 import { useEffect, useRef, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
@@ -213,7 +214,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
   };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-500">Loading Contract...</div>;
-  if (!doc) return <main className="min-h-screen bg-[#f6f8f7] p-6 flex items-center justify-center"><section className="d4-surface max-w-lg"><h1 className="text-2xl font-semibold">Agreement unavailable</h1><p className="my-4 text-slate-600">This link may be unavailable or you may not have access. Sign in or create a free account using the recipient email the sender used. No paid subscription or installed app is needed. If you are already signed in, ask the sender to check the address or retry a failed connection.</p><Link className="d4-primary" href={"/login?mode=signin&next="+encodeURIComponent("/sow/"+params.id)}>Sign in to review</Link><button className="d4-secondary ml-3" onClick={() => window.location.reload()}>Retry</button><Link className="d4-secondary ml-3" href="/">Home</Link></section></main>;
+  if (!doc) return <main className="min-h-screen bg-[#f6f8f7] p-6 flex items-center justify-center"><section className="d4-surface max-w-lg"><h1 className="text-2xl font-semibold">Agreement unavailable</h1><p className="my-4 text-slate-600">This link may be unavailable or you may not have access. Sign in or create a free account using the recipient email the sender used. No paid subscription or installed app is needed. If you are already signed in, ask the sender to check the address or retry a failed connection.</p>{currentUser&&<RecipientVerification documentId={params.id}/>}<Link className="d4-primary" href={"/login?mode=signin&next="+encodeURIComponent("/sow/"+params.id)}>Sign in to review</Link><button className="d4-secondary ml-3" onClick={() => window.location.reload()}>Retry</button><Link className="d4-secondary ml-3" href="/">Home</Link></section></main>;
 
   return (
     <div className="d4-portal min-h-screen bg-[#f6f8f7] py-6 sm:py-8 px-4 print:bg-white print:p-0 print:m-0">
@@ -470,7 +471,7 @@ export default function ViewContract({ params }: { params: { id: string } }) {
                   {cleanTitle(doc.title)}
                 </h1>
                 <p className="mt-2 text-sm sm:text-base text-gray-600 leading-relaxed">
-                  {isAgreementOnly ? 'Review the agreement and sign electronically. No payment or client account needed.' : 'Review the agreement, sign electronically, and complete the required payment through Stripe. No client account needed.'}
+                  {isAgreementOnly ? 'Review the agreement and sign electronically. Recipient email verification and a free sign-in are required; no payment or subscription is needed.' : 'Review the agreement, sign electronically, and follow the agreed payment step through Stripe. Recipient email verification and a free sign-in are required; no business subscription is needed.'}
                 </p>
               </div>
 

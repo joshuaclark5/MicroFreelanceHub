@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "scope": "Actual transpiled session helper and POST handler with controlled provider/database doubles",
+  "checks": [
+    "Exact token validated before reading session claim",
+    "Invalid token/sub rejects",
+    "Cross-origin and unauthenticated deny",
+    "Actor/session/recipient cannot be supplied by caller",
+    "Only hash persisted; code never returned to browser",
+    "Verify failure/limit/unknown mail remain closed"
+  ]
+}
