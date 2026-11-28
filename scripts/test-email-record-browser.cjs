@@ -1,0 +1,50 @@
+const fs=require('fs'),assert=require('node:assert/strict'),{chromium}=require('C:/Users/joshu/AppData/Roaming/npm/node_modules/openclaw/node_modules/playwright-core');
+const base=process.env.QA_BASE_URL,host=process.env.QA_SUPABASE_HOST,out=process.env.QA_RECEIPT;
+if(!base||!host||!out||fs.existsSync(out))throw Error('Verified target and fresh receipt required');
+const checks=[];
+(async()=>{const browser=await chromium.connectOverCDP('http://127.0.0.1:18900'),context=browser.contexts()[0],owned=[];
+try{for(const width of [360,390,1440]){
+ const page=await context.newPage();owned.push(page);await page.setViewportSize({width,height:950});
+ const id=n=>`aaaaaaaa-aaaa-4aaa-8aaa-${String(n).padStart(12,'0')}`,owner=id(1),target=id(9),user={id:owner,email:'fixture@example.test',aud:'authenticated',role:'authenticated'};
+ const cookie='sb-'+host.split('.')[0]+'-auth-token',value=encodeURIComponent(JSON.stringify({access_token:'fixture',refresh_token:'fixture',expires_at:4102444800,user,token_type:'bearer'}));
+ await page.addInitScript(({cookie,value})=>Object.defineProperty(document,'cookie',{configurable:true,get:()=>cookie+'='+value,set:()=>{}}),{cookie,value});
+ let mode='ready',writes=0,afterSeen=false;const errors=[];
+ page.on('pageerror',error=>errors.push(error.message));
+ const record={id:target,template:'booking-reminder.v1',recipient:'long-recipient-for-mobile-layout-check@example.test',status:'failed',createdAt:'2026-11-25T10:15:00Z',aggregateId:id(8),workspaceId:null,attempts:1,version:1,cancelRequested:false,nextAttemptAt:null};
+ await page.route('**/*',async route=>{const request=route.request(),url=new URL(request.url());
+  if(!['GET','HEAD'].includes(request.method())){writes++;return route.abort();}
+  if(url.hostname===host&&url.pathname==='/auth/v1/user')return route.fulfill({status:mode==='signed-out'?401:200,json:mode==='signed-out'?{message:'Signed out'}:user});
+  if(url.hostname===host&&url.pathname==='/rest/v1/profiles')return route.fulfill({json:{is_pro:false}});
+  if(url.origin!==base)return route.abort();
+  if(url.pathname==='/api/workspace/calendar')return route.fulfill({json:{actorId:owner,available:false,connection:null}});
+  if(url.pathname==='/api/workspace/email'){
+   assert.equal(url.searchParams.get('expectedActorId'),owner);
+   if(mode==='failure')return route.fulfill({status:503,json:{error:'Fixture failure'}});
+   const after=url.searchParams.get('after');if(after)afterSeen=true;
+   return route.fulfill({json:{actorId:mode==='changed'?id(2):owner,records:mode==='empty'?[]:after?[record]:[{...record,id:id(3),status:'delivered'}],hasMore:mode!=='empty'&&!after,nextCursor:mode!=='empty'&&!after?id(3):null,readiness:{enqueueConfigured:false,sendConfigured:false,workerScheduled:false}}});
+  }
+  if(url.pathname.startsWith('/api/'))return route.fulfill({status:401,json:{error:'Fixture only'}});
+  return route.continue();
+ });
+ const path='/workspace/connections/messages/'+target;
+ await page.goto(base+path,{waitUntil:'domcontentloaded'});
+ const details=page.getByRole('region',{name:'Message details',exact:true});
+ await details.getByText('Not sent / provider rejected',{exact:true}).waitFor();assert(afterSeen);
+ assert.match(await details.innerText(),/You/);assert.match(await details.innerText(),/2026-11-25 10:15:00 UTC/);
+ assert.equal(await page.getByRole('navigation',{name:'Breadcrumb',exact:true}).locator('[aria-current="page"]').innerText(),'Message details');
+ assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+ await page.screenshot({path:out+'.'+width+'.png',fullPage:true});
+ await page.reload({waitUntil:'domcontentloaded'});await details.waitFor();
+ await page.getByRole('link',{name:'Email delivery history',exact:true}).focus();await page.keyboard.press('Enter');
+ await page.waitForURL('**/workspace/connections');await page.getByRole('heading',{name:'Email delivery history',exact:true}).waitFor();
+ await page.goBack({waitUntil:'domcontentloaded'});await details.waitFor();
+ mode='failure';await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await page.getByRole('alert').waitFor();assert.equal(await details.count(),0);
+ mode='ready';await page.getByRole('button',{name:'Retry',exact:true}).click();await details.waitFor();
+ mode='changed';await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await page.getByRole('alert').filter({hasText:'Account changed'}).waitFor();assert.equal(await details.count(),0);
+ mode='empty';await page.getByRole('button',{name:'Retry',exact:true}).click();await page.getByText('Message unavailable.',{exact:false}).waitFor();
+ mode='signed-out';await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await page.getByText('Sign in to inspect this message.',{exact:true}).waitFor();assert.equal(await details.count(),0);
+ assert.equal(writes,0);assert.equal(errors.length,0,errors.join('\n'));
+ checks.push({width,laterPage:true,reload:true,keyboardHistoryBack:true,failureRetry:true,actorMismatchHidden:true,unavailable:true,signedOutHidden:true,noOverflow:true,writes});
+ await page.close();
+}}finally{for(const page of owned)if(!page.isClosed())await page.close();await browser.close();fs.writeFileSync(out,JSON.stringify({checks,scope:'Page-scoped fictional identity and intercepted records; no hosted data or email writes'},null,2));}
+console.log(JSON.stringify(checks));})().catch(error=>{console.error(error.stack);process.exitCode=1;});
