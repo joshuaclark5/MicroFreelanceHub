@@ -27,3 +27,12 @@ Events required by this candidate: checkout.session.completed, checkout.session.
 Preserve ledger rows and migration history on rollback. Do not reset customer profiles from an old snapshot after legitimate billing changes. Application baseline is PR78 dc00a591; it lacks lifecycle reconciliation, so a code rollback restores that known gap, not launch readiness. Prefer a reviewed forward repair. Provider retries should receive a non-2xx response on processing failure; never acknowledge a failed mutation as processed.
 
 Read-only failures must not change access. An observed profile subscription identity changing between provider lookup and commit returns a retryable error. A slower earlier observation cannot overwrite a later applied observation. Historical invoices can be recorded without replacing the current active subscription. A genuinely ambiguous/mismatched identity requires reconciliation rather than guessing ownership.
+
+
+## Provider integration evidence (2026-11-28)
+
+Actual Stripe TEST objects/events exercised the shared read/validation planner and the exact installed staging SQL: initial paid invoice, same-event replay, distinct-event invoice dedupe, failed renewal with retained prior access, recovery and second paid invoice, scheduled cancellation, then cancellation/end of access. The production mutation entry rejected every test event. The planner accepts an expected mode only to inspect data; it cannot grant access. The test adapter is pinned to the isolated staging project and explicitly applies the resulting parameters there.
+
+The first test used an issuer-decline fixture which Stripe rejects during attachment. Its two successful initial-payment checks and full cleanup are retained. The corrected test uses Stripe's documented `pm_card_chargeCustomerFail` (decline after attachment), a test clock and test-only amounts. Final receipt: `artifacts/subscription-provider-staging-v2.json` PASS. Synthetic subscriptions cancelled/products archived, staged rows removed and original profiles unchanged. No live charges.
+
+This is retrieved provider-event plus SDK signature-fixture integration proof, not proof of an external HTTP webhook delivery. Production event configuration/readback and exact release remain required. Reuse the completed provider fixture; the test refuses an unchanged rerun. Private fixture/credential files stay outside git.
