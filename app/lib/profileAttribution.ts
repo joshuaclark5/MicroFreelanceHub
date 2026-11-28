@@ -1,3 +1,8 @@
+// An explicit opt-out can only reduce collection; it never authorizes tracking.
+export function requestAttributionOptedOut(request: { headers?: Pick<Headers, 'get'> }, explicit: unknown = false) {
+  return explicit === true || explicit === '1' || request.headers?.get('DNT') === '1' || request.headers?.get('Sec-GPC') === '1';
+}
+
 export function sanitizeAttribution(landing: unknown, source: unknown) {
   const path = typeof landing === 'string' ? landing.split(/[?#]/)[0] : '';
   // Private document routes and arbitrary query text must never become acquisition data.

@@ -1,9 +1,14 @@
 export const LANDING_PAGE_KEY = 'landing_page';
 export const MARKETING_SOURCE_KEY = 'marketing_source';
 
+export function attributionOptedOut() {
+  return typeof navigator !== 'undefined' && (navigator.doNotTrack === '1' ||
+    (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl === true);
+}
+
 export function initializeTracking() {
   if (typeof window === 'undefined') return;
-  if (typeof navigator !== 'undefined' && (navigator.doNotTrack === '1' || (navigator as Navigator & {globalPrivacyControl?:boolean}).globalPrivacyControl)) return;
+  if (attributionOptedOut()) return;
   try {
   const urlParams = new URLSearchParams(window.location.search);
   const existingLandingPage = localStorage.getItem(LANDING_PAGE_KEY);
@@ -62,7 +67,7 @@ export function initializeTracking() {
 }
 
 export function getTrackedData() {
-  if (typeof window === 'undefined') {
+  if (typeof window === 'undefined' || attributionOptedOut()) {
     return { landing_page: null, lead_source: null };
   }
 
@@ -76,7 +81,8 @@ export function getTrackedData() {
   }
 }
 
-export function getAuthAttribution(landingPage?: string | null, leadSource?: string | null) {
+export function getAuthAttribution(landingPage?: string | null, leadSource?: string | null, explicitOptOut = false) {
+  if (explicitOptOut || attributionOptedOut()) return { landing_page: null, lead_source: null };
   const stored = getTrackedData();
   return {
     landing_page: landingPage || stored.landing_page,

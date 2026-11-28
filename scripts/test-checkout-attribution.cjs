@@ -34,7 +34,7 @@ async function check(options = {}) {
     '../../../lib/server/seasonalCoupon':{seasonalCoupon:async(_stripe,offer)=>offer.id+'-annual-once'},
     'next/headers': { cookies: () => {} }, '../../../lib/profileAttribution': helper,
   },{Date:class extends Date {static now(){return options.now ?? Date.parse('2026-11-24T12:00:00Z');}}});
-  const result = await POST({ json: async () => ({ pricingVersion: pricing.PRICING_VERSION, plan: 'pro', userId: 'owner', landingPage: '/pricing?email=secret', leadSource: 'later', ...options.body }) });
+  const result = await POST({ headers: new Headers(options.headers || {}), json: async () => ({ pricingVersion: pricing.PRICING_VERSION, plan: 'pro', userId: 'owner', landingPage: '/pricing?email=secret', leadSource: 'later', ...options.body }) });
   return { result, row, sessions, customers, writes };
 }
 (async () => {
@@ -92,6 +92,9 @@ async function check(options = {}) {
     {body:{billingCycle:'annual',offerId:'made-up'}},
     {body:{billingCycle:'annual',offerId:'mfh-black-friday-2026'},row:{id:'owner',stripe_customer_id:'cus_existing'},subscriptions:[{status:'canceled'}]},
   ]){const x=await check(options);assert.equal(x.result.status,409);assert.equal(x.sessions.length,0);}
+  const optedOut=await check({body:{attributionOptOut:true},row:{id:'owner',stripe_customer_id:'cus_existing',signup_landing_page:'/pricing',lead_source:'original'}});
+  assert.equal(optedOut.result.status,200);assert.equal(optedOut.sessions[0].metadata.lead_source,'');assert.equal(optedOut.sessions[0].subscription_data.metadata.landing_page,'');assert.equal(optedOut.row.lead_source,'original');assert.equal(optedOut.writes.length,0);
+  for(const header of ['DNT','Sec-GPC']){const x=await check({headers:{[header]:'1'},row:{id:'owner',stripe_customer_id:'cus_existing',signup_landing_page:'/pricing',lead_source:'old'}});assert.equal(x.result.status,200);assert.equal(x.sessions[0].metadata.lead_source,'');assert.equal(x.sessions[0].subscription_data.metadata.landing_page,'');assert.equal(x.writes.length,0);}
   const destinations=load('app/lib/authDestination.ts',{});
   assert.equal(destinations.getAuthDestination(new URLSearchParams('next=%2Fpayment-success')), '/payment-success');
   assert.equal(destinations.getAuthDestination(new URLSearchParams('next=https://example.invalid')), null);
@@ -100,7 +103,7 @@ async function check(options = {}) {
     '@supabase/auth-helpers-nextjs':{createRouteHandlerClient:()=>({auth:{getUser:async()=>({data:{user:{id:'owner'}}})}})},
     '@supabase/supabase-js':{createClient:()=>({})},'next/headers':{cookies:()=>({})},
     '../../lib/authDestination':load('app/lib/authDestination.ts',{}),
-    'next/server':{NextResponse:{redirect:url=>url}},'../../lib/profileAttribution':{persistFirstTouch:async()=>{}},
+    'next/server':{NextResponse:{redirect:url=>url}},'../../lib/profileAttribution':{persistFirstTouch:async()=>{},requestAttributionOptedOut:helper.requestAttributionOptedOut},
   });
   for(const cycle of ['monthly','annual']){const url=await callback.GET({url:'https://example.test/auth/callback?plan=agency&billing='+cycle});assert.equal(url.pathname,'/checkout-plan');assert.equal(url.searchParams.get('billing'),cycle);assert.equal(url.searchParams.get('plan'),'agency');}
   console.log('PASS: checkout preserves first touch, sanitizes metadata, checks six new prices and intervals, blocks stale prices and existing subscriptions, and rejects unauthorized/invalid requests. All Stripe and database calls mocked.');
