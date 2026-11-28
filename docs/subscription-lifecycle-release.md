@@ -1,6 +1,6 @@
 # Subscription lifecycle candidate (AD-06 / AD-09)
 
-Not released. Migration 20261128030000 is not yet applied to any hosted project.
+Not released. Migration 20261128030000 is installed on staging lfzaivnvoyvdmvvijnoq only. Production remains PR78 without this migration. Staging rehearsal, backup restore, rollback and independent-backend concurrency receipts are saved in the local artifacts directory.
 
 ## Scope
 
